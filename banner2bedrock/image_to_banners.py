@@ -48,6 +48,16 @@ colors = {
 pattern_items = ["creeper", "skull", "flower", "mojang", "globe", "piglin", "flow", "guster"]
 executor = None
 
+# CIEDE2000's kL parameter de-weights the lightness (L*) term the larger it
+# gets. Minecraft's 16 dyes skew dark/desaturated compared to typical source
+# images (its "red" dye, for example, is a dark brick red), so plain
+# CIEDE2000 (kL=1) routinely misclassifies bright saturated colors -- e.g. a
+# vivid brand red like #ED1C24 measures closer to the "orange" dye than to
+# "red" purely because of the lightness gap. Raising kL to 2 fixes that
+# common case (verified against several bright reds/oranges/pinks/yellows)
+# without flipping any of the less saturated/darker matches.
+_LIGHTNESS_WEIGHT = 2.0
+
 
 def banner_gen(image_path, resolution, gen_blocks, gen_layering, gen_big, use_pattern_items, threads_count, compare_method):
     FULL_WIDTH, FULL_HEIGHT = 22, 44
@@ -201,7 +211,13 @@ def generate_blocks(image_rgb, part, compare_method):
     best_similarity_score = 0
 
     for bv in set(blocks):
-        bv_image = Image.open(path + bv).resize((22, 22), Image.NEAREST).convert('RGBA')
+        try:
+            bv_image = Image.open(path + bv).resize((22, 22), Image.NEAREST).convert('RGBA')
+        except (FileNotFoundError, OSError):
+            # blocks_by_color.json can reference a texture that isn't
+            # actually shipped in assets/blocks (an upstream data/asset
+            # mismatch) -- skip that candidate instead of crashing.
+            continue
 
         draw = ImageDraw.Draw(bv_image)
         if part == 'up':
@@ -279,7 +295,7 @@ def hybrid_similarity(img1_rgb, img2_rgb, w_delta, w_ssim):
 
     lab1_ds = cv2.resize(lab1, (10, 20), interpolation=cv2.INTER_AREA)
     lab2_ds = cv2.resize(lab2, (10, 20), interpolation=cv2.INTER_AREA)
-    delta_e = deltaE_ciede2000(lab1_ds, lab2_ds)
+    delta_e = deltaE_ciede2000(lab1_ds, lab2_ds, kL=_LIGHTNESS_WEIGHT)
     mean_de = np.mean(delta_e)
     delta_sim = 1 / (1 + mean_de)
 
@@ -324,7 +340,8 @@ def most_common_color(img_rgb, color_count, colors_set=None):
 
     dists = deltaE_ciede2000(
         pixels[:, None, :],
-        color_values[None, :, :]
+        color_values[None, :, :],
+        kL=_LIGHTNESS_WEIGHT,
     )
 
     nearest = np.argmin(dists, axis=1)
