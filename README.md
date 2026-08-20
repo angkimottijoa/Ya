@@ -23,6 +23,19 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Web UI (easiest)
+
+```bash
+python app.py
+```
+
+Then open the printed link (default `http://127.0.0.1:7860`) in a browser:
+upload an image, set the grid size, tweak options if you want, click
+**변환 시작 (Convert)**, and download the resulting `.mcstructure`/`.nbt`
+file plus a preview of the result.
+
+### CLI
+
 ```bash
 python cli.py path/to/image.png --resolution 8x8
 ```
@@ -81,8 +94,9 @@ output, for comparison.
 ## What's not (yet) ported
 
 The original project's Electron desktop GUI (`index.html`/`main.js`) isn't
-part of this port — this is a CLI tool. The image-to-banner algorithm and
-asset files are unchanged from upstream.
+part of this port — instead there's a browser-based UI (`app.py`, built with
+[Gradio](https://gradio.app)) plus the CLI. The image-to-banner algorithm
+and asset files are unchanged from upstream.
 
 ## Credits & licensing
 
