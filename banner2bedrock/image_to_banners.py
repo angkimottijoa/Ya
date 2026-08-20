@@ -67,7 +67,12 @@ def banner_gen(image_path, resolution, gen_blocks, gen_layering, gen_big, use_pa
     resolution_width = int(resolution[0])
     resolution_height = int(resolution[1])
 
-    image = image.resize((resolution_width * 22, resolution_height * 22))
+    # LANCZOS anti-aliases properly when shrinking a source image down to the
+    # working canvas (PIL's default filter otherwise leaves harsher, more
+    # aliased edges) -- this measurably improves match quality at a given
+    # grid size, since every banner cell's color/pattern pick is only ever
+    # as good as the pixels it's asked to approximate.
+    image = image.resize((resolution_width * 22, resolution_height * 22), Image.LANCZOS)
     OW, OH = image.size
 
     images = [image.crop((w * FULL_WIDTH, h * FULL_HEIGHT - 22, (w + 1) * FULL_WIDTH, (h + 1) * FULL_HEIGHT))

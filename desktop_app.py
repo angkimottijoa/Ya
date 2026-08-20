@@ -37,6 +37,7 @@ class BannerApp:
         self.gen_layering_var = BooleanVar(value=False)
         self.gen_big_var = BooleanVar(value=False)
         self.use_pattern_items_var = BooleanVar(value=False)
+        self.hq_mode_var = BooleanVar(value=False)
         self.compare_method_var = DoubleVar(value=0.5)
         self.threads_var = IntVar(value=4)
         self.output_dir = StringVar(value=os.path.join(os.path.expanduser("~"), "Desktop"))
@@ -79,27 +80,32 @@ class BannerApp:
         ttk.Radiobutton(format_frame, text="자바", variable=self.format_var, value="java").pack(anchor="w")
         ttk.Radiobutton(format_frame, text="둘 다", variable=self.format_var, value="both").pack(anchor="w")
 
+        ttk.Checkbutton(
+            left, text="🔥 고품질 모드 (칸 수는 그대로, 배너 하나하나의 디테일 최대화 — 훨씬 느려짐)",
+            variable=self.hq_mode_var, command=self._on_hq_mode_toggle,
+        ).grid(row=5, column=0, columnspan=2, sticky="w", **pad)
+
         advanced = ttk.LabelFrame(left, text="고급 옵션")
-        advanced.grid(row=5, column=0, columnspan=2, sticky="we", **pad)
+        advanced.grid(row=6, column=0, columnspan=2, sticky="we", **pad)
         ttk.Checkbutton(advanced, text="채움 블록 사용", variable=self.gen_blocks_var).grid(row=0, column=0, sticky="w")
         ttk.Checkbutton(advanced, text="레이어링 (느려짐)", variable=self.gen_layering_var).grid(row=1, column=0, sticky="w")
         ttk.Checkbutton(advanced, text="패턴 6겹 제한 해제", variable=self.gen_big_var).grid(row=2, column=0, sticky="w")
         ttk.Checkbutton(advanced, text="특수 패턴 아이템 허용", variable=self.use_pattern_items_var).grid(row=3, column=0, sticky="w")
 
-        ttk.Label(left, text="저장 폴더").grid(row=6, column=0, sticky="w", **pad)
+        ttk.Label(left, text="저장 폴더").grid(row=7, column=0, sticky="w", **pad)
         out_frame = ttk.Frame(left)
-        out_frame.grid(row=6, column=1, sticky="w", **pad)
+        out_frame.grid(row=7, column=1, sticky="w", **pad)
         self.output_label = ttk.Label(out_frame, text=self._short_path(self.output_dir.get()), wraplength=160)
         self.output_label.pack(side="left")
         ttk.Button(out_frame, text="변경", command=self._pick_output_dir, width=6).pack(side="left", padx=(4, 0))
 
         self.convert_button = ttk.Button(left, text="변환 시작", command=self._start_conversion)
-        self.convert_button.grid(row=7, column=0, columnspan=2, sticky="we", pady=(12, 4))
+        self.convert_button.grid(row=8, column=0, columnspan=2, sticky="we", pady=(12, 4))
 
         self.progress = ttk.Progressbar(left, mode="indeterminate")
-        self.progress.grid(row=8, column=0, columnspan=2, sticky="we", **pad)
+        self.progress.grid(row=9, column=0, columnspan=2, sticky="we", **pad)
 
-        ttk.Label(left, textvariable=self.status_var, wraplength=260).grid(row=9, column=0, columnspan=2, sticky="w", **pad)
+        ttk.Label(left, textvariable=self.status_var, wraplength=260).grid(row=10, column=0, columnspan=2, sticky="w", **pad)
 
         # --- right column: preview ---
         self.preview_canvas = ttk.Label(right, text="미리보기", anchor="center",
@@ -112,6 +118,16 @@ class BannerApp:
     @staticmethod
     def _short_path(path, limit=28):
         return path if len(path) <= limit else "..." + path[-limit:]
+
+    def _on_hq_mode_toggle(self):
+        # Grid size unchanged; instead squeeze more detail into each banner
+        # cell (extra pattern layers via gen_big/gen_layering, plus the
+        # special banner-pattern-item shapes) -- the levers that improve
+        # fidelity without needing a wider/taller grid.
+        if self.hq_mode_var.get():
+            self.gen_layering_var.set(True)
+            self.gen_big_var.set(True)
+            self.use_pattern_items_var.set(True)
 
     # ------------------------------------------------------------ actions --
     def _pick_image(self):

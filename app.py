@@ -69,7 +69,9 @@ with gr.Blocks(title="배너 사진 변환기 (베드락 호환)") as demo:
     gr.Markdown(
         "# 이미지 → 마인크래프트 배너 변환기\n"
         "사진을 업로드하면 배너 픽셀아트로 바꿔서 **베드락에서 바로 로드 가능한 `.mcstructure`** "
-        "파일로 만들어줍니다. (자바 `.nbt`도 옵션으로 같이 뽑을 수 있어요)"
+        "파일로 만들어줍니다. (자바 `.nbt`도 옵션으로 같이 뽑을 수 있어요)\n\n"
+        "가로/세로 칸 수(해상도)를 올리는 것 말고도, 배너 **한 칸 안의** 디테일을 늘려서 품질을 "
+        "올릴 수도 있어요 — 아래 **고품질 모드**가 그거예요."
     )
 
     with gr.Row():
@@ -87,6 +89,11 @@ with gr.Blocks(title="배너 사진 변환기 (베드락 호환)") as demo:
                 value="bedrock", label="출력 형식",
             )
 
+            hq_mode = gr.Checkbox(
+                value=False,
+                label="🔥 고품질 모드 (칸 수는 그대로 두고 배너 하나하나의 디테일을 최대로) — 훨씬 느려짐",
+            )
+
             with gr.Accordion("고급 옵션", open=False):
                 gen_blocks = gr.Checkbox(value=True, label="채움 블록 사용 (배너 위/아래에 블록을 채워 디테일 향상)")
                 gen_layering = gr.Checkbox(value=False, label="레이어링 (배너 한 장 더 겹쳐서 디테일 향상, 느려짐)")
@@ -95,6 +102,13 @@ with gr.Blocks(title="배너 사진 변환기 (베드락 호환)") as demo:
                 compare_method = gr.Slider(0.0, 1.0, value=0.5, step=0.05,
                                             label="색상 유사도 가중치 (0=구조 위주, 1=색상 위주)")
                 threads = gr.Slider(1, 16, value=4, step=1, label="동시 작업 프로세스 수")
+
+            hq_mode.change(
+                fn=lambda on: (gr.update(value=True), gr.update(value=True), gr.update(value=True)) if on
+                else (gr.update(), gr.update(), gr.update()),
+                inputs=[hq_mode],
+                outputs=[gen_layering, gen_big, use_pattern_items],
+            )
 
             run_button = gr.Button("변환 시작", variant="primary")
 

@@ -15,6 +15,25 @@ straight copy of a Java `.nbt` structure will not load correctly on
 Bedrock. See `banner2bedrock/bedrock_data.py` and `CREDITS.md` for exactly
 where those mappings come from.
 
+## Getting more detail without a bigger grid
+
+Raising `--resolution` (more banner cells) is one way to add detail, but
+each individual banner cell can also be pushed further on its own via
+"고품질 모드" / High Quality mode in the UIs (or `--gen-layering --gen-big
+--use-pattern-items` on the CLI):
+- `gen_big` lifts the usual 6-pattern-layer cap a real loom enforces
+  (structure/command placement isn't bound by that UI limit)
+- `gen_layering` mounts a second, slightly recessed banner in the same cell
+  for extra combined detail
+- `use_pattern_items` unlocks the patterns that need a banner pattern item
+  (creeper/skull/flower/mojang/globe/piglin/flow/guster) instead of just
+  loom+dye shapes
+
+All three trade speed for fidelity at a *fixed* grid size. Separately, the
+initial image resize now uses Lanczos resampling rather than PIL's default
+filter, which noticeably reduces aliasing on edges/gradients before any
+color matching even starts.
+
 ## Install
 
 ```bash
