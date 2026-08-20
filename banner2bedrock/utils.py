@@ -3,6 +3,11 @@ import sys
 
 
 def print_with_flush(data):
+    # In a --windowed (no console) PyInstaller build on Windows, sys.stdout
+    # is None rather than a stream, so print()/flush() would crash. Silently
+    # drop progress output in that case instead of using it.
+    if sys.stdout is None:
+        return
     print(data)
     sys.stdout.flush()
 
