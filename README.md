@@ -23,7 +23,23 @@ pip install -r requirements.txt
 
 ## Usage
 
-### Web UI (easiest)
+### Windows app (.exe)
+
+A native Tkinter desktop app (`desktop_app.py`) is auto-built into a
+single-file `Banner2Bedrock.exe` by
+[`.github/workflows/build-windows.yml`](.github/workflows/build-windows.yml)
+on every push. Grab the latest build from this repo's **Actions** tab ->
+pick the newest "Build Windows app" run -> download the
+`Banner2Bedrock-windows-exe` artifact. No Python install needed on the
+Windows machine that runs it. To build it yourself on Windows instead:
+
+```powershell
+pip install -r requirements-desktop.txt
+pyinstaller --onefile --windowed --name Banner2Bedrock --add-data "assets;assets" --collect-submodules skimage --collect-data skimage --collect-submodules cv2 --collect-submodules PIL --hidden-import pynbt --hidden-import mutf8 desktop_app.py
+```
+The exe ends up in `dist\Banner2Bedrock.exe`.
+
+### Web UI
 
 ```bash
 python app.py

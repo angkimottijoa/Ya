@@ -1,0 +1,46 @@
+name: Build Windows app
+
+on:
+  push:
+    branches:
+      - "claude/**"
+      - "main"
+    paths:
+      - "desktop_app.py"
+      - "banner2bedrock/**"
+      - "assets/**"
+      - "requirements-desktop.txt"
+      - ".github/workflows/build-windows.yml"
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-desktop.txt
+
+      - name: Build Banner2Bedrock.exe
+        run: >-
+          pyinstaller --onefile --windowed --name Banner2Bedrock
+          --add-data "assets;assets"
+          --collect-submodules skimage --collect-data skimage
+          --collect-submodules cv2
+          --collect-submodules PIL
+          --hidden-import pynbt --hidden-import mutf8
+          desktop_app.py
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Banner2Bedrock-windows-exe
+          path: dist/Banner2Bedrock.exe
+          if-no-files-found: error
