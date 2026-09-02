@@ -22,7 +22,10 @@ from read_world import World
 from plateau2mc.anvil import ChunkBuilder, RegionWriter, _pack_indices
 from plateau2mc.citygml import read_buildings
 from plateau2mc.cli import main
-from plateau2mc.pipeline import Cancelled, Options, build_world
+from plateau2mc.pipeline import (GEOMETRY_LOD2, Cancelled, Options, build_world)
+from plateau2mc.meshcity import close_pinholes, despeckle, pack, unpack
+from plateau2mc.meshvoxel import surface_voxels
+from plateau2mc.surfaces import feature_type_from_name, read_surfaces
 from plateau2mc.jgd2011 import ZONE_ORIGINS, PlaneRectangular, guess_zone
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, HeightFit
 from plateau2mc.voxel import Materials, TerrainField, rasterize
@@ -369,6 +372,139 @@ class TestPipeline(unittest.TestCase):
     def test_an_empty_area_is_an_error_not_an_empty_world(self):
         with self.assertRaises(ValueError):
             build_world(self._options(center=(43.06, 141.35)))  # Sapporo
+
+
+class TestSurfaceVoxelizer(unittest.TestCase):
+    def test_a_flat_wall_becomes_one_voxel_thick(self):
+        wall = [np.array([[0, 0, 0], [10, 0, 0], [10, 0, 10], [0, 0, 10]], dtype=float)]
+        voxels = surface_voxels(wall)
+        self.assertEqual(sorted(set(voxels[:, 1].tolist())), [0])
+        self.assertEqual(len(voxels), 11 * 11)
+
+    def test_a_hole_stays_a_hole(self):
+        roof = [np.array([[0, 0, 5], [10, 0, 5], [10, 10, 5], [0, 10, 5]], dtype=float),
+                np.array([[3, 3, 5], [7, 3, 5], [7, 7, 5], [3, 7, 5]], dtype=float)]
+        voxels = surface_voxels(roof)
+        inside = ((voxels[:, 0] >= 4) & (voxels[:, 0] <= 6)
+                  & (voxels[:, 1] >= 4) & (voxels[:, 1] <= 6))
+        self.assertEqual(inside.sum(), 0, "a window was filled in")
+
+    def test_a_slope_has_no_gaps(self):
+        """The failure mode a triangle voxelizer shows on pitched roofs."""
+        slope = [np.array([[0, 0, 0], [10, 0, 0], [10, 10, 10], [0, 10, 10]], dtype=float)]
+        voxels = surface_voxels(slope)
+        columns = {}
+        for x, y, z in voxels:
+            columns.setdefault((x, y), set()).add(z)
+        for (x, y), zs in columns.items():
+            self.assertEqual(len(zs), max(zs) - min(zs) + 1,
+                             f"column {x},{y} has a gap in it")
+
+    def test_a_degenerate_polygon_is_dropped_not_crashed_on(self):
+        line = [np.array([[0, 0, 0], [5, 0, 0], [10, 0, 0]], dtype=float)]
+        self.assertEqual(len(surface_voxels(line)), 0)
+
+
+class TestVoxelCleanup(unittest.TestCase):
+    def test_keys_round_trip_across_the_full_range(self):
+        voxels = np.array([[0, 0, 0], [-5, 7, 300], [100000, -2048, -99999],
+                           [-100000, 2047, 1]], dtype=np.int64)
+        self.assertTrue((unpack(pack(voxels)) == voxels).all())
+
+    def test_loose_voxels_are_removed(self):
+        solid = np.array([[x, y, z] for x in range(5) for y in range(5) for z in range(5)],
+                         dtype=np.int64)
+        noisy = np.vstack([solid, np.array([[50, 50, 50], [-30, 4, 9]], dtype=np.int64)])
+        classes = np.zeros(len(noisy), dtype=np.int16)
+        kept, kept_classes = despeckle(noisy, classes)
+        self.assertEqual(len(kept), len(solid))
+        self.assertEqual(len(kept_classes), len(kept))
+
+    def test_a_seam_pinhole_is_patched(self):
+        shell = np.array([[x, y, 0] for x in range(5) for y in range(5)], dtype=np.int64)
+        holed = shell[~((shell[:, 0] == 2) & (shell[:, 1] == 2))]
+        classes = np.zeros(len(holed), dtype=np.int16)
+        fixed, fixed_classes = close_pinholes(holed, classes)
+        self.assertEqual(len(fixed), len(shell))
+        self.assertEqual(len(fixed_classes), len(fixed))
+
+    def test_an_opening_is_not_patched_shut(self):
+        """A real window has too much air around it to look like a seam."""
+        wall = np.array([[x, 0, z] for x in range(9) for z in range(9)], dtype=np.int64)
+        window = ~((wall[:, 0] >= 3) & (wall[:, 0] <= 5)
+                   & (wall[:, 2] >= 3) & (wall[:, 2] <= 5))
+        holed = wall[window]
+        fixed, _ = close_pinholes(holed, np.zeros(len(holed), dtype=np.int16))
+        centre = ((fixed[:, 0] == 4) & (fixed[:, 2] == 4)).sum()
+        self.assertEqual(centre, 0, "the middle of a window was filled in")
+
+
+class TestLod2Pipeline(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = Path(tempfile.mkdtemp())
+        cls.source = cls.tmp / "src"
+        make_fixture.build_lod2(cls.source / "53394611_bldg_6697_2_op.gml")
+        cls.world = cls.tmp / "world"
+        (cls.world / "region").mkdir(parents=True)
+        cls.result = build_world(Options(
+            source=[str(cls.source)], world=str(cls.world),
+            center=(35.690921, 139.700258), radius=150, geometry=GEOMETRY_LOD2,
+            min_y=-512, max_y=511, terrain=False,
+            map_path=str(cls.tmp / "plan.html")))
+        cls.blocks = World(cls.world / "region")
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    def test_feature_type_comes_from_the_filename(self):
+        self.assertEqual(feature_type_from_name("53394535_bldg_6697_2_op.gml"), "bldg")
+        self.assertEqual(feature_type_from_name("533925_dem_6697_op.gml"), "dem")
+        self.assertIsNone(feature_type_from_name("notes.gml"))
+
+    def test_lod2_is_preferred_and_lod1_is_the_per_building_fallback(self):
+        surfaces = list(read_surfaces(self.source))
+        lods = {s.lod for s in surfaces}
+        self.assertIn(2, lods, "LOD2 surfaces were not picked up")
+        self.assertIn(1, lods, "the LOD1-only building was not fallen back to")
+
+    def test_semantic_surfaces_become_different_blocks(self):
+        """Upstream emits stone for everything; roofs and walls must differ."""
+        seen = set()
+        min_x, max_x, min_z, max_z = self.result.bounds
+        for x in range(min_x, max_x + 1, 2):
+            for z in range(min_z, max_z + 1, 2):
+                for y in range(60, 100):
+                    block = self.blocks.block(x, y, z)
+                    if block != "minecraft:air":
+                        seen.add(block)
+        self.assertIn("minecraft:deepslate_tiles", seen, "no roof blocks")
+        self.assertIn("minecraft:light_gray_concrete", seen, "no wall blocks")
+        self.assertGreaterEqual(len(seen), 3)
+
+    def test_a_pitched_roof_is_actually_pitched(self):
+        """LOD1 would give a flat box; LOD2 must give a ridge."""
+        roof_heights = []
+        min_x, max_x, min_z, max_z = self.result.bounds
+        for x in range(min_x, max_x + 1):
+            for z in range(min_z, max_z + 1):
+                for y in range(110, 59, -1):
+                    if self.blocks.block(x, y, z) == "minecraft:deepslate_tiles":
+                        roof_heights.append(y)
+                        break
+        self.assertTrue(roof_heights)
+        self.assertGreater(max(roof_heights) - min(roof_heights), 2,
+                           "every roof block sits at one height -- the pitch was lost")
+
+    def test_the_map_is_written(self):
+        self.assertEqual(len(self.result.map_files), 2)
+        for path in self.result.map_files:
+            self.assertTrue(Path(path).exists())
+            self.assertGreater(Path(path).stat().st_size, 0)
+        page = Path(self.result.map_files[0]).read_text(encoding="utf-8")
+        self.assertIn("EPSG:6677", page)
+        self.assertIn("region/", page)
 
 
 class TestEndToEnd(unittest.TestCase):

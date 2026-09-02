@@ -17,7 +17,14 @@ from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
 from .citygml import read_buildings
 from .heightfit import MODE_NONE, HeightFit
 from .jgd2011 import PlaneRectangular, guess_zone
+from .meshcity import CLASS_PRIORITY, MeshCity, block_for, close_pinholes, despeckle
+from .meshvoxel import VoxelAccumulator, surface_voxels
+from .surfaces import read_surfaces
 from .voxel import CityVoxelizer, Materials, TerrainField, project_footprints
+
+GEOMETRY_LOD1 = "lod1"
+GEOMETRY_LOD2 = "lod2"
+GEOMETRIES = (GEOMETRY_LOD1, GEOMETRY_LOD2)
 
 
 class Cancelled(Exception):
@@ -42,6 +49,13 @@ class Options:
     terrain_cell: int = 32
     data_version: int = DEFAULT_DATA_VERSION
     dry_run: bool = False
+    geometry: str = GEOMETRY_LOD1
+    features: tuple = ("bldg",)
+    clean: bool = True
+    despeckle_neighbours: int = 2
+    pinhole_neighbours: int = 4
+    map_path: str = None
+    map_scale: int = 1
 
 
 @dataclass
@@ -62,6 +76,13 @@ class Result:
     epsg: int = 0
     seconds: float = 0.0
     dry_run: bool = False
+    geometry: str = GEOMETRY_LOD1
+    surfaces_read: int = 0
+    voxels: int = 0
+    voxels_removed: int = 0
+    voxels_patched: int = 0
+    bounds: tuple = ()
+    map_files: list = field(default_factory=list)
 
 
 class _Reporter:
@@ -98,7 +119,7 @@ def build_world(options, on_progress=None, should_cancel=None):
     """Run a conversion. Raises `Cancelled` if `should_cancel` turns true."""
     report = _Reporter(on_progress, should_cancel)
     started = time.time()
-    result = Result(dry_run=options.dry_run)
+    result = Result(dry_run=options.dry_run, geometry=options.geometry)
 
     lat, lon = options.center
     zone = options.zone or guess_zone(lat, lon)
@@ -106,6 +127,10 @@ def build_world(options, on_progress=None, should_cancel=None):
     origin_east, origin_north = projector(lat, lon)
     result.zone, result.epsg = zone, projector.epsg
     report(f"origin {lat:.6f},{lon:.6f} -> zone {zone} (EPSG:{projector.epsg})")
+
+    if options.geometry == GEOMETRY_LOD2:
+        return _build_lod2(options, projector, origin_east, origin_north,
+                           report, result, started)
 
     kept = []
     scanned = 0
@@ -193,3 +218,122 @@ def _chunks_to_build(voxelizer, radius, terrain_enabled):
             for chunk_z in range(-radius >> 4, (radius >> 4) + 1):
                 keys.add((chunk_x, chunk_z))
     return sorted(keys)
+
+
+def _project_ring(ring, projector, origin_east, origin_north, sea_level):
+    """lat/lon/alt -> block space (x east, z south, y up)."""
+    out = np.empty((len(ring), 3), dtype=np.float64)
+    for i, (lat, lon, alt) in enumerate(ring):
+        east, north = projector(lat, lon)
+        out[i, 0] = east - origin_east
+        out[i, 1] = -(north - origin_north)
+        out[i, 2] = alt + sea_level
+    return out
+
+
+def _build_lod2(options, projector, origin_east, origin_north, report, result, started):
+    """Voxelize LOD2 semantic surfaces rather than extruding footprints."""
+    radius = options.radius
+    accumulator = VoxelAccumulator()
+    palette_names = []
+    class_index = {}
+
+    kept = 0
+    for surface in read_surfaces(options.source, progress=lambda msg: report(msg),
+                                 feature_filter=set(options.features)):
+        report.check()
+        result.surfaces_read += 1
+        if result.surfaces_read % 20000 == 0:
+            report(f"read {result.surfaces_read} surfaces, kept {kept}")
+
+        rings = [_project_ring(ring, projector, origin_east, origin_north,
+                               options.sea_level) for ring in surface.rings]
+        exterior = rings[0]
+        # Reject by the surface's own extent rather than its centroid: a
+        # long road or a big roof plane should be kept if any part of it
+        # falls inside the requested square.
+        if (exterior[:, 0].min() > radius or exterior[:, 0].max() < -radius
+                or exterior[:, 1].min() > radius or exterior[:, 1].max() < -radius):
+            continue
+        kept += 1
+
+        key = (surface.feature, surface.surface_class)
+        if key not in class_index:
+            class_index[key] = len(palette_names)
+            palette_names.append(block_for(surface.feature, surface.surface_class))
+        accumulator.add(key, surface_voxels(rings))
+
+    if kept == 0:
+        raise ValueError(
+            "no LOD2 surfaces fell inside the requested area -- check that the centre "
+            "point lies within the CityGML tiles you selected")
+
+    report(f"{kept} surfaces inside the area; voxelizing")
+    voxels, classes, keys = accumulator.finish(order=CLASS_PRIORITY)
+    palette = [block_for(feature, surface_class) for feature, surface_class in keys]
+    result.voxels = len(voxels)
+    report(f"{len(voxels):,} voxels")
+
+    if options.clean:
+        before = len(voxels)
+        voxels, classes = despeckle(voxels, classes, options.despeckle_neighbours)
+        result.voxels_removed = before - len(voxels)
+        before = len(voxels)
+        voxels, classes = close_pinholes(voxels, classes, options.pinhole_neighbours)
+        result.voxels_patched = len(voxels) - before
+        report(f"cleaned: removed {result.voxels_removed:,} loose voxels, "
+               f"patched {result.voxels_patched:,} seam holes")
+        result.voxels = len(voxels)
+
+    city = MeshCity(voxels, classes, palette, options.min_y, options.max_y)
+    result.clipped_buildings = 0
+    if city.clipped:
+        report(f"warning: {city.clipped:,} voxels fell outside y "
+               f"{options.min_y}..{options.max_y}")
+        result.overflow_count = city.clipped
+
+    if len(city.voxels):
+        result.highest_block_y = int(city.voxels[:, 2].max())
+        result.bounds = (int(city.voxels[:, 0].min()), int(city.voxels[:, 0].max()),
+                         int(city.voxels[:, 1].min()), int(city.voxels[:, 1].max()))
+        result.spawn_y = int(city.voxels[:, 2].max()) + 3
+    chunk_keys = city.chunk_keys()
+    result.chunk_count = len(chunk_keys)
+    result.height_description = (
+        f"LOD2 geometry placed 1:1, altitude 0 m at y={options.sea_level}")
+    report(f"{len(chunk_keys)} chunks")
+
+    if options.dry_run:
+        result.seconds = time.time() - started
+        return result
+
+    region_dir = Path(options.world) / "region"
+    writer = RegionWriter(region_dir, data_version=options.data_version)
+    for done, (chunk_x, chunk_z) in enumerate(chunk_keys, 1):
+        report.check()
+        chunk = ChunkBuilder(chunk_x, chunk_z, options.min_y, options.max_y)
+        city.fill(chunk)
+        if not chunk.is_empty():
+            writer.add(chunk)
+        if done % 100 == 0 or done == len(chunk_keys):
+            report(f"{done}/{len(chunk_keys)} chunks", done / len(chunk_keys))
+
+    result.region_files = [str(path) for path in writer.flush()]
+    result.chunks_written = writer.chunks_written
+    _write_map(options, result, projector, origin_east, origin_north,
+               city.voxels, report)
+    result.seconds = time.time() - started
+    report(f"wrote {result.chunks_written} chunks in {len(result.region_files)} "
+           f"region files", 1.0)
+    return result
+
+
+def _write_map(options, result, projector, origin_east, origin_north, voxels, report):
+    if not options.map_path:
+        return
+    from .mapexport import write_map
+    report("drawing the block plan")
+    result.map_files = list(write_map(options.map_path, result, options, projector,
+                                      origin_east, origin_north, voxels=voxels,
+                                      scale=options.map_scale))
+    report(f"map: {result.map_files[0]}")

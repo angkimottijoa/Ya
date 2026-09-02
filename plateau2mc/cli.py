@@ -22,7 +22,8 @@ import sys
 from .anvil import DEFAULT_DATA_VERSION
 from .heightfit import MODE_NONE, MODES
 from .jgd2011 import TOKYO_ZONE
-from .pipeline import Options, build_world
+from .pipeline import GEOMETRIES, GEOMETRY_LOD1, Options, build_world
+from .surfaces import FEATURE_TYPES
 
 # A few well known anchors, so a first run does not need coordinate hunting.
 LANDMARKS = {
@@ -96,6 +97,25 @@ def build_parser():
     parser.add_argument("--data-version", type=int, default=DEFAULT_DATA_VERSION,
                         help=f"chunk DataVersion to stamp (default: {DEFAULT_DATA_VERSION}, "
                              "which is 1.21.4; use your target version's value)")
+    parser.add_argument("--geometry", choices=list(GEOMETRIES), default=GEOMETRY_LOD1,
+                        help="'lod1' extrudes each building's footprint to its measured "
+                             "height (fast, tidy). 'lod2' voxelizes the real LOD2 surfaces "
+                             "instead -- pitched roofs, setbacks, balconies -- falling back "
+                             "to LOD1 per building where LOD2 is absent, as PLATEAU's own "
+                             f"converter does (default: {GEOMETRY_LOD1})")
+    parser.add_argument("--features", nargs="+", default=["bldg"],
+                        choices=[f for f in FEATURE_TYPES if f != "dem"],
+                        help="which PLATEAU packages to convert, with --geometry lod2 "
+                             "(default: bldg). tran/frn/veg carry no elevation of their own, "
+                             "so they sit at altitude 0")
+    parser.add_argument("--no-clean", dest="clean", action="store_false",
+                        help="skip the mesh clean-up passes (loose-voxel removal and seam "
+                             "patching) that --geometry lod2 applies by default")
+    parser.add_argument("--map", dest="map_path", default=None,
+                        help="also write a top-down block plan to this .html path, labelled "
+                             "in Minecraft coordinates, with a .png beside it")
+    parser.add_argument("--map-scale", type=int, default=1,
+                        help="blocks per map pixel (default: 1; raise it for a whole ward)")
     parser.add_argument("--dry-run", action="store_true",
                         help="report what would be built without writing region files")
     return parser
@@ -108,7 +128,9 @@ def main(argv=None):
         zone=args.zone, sea_level=args.sea_level, min_y=args.min_y, max_y=args.max_y,
         max_building_height=args.max_building_height, fit=args.fit, knee=args.knee,
         solid=args.solid, terrain=args.terrain, terrain_cell=args.terrain_cell,
-        data_version=args.data_version, dry_run=args.dry_run)
+        data_version=args.data_version, dry_run=args.dry_run,
+        geometry=args.geometry, features=tuple(args.features), clean=args.clean,
+        map_path=args.map_path, map_scale=args.map_scale)
 
     def show(message, fraction=None):
         print(message if fraction is None else f"  {message}")
@@ -126,8 +148,15 @@ def main(argv=None):
         print("  to keep them whole: raise --max-y (Java, with a height datapack), "
               "or use --fit compress.", file=sys.stderr)
 
+    if result.voxels:
+        print(f"  {result.voxels:,} voxels "
+              f"(removed {result.voxels_removed:,} loose, patched {result.voxels_patched:,} seams)")
+
     if result.dry_run:
         return 0
+
+    for path in result.map_files:
+        print(f"  map: {path}")
 
     if result.clipped_buildings:
         print(f"  {result.clipped_buildings} building(s) had their tops cut to fit "

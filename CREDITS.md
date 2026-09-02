@@ -39,3 +39,35 @@
   implementation is checked against pyproj in the test suite.
 - **Formats**: the Anvil region/chunk layout and its 1.16+ long packing are
   as documented on the Minecraft Wiki. No game or tool code is reused.
+
+## plateau2mc — LOD2 conversion
+
+The LOD2 path is a reimplementation of the approach taken by
+[Project-PLATEAU/plateau2minecraft](https://github.com/Project-PLATEAU/plateau2minecraft)
+(MIT, © 国土交通省 and MIERUNE Inc.), the Ministry of Land, Infrastructure,
+Transport and Tourism's own CityGML → Minecraft converter, and of its user
+manual `docs/Minecraftワールドデータ作成マニュアル.pdf`. What is taken from it
+is the *approach* — prefer LOD2 geometry and fall back to LOD1 per feature,
+convert bldg/tran/brid/frn/veg, treat `dem` tiles as out of scope because a
+2nd-level mesh is ~100x the area, hollow the buildings, write Anvil region
+files for an existing world. No code is reused; the geometry, projection
+and region-writing here are this project's own, and differ deliberately:
+
+- Upstream projects to EPSG:3857 (Web Mercator), which at Tokyo's latitude
+  scales horizontal distance by 1/cos(35.7°) ≈ 1.23 while leaving heights
+  in metres, so a building comes out about 23% too wide for its height.
+  This project projects to the Japan Plane Rectangular zone instead, where
+  the unit is already the metre.
+- Upstream voxelizes by splitting a tile's triangles into 1000 arbitrary
+  submeshes and running each through `trimesh.voxelized(1).hollow()`; the
+  splits do not follow connectivity and each submesh rasterizes on its own
+  grid, which is where the fused lumps and crusts come from. This project
+  rasterizes each planar polygon in its own plane onto one shared grid.
+- Upstream reduces region-local coordinates with `vertex % 512` applied to
+  all three axes, so an altitude at or above 512 m wraps around and is
+  drawn near the ground rather than being reported.
+
+Surface-class and appearance element names follow the CityGML 2.0 schema as
+modelled in [MIERUNE/plateau-gis-converter](https://github.com/MIERUNE/plateau-gis-converter)
+(MIT), consulted as a reference for how PLATEAU nests `app:Appearance`,
+`app:ParameterizedTexture` and `app:textureCoordinates`.
