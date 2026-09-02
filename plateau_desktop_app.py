@@ -18,6 +18,7 @@ import sys
 import threading
 import traceback
 import webbrowser
+import tkinter as tk
 from tkinter import (
     BooleanVar, DoubleVar, IntVar, StringVar, Text, Tk, END, filedialog,
     messagebox, ttk,
@@ -77,7 +78,11 @@ class PlateauApp:
     def __init__(self, root):
         self.root = root
         self.root.title(APP_TITLE)
-        self.root.minsize(720, 620)
+        # The settings alone are taller than a laptop's usable height, so the
+        # window is sized to fit the screen rather than to fit the content,
+        # and the settings scroll inside it. Without this the run buttons and
+        # the progress bar fall off the bottom edge with no way to reach them.
+        self.root.minsize(760, 420)
 
         self.source_dir = StringVar(value="")
         self.world_dir = StringVar(value="")
@@ -114,9 +119,51 @@ class PlateauApp:
     # ---------------------------------------------------------------- UI --
     def _build_layout(self):
         pad = {"padx": 8, "pady": 4}
-        main = ttk.Frame(self.root, padding=12)
-        main.pack(fill="both", expand=True)
+
+        outer = ttk.Frame(self.root)
+        outer.pack(fill="both", expand=True)
+
+        # Everything that can scroll lives in the canvas; everything the user
+        # must always be able to reach -- the buttons, the progress bar, the
+        # log -- is packed against the bottom first, so it keeps its space no
+        # matter how short the window gets.
+        bottom = ttk.Frame(outer, padding=(12, 0, 12, 10))
+        bottom.pack(side="bottom", fill="x")
+
+        canvas = tk.Canvas(outer, highlightthickness=0, borderwidth=0)
+        scrollbar = ttk.Scrollbar(outer, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        main = ttk.Frame(canvas, padding=12)
+        window = canvas.create_window((0, 0), window=main, anchor="nw")
         main.columnconfigure(0, weight=1)
+
+        def _on_content_resize(_event=None):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        def _on_canvas_resize(event):
+            canvas.itemconfigure(window, width=event.width)
+
+        main.bind("<Configure>", _on_content_resize)
+        canvas.bind("<Configure>", _on_canvas_resize)
+
+        def _on_wheel(event):
+            # Windows and macOS send <MouseWheel> with a delta; X11 sends
+            # button 4/5 instead.
+            if event.num == 4:
+                canvas.yview_scroll(-1, "units")
+            elif event.num == 5:
+                canvas.yview_scroll(1, "units")
+            else:
+                canvas.yview_scroll(-1 if event.delta > 0 else 1, "units")
+
+        for sequence in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            self.root.bind_all(sequence, _on_wheel)
+
+        self._main = main
+        self._bottom = bottom
 
         # -- Input / output -------------------------------------------------
         io_box = ttk.LabelFrame(main, text="1. 데이터와 월드", padding=10)
@@ -227,8 +274,8 @@ class PlateauApp:
                     width=7).grid(row=0, column=5, sticky="w", **pad)
 
         # -- Run ------------------------------------------------------------
-        run = ttk.Frame(main)
-        run.grid(row=5, column=0, sticky="ew", **pad)
+        run = ttk.Frame(self._bottom)
+        run.pack(fill="x")
         run.columnconfigure(2, weight=1)
         self.preview_button = ttk.Button(run, text="미리 확인 (쓰지 않음)",
                                          command=lambda: self._start(dry_run=True))
@@ -245,12 +292,11 @@ class PlateauApp:
                   ).grid(row=3, column=0, columnspan=3, sticky="w", padx=8)
 
         # -- Log ------------------------------------------------------------
-        main.rowconfigure(6, weight=1)
-        log_box = ttk.LabelFrame(main, text="진행 상황", padding=6)
-        log_box.grid(row=6, column=0, sticky="nsew", **pad)
+        log_box = ttk.LabelFrame(self._bottom, text="진행 상황", padding=6)
+        log_box.pack(fill="x", pady=(6, 0))
         log_box.columnconfigure(0, weight=1)
         log_box.rowconfigure(0, weight=1)
-        self.log = Text(log_box, height=10, wrap="word", state="disabled")
+        self.log = Text(log_box, height=6, wrap="word", state="disabled")
         self.log.grid(row=0, column=0, sticky="nsew")
         scroll = ttk.Scrollbar(log_box, command=self.log.yview)
         scroll.grid(row=0, column=1, sticky="ns")
@@ -496,8 +542,15 @@ def _gml_files(directory):
 
 def main():
     root = Tk()
-    PlateauApp(root)
+    app = PlateauApp(root)
+    root.update_idletasks()
+    # Open as tall as the content wants, but never taller than the screen can
+    # show -- the scrollbar covers the difference.
+    wanted = root.winfo_reqheight()
+    height = min(wanted, root.winfo_screenheight() - 120)
+    root.geometry(f"{max(root.winfo_reqwidth(), 780)}x{max(height, 420)}")
     root.mainloop()
+    return app
 
 
 if __name__ == "__main__":
