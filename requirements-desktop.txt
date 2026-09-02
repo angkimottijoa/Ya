@@ -1,4 +1,5 @@
-# Dependencies for desktop_app.py (the Windows .exe build). Tkinter ships
+# Dependencies for the Windows .exe builds (desktop_app.py and
+# plateau_desktop_app.py). Tkinter ships
 # with the standard python.org Windows installer, so it isn't listed here.
 # Deliberately excludes gradio/app.py's deps to keep the frozen exe lean.
 opencv-python-headless

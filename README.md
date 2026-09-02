@@ -180,7 +180,30 @@ district you only need to extract one or two of them. Point the tool at a
 directory and it picks up every `.gml` inside, skipping the non-building
 packages (`_tran_`, `_luse_`, ...) on its own.
 
-### Building a map
+### The app
+
+`plateau_desktop_app.py` is a native Tkinter UI over the same converter,
+packaged into `Plateau2MC.exe` by
+[`.github/workflows/build-windows.yml`](.github/workflows/build-windows.yml)
+on every push. Grab it from this repo's **Actions** tab → newest "Build
+Windows app" run → the `Plateau2MC-windows-exe` artifact. No Python install
+needed on the machine that runs it.
+
+Pick the PLATEAU folder and the world folder, choose a district and a
+radius, and press **미리 확인** to see how many buildings and chunks you are
+about to get — and whether anything would hit the ceiling — before pressing
+**변환 시작**. A conversion takes minutes, so it runs on a worker thread with
+a live percentage and a Stop button that leaves already-written region files
+intact.
+
+To run it from source instead:
+
+```bash
+pip install -r requirements-desktop.txt
+python plateau_desktop_app.py
+```
+
+### Building a map from the command line
 
 The tool writes region files into an **existing** world — it does not create
 one. That is deliberate: world height, dimension type and generator belong

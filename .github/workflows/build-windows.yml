@@ -7,7 +7,9 @@ on:
       - "main"
     paths:
       - "desktop_app.py"
+      - "plateau_desktop_app.py"
       - "banner2bedrock/**"
+      - "plateau2mc/**"
       - "assets/**"
       - "requirements-desktop.txt"
       - ".github/workflows/build-windows.yml"
@@ -38,9 +40,23 @@ jobs:
           --hidden-import pynbt --hidden-import mutf8
           desktop_app.py
 
+      - name: Build Plateau2MC.exe
+        run: >-
+          pyinstaller --onefile --windowed --name Plateau2MC
+          --hidden-import pynbt --hidden-import mutf8
+          --collect-submodules numpy
+          plateau_desktop_app.py
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: Banner2Bedrock-windows-exe
           path: dist/Banner2Bedrock.exe
+          if-no-files-found: error
+
+      - name: Upload PLATEAU converter artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Plateau2MC-windows-exe
+          path: dist/Plateau2MC.exe
           if-no-files-found: error

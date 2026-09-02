@@ -18,16 +18,11 @@ export would be.
 """
 import argparse
 import sys
-import time
-from pathlib import Path
 
-import numpy as np
-
-from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
-from .citygml import read_buildings
-from .heightfit import MODE_COMPRESS, MODE_NONE, MODES, HeightFit
-from .jgd2011 import PlaneRectangular, TOKYO_ZONE, guess_zone
-from .voxel import CityVoxelizer, Materials, TerrainField, project_footprints
+from .anvil import DEFAULT_DATA_VERSION
+from .heightfit import MODE_NONE, MODES
+from .jgd2011 import TOKYO_ZONE
+from .pipeline import Options, build_world
 
 # A few well known anchors, so a first run does not need coordinate hunting.
 LANDMARKS = {
@@ -108,99 +103,40 @@ def build_parser():
 
 def main(argv=None):
     args = build_parser().parse_args(argv)
+    options = Options(
+        source=args.source, world=args.world, center=args.center, radius=args.radius,
+        zone=args.zone, sea_level=args.sea_level, min_y=args.min_y, max_y=args.max_y,
+        max_building_height=args.max_building_height, fit=args.fit, knee=args.knee,
+        solid=args.solid, terrain=args.terrain, terrain_cell=args.terrain_cell,
+        data_version=args.data_version, dry_run=args.dry_run)
 
-    lat, lon = args.center
-    zone = args.zone or guess_zone(lat, lon)
-    projector = PlaneRectangular(zone)
-    origin_east, origin_north = projector(lat, lon)
-    print(f"origin {lat:.6f},{lon:.6f} -> zone {zone} (EPSG:{projector.epsg}) "
-          f"{origin_east:.1f} E {origin_north:.1f} N")
+    def show(message, fraction=None):
+        print(message if fraction is None else f"  {message}")
 
-    radius = args.radius
-    kept, seen = [], 0
-    started = time.time()
-    for building in read_buildings(args.source, progress=lambda msg: print(f"  {msg}")):
-        seen += 1
-        centre = building.centroid()
-        if centre is None:
-            continue
-        east, north = projector(*centre)
-        if abs(east - origin_east) <= radius and abs(north - origin_north) <= radius:
-            kept.append(building)
-    print(f"{len(kept)} buildings within {radius} m of the origin "
-          f"(scanned {seen} in {time.time() - started:.1f}s)")
-
-    if not kept:
-        print("nothing to build -- check that --center falls inside the CityGML tiles given",
-              file=sys.stderr)
+    try:
+        result = build_world(options, on_progress=show)
+    except ValueError as error:
+        print(error, file=sys.stderr)
         return 1
 
-    footprints = project_footprints(kept, projector, origin_east, origin_north,
-                                    max_height=args.max_building_height)
-    terrain = TerrainField(footprints, cell_size=args.terrain_cell)
+    if result.overflow_count:
+        print(f"  warning: {result.overflow_count} building(s) rise above --max-y "
+              f"{args.max_y} (highest would need y={result.overflow_needs_y}) and "
+              f"will lose their tops.", file=sys.stderr)
+        print("  to keep them whole: raise --max-y (Java, with a height datapack), "
+              "or use --fit compress.", file=sys.stderr)
 
-    samples = [(f.ground_alt, f.height) for f in footprints]
-    height_fit = HeightFit(args.min_y, args.max_y, samples, mode=args.fit,
-                           sea_level=args.sea_level, knee=args.knee)
-    print(f"height: {height_fit.describe()}")
-
-    voxelizer = CityVoxelizer(
-        footprints, terrain, height_fit, materials=Materials(),
-        min_y=args.min_y, max_y=args.max_y, hollow=not args.solid,
-        terrain_enabled=args.terrain)
-
-    chunk_keys = _chunks_to_build(voxelizer, radius, args.terrain)
-    tallest = max(f.height for f in footprints)
-    top_block = int(round(max(height_fit.top_y(alt, h) for alt, h in samples)))
-    print(f"{len(chunk_keys)} chunks; tallest building {tallest:.0f} m, "
-          f"highest block y={top_block}")
-
-    overflow = height_fit.overflow(samples)
-    if overflow:
-        worst = max(top for _, top in overflow)
-        print(f"  warning: {len(overflow)} building(s) rise above --max-y {args.max_y} "
-              f"(highest would need y={worst:.0f}) and will lose their tops.",
-              file=sys.stderr)
-        print(f"  to keep them whole: raise --max-y (Java, with a height datapack), "
-              f"or use --fit compress.", file=sys.stderr)
-
-    if args.dry_run:
+    if result.dry_run:
         return 0
 
-    region_dir = Path(args.world) / "region"
-    writer = RegionWriter(region_dir, data_version=args.data_version)
-    for done, (chunk_x, chunk_z) in enumerate(chunk_keys, 1):
-        chunk = ChunkBuilder(chunk_x, chunk_z, args.min_y, args.max_y)
-        voxelizer.fill(chunk)
-        if not chunk.is_empty():
-            writer.add(chunk)
-        if done % 200 == 0 or done == len(chunk_keys):
-            print(f"  {done}/{len(chunk_keys)} chunks")
-
-    files = writer.flush()
-    print(f"wrote {writer.chunks_written} chunks across {len(files)} region files "
-          f"in {region_dir}")
-    if voxelizer.clipped_buildings:
-        print(f"  {voxelizer.clipped_buildings} building(s) had their tops cut to fit "
+    if result.clipped_buildings:
+        print(f"  {result.clipped_buildings} building(s) had their tops cut to fit "
               f"y<={args.max_y}", file=sys.stderr)
     else:
         print("  no building was cut: every height went in whole")
-    # Where the ground actually ended up at the origin, which is not
-    # sea level once a fit has shifted the datum.
-    origin_alt = float(terrain.sample(np.array([0.5]), np.array([0.5]))[0])
-    spawn_y = int(round(height_fit.ground_y(origin_alt))) + 2
-    print(f"spawn on the centre point: /tp 0 {spawn_y} 0")
+    print(f"spawn on the centre point: /tp 0 {result.spawn_y} 0")
+    print(f"done in {result.seconds:.0f}s")
     return 0
-
-
-def _chunks_to_build(voxelizer, radius, terrain_enabled):
-    """Chunks holding buildings, plus the full square if terrain is on."""
-    keys = set(voxelizer.chunk_keys())
-    if terrain_enabled:
-        for chunk_x in range(-radius >> 4, (radius >> 4) + 1):
-            for chunk_z in range(-radius >> 4, (radius >> 4) + 1):
-                keys.add((chunk_x, chunk_z))
-    return sorted(keys)
 
 
 if __name__ == "__main__":

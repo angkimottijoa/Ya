@@ -22,6 +22,7 @@ from read_world import World
 from plateau2mc.anvil import ChunkBuilder, RegionWriter, _pack_indices
 from plateau2mc.citygml import read_buildings
 from plateau2mc.cli import main
+from plateau2mc.pipeline import Cancelled, Options, build_world
 from plateau2mc.jgd2011 import ZONE_ORIGINS, PlaneRectangular, guess_zone
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, HeightFit
 from plateau2mc.voxel import Materials, TerrainField, rasterize
@@ -306,6 +307,68 @@ class TestClipReporting(unittest.TestCase):
         for chunk_x, chunk_z in voxelizer.chunk_keys():
             voxelizer.fill(ChunkBuilder(chunk_x, chunk_z, -64, 319))
         self.assertEqual(voxelizer.clipped_buildings, 0)
+
+
+class TestPipeline(unittest.TestCase):
+    """The API the desktop app drives, rather than the CLI's stdout."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.source = self.tmp / "src"
+        make_fixture.build(self.source / "53393599_bldg_6697_op.gml")
+        self.world = self.tmp / "world"
+        (self.world / "region").mkdir(parents=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _options(self, **overrides):
+        options = Options(source=[str(self.source)], world=str(self.world),
+                          center=(35.659515, 139.700501), radius=200, max_y=1023)
+        for key, value in overrides.items():
+            setattr(options, key, value)
+        return options
+
+    def test_reports_progress_and_a_result(self):
+        seen = []
+        result = build_world(self._options(),
+                             on_progress=lambda message, fraction=None: seen.append((message, fraction)))
+        self.assertEqual(result.buildings_kept, 37)
+        self.assertEqual(result.clipped_buildings, 0)
+        self.assertTrue(result.region_files)
+        self.assertTrue(seen, "no progress was reported")
+        fractions = [f for _, f in seen if f is not None]
+        self.assertTrue(fractions, "chunk placement reported no percentage")
+        self.assertAlmostEqual(fractions[-1], 1.0)
+        self.assertEqual(fractions, sorted(fractions), "progress went backwards")
+
+    def test_dry_run_writes_nothing(self):
+        result = build_world(self._options(dry_run=True))
+        self.assertTrue(result.dry_run)
+        self.assertEqual(result.region_files, [])
+        self.assertEqual(list((self.world / "region").iterdir()), [])
+
+    def test_cancellation_stops_the_run(self):
+        calls = []
+
+        def should_cancel():
+            calls.append(1)
+            return len(calls) > 5
+
+        with self.assertRaises(Cancelled):
+            build_world(self._options(), should_cancel=should_cancel)
+
+    def test_cancellation_is_checked_far_more_often_than_progress(self):
+        """Stop must not wait on the next progress message to be noticed."""
+        checks, messages = [], []
+        build_world(self._options(),
+                    on_progress=lambda message, fraction=None: messages.append(message),
+                    should_cancel=lambda: checks.append(1) and False)
+        self.assertGreater(len(checks), 10 * len(messages))
+
+    def test_an_empty_area_is_an_error_not_an_empty_world(self):
+        with self.assertRaises(ValueError):
+            build_world(self._options(center=(43.06, 141.35)))  # Sapporo
 
 
 class TestEndToEnd(unittest.TestCase):
