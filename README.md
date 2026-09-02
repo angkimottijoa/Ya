@@ -211,7 +211,9 @@ height the tallest building will reach before committing to a build.
 | `--world DIR` | existing save directory to write `region/` into (required) |
 | `--min-y` / `--max-y` | world height range; must stay section-aligned (default `-64` / `319`) |
 | `--sea-level Y` | block y that altitude 0 m maps to (default 62) |
-| `--max-building-height M` | clamp building heights, for staying inside vanilla height |
+| `--fit none\|compress\|scale` | what to do with buildings taller than the world (default `none`: keep every height 1:1) |
+| `--knee M` | with `--fit compress`, the height below which buildings stay exactly 1:1 (default 60) |
+| `--max-building-height M` | hard clamp on building heights (default: none) |
 | `--solid` | fill buildings solid instead of hollow shells |
 | `--no-terrain` | place buildings only, no ground |
 | `--terrain-cell N` | terrain interpolation cell size in blocks (default 32) |
@@ -220,18 +222,34 @@ height the tallest building will reach before committing to a build.
 
 ### Height
 
-Tokyo does not fit under vanilla's 320 ceiling. With the default sea level
-of 62, Tokyo Tower's roof lands at y=401 and Skytree's at about y=696 —
-both above vanilla, though everything below roughly the 250 m mark fits
-fine. Two ways out:
+**Heights go in exactly as PLATEAU has them.** No rescaling, no clamping,
+nothing quietly trimmed — `--fit none` is the default and it is a true
+identity. Altitude 0 m (Tokyo Peil) lands on `--sea-level` (62 by default),
+and a 634 m tower is 634 blocks tall.
 
-- **Extend the world height** with a datapack dimension type and pass a
-  matching `--max-y`. This is the intended route, and why the tool refuses
-  to write `level.dat` for you. Anvil's own hard ceiling is y=2047: a
-  section's index is stored as a signed byte, so sections only run -128..127.
-- **Clamp** with `--max-building-height 250` and stay vanilla.
+That does not always fit. With sea level at 62, Tokyo Tower's roof lands at
+y=401 and Skytree's at about y=696, both past vanilla's 320. The tool
+checks before writing, names how many buildings overflow and how high they
+would need to go, and reports afterwards whether anything was actually cut.
 
-The tool warns before writing if the tallest building would be cut off.
+To keep them whole:
+
+- **Raise the ceiling.** `--max-y 1023` with a datapack dimension type that
+  declares the same height. This is the intended route on Java, and why the
+  tool will not write `level.dat` for you — the height range is the
+  datapack's business. Anvil's own hard ceiling is y=2047, because a
+  section's index is a signed byte and sections only run -128..127.
+- **`--fit compress`.** For Bedrock, whose -64..319 no add-on extends, this
+  keeps every building under `--knee` (60 m by default) at exact 1:1 and
+  compresses only what rises above it, by the smallest factor that makes
+  the tallest thing in the dataset fit. Nothing is lost off the top; in the
+  23 wards it leaves well over 99% of buildings at true scale. Opt-in, never
+  automatic.
+- **`--fit scale`** shrinks everything by one factor, if you would rather
+  keep proportions than keep street level true.
+
+A district on its own often needs none of this: Shinjuku's tallest is the
+243 m Metropolitan Government Building, which fits under vanilla at 1:1.
 
 ### Coordinates
 

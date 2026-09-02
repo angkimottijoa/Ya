@@ -23,6 +23,7 @@ from pathlib import Path
 
 from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
 from .citygml import read_buildings
+from .heightfit import MODE_COMPRESS, MODE_NONE, MODES, HeightFit
 from .jgd2011 import PlaneRectangular, TOKYO_ZONE, guess_zone
 from .voxel import CityVoxelizer, Materials, TerrainField, project_footprints
 
@@ -77,8 +78,17 @@ def build_parser():
                              "match a height-extending datapack, e.g. --max-y 1023 "
                              "(default: 319, vanilla)")
     parser.add_argument("--max-building-height", type=float, default=None,
-                        help="clamp building heights, in metres (default: none). Useful only "
-                             "if you are staying inside vanilla height")
+                        help="clamp building heights, in metres (default: none, i.e. keep the "
+                             "data exactly as PLATEAU has it)")
+    parser.add_argument("--fit", choices=list(MODES), default=MODE_NONE,
+                        help="how to deal with buildings taller than the world. 'none' (the "
+                             "default) keeps every height 1:1 and touches nothing; "
+                             "'compress' keeps buildings below --knee at 1:1 and squashes only "
+                             "what rises above it, so nothing is lost off the top; 'scale' "
+                             "shrinks everything by one factor")
+    parser.add_argument("--knee", type=float, default=60.0,
+                        help="with --fit compress, the height below which buildings stay "
+                             "exactly 1:1 (default: 60 m)")
     parser.add_argument("--solid", action="store_true",
                         help="fill buildings solid instead of leaving them hollow shells "
                              "(far more blocks, much larger world)")
@@ -127,19 +137,30 @@ def main(argv=None):
                                     max_height=args.max_building_height)
     terrain = TerrainField(footprints, cell_size=args.terrain_cell)
 
+    samples = [(f.ground_alt, f.height) for f in footprints]
+    height_fit = HeightFit(args.min_y, args.max_y, samples, mode=args.fit,
+                           sea_level=args.sea_level, knee=args.knee)
+    print(f"height: {height_fit.describe()}")
+
     voxelizer = CityVoxelizer(
-        footprints, terrain, materials=Materials(), sea_level=args.sea_level,
+        footprints, terrain, height_fit, materials=Materials(),
         min_y=args.min_y, max_y=args.max_y, hollow=not args.solid,
         terrain_enabled=args.terrain)
 
     chunk_keys = _chunks_to_build(voxelizer, radius, args.terrain)
     tallest = max(f.height for f in footprints)
-    top_block = args.sea_level + int(max(f.ground_alt + f.height for f in footprints))
+    top_block = int(round(max(height_fit.top_y(alt, h) for alt, h in samples)))
     print(f"{len(chunk_keys)} chunks; tallest building {tallest:.0f} m, "
           f"highest block y={top_block}")
-    if top_block > args.max_y:
-        print(f"  warning: {top_block - args.max_y} blocks of the tallest building sit above "
-              f"--max-y {args.max_y} and will be cut off", file=sys.stderr)
+
+    overflow = height_fit.overflow(samples)
+    if overflow:
+        worst = max(top for _, top in overflow)
+        print(f"  warning: {len(overflow)} building(s) rise above --max-y {args.max_y} "
+              f"(highest would need y={worst:.0f}) and will lose their tops.",
+              file=sys.stderr)
+        print(f"  to keep them whole: raise --max-y (Java, with a height datapack), "
+              f"or use --fit compress.", file=sys.stderr)
 
     if args.dry_run:
         return 0
@@ -157,6 +178,11 @@ def main(argv=None):
     files = writer.flush()
     print(f"wrote {writer.chunks_written} chunks across {len(files)} region files "
           f"in {region_dir}")
+    if voxelizer.clipped_buildings:
+        print(f"  {voxelizer.clipped_buildings} building(s) had their tops cut to fit "
+              f"y<={args.max_y}", file=sys.stderr)
+    else:
+        print("  no building was cut: every height went in whole")
     print(f"spawn near /tp 0 {args.sea_level + 5} 0")
     return 0
 

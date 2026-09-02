@@ -248,17 +248,21 @@ def _fill_and_smooth(grid, default_alt, smoothing):
 class CityVoxelizer:
     """Turns projected footprints plus a terrain field into chunks."""
 
-    def __init__(self, footprints, terrain, materials=None, sea_level=62,
+    def __init__(self, footprints, terrain, height_fit, materials=None,
                  min_y=-64, max_y=319, hollow=True, terrain_enabled=True):
         self.footprints = footprints
         self.terrain = terrain
+        self.fit = height_fit
         self.materials = materials or Materials()
-        self.sea_level = sea_level
         self.min_y = min_y
         self.max_y = max_y
         self.hollow = hollow
         self.terrain_enabled = terrain_enabled
         self.index = _index_by_chunk(footprints)
+        # Counts buildings whose top had to be cut to fit the world. With any
+        # fitting mode this must stay zero; it is the check that "nothing was
+        # clipped" is a fact rather than an intention.
+        self.clipped_buildings = 0
 
     def chunk_keys(self):
         return sorted(self.index)
@@ -273,7 +277,8 @@ class CityVoxelizer:
             grid_x, grid_z = np.meshgrid(np.arange(16) + x0 + 0.5,
                                          np.arange(16) + z0 + 0.5, indexing="ij")
             altitude = self.terrain.sample(grid_x, grid_z)
-            surface_y = np.clip(np.rint(altitude + self.sea_level).astype(int),
+            ground = self.fit.ground_y_array(altitude)
+            surface_y = np.clip(np.rint(ground).astype(int),
                                 self.min_y + 1, self.max_y)
             self._fill_ground(chunk, surface_y)
 
@@ -311,10 +316,13 @@ class CityVoxelizer:
         wall = chunk.block_id(wall_block)
         roof = chunk.block_id(roof_block)
 
-        base_y = int(round(footprint.ground_alt)) + self.sea_level
-        top_y = base_y + max(int(round(footprint.height)), 1)
+        base_y = int(round(self.fit.ground_y(footprint.ground_alt)))
+        wanted_top = int(round(self.fit.top_y(footprint.ground_alt, footprint.height)))
+        wanted_top = max(wanted_top, base_y + 1)
         base_y = max(base_y, self.min_y + 1)
-        top_y = min(top_y, self.max_y)
+        top_y = min(wanted_top, self.max_y)
+        if top_y < wanted_top:
+            self.clipped_buildings += 1
         if top_y < base_y:
             return
 

@@ -23,6 +23,7 @@ from plateau2mc.anvil import ChunkBuilder, RegionWriter, _pack_indices
 from plateau2mc.citygml import read_buildings
 from plateau2mc.cli import main
 from plateau2mc.jgd2011 import ZONE_ORIGINS, PlaneRectangular, guess_zone
+from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, HeightFit
 from plateau2mc.voxel import Materials, TerrainField, rasterize
 
 
@@ -229,6 +230,49 @@ class TestTerrain(unittest.TestCase):
         west = terrain.sample(np.array([10.0]), np.array([10.0]))[0]
         east = terrain.sample(np.array([370.0]), np.array([10.0]))[0]
         self.assertGreater(east - west, 8.0, "east end should sit clearly higher")
+
+
+class TestHeightFit(unittest.TestCase):
+    # Ground relief and heights roughly matching Tokyo's 23 wards: the flats
+    # of Koto at sea level up to the Nerima/Setagaya uplands, and the real
+    # landmark heights.
+    TOKYO = [(0.0, 8.0), (12.0, 15.0), (30.0, 22.0), (55.0, 45.0),
+             (18.0, 243.0), (2.0, 333.0), (1.0, 634.0)]
+
+    def test_default_keeps_every_height_untouched(self):
+        """The default must not rescale anything -- the data goes in as-is."""
+        fit = HeightFit(-64, 319, self.TOKYO, mode=MODE_NONE, sea_level=62)
+        for altitude, height in self.TOKYO:
+            self.assertEqual(fit.building_height(height), height)
+            self.assertEqual(fit.ground_y(altitude), 62 + altitude)
+
+    def test_default_reports_rather_than_hides_overflow(self):
+        fit = HeightFit(-64, 319, self.TOKYO, mode=MODE_NONE, sea_level=62)
+        over = fit.overflow(self.TOKYO)
+        self.assertTrue(over, "Skytree cannot fit under y=319 at 1:1")
+        self.assertEqual(len(over), 3)  # Tocho, Tokyo Tower, Skytree
+
+    def test_java_with_a_height_datapack_needs_no_fitting(self):
+        fit = HeightFit(-64, 1023, self.TOKYO, mode=MODE_NONE, sea_level=62)
+        self.assertEqual(fit.overflow(self.TOKYO), [])
+
+    def test_compress_loses_nothing_off_the_top(self):
+        fit = HeightFit(-64, 319, self.TOKYO, mode=MODE_COMPRESS)
+        self.assertEqual(fit.overflow(self.TOKYO), [])
+        for altitude, height in self.TOKYO:
+            self.assertLessEqual(fit.top_y(altitude, height), 319)
+
+    def test_compress_leaves_ordinary_buildings_at_true_scale(self):
+        fit = HeightFit(-64, 319, self.TOKYO, mode=MODE_COMPRESS, knee=60.0)
+        for _, height in self.TOKYO:
+            if height <= 60.0:
+                self.assertEqual(fit.building_height(height), height)
+
+    def test_compress_is_a_no_op_when_everything_already_fits(self):
+        low = [(0.0, 8.0), (10.0, 45.0), (20.0, 120.0)]
+        fit = HeightFit(-64, 319, low, mode=MODE_COMPRESS)
+        for _, height in low:
+            self.assertEqual(fit.building_height(height), height)
 
 
 class TestEndToEnd(unittest.TestCase):
