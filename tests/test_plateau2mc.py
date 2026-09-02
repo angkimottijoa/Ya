@@ -275,6 +275,39 @@ class TestHeightFit(unittest.TestCase):
             self.assertEqual(fit.building_height(height), height)
 
 
+class TestClipReporting(unittest.TestCase):
+    def test_a_tower_spanning_chunks_is_reported_once(self):
+        """Buildings are filled per chunk; the clip report is per building."""
+        from plateau2mc.anvil import ChunkBuilder
+        from plateau2mc.voxel import CityVoxelizer, Footprint, TerrainField
+
+        # One 60 m wide tower, far taller than the world, covering 4x4 chunks.
+        ring = np.array([[-30.0, -30.0], [30.0, -30.0], [30.0, 30.0], [-30.0, 30.0]])
+        footprint = Footprint([(True, ring)], 0.0, 600.0).compute_bounds()
+        fit = HeightFit(-64, 319, [(0.0, 600.0)], mode=MODE_NONE, sea_level=62)
+        voxelizer = CityVoxelizer([footprint], TerrainField([footprint]), fit,
+                                  min_y=-64, max_y=319, terrain_enabled=False)
+
+        touched = voxelizer.chunk_keys()
+        self.assertGreater(len(touched), 4, "tower should span several chunks")
+        for chunk_x, chunk_z in touched:
+            voxelizer.fill(ChunkBuilder(chunk_x, chunk_z, -64, 319))
+        self.assertEqual(voxelizer.clipped_buildings, 1)
+
+    def test_nothing_is_clipped_when_it_fits(self):
+        from plateau2mc.anvil import ChunkBuilder
+        from plateau2mc.voxel import CityVoxelizer, Footprint, TerrainField
+
+        ring = np.array([[-30.0, -30.0], [30.0, -30.0], [30.0, 30.0], [-30.0, 30.0]])
+        footprint = Footprint([(True, ring)], 0.0, 600.0).compute_bounds()
+        fit = HeightFit(-64, 319, [(0.0, 600.0)], mode=MODE_COMPRESS)
+        voxelizer = CityVoxelizer([footprint], TerrainField([footprint]), fit,
+                                  min_y=-64, max_y=319, terrain_enabled=False)
+        for chunk_x, chunk_z in voxelizer.chunk_keys():
+            voxelizer.fill(ChunkBuilder(chunk_x, chunk_z, -64, 319))
+        self.assertEqual(voxelizer.clipped_buildings, 0)
+
+
 class TestEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

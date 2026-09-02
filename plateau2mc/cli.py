@@ -21,6 +21,8 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
+
 from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
 from .citygml import read_buildings
 from .heightfit import MODE_COMPRESS, MODE_NONE, MODES, HeightFit
@@ -183,7 +185,11 @@ def main(argv=None):
               f"y<={args.max_y}", file=sys.stderr)
     else:
         print("  no building was cut: every height went in whole")
-    print(f"spawn near /tp 0 {args.sea_level + 5} 0")
+    # Where the ground actually ended up at the origin, which is not
+    # sea level once a fit has shifted the datum.
+    origin_alt = float(terrain.sample(np.array([0.5]), np.array([0.5]))[0])
+    spawn_y = int(round(height_fit.ground_y(origin_alt))) + 2
+    print(f"spawn on the centre point: /tp 0 {spawn_y} 0")
     return 0
 
 

@@ -48,23 +48,30 @@ class HeightFit:
 
         samples = list(samples) or [(0.0, 1.0)]
         self.alt_min = min(altitude for altitude, _ in samples)
-        self.budget = max_y - (min_y + 1)
-        self.floor_y = min_y + 1
 
         if mode == MODE_NONE:
             # Altitude 0 m (Tokyo Peil) sits at sea level, exactly as the
             # real city does. Nothing is fitted; the caller is expected to
             # have the height range for it.
             self.floor_y = sea_level + self.alt_min
+            self.budget = max_y - self.floor_y
             self.effective_knee = float("inf")
             return
 
         relief = [altitude - self.alt_min for altitude, _ in samples]
         max_relief = max(relief)
+        needed = max(r + height for r, (_, height) in zip(relief, samples))
+
+        # Lower the ground only as far as the tallest building actually
+        # demands. Dropping straight to the world floor would fit just as
+        # well but would bury a city that had room to sit at its real sea
+        # level, which looks wrong for no gain.
+        natural_floor = sea_level + self.alt_min
+        self.floor_y = max(min_y + 1, min(natural_floor, max_y - needed))
+        self.budget = max_y - self.floor_y
 
         if mode == MODE_SCALE or max_relief >= self.budget:
             self.fallback_from_compress = mode == MODE_COMPRESS
-            needed = max(r + height for r, (_, height) in zip(relief, samples))
             self.mode = MODE_SCALE
             self.scale = min(1.0, self.budget / needed) if needed > 0 else 1.0
             self.effective_knee = 0.0
@@ -129,9 +136,9 @@ class HeightFit:
         if self.mode == MODE_SCALE:
             reason = " (terrain relief alone exceeds the budget)" if self.fallback_from_compress else ""
             return (f"uniform vertical scale {self.scale:.3f}x{reason}, "
-                    f"ground floor at y={self.floor_y}")
+                    f"ground floor at y={self.floor_y:.0f}")
         if self.compression >= 1.0:
             return (f"heights 1:1 (everything already fits in {self.budget} blocks), "
-                    f"ground floor at y={self.floor_y}")
+                    f"ground floor at y={self.floor_y:.0f}")
         return (f"1:1 up to {self.effective_knee:.0f} m, then compressed "
-                f"{self.compression:.3f}x above it; ground floor at y={self.floor_y}")
+                f"{self.compression:.3f}x above it; ground floor at y={self.floor_y:.0f}")

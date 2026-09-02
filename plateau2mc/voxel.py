@@ -259,13 +259,19 @@ class CityVoxelizer:
         self.hollow = hollow
         self.terrain_enabled = terrain_enabled
         self.index = _index_by_chunk(footprints)
-        # Counts buildings whose top had to be cut to fit the world. With any
-        # fitting mode this must stay zero; it is the check that "nothing was
-        # clipped" is a fact rather than an intention.
-        self.clipped_buildings = 0
+        # Which buildings had their top cut to fit the world. A set, not a
+        # counter: a building is filled once per chunk it touches, so
+        # counting hits would report a tower spanning twelve chunks twelve
+        # times over. With any fitting mode this must stay empty -- it is
+        # the check that "nothing was clipped" is a fact, not an intention.
+        self.clipped = set()
 
     def chunk_keys(self):
         return sorted(self.index)
+
+    @property
+    def clipped_buildings(self):
+        return len(self.clipped)
 
     def fill(self, chunk):
         """Write one chunk's blocks. `chunk` is an anvil.ChunkBuilder."""
@@ -283,7 +289,7 @@ class CityVoxelizer:
             self._fill_ground(chunk, surface_y)
 
         for index in self.index.get((chunk.chunk_x, chunk.chunk_z), ()):
-            self._fill_building(chunk, self.footprints[index], x0, z0, surface_y)
+            self._fill_building(chunk, index, x0, z0, surface_y)
 
     def _fill_ground(self, chunk, surface_y):
         materials = self.materials
@@ -303,7 +309,8 @@ class CityVoxelizer:
         chunk.blocks[(levels >= soil_floor) & (levels < relative)] = dirt
         chunk.blocks[levels == relative] = grass
 
-    def _fill_building(self, chunk, footprint, x0, z0, surface_y):
+    def _fill_building(self, chunk, index, x0, z0, surface_y):
+        footprint = self.footprints[index]
         # Rasterized with a one-block margin so wall detection sees the
         # building's real neighbours across the chunk boundary, then cropped
         # back to the chunk.
@@ -322,7 +329,7 @@ class CityVoxelizer:
         base_y = max(base_y, self.min_y + 1)
         top_y = min(wanted_top, self.max_y)
         if top_y < wanted_top:
-            self.clipped_buildings += 1
+            self.clipped.add(index)
         if top_y < base_y:
             return
 
