@@ -14,7 +14,7 @@ from pathlib import Path
 import numpy as np
 
 from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
-from .citygml import data_extent, read_buildings
+from .citygml import data_extent, read_buildings, total_bytes
 from .heightfit import MODE_NONE, HeightFit
 from .jgd2011 import PlaneRectangular, guess_zone
 from .appearance import affine_uv, read_appearances
@@ -103,15 +103,31 @@ class Result:
 class _Reporter:
     """Progress callback plus cancellation, in one object.
 
-    `fraction` is None while the run is doing work whose length is not known
-    up front (reading GML), and 0..1 once it is placing chunks -- which is
-    what lets the GUI switch its progress bar from indeterminate to a real
-    percentage at the right moment.
+    A run has three phases with wildly different durations -- reading GML,
+    voxelizing and cleaning, writing chunks -- and only the last one has a
+    count known in advance. Reporting each phase's own 0..1 separately gave
+    a bar that filled up three times, so instead each phase is given a
+    share of the whole and its local progress is mapped into that share.
+    The bar then moves once, from nothing to done.
+
+    Elapsed time and an estimate of what is left ride along with it, which
+    is the difference between a UI that looks stuck and one that does not.
     """
 
     def __init__(self, on_progress=None, should_cancel=None):
         self._on_progress = on_progress
         self._should_cancel = should_cancel
+        self._started = time.time()
+        self._offset = 0.0
+        self._weight = 1.0
+        self._last = 0.0
+        self.stage_name = ""
+
+    def stage(self, name, weight):
+        """Begin a phase occupying `weight` of the overall bar."""
+        self._offset = min(self._offset + self._weight, 1.0) if self.stage_name else 0.0
+        self.stage_name = name
+        self._weight = weight
 
     def check(self):
         """Cancellation only. Cheap enough to call on every unit of work.
@@ -124,10 +140,38 @@ class _Reporter:
         if self._should_cancel is not None and self._should_cancel():
             raise Cancelled()
 
-    def __call__(self, message, fraction=None):
+    @property
+    def elapsed(self):
+        return time.time() - self._started
+
+    def eta(self, fraction):
+        """Seconds remaining, or None while the estimate is meaningless."""
+        if fraction <= 0.02 or self.elapsed < 2.0:
+            return None
+        return max(0.0, self.elapsed * (1.0 - fraction) / fraction)
+
+    def __call__(self, message, local=None):
         self.check()
-        if self._on_progress is not None:
-            self._on_progress(message, fraction)
+        if self._on_progress is None:
+            return
+        fraction = None
+        if local is not None:
+            # Never let a phase's estimate walk the bar backwards.
+            fraction = min(1.0, self._offset + self._weight * min(max(local, 0.0), 1.0))
+            fraction = max(fraction, self._last)
+            self._last = fraction
+        self._on_progress(message, fraction)
+
+
+def _format_duration(seconds):
+    if seconds is None:
+        return "?"
+    seconds = int(seconds)
+    if seconds < 60:
+        return f"{seconds}s"
+    if seconds < 3600:
+        return f"{seconds // 60}m {seconds % 60:02d}s"
+    return f"{seconds // 3600}h {(seconds % 3600) // 60:02d}m"
 
 
 def build_world(options, on_progress=None, should_cancel=None):
@@ -175,7 +219,7 @@ def build_world(options, on_progress=None, should_cancel=None):
 
     result.buildings_kept = len(kept)
     result.buildings_scanned = scanned
-    report(f"{len(kept)} buildings within {options.radius} m (scanned {scanned})")
+    report(f"{len(kept)} buildings within {options.radius} m (scanned {scanned})", 1.0)
     if not kept:
         raise ValueError(
             "no buildings fell inside the requested area -- check that the centre "
@@ -209,8 +253,9 @@ def build_world(options, on_progress=None, should_cancel=None):
     origin_alt = float(terrain.sample(np.array([0.5]), np.array([0.5]))[0])
     result.spawn_y = int(round(height_fit.ground_y(origin_alt))) + 2
 
+    report.stage("plan", 0.10)
     report(f"{len(chunk_keys)} chunks; tallest {result.tallest_metres:.0f} m, "
-           f"highest block y={result.highest_block_y}")
+           f"highest block y={result.highest_block_y}", 1.0)
 
     if options.dry_run:
         result.seconds = time.time() - started
@@ -264,14 +309,22 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
     matcher = BlockMatcher() if options.textures else None
     atlases = {}
 
+    input_bytes = total_bytes(options.source)
+    consumed = [0]
+    report.stage("read", 0.55)
+
+    def on_bytes(count):
+        consumed[0] += count
+
     kept = 0
     for surface in read_surfaces(options.source, progress=lambda msg: report(msg),
                                  feature_filter=set(options.features),
-                                 with_source=True):
+                                 with_source=True, on_bytes=on_bytes):
         report.check()
         result.surfaces_read += 1
-        if result.surfaces_read % 20000 == 0:
-            report(f"read {result.surfaces_read} surfaces, kept {kept}")
+        if result.surfaces_read % 500 == 0:
+            share = consumed[0] / input_bytes if input_bytes else None
+            report(f"read {result.surfaces_read:,} surfaces, kept {kept:,}", share)
 
         rings = [_project_ring(ring, projector, origin_east, origin_north,
                                options.sea_level) for ring in surface.rings]
@@ -296,7 +349,7 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
             "no LOD2 surfaces fell inside the requested area -- check that the centre "
             "point lies within the CityGML tiles you selected")
 
-    report(f"{kept} surfaces inside the area; voxelizing")
+    report(f"{kept} surfaces inside the area; voxelizing", 1.0)
     if matcher is not None:
         report(f"{result.textured_surfaces} surfaces textured"
                + (f", {result.missing_textures} images missing"
@@ -307,21 +360,24 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
     result.voxels = len(voxels)
     report(f"{len(voxels):,} voxels")
 
+    report.stage("clean", 0.10)
     if options.clean:
         before = len(voxels)
         voxels, classes = despeckle(voxels, classes, options.despeckle_neighbours)
         result.voxels_removed = before - len(voxels)
+        report("removing loose voxels", 0.4)
         before = len(voxels)
         voxels, classes = close_pinholes(voxels, classes, options.pinhole_neighbours)
         result.voxels_patched = len(voxels) - before
         report(f"cleaned: removed {result.voxels_removed:,} loose voxels, "
-               f"patched {result.voxels_patched:,} seam holes")
+               f"patched {result.voxels_patched:,} seam holes", 0.7)
         result.voxels = len(voxels)
 
     if options.smooth:
         voxels, classes, result.voxels_smoothed = smooth(voxels, classes, options.smooth)
-        report(f"smoothed: {result.voxels_smoothed:,} voxels changed on curves and edges")
+        report(f"smoothed: {result.voxels_smoothed:,} voxels changed on curves and edges", 1.0)
         result.voxels = len(voxels)
+    report("preparing chunks", 1.0)
 
     if len(classes):
         counts = np.bincount(classes, minlength=len(palette))
@@ -350,6 +406,7 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
         result.seconds = time.time() - started
         return result
 
+    report.stage("write", 0.35)
     region_dir = Path(options.world) / "region"
     writer = RegionWriter(region_dir, data_version=options.data_version)
     for done, (chunk_x, chunk_z) in enumerate(chunk_keys, 1):

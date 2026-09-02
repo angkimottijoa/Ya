@@ -13,6 +13,7 @@ with a real percentage and a working Stop button.
 """
 import os
 import queue
+import time
 import sys
 import threading
 import traceback
@@ -26,7 +27,7 @@ from plateau2mc.anvil import DEFAULT_DATA_VERSION
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, MODE_SCALE
 from plateau2mc.jgd2011 import guess_zone
 from plateau2mc.pipeline import (GEOMETRY_LOD1, GEOMETRY_LOD2, Cancelled,
-                                 Options, build_world)
+                                 Options, _format_duration, build_world)
 
 APP_TITLE = "PLATEAU -> 마인크래프트 자바 월드 변환기"
 PLATEAU_URL = "https://www.mlit.go.jp/plateau/open-data/"
@@ -103,6 +104,8 @@ class PlateauApp:
         self._queue = queue.Queue()
         self._cancel = threading.Event()
         self._worker = None
+        self._started = 0.0
+        self.timing_var = StringVar(value="")
 
         self._build_layout()
         self._on_place_change()
@@ -238,6 +241,8 @@ class PlateauApp:
         self.progress.grid(row=1, column=0, columnspan=3, sticky="ew", **pad)
         ttk.Label(run, textvariable=self.status_var, wraplength=680, justify="left"
                   ).grid(row=2, column=0, columnspan=3, sticky="w", padx=8)
+        ttk.Label(run, textvariable=self.timing_var, foreground="#666"
+                  ).grid(row=3, column=0, columnspan=3, sticky="w", padx=8)
 
         # -- Log ------------------------------------------------------------
         main.rowconfigure(6, weight=1)
@@ -353,8 +358,11 @@ class PlateauApp:
 
         self._update_height_hint()
         self._cancel.clear()
-        self.progress.configure(mode="indeterminate")
-        self.progress.start(12)
+        self._started = time.time()
+        # Determinate from the first frame: every phase now reports a share
+        # of one bar, so there is nothing left to spin for.
+        self.progress.configure(mode="determinate")
+        self.progress["value"] = 0
         self.run_button.configure(state="disabled")
         self.preview_button.configure(state="disabled")
         self.stop_button.configure(state="normal")
@@ -379,6 +387,14 @@ class PlateauApp:
         except Exception as error:  # surfaced in the log, not swallowed
             self._queue.put(("error", (error, traceback.format_exc())))
 
+    def _show_timing(self, fraction):
+        elapsed = time.time() - self._started
+        text = f"{fraction * 100:.0f}% · 경과 {_format_duration(elapsed)}"
+        if fraction > 0.02 and elapsed > 2:
+            remaining = elapsed * (1 - fraction) / fraction
+            text += f" · 남은 시간 약 {_format_duration(remaining)}"
+        self.timing_var.set(text)
+
     def _stop(self):
         self._cancel.set()
         self.status_var.set("중지하는 중...")
@@ -393,18 +409,15 @@ class PlateauApp:
             if kind == "progress":
                 message, fraction = payload
                 self._append_log(message)
+                self.status_var.set(message)
                 if fraction is not None:
-                    if self.progress["mode"] != "determinate":
-                        self.progress.stop()
-                        self.progress.configure(mode="determinate")
                     self.progress["value"] = fraction * 1000
-                    self.status_var.set(f"{message} ({fraction * 100:.0f}%)")
-                else:
-                    self.status_var.set(message)
+                    self._show_timing(fraction)
             elif kind == "done":
                 self._finish_success(payload)
                 finished = True
             elif kind == "cancelled":
+                self.timing_var.set("")
                 self._append_log("사용자가 중지했습니다.")
                 self.status_var.set("중지됨. 이미 쓰인 리전 파일은 남아 있습니다.")
                 finished = True
@@ -470,6 +483,7 @@ class PlateauApp:
             self._append_log(line)
         self.status_var.set(lines[-2] if len(lines) > 1 else lines[0])
         self.progress["value"] = 1000
+        self.timing_var.set(f"완료 · {_format_duration(result.seconds)}")
         messagebox.showinfo(APP_TITLE, "\n".join(lines))
 
 

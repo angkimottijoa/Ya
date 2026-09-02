@@ -29,6 +29,8 @@ from plateau2mc.surfaces import feature_type_from_name, read_surfaces
 from plateau2mc.blockpalette import BlockMatcher, is_glassy
 from plateau2mc.citygml import data_extent
 from plateau2mc.meshcity import smooth
+from plateau2mc.citygml import CountingReader, total_bytes
+from plateau2mc.pipeline import _format_duration
 from plateau2mc.jgd2011 import ZONE_ORIGINS, PlaneRectangular, guess_zone
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, HeightFit
 from plateau2mc.voxel import Materials, TerrainField, rasterize
@@ -632,6 +634,70 @@ class TestTexturedConversion(unittest.TestCase):
         self.assertTrue(any("concrete" in name or "terracotta" in name or "stone" in name
                             for name in solid),
                         "nothing solid was placed at all")
+
+
+class TestProgressReporting(unittest.TestCase):
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp())
+        self.source = self.tmp / "src"
+        make_fixture.build_lod2(self.source / "53394611_bldg_6697_2_op.gml")
+        self.world = self.tmp / "world"
+        (self.world / "region").mkdir(parents=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def _run(self, **overrides):
+        seen = []
+        options = Options(source=[str(self.source)], world=str(self.world), radius=150,
+                          geometry=GEOMETRY_LOD2, min_y=-512, max_y=511, terrain=False)
+        for key, value in overrides.items():
+            setattr(options, key, value)
+        build_world(options,
+                    on_progress=lambda message, fraction=None: seen.append(fraction))
+        return [f for f in seen if f is not None]
+
+    def test_the_bar_only_ever_moves_forward(self):
+        """Phases used to each report their own 0..1, filling the bar thrice."""
+        fractions = self._run()
+        self.assertTrue(fractions)
+        self.assertEqual(fractions, sorted(fractions), "progress went backwards")
+
+    def test_it_reaches_a_hundred_percent(self):
+        fractions = self._run()
+        self.assertAlmostEqual(fractions[-1], 1.0, places=6)
+
+    def test_it_stays_inside_zero_and_one(self):
+        for fraction in self._run(smooth=2):
+            self.assertGreaterEqual(fraction, 0.0)
+            self.assertLessEqual(fraction, 1.0)
+
+    def test_the_lod1_path_reports_progress_too(self):
+        fractions = self._run(geometry="lod1", terrain=True)
+        self.assertTrue(fractions)
+        self.assertEqual(fractions, sorted(fractions))
+        self.assertAlmostEqual(fractions[-1], 1.0, places=6)
+
+    def test_input_size_is_known_before_reading(self):
+        """What makes a percentage possible during parsing at all."""
+        total = total_bytes(self.source)
+        self.assertGreater(total, 0)
+        counted = []
+        reader = CountingReader(next(self.source.glob("*.gml")),
+                                on_bytes=counted.append)
+        try:
+            while reader.read(4096):
+                pass
+        finally:
+            reader.close()
+        self.assertEqual(sum(counted), total)
+        self.assertEqual(reader.read_bytes, total)
+
+    def test_durations_read_as_time(self):
+        self.assertEqual(_format_duration(45), "45s")
+        self.assertEqual(_format_duration(200), "3m 20s")
+        self.assertEqual(_format_duration(7900), "2h 11m")
+        self.assertEqual(_format_duration(None), "?")
 
 
 class TestEndToEnd(unittest.TestCase):

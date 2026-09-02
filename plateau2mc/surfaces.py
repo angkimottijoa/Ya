@@ -185,7 +185,8 @@ def surfaces_of_feature(element, feature):
     return []
 
 
-def read_surfaces(paths, progress=None, feature_filter=None, with_source=False):
+def read_surfaces(paths, progress=None, feature_filter=None, with_source=False,
+                  on_bytes=None):
     """Stream `Surface`s from CityGML files or directories."""
     from .citygml import _expand_paths
 
@@ -206,7 +207,7 @@ def read_surfaces(paths, progress=None, feature_filter=None, with_source=False):
             continue
         if progress:
             progress(f"reading {path.name} ({feature})")
-        for surface in _read_file_surfaces(path, feature):
+        for surface in _read_file_surfaces(path, feature, on_bytes):
             if with_source:
                 # Appearances live in the same file, so a surface has to
                 # remember which one it came from to find its texture.
@@ -214,9 +215,19 @@ def read_surfaces(paths, progress=None, feature_filter=None, with_source=False):
             yield surface
 
 
-def _read_file_surfaces(path, feature):
+def _read_file_surfaces(path, feature, on_bytes=None):
+    from .citygml import CountingReader
+
+    handle = CountingReader(path, on_bytes)
+    try:
+        yield from _parse_surfaces(handle, feature)
+    finally:
+        handle.close()
+
+
+def _parse_surfaces(handle, feature):
     wanted = _FEATURE_ELEMENTS.get(feature, ())
-    context = ElementTree.iterparse(str(path), events=("start", "end"))
+    context = ElementTree.iterparse(handle, events=("start", "end"))
     root = None
     epsg = None
 

@@ -192,9 +192,15 @@ needed on the machine that runs it.
 Pick the PLATEAU folder and the world folder, choose a district and a
 radius, and press **미리 확인** to see how many buildings and chunks you are
 about to get — and whether anything would hit the ceiling — before pressing
-**변환 시작**. A conversion takes minutes, so it runs on a worker thread with
-a live percentage and a Stop button that leaves already-written region files
-intact.
+**변환 시작**.
+
+A conversion takes minutes, so it runs on a worker thread with a Stop button
+that leaves already-written region files intact. Progress covers the whole
+run rather than just the last phase: parsing reports by bytes consumed (file
+sizes are known up front, and `iterparse` offers no progress of its own),
+clean-up and chunk writing take the remaining share, and the bar is
+determinate from the first frame. Elapsed time and an estimate of what is
+left sit under it.
 
 To run it from source instead:
 

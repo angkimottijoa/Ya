@@ -18,11 +18,13 @@ export would be.
 """
 import argparse
 import sys
+import time
 
 from .anvil import DEFAULT_DATA_VERSION
 from .heightfit import MODE_NONE, MODES
 from .jgd2011 import TOKYO_ZONE
-from .pipeline import GEOMETRIES, GEOMETRY_LOD1, Options, build_world
+from .pipeline import (GEOMETRIES, GEOMETRY_LOD1, Options, build_world,
+                       _format_duration)
 from .surfaces import FEATURE_TYPES
 
 # A few well known anchors, so a first run does not need coordinate hunting.
@@ -160,8 +162,18 @@ def main(argv=None):
         texture_downscale=args.texture_downscale, glass=args.glass,
         glass_threshold=args.glass_threshold, smooth=args.smooth)
 
+    started = time.time()
+
     def show(message, fraction=None):
-        print(message if fraction is None else f"  {message}")
+        if fraction is None:
+            print(message)
+            return
+        elapsed = time.time() - started
+        remaining = (elapsed * (1 - fraction) / fraction
+                     if fraction > 0.02 and elapsed > 2 else None)
+        print(f"  [{fraction * 100:5.1f}%] {message}"
+              f"  ({_format_duration(elapsed)} elapsed"
+              + (f", ~{_format_duration(remaining)} left)" if remaining else ")"))
 
     try:
         result = build_world(options, on_progress=show)

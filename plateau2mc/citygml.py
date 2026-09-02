@@ -219,7 +219,51 @@ def _read_building(element):
     return building
 
 
-def read_buildings(paths, progress=None):
+class CountingReader:
+    """A read-only file wrapper that reports how far through it is.
+
+    Parsing dominates the wall clock on real data -- a ward's building GML
+    runs to hundreds of megabytes -- and `iterparse` gives no hint of its
+    own progress. Counting the bytes it pulls does, and costs nothing:
+    file size is known up front, so "43% of the way through this tile" is
+    just a division.
+    """
+
+    def __init__(self, path, on_bytes=None):
+        self._handle = open(path, "rb")
+        self._on_bytes = on_bytes
+        self.read_bytes = 0
+
+    def read(self, size=-1):
+        chunk = self._handle.read(size)
+        self.read_bytes += len(chunk)
+        if self._on_bytes is not None:
+            self._on_bytes(len(chunk))
+        return chunk
+
+    def close(self):
+        self._handle.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+        return False
+
+
+def total_bytes(paths):
+    """Combined size of every CityGML file a run will read."""
+    total = 0
+    for path in _expand_paths(paths):
+        try:
+            total += path.stat().st_size
+        except OSError:
+            continue
+    return total
+
+
+def read_buildings(paths, progress=None, on_bytes=None):
     """Yield `Building`s from one or more CityGML files or directories.
 
     Also yields nothing for non-building PLATEAU packages (`_tran_`,
@@ -229,7 +273,7 @@ def read_buildings(paths, progress=None):
     for path in _expand_paths(paths):
         if progress:
             progress(f"reading {path.name}")
-        yield from _read_file(path)
+        yield from _read_file(path, on_bytes)
 
 
 def _expand_paths(paths):
@@ -245,8 +289,16 @@ def _expand_paths(paths):
     return found
 
 
-def _read_file(path):
-    context = ElementTree.iterparse(str(path), events=("start", "end"))
+def _read_file(path, on_bytes=None):
+    handle = CountingReader(path, on_bytes)
+    try:
+        yield from _parse_buildings(handle)
+    finally:
+        handle.close()
+
+
+def _parse_buildings(handle):
+    context = ElementTree.iterparse(handle, events=("start", "end"))
     root = None
     epsg = None
     for event, element in context:
