@@ -1,4 +1,13 @@
-# banner2bedrock
+# banner2bedrock / plateau2mc
+
+Two Minecraft converters live here:
+
+- **`banner2bedrock`** - an image into banner pixel-art, exported as a Bedrock
+  Edition `.mcstructure`.
+- **`plateau2mc`** - Japan's PLATEAU 3D city model into a Java Edition world at
+  1 block = 1 metre. [Jump to it](#plateau---minecraft-java-map-plateau2mc).
+
+## banner2bedrock
 
 Converts an image into Minecraft banner pixel-art and exports it as a
 **Bedrock Edition `.mcstructure` file** — ready to drop straight into a
@@ -132,6 +141,145 @@ The original project's Electron desktop GUI (`index.html`/`main.js`) isn't
 part of this port — instead there's a browser-based UI (`app.py`, built with
 [Gradio](https://gradio.app)) plus the CLI. The image-to-banner algorithm
 and asset files are unchanged from upstream.
+
+## PLATEAU -> Minecraft Java map (`plateau2mc`)
+
+A second converter lives in this repo: `plateau2mc` turns Japan's
+[Project PLATEAU](https://www.mlit.go.jp/plateau/) 3D city model into a
+Minecraft **Java Edition** world at 1 block = 1 metre. It shares nothing
+with the banner converter except the repo — different input, different
+output, no shared code path.
+
+### Why PLATEAU and not Google Earth
+
+Google Earth's 3D city is a proprietary photogrammetric mesh, and its terms
+forbid extraction. It would also be the wrong input even if it were
+available: buildings, trees, cars and their shadows are fused into one
+untextured-once mesh with no per-building identity, so voxelizing it gives
+melted clay rather than a city.
+
+PLATEAU is the opposite: open data (CC BY 4.0) from the Ministry of Land,
+Infrastructure, Transport and Tourism, covering all 23 Tokyo wards, with
+every building carried as its own polygon plus a `measuredHeight`. That is
+exactly the shape a voxelizer wants.
+
+### Getting the data
+
+From the [G-space Information Center's Tokyo 23-ward
+dataset](https://www.geospatial.jp/ckan/dataset/plateau-tokyo23ku), download
+**CityGML** — not 3D Tiles, not GeoTIFF, neither of which carries per-building
+geometry. The archive is several GB because it covers all 23 wards; inside
+it, the only thing this tool reads is:
+
+```
+udx/bldg/<mesh code>_bldg_6697_*.gml
+```
+
+Each of those files is one 2nd-level mesh (a few km across), so for a single
+district you only need to extract one or two of them. Point the tool at a
+directory and it picks up every `.gml` inside, skipping the non-building
+packages (`_tran_`, `_luse_`, ...) on its own.
+
+### Building a map
+
+The tool writes region files into an **existing** world — it does not create
+one. That is deliberate: world height, dimension type and generator belong
+to whatever datapack or mod you use, and a generated `level.dat` would only
+fight with it. Make an empty superflat (or void) world first, then:
+
+```bash
+pip install -r requirements.txt
+
+python -m plateau2mc path/to/udx/bldg \
+    --center shinjuku --radius 1000 \
+    --world ~/.minecraft/saves/Tokyo \
+    --max-y 1023
+```
+
+`--center` takes `lat,lon` or one of the built-in anchors: `shibuya`,
+`shinjuku`, `tokyo-station`, `skytree`, `tokyo-tower`, `ginza`,
+`akihabara`. The map is centred on block 0, 0, so `/tp 0 70 0` lands you on
+the spot you named. Add `--dry-run` first to see the chunk count and the
+height the tallest building will reach before committing to a build.
+
+### Options
+
+| Flag | Meaning |
+|---|---|
+| `--center LAT,LON` \| `NAME` | map origin (required) |
+| `--radius M` | half-width of the square to build, in metres/blocks (default 800) |
+| `--world DIR` | existing save directory to write `region/` into (required) |
+| `--min-y` / `--max-y` | world height range; must stay section-aligned (default `-64` / `319`) |
+| `--sea-level Y` | block y that altitude 0 m maps to (default 62) |
+| `--max-building-height M` | clamp building heights, for staying inside vanilla height |
+| `--solid` | fill buildings solid instead of hollow shells |
+| `--no-terrain` | place buildings only, no ground |
+| `--terrain-cell N` | terrain interpolation cell size in blocks (default 32) |
+| `--data-version N` | chunk `DataVersion` to stamp (default 4189 = 1.21.4) |
+| `--zone N` | Japan Plane Rectangular zone 1-19 (default: inferred) |
+
+### Height
+
+Tokyo does not fit under vanilla's 320 ceiling. With the default sea level
+of 62, Tokyo Tower's roof lands at y=401 and Skytree's at about y=696 —
+both above vanilla, though everything below roughly the 250 m mark fits
+fine. Two ways out:
+
+- **Extend the world height** with a datapack dimension type and pass a
+  matching `--max-y`. This is the intended route, and why the tool refuses
+  to write `level.dat` for you. Anvil's own hard ceiling is y=2047: a
+  section's index is stored as a signed byte, so sections only run -128..127.
+- **Clamp** with `--max-building-height 250` and stay vanilla.
+
+The tool warns before writing if the tallest building would be cut off.
+
+### Coordinates
+
+Everything is projected into the [Japan Plane Rectangular
+system](https://www.gsi.go.jp/sokuchikijun/jpc.html) — zone IX (EPSG:6677)
+for Tokyo — where the unit is already the metre, so a projected coordinate
+rounded to an integer *is* a block coordinate. This matters: Web Mercator,
+the obvious default, stretches east-west by `1/cos(35.66°)` at Tokyo's
+latitude, making the city 23% too wide. `plateau2mc/jgd2011.py` implements
+the projection directly (no pyproj/PROJ dependency, which keeps the frozen
+Windows build lean) and the test suite pins it against pyproj across all 19
+zones.
+
+### Terrain
+
+PLATEAU building geometry carries absolute altitude, so the base of every
+building is a free elevation sample. Those samples are scattered onto a
+coarse grid, grown into the gaps and smoothed, which recovers the real
+shape of the city — the Yamanote uplands standing over the Shitamachi
+lowlands, river valleys, the Arakawa flood plain. It is not the GSI's 5 m
+DEM and it flattens across parks, water and rail yards where nothing
+samples it, but it needs no second dataset. `--no-terrain` turns it off.
+
+### What it does not do
+
+Roads, railways, rivers, land use and vegetation are all absent — those live
+in OpenStreetMap or PLATEAU's `_tran_`/`_luse_` packages, and nothing here
+reads them yet. Buildings are extruded from their footprint at LOD1, so LOD2
+roof shapes are flattened. Interiors are empty shells (`--solid` fills
+them).
+
+### Tests
+
+```bash
+python -m unittest discover -s tests
+```
+
+The suite generates its own PLATEAU-shaped CityGML rather than shipping a
+sample of the real dataset, and reads the produced world back with an
+independent Anvil decoder (`tests/read_world.py`) to check block placement,
+wall continuity across chunk boundaries, and that tall towers survive at
+their true height.
+
+### Credits
+
+The 3D city model is Project PLATEAU by Japan's Ministry of Land,
+Infrastructure, Transport and Tourism, used under CC BY 4.0. A world built
+with this tool inherits that attribution requirement.
 
 ## Credits & licensing
 

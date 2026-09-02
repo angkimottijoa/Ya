@@ -26,3 +26,16 @@
 
 - **[Bedrock Wiki](https://wiki.bedrock.dev/nbt/mcstructure)** — general
   `.mcstructure` format documentation.
+
+## plateau2mc
+
+- **3D city model**: [Project PLATEAU](https://www.mlit.go.jp/plateau/),
+  Ministry of Land, Infrastructure, Transport and Tourism of Japan,
+  licensed CC BY 4.0. A world built from it inherits that attribution
+  requirement.
+- **Projection**: the Gauss-Kruger series in `plateau2mc/jgd2011.py` follows
+  the formulation published by the Geospatial Information Authority of Japan
+  for the plane rectangular coordinate systems. No code is reused; the
+  implementation is checked against pyproj in the test suite.
+- **Formats**: the Anvil region/chunk layout and its 1.16+ long packing are
+  as documented on the Minecraft Wiki. No game or tool code is reused.
