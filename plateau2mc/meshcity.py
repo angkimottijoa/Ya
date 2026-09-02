@@ -201,3 +201,49 @@ class MeshCity:
         for class_index, block_id in ids.items():
             picked = classes == class_index
             chunk.blocks[local_x[picked], local_y[picked], local_z[picked]] = block_id
+
+
+def smooth(voxels, classes, strength=1, max_change=0.06):
+    """Take the stair-stepping off curved surfaces.
+
+    A cylindrical tower voxelized at one metre comes out as a staircase
+    with single-voxel spurs and notches along it, which is the roughness
+    that shows up worst in game. Two morphological passes fix it: drop a
+    voxel with almost nothing attached to it (a spur), then fill a cell
+    that is nearly enclosed (a notch). `strength` repeats them.
+
+    The point of `max_change` is that a strong setting must not be allowed
+    to eat the building. If a pass would alter more than that fraction of
+    the model, it is abandoned and the previous state is kept -- a smoother
+    that quietly dissolves a spire is worse than no smoother at all. The
+    caller is told how much actually changed.
+    """
+    if strength <= 0 or len(voxels) == 0:
+        return voxels, classes, 0
+
+    changed = 0
+    for _ in range(int(strength)):
+        before = len(voxels)
+
+        keys = np.sort(pack(voxels))
+        counts = _neighbour_counts(voxels, keys, _NEIGHBOURS_6)
+        # A face voxel on a flat wall has 4 face neighbours; on an edge, 3;
+        # a spur has 2 or fewer.
+        keep = counts >= 3
+        removed = int((~keep).sum())
+        if removed and removed <= max_change * before:
+            voxels, classes = voxels[keep], classes[keep]
+            changed += removed
+        elif removed:
+            # Too much would go: the model is thin or filigree, not rough.
+            break
+
+        patched_voxels, patched_classes = close_pinholes(voxels, classes, min_filled=4)
+        added = len(patched_voxels) - len(voxels)
+        if added and added <= max_change * len(voxels):
+            voxels, classes = patched_voxels, patched_classes
+            changed += added
+        elif added:
+            break
+
+    return voxels, classes, changed

@@ -58,9 +58,11 @@ def build_parser():
     parser.add_argument("--world", required=True,
                         help="existing Minecraft save directory; region files are written "
                              "into its region/ subfolder")
-    parser.add_argument("--center", type=parse_center, required=True,
+    parser.add_argument("--center", type=parse_center, default=None,
                         help="map origin as 'lat,lon' or a landmark name "
-                             "(" + ", ".join(sorted(LANDMARKS)) + ")")
+                             "(" + ", ".join(sorted(LANDMARKS)) + "). Omit it and the "
+                             "centre of whatever CityGML you pointed at is used, so an "
+                             "unzipped download works with no coordinates to look up")
     parser.add_argument("--radius", type=int, default=800,
                         help="half-width of the square area to build, in metres/blocks "
                              "(default: 800, i.e. a 1.6 km square)")
@@ -116,6 +118,29 @@ def build_parser():
                              "in Minecraft coordinates, with a .png beside it")
     parser.add_argument("--map-scale", type=int, default=1,
                         help="blocks per map pixel (default: 1; raise it for a whole ward)")
+    parser.add_argument("--textures", action="store_true",
+                        help="colour blocks from the LOD2 texture images instead of using "
+                             "one block per surface type. Needs --geometry lod2")
+    parser.add_argument("--simplify-colors", type=int, default=12, metavar="N",
+                        help="flatten each texture to N colours before matching, which "
+                             "turns JPEG noise into the flat panels a facade actually has "
+                             "(default: 12; 0 disables)")
+    parser.add_argument("--texture-downscale", type=int, default=4, metavar="N",
+                        help="shrink each texture by this factor before sampling "
+                             "(default: 4; blocks are 1 m, so full resolution is wasted)")
+    parser.add_argument("--no-glass", dest="glass", action="store_false",
+                        help="never use glass blocks; glazing becomes concrete like "
+                             "everything else")
+    parser.add_argument("--glass-threshold", type=float, default=0.35, metavar="F",
+                        help="fraction of a wall's pixels that must read as glazing before "
+                             "the whole wall becomes glass (default: 0.35). The decision is "
+                             "per wall, never per pixel, so a window never comes out speckled "
+                             "with concrete")
+    parser.add_argument("--smooth", type=int, default=0, metavar="N",
+                        help="take the stair-stepping off curved surfaces, N passes "
+                             "(default: 0). Each pass drops single-voxel spurs and fills "
+                             "notches, and is abandoned if it would change more than 6%% of "
+                             "the model, so a spire or a railing is never dissolved")
     parser.add_argument("--dry-run", action="store_true",
                         help="report what would be built without writing region files")
     return parser
@@ -130,7 +155,10 @@ def main(argv=None):
         solid=args.solid, terrain=args.terrain, terrain_cell=args.terrain_cell,
         data_version=args.data_version, dry_run=args.dry_run,
         geometry=args.geometry, features=tuple(args.features), clean=args.clean,
-        map_path=args.map_path, map_scale=args.map_scale)
+        map_path=args.map_path, map_scale=args.map_scale,
+        textures=args.textures, simplify_colors=args.simplify_colors,
+        texture_downscale=args.texture_downscale, glass=args.glass,
+        glass_threshold=args.glass_threshold, smooth=args.smooth)
 
     def show(message, fraction=None):
         print(message if fraction is None else f"  {message}")
@@ -148,9 +176,17 @@ def main(argv=None):
         print("  to keep them whole: raise --max-y (Java, with a height datapack), "
               "or use --fit compress.", file=sys.stderr)
 
+    if result.auto_centered:
+        print(f"  centred on the data: {options.center[0]:.6f}, {options.center[1]:.6f}")
     if result.voxels:
-        print(f"  {result.voxels:,} voxels "
-              f"(removed {result.voxels_removed:,} loose, patched {result.voxels_patched:,} seams)")
+        print(f"  {result.voxels:,} voxels (removed {result.voxels_removed:,} loose, "
+              f"patched {result.voxels_patched:,} seams, "
+              f"smoothed {result.voxels_smoothed:,})")
+    if result.textured_surfaces:
+        print(f"  {result.textured_surfaces:,} surfaces textured, "
+              f"{result.glazed_surfaces:,} of them glazed")
+        for name, count in list(result.block_counts.items())[:8]:
+            print(f"      {count:>8,}  {name}")
 
     if result.dry_run:
         return 0

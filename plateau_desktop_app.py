@@ -25,7 +25,8 @@ from tkinter import (
 from plateau2mc.anvil import DEFAULT_DATA_VERSION
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, MODE_SCALE
 from plateau2mc.jgd2011 import guess_zone
-from plateau2mc.pipeline import Cancelled, Options, build_world
+from plateau2mc.pipeline import (GEOMETRY_LOD1, GEOMETRY_LOD2, Cancelled,
+                                 Options, build_world)
 
 APP_TITLE = "PLATEAU -> 마인크래프트 자바 월드 변환기"
 PLATEAU_URL = "https://www.mlit.go.jp/plateau/open-data/"
@@ -53,8 +54,21 @@ FIT_CHOICES = [
 # export format: build inside it on Java, then convert with Chunker.
 HEIGHT_PRESETS = [
     ("바닐라 자바/베드락 (-64 ~ 319)", -64, 319),
+    ("높이 확장 (-512 ~ 511)", -512, 511),
     ("높이 확장 데이터팩 (-64 ~ 1023)", -64, 1023),
     ("최대 (Anvil 한계, -2048 ~ 2047)", -2048, 2047),
+]
+
+GEOMETRY_CHOICES = [
+    ("LOD2 — 실제 형상 (경사 지붕·굴곡)", GEOMETRY_LOD2),
+    ("LOD1 — 바닥면 압출 (빠름)", GEOMETRY_LOD1),
+]
+
+SMOOTH_CHOICES = [
+    ("끄기", 0),
+    ("보통 — 곡면 계단현상 완화", 1),
+    ("강하게 — 2번 반복", 2),
+    ("최대 — 3번 반복", 3),
 ]
 
 
@@ -71,8 +85,14 @@ class PlateauApp:
         self.lon_var = DoubleVar(value=PLACES[0][2])
         self.radius_var = IntVar(value=800)
         self.preset_var = StringVar(value=HEIGHT_PRESETS[1][0])
-        self.min_y_var = IntVar(value=-64)
-        self.max_y_var = IntVar(value=1023)
+        self.min_y_var = IntVar(value=-512)
+        self.max_y_var = IntVar(value=511)
+        self.geometry_var = StringVar(value=GEOMETRY_CHOICES[0][0])
+        self.textures_var = BooleanVar(value=True)
+        self.glass_var = BooleanVar(value=True)
+        self.simplify_var = IntVar(value=12)
+        self.smooth_var = StringVar(value=SMOOTH_CHOICES[1][0])
+        self.map_var = BooleanVar(value=True)
         self.fit_var = StringVar(value=FIT_CHOICES[0][0])
         self.sea_level_var = IntVar(value=62)
         self.terrain_var = BooleanVar(value=True)
@@ -158,11 +178,42 @@ class PlateauApp:
                                      justify="left")
         self.height_hint.grid(row=2, column=0, columnspan=3, sticky="w", padx=8, pady=(2, 0))
 
+        # -- Look ------------------------------------------------------------
+        look = ttk.LabelFrame(main, text="4. 형상과 재질", padding=10)
+        look.grid(row=3, column=0, sticky="ew", **pad)
+        look.columnconfigure(1, weight=1)
+
+        ttk.Label(look, text="형상").grid(row=0, column=0, sticky="w", **pad)
+        ttk.Combobox(look, textvariable=self.geometry_var, state="readonly",
+                     values=[name for name, _ in GEOMETRY_CHOICES], width=34
+                     ).grid(row=0, column=1, sticky="w", **pad)
+
+        ttk.Checkbutton(look, text="텍스처 이미지로 블록 색 정하기",
+                        variable=self.textures_var).grid(row=1, column=0, columnspan=2,
+                                                         sticky="w", **pad)
+        ttk.Checkbutton(look, text="유리 파사드는 스테인드글라스로 (콘크리트로 대체하지 않음)",
+                        variable=self.glass_var).grid(row=2, column=0, columnspan=2,
+                                                      sticky="w", **pad)
+        ttk.Label(look, text="이미지 단순화").grid(row=3, column=0, sticky="w", **pad)
+        ttk.Spinbox(look, from_=0, to=64, textvariable=self.simplify_var, width=7
+                    ).grid(row=3, column=1, sticky="w", **pad)
+        ttk.Label(look, text="색 (JPEG 노이즈를 평평한 패널로; 0이면 끄기)",
+                  foreground="#666").grid(row=4, column=1, sticky="w", padx=8)
+
+        ttk.Label(look, text="곡면 다듬기").grid(row=5, column=0, sticky="w", **pad)
+        ttk.Combobox(look, textvariable=self.smooth_var, state="readonly",
+                     values=[name for name, _ in SMOOTH_CHOICES], width=34
+                     ).grid(row=5, column=1, sticky="w", **pad)
+        ttk.Label(look, text="원본을 망가뜨릴 만큼 바뀌면 자동으로 중단합니다",
+                  foreground="#666").grid(row=6, column=1, sticky="w", padx=8)
+
         # -- Extras ---------------------------------------------------------
-        extra = ttk.LabelFrame(main, text="4. 기타", padding=10)
-        extra.grid(row=3, column=0, sticky="ew", **pad)
+        extra = ttk.LabelFrame(main, text="5. 기타", padding=10)
+        extra.grid(row=4, column=0, sticky="ew", **pad)
         ttk.Checkbutton(extra, text="지형 생성", variable=self.terrain_var
                         ).grid(row=0, column=0, sticky="w", **pad)
+        ttk.Checkbutton(extra, text="좌표 지도 출력", variable=self.map_var
+                        ).grid(row=1, column=0, sticky="w", **pad)
         ttk.Checkbutton(extra, text="건물 속을 꽉 채우기 (느리고 용량 큼)",
                         variable=self.solid_var).grid(row=0, column=1, sticky="w", **pad)
         ttk.Label(extra, text="해수면 y").grid(row=0, column=2, sticky="e", **pad)
@@ -174,7 +225,7 @@ class PlateauApp:
 
         # -- Run ------------------------------------------------------------
         run = ttk.Frame(main)
-        run.grid(row=4, column=0, sticky="ew", **pad)
+        run.grid(row=5, column=0, sticky="ew", **pad)
         run.columnconfigure(2, weight=1)
         self.preview_button = ttk.Button(run, text="미리 확인 (쓰지 않음)",
                                          command=lambda: self._start(dry_run=True))
@@ -189,9 +240,9 @@ class PlateauApp:
                   ).grid(row=2, column=0, columnspan=3, sticky="w", padx=8)
 
         # -- Log ------------------------------------------------------------
-        main.rowconfigure(5, weight=1)
+        main.rowconfigure(6, weight=1)
         log_box = ttk.LabelFrame(main, text="진행 상황", padding=6)
-        log_box.grid(row=5, column=0, sticky="nsew", **pad)
+        log_box.grid(row=6, column=0, sticky="nsew", **pad)
         log_box.columnconfigure(0, weight=1)
         log_box.rowconfigure(0, weight=1)
         self.log = Text(log_box, height=10, wrap="word", state="disabled")
@@ -266,15 +317,26 @@ class PlateauApp:
     # ---------------------------------------------------------------- run --
     def _options(self, dry_run):
         fit = next(value for name, value in FIT_CHOICES if name == self.fit_var.get())
+        geometry = next(value for name, value in GEOMETRY_CHOICES
+                        if name == self.geometry_var.get())
+        smooth = next(value for name, value in SMOOTH_CHOICES
+                      if name == self.smooth_var.get())
+        lat, lon = float(self.lat_var.get()), float(self.lon_var.get())
+
+        map_path = None
+        if self.map_var.get() and self.world_dir.get():
+            map_path = os.path.join(self.world_dir.get(), "plateau2mc_plan.html")
+
         return Options(
             source=[self.source_dir.get()], world=self.world_dir.get(),
-            center=(float(self.lat_var.get()), float(self.lon_var.get())),
-            radius=int(self.radius_var.get()),
-            zone=guess_zone(float(self.lat_var.get()), float(self.lon_var.get())),
-            sea_level=int(self.sea_level_var.get()),
+            center=(lat, lon), radius=int(self.radius_var.get()),
+            zone=guess_zone(lat, lon), sea_level=int(self.sea_level_var.get()),
             min_y=int(self.min_y_var.get()), max_y=int(self.max_y_var.get()),
             fit=fit, solid=self.solid_var.get(), terrain=self.terrain_var.get(),
-            data_version=int(self.data_version_var.get()), dry_run=dry_run)
+            data_version=int(self.data_version_var.get()), dry_run=dry_run,
+            geometry=geometry, textures=self.textures_var.get(),
+            glass=self.glass_var.get(), simplify_colors=int(self.simplify_var.get()),
+            smooth=smooth, map_path=map_path)
 
     def _start(self, dry_run):
         if self._worker is not None and self._worker.is_alive():
@@ -381,6 +443,18 @@ class PlateauApp:
                 f"경고: {result.overflow_count}채가 월드 천장(y={self.max_y_var.get()})을 "
                 f"넘습니다. 가장 높은 것은 y={result.overflow_needs_y}까지 필요합니다. "
                 f"높이를 올리거나 '초과 건물 처리'를 압축으로 바꾸세요.")
+
+        if result.voxels:
+            lines.append(f"복셀 {result.voxels:,}개 "
+                         f"(정리 {result.voxels_removed:,} / 메움 {result.voxels_patched:,} "
+                         f"/ 다듬기 {result.voxels_smoothed:,})")
+        if result.textured_surfaces:
+            lines.append(f"텍스처 적용 {result.textured_surfaces:,}면, "
+                         f"그중 유리 {result.glazed_surfaces:,}면")
+            top = list(result.block_counts.items())[:5]
+            lines.append("주요 블록: " + ", ".join(f"{n.split(':')[-1]} {c:,}" for n, c in top))
+        if result.map_files:
+            lines.append(f"좌표 지도: {result.map_files[0]}")
 
         if result.dry_run:
             lines.append("미리 확인이라 아무것도 쓰지 않았습니다.")

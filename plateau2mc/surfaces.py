@@ -81,6 +81,7 @@ class Surface:
     lod: int = 2
     polygon_id: str = ""
     texture: TextureRef = None
+    source_path: object = None
 
     @property
     def exterior(self):
@@ -184,7 +185,7 @@ def surfaces_of_feature(element, feature):
     return []
 
 
-def read_surfaces(paths, progress=None, feature_filter=None):
+def read_surfaces(paths, progress=None, feature_filter=None, with_source=False):
     """Stream `Surface`s from CityGML files or directories."""
     from .citygml import _expand_paths
 
@@ -205,7 +206,12 @@ def read_surfaces(paths, progress=None, feature_filter=None):
             continue
         if progress:
             progress(f"reading {path.name} ({feature})")
-        yield from _read_file_surfaces(path, feature)
+        for surface in _read_file_surfaces(path, feature):
+            if with_source:
+                # Appearances live in the same file, so a surface has to
+                # remember which one it came from to find its texture.
+                surface.source_path = path
+            yield surface
 
 
 def _read_file_surfaces(path, feature):

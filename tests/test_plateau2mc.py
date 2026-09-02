@@ -26,6 +26,9 @@ from plateau2mc.pipeline import (GEOMETRY_LOD2, Cancelled, Options, build_world)
 from plateau2mc.meshcity import close_pinholes, despeckle, pack, unpack
 from plateau2mc.meshvoxel import surface_voxels
 from plateau2mc.surfaces import feature_type_from_name, read_surfaces
+from plateau2mc.blockpalette import BlockMatcher, is_glassy
+from plateau2mc.citygml import data_extent
+from plateau2mc.meshcity import smooth
 from plateau2mc.jgd2011 import ZONE_ORIGINS, PlaneRectangular, guess_zone
 from plateau2mc.heightfit import MODE_COMPRESS, MODE_NONE, HeightFit
 from plateau2mc.voxel import Materials, TerrainField, rasterize
@@ -505,6 +508,130 @@ class TestLod2Pipeline(unittest.TestCase):
         page = Path(self.result.map_files[0]).read_text(encoding="utf-8")
         self.assertIn("EPSG:6677", page)
         self.assertIn("region/", page)
+
+
+class TestBlockPalette(unittest.TestCase):
+    def setUp(self):
+        self.matcher = BlockMatcher()
+
+    def test_glazing_is_recognised_across_its_range(self):
+        for label, rgb in [("blue curtain wall", (72, 96, 130)),
+                           ("dark glazing", (40, 52, 70)),
+                           ("sky-reflecting glass", (140, 172, 205))]:
+            self.assertTrue(bool(is_glassy(rgb)[0]), f"{label} was not seen as glass")
+
+    def test_ordinary_walls_are_not_mistaken_for_glass(self):
+        for label, rgb in [("white concrete", (205, 205, 200)),
+                           ("beige wall", (214, 196, 160)),
+                           ("brick", (150, 95, 80)),
+                           ("beige in shade", (120, 108, 90))]:
+            self.assertFalse(bool(is_glassy(rgb)[0]), f"{label} was turned into glass")
+
+    def test_a_glazed_surface_never_comes_out_speckled_with_concrete(self):
+        """The whole point of judging glazing per surface, not per pixel."""
+        rng = np.random.default_rng(4)
+        base = np.array([78, 104, 140])
+        # A curtain wall with mullions and reflections in it. The noise is
+        # mostly luminance, the way a JPEG facade actually varies: shading
+        # and compression move all three channels together and leave hue
+        # roughly intact, rather than scrambling it per channel.
+        luminance = rng.normal(0, 30, (600, 1))
+        chroma = rng.normal(0, 8, (600, 3))
+        wall = np.clip(base + luminance + chroma, 0, 255).astype(int)
+        self.assertTrue(self.matcher.surface_is_glazed(wall))
+        names = self.matcher.match(wall, glazed=True)
+        self.assertTrue(all("glass" in name for name in names),
+                        "a glazed wall picked up a non-glass block")
+
+    def test_an_ordinary_wall_stays_out_of_the_glass_family(self):
+        rng = np.random.default_rng(5)
+        wall = np.clip(np.array([198, 194, 186]) + rng.normal(0, 18, (400, 1))
+                       + rng.normal(0, 6, (400, 3)), 0, 255).astype(int)
+        self.assertFalse(self.matcher.surface_is_glazed(wall))
+        names = self.matcher.match(wall, glazed=False)
+        self.assertFalse(any("glass" in name for name in names))
+
+    def test_the_light_blue_tint_is_available(self):
+        names = self.matcher.match([(102, 153, 216)], glazed=True)
+        self.assertEqual(names[0], "minecraft:light_blue_stained_glass")
+
+
+class TestSmoothing(unittest.TestCase):
+    def _cylinder(self):
+        angles = np.linspace(0, 2 * np.pi, 600, endpoint=False)
+        ring = np.unique(np.column_stack([
+            np.round(20 * np.cos(angles)).astype(int),
+            np.round(20 * np.sin(angles)).astype(int)]), axis=0)
+        return np.vstack([np.column_stack([ring, np.full(len(ring), z)])
+                          for z in range(12)]).astype(np.int64)
+
+    def test_spurs_on_a_curved_wall_are_taken_off(self):
+        spurs = np.array([[25, 0, 5], [0, 25, 6], [-25, 0, 7]], dtype=np.int64)
+        noisy = np.vstack([self._cylinder(), spurs])
+        out, _, changed = smooth(noisy, np.zeros(len(noisy), dtype=np.int16), strength=1)
+        self.assertGreater(changed, 0)
+        for spur in spurs:
+            self.assertFalse((out == spur).all(axis=1).any(), f"spur {spur} survived")
+
+    def test_a_thin_structure_is_never_dissolved(self):
+        """The guard that stops a strong setting eating a spire."""
+        line = np.column_stack([np.arange(40), np.zeros(40, int),
+                                np.zeros(40, int)]).astype(np.int64)
+        out, _, changed = smooth(line, np.zeros(40, dtype=np.int16), strength=3)
+        self.assertEqual(len(out), len(line))
+        self.assertEqual(changed, 0)
+
+    def test_off_by_default_is_a_true_no_op(self):
+        cylinder = self._cylinder()
+        out, _, changed = smooth(cylinder, np.zeros(len(cylinder), dtype=np.int16),
+                                 strength=0)
+        self.assertEqual(len(out), len(cylinder))
+        self.assertEqual(changed, 0)
+
+
+class TestTexturedConversion(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = Path(tempfile.mkdtemp())
+        cls.source = cls.tmp / "src"
+        make_fixture.build_textured(cls.source / "53394611_bldg_6697_2_op.gml")
+        cls.world = cls.tmp / "world"
+        (cls.world / "region").mkdir(parents=True)
+        cls.result = build_world(Options(
+            source=[str(cls.source)], world=str(cls.world), radius=200,
+            geometry=GEOMETRY_LOD2, min_y=-512, max_y=511, terrain=False,
+            textures=True, simplify_colors=8, texture_downscale=1, glass=True))
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.tmp, ignore_errors=True)
+
+    def test_it_centres_itself_on_the_data(self):
+        """One unzipped download and a save folder should be enough."""
+        self.assertTrue(self.result.auto_centered)
+        extent = data_extent(self.source)
+        self.assertIsNotNone(extent)
+
+    def test_every_textured_surface_found_its_image(self):
+        self.assertEqual(self.result.textured_surfaces, 10)
+        self.assertEqual(self.result.missing_textures, 0)
+
+    def test_the_glass_facade_is_glass_and_only_glass(self):
+        blocks = self.result.block_counts
+        glass_total = sum(count for name, count in blocks.items() if "glass" in name)
+        self.assertGreater(glass_total, 2000, "the glazed tower did not come out as glass")
+        self.assertEqual(self.result.glazed_surfaces, 4,
+                         "glazing should be decided for the four walls, not the roof")
+
+    def test_the_brick_facade_is_not_glass(self):
+        self.assertIn("minecraft:bricks", self.result.block_counts)
+        self.assertGreater(self.result.block_counts["minecraft:bricks"], 1000)
+
+    def test_ordinary_surfaces_still_use_solid_blocks(self):
+        solid = [name for name in self.result.block_counts if "glass" not in name]
+        self.assertTrue(any("concrete" in name or "terracotta" in name or "stone" in name
+                            for name in solid),
+                        "nothing solid was placed at all")
 
 
 class TestEndToEnd(unittest.TestCase):

@@ -283,3 +283,127 @@ def build_lod2(path, centre=(35.690921, 139.700258), grid=3, spacing_m=30):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(header + "".join(parts) + FOOTER, encoding="utf-8")
     return path
+
+
+# ----------------------------------------------------------- textures ---
+# LOD2 tiles ship a sibling folder of JPEGs plus an app:Appearance block
+# tying each image to a polygon by gml:id. This builds the same shape, with
+# generated images, so the texture path can be tested without the real
+# multi-gigabyte dataset.
+
+APPEARANCE = """  <app:appearanceMember>
+    <app:Appearance>
+      <app:theme>rgbTexture</app:theme>
+{textures}    </app:Appearance>
+  </app:appearanceMember>
+"""
+
+PARAMETERIZED_TEXTURE = """      <app:surfaceDataMember>
+        <app:ParameterizedTexture>
+          <app:imageURI>{image}</app:imageURI>
+          <app:mimeType>image/jpg</app:mimeType>
+{targets}        </app:ParameterizedTexture>
+      </app:surfaceDataMember>
+"""
+
+TEXTURE_TARGET = """          <app:target uri="#{polygon_id}">
+            <app:TexCoordList>
+              <app:textureCoordinates ring="#ring_{polygon_id}">{uv}</app:textureCoordinates>
+            </app:TexCoordList>
+          </app:target>
+"""
+
+
+def _write_texture(path, colour, noise=18, size=64):
+    """A flat colour with JPEG-ish noise, so simplification has work to do."""
+    from PIL import Image
+    import random
+
+    random.seed(hash(colour) & 0xFFFF)
+    image = Image.new("RGB", (size, size))
+    pixels = image.load()
+    for y in range(size):
+        for x in range(size):
+            pixels[x, y] = tuple(
+                max(0, min(255, channel + random.randint(-noise, noise)))
+                for channel in colour)
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    image.save(path, "JPEG", quality=85)
+
+
+def build_textured(path, centre=(35.690921, 139.700258)):
+    """Two LOD2 boxes: one glazed curtain wall, one brick.
+
+    The header has to declare the app namespace, so this writes its own
+    rather than reusing HEADER.
+    """
+    path = Path(path)
+    texture_dir = path.parent / f"{path.stem}_appearance"
+    facades = [
+        # (label, wall colour, roof colour, offset in metres)
+        ("glass", (78, 104, 140), (60, 64, 70), -40.0),
+        ("brick", (150, 96, 80), (70, 60, 55), 40.0),
+    ]
+
+    parts = []
+    texture_blocks = []
+    index = 0
+    for label, wall_colour, roof_colour, offset in facades:
+        wall_image = f"{texture_dir.name}/{label}_wall.jpg"
+        roof_image = f"{texture_dir.name}/{label}_roof.jpg"
+        _write_texture(texture_dir / f"{label}_wall.jpg", wall_colour)
+        _write_texture(texture_dir / f"{label}_roof.jpg", roof_colour)
+
+        lat = centre[0]
+        lon = centre[1] + offset * _LON_PER_M
+        points = _rect(lat, lon, 24, 24)
+        base_alt, height = 5.0, 24.0
+        top = base_alt + height
+
+        surfaces = []
+        for i, (a, b) in enumerate(((0, 1), (1, 2), (2, 3), (3, 0))):
+            (lat_a, lon_a), (lat_b, lon_b) = points[a], points[b]
+            coords = (f"{lat_a:.9f} {lon_a:.9f} {base_alt:.3f} "
+                      f"{lat_b:.9f} {lon_b:.9f} {base_alt:.3f} "
+                      f"{lat_b:.9f} {lon_b:.9f} {top:.3f} "
+                      f"{lat_a:.9f} {lon_a:.9f} {top:.3f} "
+                      f"{lat_a:.9f} {lon_a:.9f} {base_alt:.3f}")
+            surfaces.append(("WallSurface", f"{index}_{i}", coords, wall_image))
+        surfaces.append(("RoofSurface", f"{index}_r",
+                         _ring_coords(points, top), roof_image))
+        surfaces.append(("GroundSurface", f"{index}_g",
+                         _ring_coords(points, base_alt), None))
+
+        bounded = ""
+        by_image = {}
+        for kind, suffix, coords, image in surfaces:
+            polygon_id = f"poly_{suffix}"
+            bounded += BOUNDED_SURFACE.format(
+                kind=kind, kind_lower=kind.lower(), index=suffix,
+                coords=coords, holes="").replace(
+                f'gml:id="poly_{suffix}"', f'gml:id="{polygon_id}"')
+            if image:
+                # UV for a closed 5-point ring: corners of the image.
+                by_image.setdefault(image, []).append(
+                    (polygon_id, "0 0 1 0 1 1 0 1 0 0"))
+
+        parts.append(LOD2_BUILDING.format(
+            index=f"tex_{index}", height=f"{height:.1f}",
+            lod1_faces=_extruded_faces(points, base_alt, height), bounded=bounded))
+
+        for image, targets in by_image.items():
+            texture_blocks.append(PARAMETERIZED_TEXTURE.format(
+                image=image,
+                targets="".join(TEXTURE_TARGET.format(polygon_id=pid, uv=uv)
+                                for pid, uv in targets)))
+        index += 1
+
+    header = HEADER.format(
+        min_lat=centre[0] - 0.01, max_lat=centre[0] + 0.01,
+        min_lon=centre[1] - 0.01, max_lon=centre[1] + 0.01
+    ).replace('xmlns:xsi=', 'xmlns:app="http://www.opengis.net/citygml/appearance/2.0"\n    xmlns:xsi=')
+
+    body = "".join(parts) + APPEARANCE.format(textures="".join(texture_blocks))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(header + body + FOOTER, encoding="utf-8")
+    return path

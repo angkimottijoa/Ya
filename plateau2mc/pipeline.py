@@ -14,12 +14,15 @@ from pathlib import Path
 import numpy as np
 
 from .anvil import DEFAULT_DATA_VERSION, ChunkBuilder, RegionWriter
-from .citygml import read_buildings
+from .citygml import data_extent, read_buildings
 from .heightfit import MODE_NONE, HeightFit
 from .jgd2011 import PlaneRectangular, guess_zone
-from .meshcity import CLASS_PRIORITY, MeshCity, block_for, close_pinholes, despeckle
+from .appearance import affine_uv, read_appearances
+from .blockpalette import BlockMatcher
+from .meshcity import (CLASS_PRIORITY, MeshCity, block_for, close_pinholes,
+                       despeckle, smooth)
 from .meshvoxel import VoxelAccumulator, surface_voxels
-from .surfaces import read_surfaces
+from .surfaces import OPENING, WALL, read_surfaces
 from .voxel import CityVoxelizer, Materials, TerrainField, project_footprints
 
 GEOMETRY_LOD1 = "lod1"
@@ -35,7 +38,7 @@ class Cancelled(Exception):
 class Options:
     source: list = field(default_factory=list)
     world: str = ""
-    center: tuple = (35.690921, 139.700258)
+    center: tuple = None          # None means 'work it out from the data'
     radius: int = 800
     zone: int = None
     sea_level: int = 62
@@ -56,6 +59,12 @@ class Options:
     pinhole_neighbours: int = 4
     map_path: str = None
     map_scale: int = 1
+    textures: bool = False
+    simplify_colors: int = 12
+    texture_downscale: int = 4
+    glass: bool = True
+    glass_threshold: float = 0.35
+    smooth: int = 0
 
 
 @dataclass
@@ -82,6 +91,12 @@ class Result:
     voxels_removed: int = 0
     voxels_patched: int = 0
     bounds: tuple = ()
+    textured_surfaces: int = 0
+    glazed_surfaces: int = 0
+    missing_textures: int = 0
+    voxels_smoothed: int = 0
+    auto_centered: bool = False
+    block_counts: dict = field(default_factory=dict)
     map_files: list = field(default_factory=list)
 
 
@@ -120,6 +135,17 @@ def build_world(options, on_progress=None, should_cancel=None):
     report = _Reporter(on_progress, should_cancel)
     started = time.time()
     result = Result(dry_run=options.dry_run, geometry=options.geometry)
+
+    if options.center is None:
+        report("no centre given -- reading the tiles' own extent")
+        extent = data_extent(options.source, progress=lambda msg: report(msg))
+        if extent is None:
+            raise ValueError(
+                "could not read a bounding envelope from any of those files -- "
+                "point --source at an extracted CityGML folder (the one holding udx/)")
+        options.center = ((extent[0] + extent[2]) / 2, (extent[1] + extent[3]) / 2)
+        result.auto_centered = True
+        report(f"centred on {options.center[0]:.6f}, {options.center[1]:.6f}")
 
     lat, lon = options.center
     zone = options.zone or guess_zone(lat, lon)
@@ -235,12 +261,13 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
     """Voxelize LOD2 semantic surfaces rather than extruding footprints."""
     radius = options.radius
     accumulator = VoxelAccumulator()
-    palette_names = []
-    class_index = {}
+    matcher = BlockMatcher() if options.textures else None
+    atlases = {}
 
     kept = 0
     for surface in read_surfaces(options.source, progress=lambda msg: report(msg),
-                                 feature_filter=set(options.features)):
+                                 feature_filter=set(options.features),
+                                 with_source=True):
         report.check()
         result.surfaces_read += 1
         if result.surfaces_read % 20000 == 0:
@@ -257,11 +284,12 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
             continue
         kept += 1
 
-        key = (surface.feature, surface.surface_class)
-        if key not in class_index:
-            class_index[key] = len(palette_names)
-            palette_names.append(block_for(surface.feature, surface.surface_class))
-        accumulator.add(key, surface_voxels(rings))
+        if matcher is None:
+            accumulator.add((surface.feature, surface.surface_class),
+                            surface_voxels(rings))
+            continue
+
+        _add_textured(accumulator, matcher, atlases, surface, rings, options, result)
 
     if kept == 0:
         raise ValueError(
@@ -269,8 +297,13 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
             "point lies within the CityGML tiles you selected")
 
     report(f"{kept} surfaces inside the area; voxelizing")
+    if matcher is not None:
+        report(f"{result.textured_surfaces} surfaces textured"
+               + (f", {result.missing_textures} images missing"
+                  if result.missing_textures else ""))
+
     voxels, classes, keys = accumulator.finish(order=CLASS_PRIORITY)
-    palette = [block_for(feature, surface_class) for feature, surface_class in keys]
+    palette = [key if isinstance(key, str) else block_for(key[0], key[1]) for key in keys]
     result.voxels = len(voxels)
     report(f"{len(voxels):,} voxels")
 
@@ -284,6 +317,16 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
         report(f"cleaned: removed {result.voxels_removed:,} loose voxels, "
                f"patched {result.voxels_patched:,} seam holes")
         result.voxels = len(voxels)
+
+    if options.smooth:
+        voxels, classes, result.voxels_smoothed = smooth(voxels, classes, options.smooth)
+        report(f"smoothed: {result.voxels_smoothed:,} voxels changed on curves and edges")
+        result.voxels = len(voxels)
+
+    if len(classes):
+        counts = np.bincount(classes, minlength=len(palette))
+        result.block_counts = {palette[i]: int(counts[i])
+                               for i in np.argsort(counts)[::-1] if counts[i]}
 
     city = MeshCity(voxels, classes, palette, options.min_y, options.max_y)
     result.clipped_buildings = 0
@@ -328,6 +371,58 @@ def _build_lod2(options, projector, origin_east, origin_north, report, result, s
     return result
 
 
+def _atlas_for(atlases, source_path, options):
+    if source_path not in atlases:
+        atlases[source_path] = read_appearances(
+            source_path, simplify_colors=options.simplify_colors,
+            downscale=options.texture_downscale)
+    return atlases[source_path]
+
+
+def _add_textured(accumulator, matcher, atlases, surface, rings, options, result):
+    """Voxelize one surface and colour it from its texture image."""
+    voxels, plane, basis = surface_voxels(rings, return_plane=True)
+    if len(voxels) == 0:
+        return
+
+    fallback = block_for(surface.feature, surface.surface_class)
+    target = None
+    if surface.source_path is not None and surface.polygon_id:
+        atlas = _atlas_for(atlases, surface.source_path, options)
+        target = atlas.uv_for(surface.polygon_id)
+
+    colours = None
+    if target is not None and basis is not None:
+        image_uri, ring_uv = target
+        origin, u, v = basis
+        ring_plane = np.column_stack([(rings[0] - origin) @ u, (rings[0] - origin) @ v])
+        transform = affine_uv(ring_plane, ring_uv)
+        if transform is not None:
+            uv = np.column_stack([plane, np.ones(len(plane))]) @ transform
+            colours = atlas.sample(image_uri, uv)
+            if colours is None:
+                result.missing_textures += 1
+
+    if colours is None:
+        accumulator.add(fallback, voxels)
+        return
+
+    result.textured_surfaces += 1
+    glazed = None
+    if options.glass:
+        # Only walls and openings are ever considered glazing. A flat grey
+        # roof photographs bluish enough to trip the colour test, and a
+        # glass roof is rare enough that guessing wrong on every rooftop in
+        # the city is the worse trade.
+        if surface.surface_class in (WALL, OPENING):
+            glazed = matcher.surface_is_glazed(colours, options.glass_threshold)
+        else:
+            glazed = False
+        if glazed:
+            result.glazed_surfaces += 1
+    names = matcher.match(colours, allow_glass=options.glass, glazed=glazed)
+    for name in np.unique(names):
+        accumulator.add(str(name), voxels[names == name])
 def _write_map(options, result, projector, origin_east, origin_north, voxels, report):
     if not options.map_path:
         return

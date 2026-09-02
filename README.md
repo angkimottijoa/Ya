@@ -203,6 +203,70 @@ pip install -r requirements-desktop.txt
 python plateau_desktop_app.py
 ```
 
+### LOD2, textures and glass
+
+`--geometry lod2` voxelizes PLATEAU's actual LOD2 surfaces rather than
+extruding footprints — pitched roofs, setbacks, balconies — falling back to
+LOD1 per building where LOD2 is absent, as Project PLATEAU's own converter
+does. `--textures` then colours the blocks from the LOD2 texture images
+instead of using one block per surface type.
+
+Glazing is decided **per surface, never per pixel**. A curtain wall's
+texture has mullions, blinds and reflected cloud in it, so a per-pixel test
+scatters concrete through a window; instead each wall is judged as a whole
+(by the share of glazing-coloured pixels and by its mean colour) and then
+matched against the glass family alone, so a glass tower comes out as glass
+and an ordinary wall stays concrete. Roofs are never treated as glazing —
+a flat grey roof photographs bluish enough to trip the colour test, and
+guessing wrong on every rooftop is the worse trade. `--no-glass` turns the
+whole thing off.
+
+`--simplify-colors N` flattens each texture to N colours before matching,
+which turns JPEG noise into the flat panels a facade actually has.
+
+### Smoothing curved surfaces
+
+A cylindrical tower voxelized at one metre comes out as a staircase with
+single-voxel spurs and notches. `--smooth N` runs N passes that drop the
+spurs and fill the notches. Each pass is abandoned if it would change more
+than 6% of the model, so a spire, a railing or any thin filigree is never
+dissolved — the test suite pins that a one-voxel-wide structure survives
+the strongest setting untouched.
+
+### Just point it at the download
+
+`--center` is optional. Left off, the tool reads the `gml:boundedBy`
+envelope of the tiles you gave it and centres on their middle, so an
+unzipped CityGML folder needs no coordinates looked up first:
+
+```bash
+python -m plateau2mc ~/Downloads/13100_tokyo23-ku_2022_citygml_1_2_op \
+    --world ~/.minecraft/saves/Tokyo \
+    --geometry lod2 --textures --smooth 1 --min-y -512 --max-y 511 \
+    --map ~/Desktop/tokyo_plan.html
+```
+
+Directories are searched recursively for `*.gml`, and packages the
+converter does not handle are skipped rather than failing the run. Per the
+manual, `dem` tiles are skipped on purpose: they are distributed per
+2nd-level mesh, roughly a hundred times the area of everything else.
+
+### Which files to download
+
+From the manual: inside an extracted CityGML package, `udx/bldg` holds the
+building tiles and `indexmap_op.pdf` shows which 8-digit mesh number covers
+which area. A filename with an **8-digit** prefix
+(`53394535_bldg_6697_2_op.gml`) is a 3rd-level mesh — a few km across, and
+what you want. A **6-digit** prefix (`533945_dem_6697_op.gml`) is a
+2nd-level mesh covering ~100× the area.
+
+### The block plan
+
+`--map plan.html` writes a top-down plan of what was built: a shaded height
+raster with the grid drawn in Minecraft block coordinates, every region
+file named where it falls, and the latitude/longitude → block-coordinate
+conversion spelled out, as a self-contained page plus a PNG.
+
 ### Building a map from the command line
 
 The tool writes region files into an **existing** world — it does not create

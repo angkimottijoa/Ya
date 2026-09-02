@@ -277,3 +277,53 @@ def _read_file(path):
         element.clear()
         if root is not None:
             root.clear()
+
+
+def data_extent(paths, progress=None):
+    """(min_lat, min_lon, max_lat, max_lon) over the tiles' own envelopes.
+
+    Every PLATEAU tile opens with a `gml:boundedBy` envelope, so the area a
+    download covers can be found by reading a few hundred bytes per file
+    rather than parsing any of them. That is what lets the tool centre
+    itself on whatever was handed to it, instead of making the user look up
+    a latitude first.
+    """
+    bounds = None
+    for path in _expand_paths(paths):
+        corners = _envelope_of(path)
+        if corners is None:
+            continue
+        if progress:
+            progress(f"extent of {path.name}")
+        if bounds is None:
+            bounds = list(corners)
+        else:
+            bounds[0] = min(bounds[0], corners[0])
+            bounds[1] = min(bounds[1], corners[1])
+            bounds[2] = max(bounds[2], corners[2])
+            bounds[3] = max(bounds[3], corners[3])
+    return tuple(bounds) if bounds else None
+
+
+def _envelope_of(path):
+    lower = upper = None
+    epsg = None
+    try:
+        for _event, element in ElementTree.iterparse(str(path), events=("end",)):
+            name = _local(element.tag)
+            if name == "lowerCorner":
+                lower = [float(v) for v in (element.text or "").split()]
+            elif name == "upperCorner":
+                upper = [float(v) for v in (element.text or "").split()]
+            elif name == "Envelope":
+                epsg = _epsg_from_srs_name(element.get("srsName"))
+                break
+    except (ElementTree.ParseError, ValueError, OSError):
+        return None
+
+    if not lower or not upper or len(lower) < 2 or len(upper) < 2:
+        return None
+    if epsg is not None and epsg not in _LAT_LON_EPSG:
+        lower = [lower[1], lower[0]]
+        upper = [upper[1], upper[0]]
+    return (lower[0], lower[1], upper[0], upper[1])

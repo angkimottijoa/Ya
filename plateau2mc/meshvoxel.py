@@ -117,19 +117,22 @@ def _row_spans(ring, row_v):
     return list(zip(hits[0::2], hits[1::2]))
 
 
-def surface_voxels(rings_3d, step=_SAMPLE_STEP):
+def surface_voxels(rings_3d, step=_SAMPLE_STEP, return_plane=False):
     """Integer voxel coordinates covering one planar polygon.
 
     `rings_3d` is [exterior, hole...] as (n, 3) arrays already in block
-    space (metres, one unit per block).
+    space (metres, one unit per block). With `return_plane`, also returns
+    the in-plane coordinate that produced each voxel and the plane basis,
+    which is what lets a caller map a voxel to a point in a texture.
     """
+    empty = np.empty((0, 3), dtype=np.int64)
     exterior = np.asarray(rings_3d[0], dtype=np.float64)
     if len(exterior) < 3:
-        return np.empty((0, 3), dtype=np.int64)
+        return (empty, np.empty((0, 2)), None) if return_plane else empty
 
     basis = plane_basis(exterior)
     if basis is None:
-        return np.empty((0, 3), dtype=np.int64)
+        return (empty, np.empty((0, 2)), None) if return_plane else empty
     origin, u, v, _normal = basis
 
     rings_2d = []
@@ -137,25 +140,33 @@ def surface_voxels(rings_3d, step=_SAMPLE_STEP):
         ring = np.asarray(ring, dtype=np.float64) - origin
         rings_2d.append(np.column_stack([ring @ u, ring @ v]))
 
-    filled = _fill_scanlines(rings_2d, step)
-    if len(filled) == 0:
-        # A polygon thinner than the sample step still has to leave a mark,
-        # or a parapet or a railing silently disappears. Fall back to
-        # walking its outline.
-        return _edge_voxels(rings_2d[0], origin, u, v, step)
-
-    points = origin + np.outer(filled[:, 0], u) + np.outer(filled[:, 1], v)
-    edges = _edge_points(rings_2d, origin, u, v, step)
+    plane = _fill_scanlines(rings_2d, step)
+    edges = _edge_plane_points(rings_2d, step)
+    if len(plane) == 0 and len(edges) == 0:
+        return (empty, np.empty((0, 2)), None) if return_plane else empty
     if len(edges):
-        points = np.vstack([points, edges])
+        plane = np.vstack([plane, edges]) if len(plane) else edges
+
+    points = origin + np.outer(plane[:, 0], u) + np.outer(plane[:, 1], v)
+    voxels = np.floor(points).astype(np.int64)
+
     # Half-block sampling means roughly four samples land in every voxel;
     # dropping the duplicates here keeps a whole ward's worth of surfaces
     # from carrying 4x the memory it needs all the way to the accumulator.
-    return np.unique(np.floor(points).astype(np.int64), axis=0)
+    _unique, first = np.unique(voxels, axis=0, return_index=True)
+    voxels = voxels[first]
+    if return_plane:
+        return voxels, plane[first], (origin, u, v)
+    return voxels
 
 
-def _edge_points(rings_2d, origin, u, v, step):
-    """Samples along every ring edge, so borders are never a half-block short."""
+def _edge_plane_points(rings_2d, step):
+    """In-plane samples along every ring edge.
+
+    Scanline fill only lands on row centres, so an edge running between two
+    rows would otherwise come out a half block short and leave a building's
+    corner ragged.
+    """
     out = []
     for ring in rings_2d:
         a = ring
@@ -168,16 +179,8 @@ def _edge_points(rings_2d, origin, u, v, step):
             t = np.linspace(0.0, 1.0, count)[:, None]
             out.append(start + t * (end - start))
     if not out:
-        return np.empty((0, 3))
-    flat = np.vstack(out)
-    return origin + np.outer(flat[:, 0], u) + np.outer(flat[:, 1], v)
-
-
-def _edge_voxels(ring_2d, origin, u, v, step):
-    points = _edge_points([ring_2d], origin, u, v, step)
-    if len(points) == 0:
-        return np.empty((0, 3), dtype=np.int64)
-    return np.floor(points).astype(np.int64)
+        return np.empty((0, 2))
+    return np.vstack(out)
 
 
 class VoxelAccumulator:
