@@ -10,6 +10,7 @@ on:
       - "plateau_desktop_app.py"
       - "banner2bedrock/**"
       - "plateau2mc/**"
+      - "plateau2minecraft/**"
       - "assets/**"
       - "requirements-desktop.txt"
       - ".github/workflows/build-windows.yml"
@@ -29,6 +30,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-desktop.txt
+          pip install -r plateau2minecraft/requirements-app.txt
 
       - name: Build Banner2Bedrock.exe
         run: >-
@@ -47,6 +49,17 @@ jobs:
           --collect-submodules numpy
           plateau_desktop_app.py
 
+      - name: Build Plateau2Minecraft.exe (the Project PLATEAU fork)
+        run: >-
+          pyinstaller --onefile --windowed --name Plateau2Minecraft
+          --paths plateau2minecraft/src
+          --add-data "plateau2minecraft/src/plateau2minecraft/anvil/legacy_blocks.json;plateau2minecraft/anvil"
+          --add-data "plateau2minecraft/src/plateau2minecraft/anvil/legacy_biomes.json;plateau2minecraft/anvil"
+          --hidden-import lxml._elementpath --hidden-import nbt.nbt
+          --hidden-import frozendict --hidden-import PIL
+          --collect-submodules numpy --collect-submodules plateau2minecraft
+          plateau2minecraft/app.py
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -59,4 +72,11 @@ jobs:
         with:
           name: Plateau2MC-windows-exe
           path: dist/Plateau2MC.exe
+          if-no-files-found: error
+
+      - name: Upload PLATEAU fork app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Plateau2Minecraft-windows-exe
+          path: dist/Plateau2Minecraft.exe
           if-no-files-found: error

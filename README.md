@@ -1,11 +1,16 @@
 # banner2bedrock / plateau2mc
 
-Two Minecraft converters live here:
+Three Minecraft converters live here:
 
 - **`banner2bedrock`** - an image into banner pixel-art, exported as a Bedrock
   Edition `.mcstructure`.
 - **`plateau2mc`** - Japan's PLATEAU 3D city model into a Java Edition world at
   1 block = 1 metre. [Jump to it](#plateau---minecraft-java-map-plateau2mc).
+- **`plateau2minecraft/`** - a fork of [Project PLATEAU's own
+  converter](https://github.com/Project-PLATEAU/plateau2minecraft) (MIT), vendored
+  unchanged at `82e309a` and then fixed and extended on top, so every change shows
+  as a diff against the Ministry's code. See
+  [`plateau2minecraft/FORK.md`](plateau2minecraft/FORK.md).
 
 ## banner2bedrock
 

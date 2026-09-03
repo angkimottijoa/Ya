@@ -1,0 +1,13 @@
+# Dependencies for the fork's desktop app and its Windows .exe build.
+# Tkinter ships with the python.org Windows installer, so it isn't listed.
+#
+# Upstream's pyproject also pulls trimesh, open3d, geopandas, scipy, pyglet
+# and networkx. None of them are needed any more: the planar voxelizer
+# replaced trimesh/open3d, and the plane rectangular projection replaced
+# pyproj/geopandas.
+numpy
+lxml
+nbt
+frozendict
+Pillow
+pyinstaller
