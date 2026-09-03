@@ -14,130 +14,89 @@ from .anvil.errors import OutOfBoundsCoordinates
 
 class Minecraft:
     def __init__(self, point_cloud: PointCloud, min_y: int = -64, max_y: int = 319,
-                 data_version: int = 3337) -> None:
-        """FORK: the world height range and target version are now the
-        caller's to choose, rather than whatever the vendored anvil had
-        hardcoded. `clipped` counts what still did not fit, so "nothing was
-        cut" can be stated as a fact instead of hoped for."""
+                 data_version: int = 3337, block_names=None) -> None:
+        """FORK: three changes to what upstream took.
+
+        * The world height range and target version are the caller's to
+          choose, rather than whatever the vendored anvil had hardcoded.
+        * `block_names` gives a block per point. Upstream placed
+          `Block("minecraft", "stone")` for every voxel in the city; a
+          per-point name is what lets a texture or a material decide.
+        * `clipped` counts what still did not fit, so "nothing was cut" can
+          be stated as a fact rather than hoped for.
+        """
         self.point_cloud = point_cloud
         self.min_y = min_y
         self.max_y = max_y
         self.data_version = data_version
+        self.block_names = block_names
         self.clipped = 0
 
     def _point_shift(self, points: np.ndarray, x: float, y: float, z: float) -> np.ndarray:
         points += np.array([x, y, z])
         return points
 
-    def _split_point_cloud(self, vertices: np.ndarray, block_size: int = 512) -> dict[str, np.ndarray]:
-        # XYZ座標の取得
-        x = vertices[:, 0]
-        y = vertices[:, 1]
+    def _get_world_origin(self, vertices):
+        min_x, max_x = min(vertices[:, 0]), max(vertices[:, 0])
+        min_y, max_y = min(vertices[:, 1]), max(vertices[:, 1])
+        # Centre, then half a metre right and down so a voxel's centre sits
+        # on the origin rather than its corner.
+        return ((max_x + min_x) / 2 + 0.5, (max_y + min_y) / 2 + 0.5)
 
-        # XY座標をブロックサイズで割って、整数値に丸めることでブロックIDを作成
-        block_id_x = np.floor(x / block_size).astype(int)
-        block_id_y = np.floor(y / block_size).astype(int)
+    def build_region(self, output, origin=None, return_origin=False):
+        """Write the point cloud out as Anvil region files.
 
-        # ブロックIDを一意の文字列として結合
-        block_ids = [f"r.{id_x}.{id_y}.mca" for id_x, id_y in zip(block_id_x, block_id_y)]
-
-        # 各ブロックIDとそのブロックに含まれる座標を格納する辞書を作成
-        blocks = {}
-        for i, block_id in enumerate(block_ids):
-            if block_id not in blocks:
-                blocks[block_id] = []
-            blocks[block_id].append(vertices[i])
-
-        # ブロックIDと座標を含む辞書を返す
-        return blocks
-
-    def _standardize_vertices(self, blocks: dict[str, np.ndarray], block_size: int = 512):
-        """FORK: `vertex % block_size` used to be applied to the whole vertex.
-
-        A vertex is (x, y, altitude), so the modulo hit the altitude too.
-        Anything at or above 512 m wrapped around and was drawn near the
-        ground instead: Skytree's 634 m tip came out at y=122, buried
-        inside whatever stood there. Between 320 and 511 it was silently
-        swallowed by the OutOfBoundsCoordinates handler. That is what the
-        manual's "高度300mを超えるような建物の場合...ブロックが生成されない
-        可能性があります" actually is.
-
-        Only the two horizontal axes belong in a region-local coordinate;
-        altitude is absolute and is passed through untouched.
+        FORK: rewritten around a dict of regions keyed by file name.
+        Upstream built a fresh `EmptyRegion(0, 0)` per file inside the loop
+        and saved it immediately, which is fine when every block is stone
+        and each file is visited once. With a block per point, and with
+        several block types landing in the same region, a region has to
+        stay open until every point that belongs in it has been placed --
+        otherwise each save overwrites the last.
         """
-        standardized_blocks = {}
-        for block_id, vertices in blocks.items():
-            standardized = []
-            for vertex in vertices:
-                local = np.array(vertex, dtype=np.float64)
-                local[0] %= block_size
-                local[1] %= block_size
-                standardized.append(local)
-            standardized_blocks[block_id] = standardized
-        return standardized_blocks
-
-    def build_region(self, output: Path, origin: tuple[float, float, float] | None = None) -> None:
-        points = np.asarray(self.point_cloud.vertices)
+        points = np.asarray(self.point_cloud.vertices, dtype=np.float64).copy()
+        names = self.block_names
+        if names is None:
+            names = np.full(len(points), "minecraft:stone", dtype=object)
 
         origin_point = self._get_world_origin(points) if origin is None else origin
-        print(f"origin_point: {origin_point}")
-
-        # 点群の中心を原点に移動
         points = self._point_shift(points, -origin_point[0], -origin_point[1], 0)
-        # ボクセル中心を原点とする。ボクセルは1m間隔なので、原点を右に0.5m、下に0.5mずらす
+        # Voxel centres, then flip Y so north on the map is north in game.
         points = self._point_shift(points, 0.5, 0.5, 0)
-        # Y軸を反転させて、Minecraftの南北とあわせる
         points[:, 1] *= -1
 
-        # 原点を中心として、x軸方向に512m、y軸方向に512mの領域を作成する
-        # 領域ごとに、ボクセルの点群を分割する
-        # 分割した点群を、領域ごとに保存する
-        blocks = self._split_point_cloud(points)
-        standardized_blocks = self._standardize_vertices(blocks)
-
-        stone = Block("minecraft", "stone")
-
-        # FORK: this used to clear and create the *literal* path
-        # "data/output/world_data/region" relative to the working directory,
-        # while saving to `{output}/world_data/region`. Passing any --output
-        # other than data/output therefore wiped an unrelated folder and then
-        # crashed, because the folder actually being written to had never
-        # been created.
         region_dir = Path(output) / "world_data" / "region"
-        if region_dir.exists():
-            for file in region_dir.iterdir():
-                if file.is_file():
-                    file.unlink()
-        else:
-            region_dir.mkdir(parents=True, exist_ok=True)
+        region_dir.mkdir(parents=True, exist_ok=True)
 
-        for block_id, points in standardized_blocks.items():
-            region = EmptyRegion(0, 0, min_y=self.min_y, max_y=self.max_y,
-                                 version=self.data_version)
-            points = np.asarray(points).astype(int)
-            for row in points:
-                x, y, z = row
-                try:
-                    # Minecraft is Y-up right-handed, hence the swap.
-                    region.set_block(stone, x, z, y)
-                except OutOfBoundsCoordinates:
-                    self.clipped += 1
-                    continue
-            print(f"save: {block_id}")
-            region.save(str(region_dir / block_id))
+        blocks = {}
+        for name in set(names):
+            namespace, _, block_name = str(name).partition(":")
+            blocks[name] = Block(namespace or "minecraft", block_name or "stone")
 
-    def _get_world_origin(self, vertices):
-        min_x = min(vertices[:, 0])
-        max_x = max(vertices[:, 0])
+        integers = np.floor(points).astype(int)
+        region_x = np.floor_divide(integers[:, 0], 512)
+        region_z = np.floor_divide(integers[:, 1], 512)
 
-        min_y = min(vertices[:, 1])
-        max_y = max(vertices[:, 1])
+        regions = {}
+        for i in range(len(integers)):
+            x, y, z = integers[i]
+            key = (int(region_x[i]), int(region_z[i]))
+            region = regions.get(key)
+            if region is None:
+                region = regions[key] = EmptyRegion(
+                    key[0], key[1], min_y=self.min_y, max_y=self.max_y,
+                    version=self.data_version)
+            try:
+                # Minecraft is Y-up right-handed, hence the swap: the
+                # cloud's z is altitude.
+                region.set_block(blocks[names[i]], int(x), int(z), int(y))
+            except OutOfBoundsCoordinates:
+                self.clipped += 1
 
-        # 中心座標を求める
-        center_x = (max_x + min_x) / 2
-        center_y = (max_y + min_y) / 2
+        written = []
+        for (rx, rz), region in regions.items():
+            path = region_dir / f"r.{rx}.{rz}.mca"
+            region.save(str(path))
+            written.append(str(path))
 
-        # 中心座標を右に0.5m、下に0.5mずらす
-        origin_point = (center_x + 0.5, center_y + 0.5)
-
-        return origin_point
+        return (written, origin_point) if return_origin else written

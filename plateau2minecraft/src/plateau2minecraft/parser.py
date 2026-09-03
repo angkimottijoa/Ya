@@ -192,3 +192,152 @@ def get_triangle_meshs(file_path: Path, feature_type: str) -> TriangleMesh:
             # max_index += np.asarray(triangles).max()
 
     return TriangleMesh(vertices, triangles)
+
+
+# ---------------------------------------------------------------- FORK --
+# Upstream only ever produces one merged TriangleMesh per file: every
+# polygon is triangulated and concatenated, and the gml:ids go with it.
+# That is enough to place grey stone and nothing else -- an appearance is
+# keyed by ring id, and a roof is only distinguishable from a wall by which
+# bldg:*Surface it hung under.
+#
+# This reads the same documents into planar surfaces instead, keeping the
+# ring id and the semantic class, and never triangulating: `planar_voxels`
+# rasterizes a polygon in its own plane, so the triangles were only ever a
+# detour.
+
+from dataclasses import dataclass, field
+
+ROOF, WALL, GROUND, CLOSURE, OPENING, OTHER = (
+    "roof", "wall", "ground", "closure", "opening", "other")
+
+_SURFACE_CLASS = {
+    "RoofSurface": ROOF,
+    "WallSurface": WALL,
+    "GroundSurface": GROUND,
+    "OuterFloorSurface": GROUND,
+    "OuterCeilingSurface": ROOF,
+    "ClosureSurface": CLOSURE,
+    "Window": OPENING,
+    "Door": OPENING,
+    "TrafficArea": GROUND,
+    "AuxiliaryTrafficArea": GROUND,
+}
+
+_GML_ID = "{http://www.opengis.net/gml}id"
+
+
+@dataclass
+class Surface:
+    """One planar polygon, in projected metres, with what it is attached."""
+
+    rings: list = field(default_factory=list)      # [(ring_id, (n,3) array)]
+    surface_class: str = OTHER
+    polygon_id: str = ""
+    lod: int = 2
+
+    @property
+    def exterior(self):
+        return self.rings[0][1] if self.rings else None
+
+
+def _local_name(tag):
+    return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+
+
+def _ring_array(ring_element):
+    pos_list = ring_element.find("./gml:posList", _NS)
+    if pos_list is None or not (pos_list.text or "").strip():
+        return None
+    values = np.fromstring(pos_list.text, dtype=np.float64, sep=" ")
+    if len(values) % 3 or len(values) < 9:
+        return None
+    # PLATEAU closes its rings; the repeated last vertex adds nothing.
+    return values.reshape(-1, 3)[:-1]
+
+
+def _project(points):
+    """(lat, lon, alt) -> (easting, northing, altitude) in metres."""
+    eastings, northings = _transform(points[:, 1], points[:, 0])
+    out = np.empty_like(points)
+    out[:, 0] = eastings
+    out[:, 1] = northings
+    out[:, 2] = points[:, 2]
+    return out
+
+
+def _walk(element, wanted_lod, stack, out):
+    name = _local_name(element.tag)
+    stack.append(name)
+
+    if name == "Polygon":
+        lod = 0
+        for entry in reversed(stack):
+            if entry.startswith("lod") and len(entry) > 3 and entry[3].isdigit():
+                lod = int(entry[3])
+                break
+        if lod == wanted_lod:
+            surface_class = OTHER
+            for entry in reversed(stack):
+                if entry in _SURFACE_CLASS:
+                    surface_class = _SURFACE_CLASS[entry]
+                    break
+
+            rings = []
+            for boundary in element:
+                role = _local_name(boundary.tag)
+                if role not in ("exterior", "interior"):
+                    continue
+                for ring in boundary.iter():
+                    if _local_name(ring.tag) != "LinearRing":
+                        continue
+                    points = _ring_array(ring)
+                    if points is not None and len(points) >= 3:
+                        rings.append((ring.get(_GML_ID, ""), _project(points)))
+            if rings:
+                out.append(Surface(rings=rings, surface_class=surface_class,
+                                   polygon_id=element.get(_GML_ID, ""), lod=lod))
+        stack.pop()
+        return
+
+    for child in element:
+        _walk(child, wanted_lod, stack, out)
+    stack.pop()
+
+
+# Only the top-level feature elements. Upstream's _XPATH_LIST also names the
+# semantic surfaces (bldg:WallSurface, bldg:RoofSurface, ...), which are
+# nested *inside* bldg:Building, so walking both finds every polygon twice.
+# Upstream has the same duplication; it survives there because the voxel grid
+# collapses the repeats, but it doubles the parsing work and would double-count
+# anything measured per surface.
+_FEATURE_ROOTS = {
+    "bldg": [".//bldg:Building"],
+    "tran": [".//tran:Road", ".//tran:Railway", ".//tran:Square", ".//tran:Track"],
+    "brid": [".//brid:Bridge"],
+    "frn": [".//frn:CityFurniture"],
+    "veg": [".//veg:PlantCover", ".//veg:SolitaryVegetationObject"],
+}
+
+
+def get_surfaces(file_path: Path, feature_type: str) -> list[Surface]:
+    """Planar surfaces of one CityGML file, LOD2 preferred over LOD1.
+
+    The fallback is per feature, exactly as upstream's `_load_polygons`
+    does it and as the manual describes: a tile normally holds both kinds,
+    and taking LOD1 for the file as a whole would flatten every LOD2 roof
+    in it.
+    """
+    doc = et.parse(file_path, None)
+    obj_paths = _FEATURE_ROOTS.get(feature_type, _XPATH_LIST[feature_type])
+
+    surfaces = []
+    for obj_path in obj_paths:
+        for obj in doc.iterfind(obj_path, _NS):
+            for lod in (2, 1):
+                found = []
+                _walk(obj, lod, [], found)
+                if found:
+                    surfaces.extend(found)
+                    break
+    return surfaces

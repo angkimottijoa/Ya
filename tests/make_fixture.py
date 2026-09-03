@@ -169,7 +169,7 @@ BOUNDED_SURFACE = """      <bldg:boundedBy>
               <gml:surfaceMember>
                 <gml:Polygon gml:id="poly_{index}">
                   <gml:exterior>
-                    <gml:LinearRing>
+                    <gml:LinearRing gml:id="ring_poly_{index}">
                       <gml:posList>{coords}</gml:posList>
                     </gml:LinearRing>
                   </gml:exterior>
