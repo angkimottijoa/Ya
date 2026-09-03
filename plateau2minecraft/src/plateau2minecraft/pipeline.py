@@ -229,7 +229,11 @@ def build(options, on_progress=None, should_cancel=None):
         result.surfaces += len(surfaces)
         if appearances:
             result.missing_images += appearances.missing_images
-        report(f"{result.surfaces:,} surfaces, {result.voxels:,} voxels",
+        # result.voxels is only totalled after the per-block lists are
+        # flattened, so report the running total from the lists themselves
+        # rather than printing 0 for the whole of the longest phase.
+        so_far = sum(len(chunk) for chunks in by_block.values() for chunk in chunks)
+        report(f"{result.surfaces:,} surfaces, {so_far:,} voxels",
                (index + 1) / len(files))
 
     if not by_block:

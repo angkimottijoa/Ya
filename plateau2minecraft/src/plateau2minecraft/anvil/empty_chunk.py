@@ -76,6 +76,20 @@ class EmptyChunk:
     def _section_offset(self) -> int:
         return -(self.min_y // 16)
 
+    def _section_at(self, y: int):
+        """The section holding `y`, or None.
+
+        FORK: get_block and set_block both indexed `self.sections[(y // 16)
+        + 4]`, the same hardcoded vanilla offset the constructor used. With
+        a deeper world that index is wrong, and for y below -64 it goes
+        negative -- which Python happily reads from the end of the list
+        rather than raising. The effect was silent and severe: set_block's
+        lookup always missed, so every block built a *fresh* EmptySection
+        that replaced the one before it, and only the last block written to
+        each section survived the save.
+        """
+        return self.sections[(y // 16) + self._section_offset]
+
     def add_section(self, section: EmptySection, replace: bool = True):
         """
         Adds a section to the chunk
@@ -129,7 +143,7 @@ class EmptyChunk:
         if y not in range(self.min_y, self.max_y + 1):
             raise OutOfBoundsCoordinates(
                 f"Y ({y!r}) must be in range of {self.min_y} to {self.max_y}")
-        section = self.sections[(y // 16) + 4]
+        section = self._section_at(y)
         if section is None:
             return
         return section.get_block(x, y % 16, z)
@@ -157,7 +171,7 @@ class EmptyChunk:
         if y not in range(self.min_y, self.max_y + 1):
             raise OutOfBoundsCoordinates(
                 f"Y ({y!r}) must be in range of {self.min_y} to {self.max_y}")
-        section = self.sections[(y // 16) + 4]
+        section = self._section_at(y)
         if section is None:
             section = EmptySection(y // 16)
             self.add_section(section)

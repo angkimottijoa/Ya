@@ -73,6 +73,9 @@ def despeckle(voxels, classes, min_neighbours=2):
     """
     if len(voxels) == 0:
         return voxels, classes
+    # Measured both ways: the emitted-count trick that makes close_pinholes
+    # ten times faster is a pessimisation here, because 26 offsets emit 26N
+    # keys and sorting them costs more than the 26 sorted lookups it saves.
     keys = np.sort(pack(voxels))
     counts = _neighbour_counts(voxels, keys, _NEIGHBOURS_26)
     keep = counts >= min_neighbours
@@ -83,38 +86,56 @@ def close_pinholes(voxels, classes, min_filled=4):
     """Fill empty cells that are all but surrounded.
 
     Where two LOD2 surfaces meet at a shallow angle the rasterized shell
-    can be one voxel short along the seam, which reads in game as a
+    can come up one voxel short along the seam, which reads in game as a
     pinhole you can see daylight through. An empty cell with at least
-    `min_filled` of its 6 face neighbours occupied is such a seam, never an
-    interior or an opening.
+    `min_filled` of its six face neighbours occupied is such a seam, never
+    an interior and never an opening -- a window has far too much air
+    around it to qualify.
+
+    Everything here works on packed int64 keys rather than on (n, 3)
+    arrays. `np.unique(..., axis=0)` over the six candidate copies of a
+    city -- tens of millions of rows -- lexsorts a structured view and
+    dominated the whole conversion; the same uniqueness over a flat int64
+    array is roughly an order of magnitude quicker and allocates a third
+    as much.
     """
     if len(voxels) == 0:
         return voxels, classes
 
-    filled = np.sort(pack(voxels))
-    candidates = []
-    for offset in _NEIGHBOURS_6:
-        candidates.append(voxels + offset)
-    candidate_voxels = np.unique(np.vstack(candidates), axis=0)
+    filled_keys = pack(voxels)
+    order = np.argsort(filled_keys)
+    filled_sorted = filled_keys[order]
+    classes_sorted = classes[order]
 
-    candidate_keys = pack(candidate_voxels)
-    position = np.clip(np.searchsorted(filled, candidate_keys), 0, len(filled) - 1)
-    empty = filled[position] != candidate_keys
-    candidate_voxels = candidate_voxels[empty]
-    if len(candidate_voxels) == 0:
+    # Offsetting every filled voxel by each of the six face directions emits
+    # one entry per (filled voxel, direction) pair, so a cell's neighbour
+    # count *is* how many times its key was emitted. Counting the duplicates
+    # therefore answers the question outright, and the separate neighbour
+    # sweep that used to follow -- six searchsorted passes over every
+    # candidate, the single most expensive thing in the conversion -- is not
+    # needed at all.
+    candidate_keys, neighbour_counts = np.unique(
+        np.concatenate([pack(voxels + offset) for offset in _NEIGHBOURS_6]),
+        return_counts=True)
+
+    enclosed = neighbour_counts >= min_filled
+    candidate_keys = candidate_keys[enclosed]
+    if len(candidate_keys) == 0:
         return voxels, classes
 
-    counts = _neighbour_counts(candidate_voxels, filled, _NEIGHBOURS_6)
-    added = candidate_voxels[counts >= min_filled]
-    if len(added) == 0:
+    position = np.clip(np.searchsorted(filled_sorted, candidate_keys),
+                       0, len(filled_sorted) - 1)
+    candidate_keys = candidate_keys[filled_sorted[position] != candidate_keys]
+    if len(candidate_keys) == 0:
         return voxels, classes
 
-    # A patched seam takes the class of whichever neighbour is most common,
-    # approximated by the nearest filled voxel below it -- seams almost
-    # always sit between two surfaces of the same class.
-    nearest = np.clip(np.searchsorted(filled, pack(added)) - 1, 0, len(voxels) - 1)
-    order = np.argsort(pack(voxels))
-    added_classes = classes[order][nearest]
+    added = unpack(candidate_keys)
+
+    # A patched seam takes the class of the nearest filled voxel below it in
+    # key order; seams almost always sit between two surfaces of one class.
+    nearest = np.clip(np.searchsorted(filled_sorted, pack(added)) - 1,
+                      0, len(filled_sorted) - 1)
+    added_classes = classes_sorted[nearest]
 
     return np.vstack([voxels, added]), np.concatenate([classes, added_classes])
 
