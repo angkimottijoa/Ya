@@ -2,7 +2,6 @@ from pathlib import Path
 
 import lxml.etree as et
 import numpy as np
-import pyproj
 
 from plateau2minecraft.earcut import earcut
 from plateau2minecraft.earcut.utils_3d import project3d_to_2d
@@ -51,7 +50,48 @@ _XPATH_LIST = {
     "veg": [".//veg:PlantCover", ".//veg:SolitaryVegetationObject"],
 }
 
-transformer = pyproj.Transformer.from_crs("epsg:6697", "epsg:3857", always_xy=True)
+# FORK: upstream used
+#     pyproj.Transformer.from_crs("epsg:6697", "epsg:3857", always_xy=True)
+#
+# Web Mercator is conformal but its scale is only true at the equator: at
+# Tokyo's latitude a metre on the ground measures 1/cos(35.7) ~= 1.23 metres
+# on the map. Heights come straight out of the CityGML in metres and are not
+# scaled, so the result is a city about 23% too wide and too deep for its own
+# height -- despite the README promising "生成されるブロックは一辺1m".
+#
+# The Japan Plane Rectangular system has no such problem: it is the national
+# survey projection, its unit is the metre, and its scale factor is 0.9999 on
+# the zone's central meridian. A projected coordinate, rounded, *is* a block
+# coordinate. Zone IX (EPSG:6677) covers Tokyo; guess_zone picks the right one
+# for anywhere else in Japan.
+#
+# pyproj is no longer needed for this, which also takes PROJ's datum grids out
+# of the frozen Windows build.
+from plateau2minecraft.projection import PlaneRectangular, guess_zone
+
+_projector: PlaneRectangular | None = None
+
+
+def set_projection_from(lat: float, lon: float, zone: int | None = None) -> PlaneRectangular:
+    """Choose the plane rectangular zone the whole conversion will use.
+
+    One zone for the run, chosen from a point inside the data: mixing zones
+    across a single build would put a seam through the city.
+    """
+    global _projector
+    _projector = PlaneRectangular(zone or guess_zone(lat, lon))
+    return _projector
+
+
+def _transform(lon, lat):
+    """(lon, lat) arrays -> (easting, northing) in metres, as pyproj had it."""
+    if _projector is None:
+        raise RuntimeError("set_projection_from() must be called before parsing")
+    eastings = np.empty(len(lat), dtype=np.float64)
+    northings = np.empty(len(lat), dtype=np.float64)
+    for i in range(len(lat)):
+        eastings[i], northings[i] = _projector(lat[i], lon[i])
+    return eastings, northings
 
 
 def _load_polygons(doc, obj_path: str) -> list[list[np.ndarray]]:
@@ -106,7 +146,7 @@ def _triangulate(polygons: list[list[np.ndarray]]) -> TriangleMesh:
             for ring in polygon[1:]:
                 hole_indices.append(hi)
                 hi += ring.shape[0]
-        xx, yy = transformer.transform(vertex[:, 1], vertex[:, 0])
+        xx, yy = _transform(vertex[:, 1], vertex[:, 0])
         vertex[:, 0] = np.asarray(xx)
         vertex[:, 1] = np.asarray(yy)
         flatten_vertices = vertex.flatten()

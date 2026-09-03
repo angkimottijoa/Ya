@@ -1,17 +1,29 @@
-import os
 from pathlib import Path
 
 import numpy as np
-from click import Path
-from trimesh.points import PointCloud
+
+# FORK: upstream imported `Path` from `click`, immediately shadowing the
+# pathlib.Path it had imported on the line above, and pulled PointCloud from
+# trimesh purely for a type hint. Both are gone; the voxelizer's own
+# PointCloud is used instead.
+from plateau2minecraft.voxelizer import PointCloud
 
 from .anvil import Block, EmptyRegion
 from .anvil.errors import OutOfBoundsCoordinates
 
 
 class Minecraft:
-    def __init__(self, point_cloud: PointCloud) -> None:
+    def __init__(self, point_cloud: PointCloud, min_y: int = -64, max_y: int = 319,
+                 data_version: int = 3337) -> None:
+        """FORK: the world height range and target version are now the
+        caller's to choose, rather than whatever the vendored anvil had
+        hardcoded. `clipped` counts what still did not fit, so "nothing was
+        cut" can be stated as a fact instead of hoped for."""
         self.point_cloud = point_cloud
+        self.min_y = min_y
+        self.max_y = max_y
+        self.data_version = data_version
+        self.clipped = 0
 
     def _point_shift(self, points: np.ndarray, x: float, y: float, z: float) -> np.ndarray:
         points += np.array([x, y, z])
@@ -40,10 +52,28 @@ class Minecraft:
         return blocks
 
     def _standardize_vertices(self, blocks: dict[str, np.ndarray], block_size: int = 512):
+        """FORK: `vertex % block_size` used to be applied to the whole vertex.
+
+        A vertex is (x, y, altitude), so the modulo hit the altitude too.
+        Anything at or above 512 m wrapped around and was drawn near the
+        ground instead: Skytree's 634 m tip came out at y=122, buried
+        inside whatever stood there. Between 320 and 511 it was silently
+        swallowed by the OutOfBoundsCoordinates handler. That is what the
+        manual's "高度300mを超えるような建物の場合...ブロックが生成されない
+        可能性があります" actually is.
+
+        Only the two horizontal axes belong in a region-local coordinate;
+        altitude is absolute and is passed through untouched.
+        """
         standardized_blocks = {}
         for block_id, vertices in blocks.items():
-            standardized_vertices = [vertex % block_size for vertex in vertices]
-            standardized_blocks[block_id] = standardized_vertices
+            standardized = []
+            for vertex in vertices:
+                local = np.array(vertex, dtype=np.float64)
+                local[0] %= block_size
+                local[1] %= block_size
+                standardized.append(local)
+            standardized_blocks[block_id] = standardized
         return standardized_blocks
 
     def build_region(self, output: Path, origin: tuple[float, float, float] | None = None) -> None:
@@ -67,26 +97,34 @@ class Minecraft:
 
         stone = Block("minecraft", "stone")
 
-        # data/output/world_data/region/フォルダの中身を削除
-        # フォルダが存在しない場合は、フォルダを作成する
-        # フォルダが存在する場合は、フォルダの中身を削除する
-        if os.path.exists("data/output/world_data/region"):
-            for file in os.listdir("data/output/world_data/region"):
-                os.remove(f"data/output/world_data/region/{file}")
+        # FORK: this used to clear and create the *literal* path
+        # "data/output/world_data/region" relative to the working directory,
+        # while saving to `{output}/world_data/region`. Passing any --output
+        # other than data/output therefore wiped an unrelated folder and then
+        # crashed, because the folder actually being written to had never
+        # been created.
+        region_dir = Path(output) / "world_data" / "region"
+        if region_dir.exists():
+            for file in region_dir.iterdir():
+                if file.is_file():
+                    file.unlink()
         else:
-            os.makedirs("data/output/world_data/region", exist_ok=True)
+            region_dir.mkdir(parents=True, exist_ok=True)
 
         for block_id, points in standardized_blocks.items():
-            region = EmptyRegion(0, 0)
+            region = EmptyRegion(0, 0, min_y=self.min_y, max_y=self.max_y,
+                                 version=self.data_version)
             points = np.asarray(points).astype(int)
             for row in points:
                 x, y, z = row
                 try:
-                    region.set_block(stone, x, z, y) # MinecraftとはY-UPの右手系なので、そのように変数を定義する
+                    # Minecraft is Y-up right-handed, hence the swap.
+                    region.set_block(stone, x, z, y)
                 except OutOfBoundsCoordinates:
+                    self.clipped += 1
                     continue
             print(f"save: {block_id}")
-            region.save(f"{output}/world_data/region/{block_id}")
+            region.save(str(region_dir / block_id))
 
     def _get_world_origin(self, vertices):
         min_x = min(vertices[:, 0])

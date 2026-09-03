@@ -17,6 +17,8 @@ from pynbt import NBTFile
 
 def read_chunk(region_dir, chunk_x, chunk_z):
     path = Path(region_dir) / f"r.{chunk_x >> 5}.{chunk_z >> 5}.mca"
+    if not path.exists():
+        return None
     data = path.read_bytes()
     slot = 4 * ((chunk_x & 31) + (chunk_z & 31) * 32)
     offset = int.from_bytes(data[slot:slot + 3], "big")
