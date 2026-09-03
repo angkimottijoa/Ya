@@ -8,7 +8,7 @@ from nbt import nbt
 from .biome import Biome
 from .block import Block
 from .chunk import Chunk
-from .empty_chunk import EmptyChunk
+from .empty_chunk import EmptyChunk, check_height_range
 from .empty_section import EmptySection
 from .errors import OutOfBoundsCoordinates
 
@@ -31,13 +31,23 @@ class EmptyRegion:
     z: :class:`int`
     """
 
-    __slots__ = ("chunks", "x", "z")
+    __slots__ = ("chunks", "x", "z", "min_y", "max_y", "version")
 
-    def __init__(self, x: int, z: int):
+    def __init__(self, x: int, z: int, min_y: int = -64, max_y: int = 319,
+                 version: int = 3337):
+        """FORK: takes the world height range and passes it to every chunk it
+        creates, so an extended-height world can be written."""
+        check_height_range(min_y, max_y)
         # Create a 1d list for the 32x32 chunks
         self.chunks: list[EmptyChunk] = [None] * 1024
         self.x = x
         self.z = z
+        self.min_y = min_y
+        self.max_y = max_y
+        self.version = version
+
+    def _new_chunk(self, x: int, z: int) -> EmptyChunk:
+        return EmptyChunk(x, z, self.min_y, self.max_y, self.version)
 
     def inside(self, x: int, y: int, z: int, chunk: bool = False) -> bool:
         """
@@ -53,7 +63,8 @@ class EmptyRegion:
         factor = 32 if chunk else 512
         rx = x // factor
         rz = z // factor
-        return not (rx != self.x or rz != self.z or y not in range(-64, 320))
+        return not (rx != self.x or rz != self.z
+                    or y not in range(self.min_y, self.max_y + 1))
 
     def get_chunk(self, x: int, z: int) -> EmptyChunk:
         """
@@ -116,7 +127,7 @@ class EmptyRegion:
             raise OutOfBoundsCoordinates(f"Chunk ({x}, {z}) is not inside this region")
         chunk = self.chunks[z % 32 * 32 + x % 32]
         if chunk is None:
-            chunk = EmptyChunk(x, z)
+            chunk = self._new_chunk(x, z)
             self.add_chunk(chunk)
         chunk.add_section(section, replace)
 
@@ -143,7 +154,7 @@ class EmptyRegion:
         cz = z // 16
         chunk = self.get_chunk(cx, cz)
         if chunk is None:
-            chunk = EmptyChunk(cx, cz)
+            chunk = self._new_chunk(cx, cz)
             self.add_chunk(chunk)
         chunk.set_block(block, x % 16, y, z % 16)
 
@@ -170,7 +181,7 @@ class EmptyRegion:
         cz = z // 16
         chunk = self.get_chunk(cx, cz)
         if chunk is None:
-            chunk = EmptyChunk(cx, cz)
+            chunk = self._new_chunk(cx, cz)
             self.add_chunk(chunk)
         chunk.set_biome(biome, x % 16, z % 16)
 

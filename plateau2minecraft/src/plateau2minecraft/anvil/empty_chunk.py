@@ -4,6 +4,23 @@ from .biome import Biome
 from .block import Block
 from .empty_section import EmptySection
 from .errors import EmptySectionAlreadyExists, OutOfBoundsCoordinates
+
+
+def check_height_range(min_y: int, max_y: int) -> None:
+    """FORK: the rules a world height has to satisfy to be writable.
+
+    Shared by EmptyChunk and EmptyRegion so a bad range is refused when it
+    is configured, not later when the first block happens to be placed.
+    """
+    if min_y % 16 or (max_y + 1) % 16:
+        raise ValueError(
+            f"min_y and max_y + 1 must be multiples of 16; got {min_y}..{max_y}")
+    if not (-2048 <= min_y and max_y <= 2047):
+        raise ValueError(
+            f"world height must stay within y -2048..2047 (a section's Y index is a "
+            f"signed byte); got {min_y}..{max_y}")
+    if min_y >= max_y:
+        raise ValueError(f"min_y must be below max_y; got {min_y}..{max_y}")
 from .legacy import LEGACY_BIOMES_ID_MAP
 
 
@@ -30,14 +47,34 @@ class EmptyChunk:
         Chunk's DataVersion
     """
 
-    __slots__ = ("x", "z", "sections", "biome", "version")
+    __slots__ = ("x", "z", "sections", "biome", "version", "min_y", "max_y")
 
-    def __init__(self, x: int, z: int):
+    # 1.20.2 is where chunk generation statuses became namespaced ids
+    # ("minecraft:full" rather than "full").
+    NAMESPACED_STATUS_SINCE = 3578
+
+    def __init__(self, x: int, z: int, min_y: int = -64, max_y: int = 319,
+                 version: int = 3337):
+        """
+        FORK: the section list used to be a hardcoded 24 entries with the
+        index offset baked in as ``section.y + 4``, which pinned every world
+        to vanilla's -64..319. It is now built from ``min_y``/``max_y`` so a
+        height-extending datapack can be matched. Anvil's own ceiling still
+        applies: a section's Y index is a signed byte, so y stays inside
+        -2048..2047.
+        """
+        check_height_range(min_y, max_y)
         self.x = x
         self.z = z
-        self.sections: list[EmptySection] = [None] * 24
+        self.min_y = min_y
+        self.max_y = max_y
+        self.sections: list[EmptySection] = [None] * ((max_y + 1 - min_y) // 16)
         self.biome = None
-        self.version = 3337
+        self.version = version
+
+    @property
+    def _section_offset(self) -> int:
+        return -(self.min_y // 16)
 
     def add_section(self, section: EmptySection, replace: bool = True):
         """
@@ -55,9 +92,13 @@ class EmptyChunk:
         anvil.EmptySectionAlreadyExists
             If ``replace`` is ``False`` and section with same Y already exists in this chunk
         """
-        if self.sections[section.y + 4] and not replace:
+        index = section.y + self._section_offset
+        if not 0 <= index < len(self.sections):
+            raise OutOfBoundsCoordinates(
+                f"EmptySection (Y={section.y}) is outside y {self.min_y}..{self.max_y}")
+        if self.sections[index] and not replace:
             raise EmptySectionAlreadyExists(f"EmptySection (Y={section.y}) already exists in this chunk")
-        self.sections[section.y + 4] = section
+        self.sections[index] = section
 
     def get_block(self, x: int, y: int, z: int) -> Block:
         """
@@ -85,8 +126,9 @@ class EmptyChunk:
             raise OutOfBoundsCoordinates(f"X ({x!r}) must be in range of 0 to 15")
         if z not in range(16):
             raise OutOfBoundsCoordinates(f"Z ({z!r}) must be in range of 0 to 15")
-        if y not in range(-64, 320):
-            raise OutOfBoundsCoordinates(f"Y ({y!r}) must be in range of -64 to 319")
+        if y not in range(self.min_y, self.max_y + 1):
+            raise OutOfBoundsCoordinates(
+                f"Y ({y!r}) must be in range of {self.min_y} to {self.max_y}")
         section = self.sections[(y // 16) + 4]
         if section is None:
             return
@@ -112,8 +154,9 @@ class EmptyChunk:
             raise OutOfBoundsCoordinates(f"X ({x!r}) must be in range of 0 to 15")
         if z not in range(16):
             raise OutOfBoundsCoordinates(f"Z ({z!r}) must be in range of 0 to 15")
-        if y not in range(-64, 320):
-            raise OutOfBoundsCoordinates(f"Y ({y!r}) must be in range of -64 to 320")
+        if y not in range(self.min_y, self.max_y + 1):
+            raise OutOfBoundsCoordinates(
+                f"Y ({y!r}) must be in range of {self.min_y} to {self.max_y}")
         section = self.sections[(y // 16) + 4]
         if section is None:
             section = EmptySection(y // 16)
@@ -149,8 +192,15 @@ class EmptyChunk:
                 nbt.TAG_Int(name="zPos", value=self.z),
                 nbt.TAG_Long(name="LastUpdate", value=0),
                 nbt.TAG_Long(name="InhabitedTime", value=0),
-                nbt.TAG_Byte(name="isLightOn", value=1),
-                nbt.TAG_String(name="Status", value="full"),
+                # FORK: was 1, which tells the game the chunk's lighting is
+                # already computed when no light data is written at all --
+                # the cause of black, unlit imported chunks. 0 makes the
+                # client relight on load.
+                nbt.TAG_Byte(name="isLightOn", value=0),
+                nbt.TAG_String(
+                    name="Status",
+                    value="minecraft:full" if self.version >= self.NAMESPACED_STATUS_SINCE
+                    else "full"),
             ]
         )
         sections = nbt.TAG_List(name="Sections", type=nbt.TAG_Compound)
@@ -198,11 +248,18 @@ class EmptyChunk:
                 nbt.TAG_List(name="fluid_ticks", type=nbt.TAG_Compound),
                 nbt.TAG_Long(name="LastUpdate", value=0),
                 nbt.TAG_Long(name="InhabitedTime", value=0),
-                nbt.TAG_Byte(name="isLightOn", value=1),
+                # FORK: was 1, which tells the game the chunk's lighting is
+                # already computed when no light data is written at all --
+                # the cause of black, unlit imported chunks. 0 makes the
+                # client relight on load.
+                nbt.TAG_Byte(name="isLightOn", value=0),
                 nbt.TAG_Int(name="xPos", value=self.x),
-                nbt.TAG_Int(name="yPos", value=-4),
+                nbt.TAG_Int(name="yPos", value=self.min_y // 16),
                 nbt.TAG_Int(name="zPos", value=self.z),
-                nbt.TAG_String(name="Status", value="full"),
+                nbt.TAG_String(
+                    name="Status",
+                    value="minecraft:full" if self.version >= self.NAMESPACED_STATUS_SINCE
+                    else "full"),
             ]
         )
         return root
