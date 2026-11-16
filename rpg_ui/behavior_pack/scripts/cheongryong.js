@@ -215,7 +215,8 @@ function dragon(ctx) {
   for (let i = 0; i < 4; i++) later(i * 25, () => M.sound(p, "ambient.weather.thunder", 0.5 + i * 0.05, 0.7));
   const a0 = Math.atan2(o.z - C.z, o.x - C.x) + Math.PI; // 플레이어 반대쪽 구름 위에서 등장
   const ring = (ang, s) => ({ x: C.x + Math.cos(ang) * R, y: C.y - 3 - Math.sin(s * Math.PI * 4) * 0.8, z: C.z + Math.sin(ang) * R });
-  const TA = 28, TB = 54, TC = 42;
+  // A 구름 위 등장 → 구름 아래 진입 / B 한 바퀴 / C 위로 솟아 구름 속으로 / H 구름 위에서 잠깐 사라짐 / D 급강하
+  const TA = 28, TB = 54, TC = 20, TH = 8, TD = 26;
   // 3차 베지어 (접선이 이어지게 조절점을 둠)
   const bez3 = (A, B, C2, D, s) => {
     const m = 1 - s, a = m * m * m, b = 3 * m * m * s, c = 3 * m * s * s, d = s * s * s;
@@ -227,19 +228,28 @@ function dragon(ctx) {
   const A1 = { x: top.x, y: C.y + 2, z: top.z }; // 구름을 뚫고 곧게 내려오다가
   const A2 = { x: ringStart.x - t0.x * 6, y: ringStart.y + 0.6, z: ringStart.z - t0.z * 6 }; // 고리 방향으로 부드럽게 꺾임
   const B = { x: G.x, y: G.y - 2.5, z: G.z };
-  const C1 = { x: ringEnd.x + t0.x * 12, y: ringEnd.y - 2.4, z: ringEnd.z + t0.z * 12 }; // 고리에서 그대로 미끄러져 나와
-  const C2 = { x: B.x, y: B.y + 13, z: B.z }; // 마지막엔 거의 수직으로 꽂힘
+  // 솟구칠 꼭대기: 구름 위, 떨어질 곳 바로 위쪽 (꼭대기에서 진행 방향 = 떨어질 곳 쪽 수평)
+  const apex = { x: C.x + (G.x - C.x) * 0.3, y: C.y + 8, z: C.z + (G.z - C.z) * 0.3 };
+  const toG = norm({ x: G.x - ringEnd.x, y: 0, z: G.z - ringEnd.z });
+  const C1 = { x: ringEnd.x + t0.x * 7, y: ringEnd.y - 1.2, z: ringEnd.z + t0.z * 7 }; // 고리에서 미끄러져 나오며
+  const C2 = { x: apex.x - toG.x * 6, y: apex.y - 1, z: apex.z - toG.z * 6 }; // 위로 휘어 올라 꼭대기에서 수평
+  const D1 = { x: apex.x + toG.x * 7, y: apex.y - 0.5, z: apex.z + toG.z * 7 }; // 꼭대기에서 고개를 돌려
+  const D2 = { x: B.x, y: B.y + 16, z: B.z }; // 수직에 가깝게 내리꽂음
+  const T1 = TA + TB, T2 = T1 + TC, T3 = T2 + TH;
   const path = (t) => {
     t = Math.max(0, t);
     if (t <= TA) { const u = t / TA; return bez3(top, A1, A2, ringStart, (u * u + u) / 2); } // 끝으로 갈수록 빨라져 고리 속도와 맞춤
-    if (t <= TA + TB) return ring(a0 + ((t - TA) / TB) * Math.PI * 2, (t - TA) / TB); // 구름 아래 한 바퀴
-    const u = Math.min(1, (t - TA - TB) / TC);
-    const s = u * 1.05 - u * u * 0.05; // 고리 속도 그대로 이어서 출발
-    const q = bez3(ringEnd, C1, C2, B, s);
-    const sw = 3 * u * Math.sin(u * Math.PI * 2.2) * (1 - u); // 시작·끝은 0 → 꺾임 없이 꿈틀
+    if (t <= T1) return ring(a0 + ((t - TA) / TB) * Math.PI * 2, (t - TA) / TB); // 구름 아래 한 바퀴
+    if (t <= T2) { const u = (t - T1) / TC; return bez3(ringEnd, C1, C2, apex, u * 0.88 + u * u * 0.12); } // 고리 속도 그대로 솟구침
+    if (t <= T3) { const u = (t - T2) / TH; return { x: apex.x + toG.x * u * 1.2, y: apex.y + Math.sin(u * Math.PI) * 1.2, z: apex.z + toG.z * u * 1.2 }; } // 구름 위에서 숨 고르기
+    const u = Math.min(1, (t - T3) / TD);
+    const st = { x: apex.x + toG.x * 1.2, y: apex.y, z: apex.z + toG.z * 1.2 };
+    const q = bez3(st, D1, D2, B, u * u * 0.55 + u * 0.45); // 점점 빨라지는 급강하
+    const sw = 2.6 * Math.sin(u * Math.PI * 2) * Math.sin(u * Math.PI) * Math.min(1, u * 2.5); // S자 꿈틀 (시작·끝 0)
     return { x: q.x + side.x * sw, y: q.y, z: q.z + side.z * sw };
   };
-  const T = TA + TB + TC;
+  const hidden = (t) => t > T2 - 3 && t <= T3 + 2; // 구름 위로 사라진 동안은 안 그림
+  const T = T3 + TD;
   let landed = false;
   for (let t = 1; t <= T; t++) {
     later(t, () => {
@@ -247,7 +257,10 @@ function dragon(ctx) {
       const s = t / T;
       const thick = 0.95 * Math.min(1, 0.35 + s * 3);
       // 한 틱 사이도 실제 곡선을 따라 5번 나눠 그림 → 몸통이 각지지 않음
-      if (cur.y > o.y - 0.5) bodyAlong(dim, path, t, thick, 1.7, 5);
+      if (t === T2) { flash(dim, up(C, 3), 6); M.sound(p, "ambient.weather.thunder", 1, 1.2); } // 구름 속 번쩍
+      if (t === T3 + 1) M.sound(p, "mob.enderdragon.growl", 1.4, 0.9);
+      if (hidden(t)) return;
+      if (cur.y > o.y - 0.5) bodyAlong(dim, path, t, thick, t > T3 ? 1.2 : 1.7, 5);
       const hd = headDir(path(t - 1), path(t + 1)); // 앞뒤 차이로 방향 → 머리가 덜 흔들림
       if (cur.y > o.y + 0.3) pt(dim, "cr_head", cur, { ...hd, n: 380, life: 0.1, scale: 1.7 });
       if (t % 3 === 0) snow(dim, cur, 3, 2);
@@ -255,7 +268,7 @@ function dragon(ctx) {
       for (const e of M.around(dim, cur, 3)) hit(e, 0.5);
       if (t % 10 === 0) M.sound(p, "bucket.empty_water", 0.6 + s * 0.6, 0.7);
       // 땅에 닿는 순간 물보라
-      if (!landed && t > TA + TB && cur.y <= o.y + 0.5) {
+      if (!landed && t > T3 && cur.y <= o.y + 0.5) {
         landed = true;
         pt(dim, "cr_ring", G, { r: 4.5, h: 0.2, dots: 52, spin: 220, tone: 0.5, life: 1.3 });
         pt(dim, "cr_arc", G, { yaw: 0, a0: 0, a1: 360, r: 3.4, thick: 1, h: 0.3, dur: 0.25, n: 280 });

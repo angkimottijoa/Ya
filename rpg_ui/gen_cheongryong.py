@@ -222,10 +222,12 @@ def main():
         **dust_look("0.13", tone=f"{R3} * 0.35"),
     })
     # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
-    IW, IH, CX, CY = 240, 121, 180, 50
+    IW, IH, CX, CY, CELL = 240, 121, 180, 50, 6
     px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
     S = "(variable.scale * 0.048)"
-    lx, ly, lz = f"(({px} - {CX}) * {S})", f"(({CY} - {py}) * {S})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
+    # 픽셀 안 소수부로 살짝 흩뜨림 → 격자 느낌 제거
+    jx, jy = f"(({R1} * {IW} - {px}) - 0.5)", f"(({R2} * {IH} - {py}) - 0.5)"
+    lx, ly, lz = f"(({px} - {CX} + {jx} * 0.9) * {S})", f"(({CY} - {py} - {jy} * 0.9) * {S})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
     cp, sp = "math.cos(variable.pitch)", "math.sin(variable.pitch)"
     fx, fy = f"({lx} * {cp} - {ly} * {sp})", f"({lx} * {sp} + {ly} * {cp})"
     part("cr_bighead", {
@@ -237,8 +239,8 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * 1.7", f"{S} * 1.7"], "facing_camera_mode": "lookat_xyz",
-            "uv": {"texture_width": IW, "texture_height": IH, "uv": [px, py], "uv_size": [1, 1]}},
+            "size": [f"{S} * (1.5 + {R4} * 0.7) * (1 - {AGE} * {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{px} * {CELL}", f"{py} * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음
     #    cr_varc = 하늘색 물 띠(가운데 진하고 바깥 밝게), cr_varc_snow = 가장자리를 따라 ✱ 반짝이

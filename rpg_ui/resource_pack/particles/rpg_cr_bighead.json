@@ -17,9 +17,9 @@
    },
    "minecraft:emitter_shape_point": {
     "offset": [
-     "(-(((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.sin(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.cos(variable.yaw))",
-     "(((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.sin(variable.pitch) + ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.cos(variable.pitch))",
-     "((((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.cos(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.sin(variable.yaw))"
+     "(-(((math.floor(variable.particle_random_1 * 240) - 180 + ((variable.particle_random_1 * 240 - math.floor(variable.particle_random_1 * 240)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121) - ((variable.particle_random_2 * 121 - math.floor(variable.particle_random_2 * 121)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.sin(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.cos(variable.yaw))",
+     "(((math.floor(variable.particle_random_1 * 240) - 180 + ((variable.particle_random_1 * 240 - math.floor(variable.particle_random_1 * 240)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.sin(variable.pitch) + ((50 - math.floor(variable.particle_random_2 * 121) - ((variable.particle_random_2 * 121 - math.floor(variable.particle_random_2 * 121)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.cos(variable.pitch))",
+     "((((math.floor(variable.particle_random_1 * 240) - 180 + ((variable.particle_random_1 * 240 - math.floor(variable.particle_random_1 * 240)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121) - ((variable.particle_random_2 * 121 - math.floor(variable.particle_random_2 * 121)) - 0.5) * 0.9) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.cos(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.sin(variable.yaw))"
     ],
     "direction": [
      0,
@@ -34,20 +34,20 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "(variable.scale * 0.048) * 1.7",
-     "(variable.scale * 0.048) * 1.7"
+     "(variable.scale * 0.048) * (1.5 + variable.particle_random_4 * 0.7) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)",
+     "(variable.scale * 0.048) * (1.5 + variable.particle_random_4 * 0.7) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
-     "texture_width": 240,
-     "texture_height": 121,
+     "texture_width": 1440,
+     "texture_height": 726,
      "uv": [
-      "math.floor(variable.particle_random_1 * 240)",
-      "math.floor(variable.particle_random_2 * 121)"
+      "math.floor(variable.particle_random_1 * 240) * 6",
+      "math.floor(variable.particle_random_2 * 121) * 6"
      ],
      "uv_size": [
-      1,
-      1
+      6,
+      6
      ]
     }
    }

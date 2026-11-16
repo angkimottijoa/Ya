@@ -12,6 +12,7 @@ ROOT = Path(__file__).parent
 SRC = ROOT / "art" / "cheongryong_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_cr_dragonhead.png"
 TARGET_W = 240
+CELL = 6
 
 
 def main():
@@ -53,7 +54,18 @@ def main():
                 sp[x, y] = (r, g, b, 255)
                 n += 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    small.save(OUT)
+    # 픽셀 하나 = CELLxCELL 칸의 둥근 점 (모서리 투명) → 파티클 점이 네모가 아니라 동그랗게 보임
+    big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
+    bp = big.load()
+    c = (CELL - 1) / 2
+    disc = [(i, j) for i in range(CELL) for j in range(CELL) if (i - c) ** 2 + (j - c) ** 2 <= (CELL / 2) ** 2 - 0.3]
+    for y in range(small.size[1]):
+        for x in range(small.size[0]):
+            col = sp[x, y]
+            if col[3]:
+                for i, j in disc:
+                    bp[x * CELL + i, y * CELL + j] = col
+    big.save(OUT)
     bg = Image.new("RGBA", small.size, (70, 100, 150, 255))
     bg.alpha_composite(small)
     bg.resize((small.size[0] * 3, small.size[1] * 3), Image.NEAREST).save(ROOT / "docs" / "dragonhead_preview.png")
