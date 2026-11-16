@@ -783,6 +783,17 @@ def vanilla_overrides():
         d.line([(19, 1), (19, 20)], fill=(70, 70, 100, 255))
         d.rectangle([2, 2, 17, 19], outline=(40, 44, 66, 255))
         save(hb, VAN / f"hotbar_{i}.png")
+    # 8번 칸 = 스킬 버튼(파란 테), 9번 칸 = 메뉴 버튼(금 테) — 핫바 칸 자체가 터치 버튼
+    for idx, (fill, edge, hi) in {7: ((28, 40, 80, 235), (90, 150, 240, 255), (170, 210, 255, 255)),
+                                  8: ((60, 46, 20, 235), P["gold"], P["gold_light"])}.items():
+        hb = Image.new("RGBA", (20, 22), (0, 0, 0, 0))
+        d = ImageDraw.Draw(hb)
+        d.rectangle([0, 0, 19, 21], fill=fill)
+        d.rectangle([1, 1, 18, 20], outline=edge)
+        d.line([(2, 2), (17, 2)], fill=hi)
+        for (x, y) in [(1, 1), (18, 1), (1, 20), (18, 20)]:
+            d.point((x, y), fill=hi)
+        save(hb, VAN / f"hotbar_{idx}.png")
     cap = Image.new("RGBA", (1, 22), P["gold_dark"])
     save(cap, VAN / "hotbar_start_cap.png", [1, 1, 1, 1])
     save(cap, VAN / "hotbar_end_cap.png", [1, 1, 1, 1])
@@ -841,9 +852,34 @@ def item_icons():
     sk = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     sk.paste(ascii_icon(ICONS["skill"], big), (2, 2))
     save(sk, ITEMS / "skill.png")
+    # 무기 분류별 스킬 버튼 아이콘 (핫바 8번 칸에 들고 있는 무기에 맞춰 바뀜)
+    for cls, ic in {"sword": "class", "axe": "axe", "bow": "archer", "crossbow": "crossbow", "spear": "spear",
+                    "mace": "mace", "staff": "mage", "fist": "profile"}.items():
+        im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+        im.paste(ascii_icon(ICONS[ic], big), (2, 1))
+        bolt = ascii_icon(["..b", ".bb", "bb.", ".b."], {"b": (120, 200, 255, 255)})
+        im.paste(bolt, (12, 11), bolt)
+        save(im, ITEMS / f"skill_{cls}.png")
+    none = ascii_icon(ICONS["skill"], {k: (90, 90, 100, 200) for k in IC})
+    im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    im.paste(none, (2, 2))
+    save(im, ITEMS / "skill_none.png")
+
+
+def particle_textures():
+    """길찾기 파티클: 부드러운 빛 점 (흰색 → 파티클이 색을 입힘)"""
+    im = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    px = im.load()
+    for y in range(8):
+        for x in range(8):
+            r = ((x - 3.5) ** 2 + (y - 3.5) ** 2) ** 0.5
+            a = max(0, min(255, int(255 * (1 - r / 4) ** 0.7))) if r < 4 else 0
+            px[x, y] = (255, 255, 255, a)
+    save(im, ROOT / "particle" / "rpg_nav.png")
 
 
 def main():
+    particle_textures()
     rpg_textures()
     vanilla_overrides()
     item_icons()

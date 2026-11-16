@@ -2,14 +2,12 @@
   "namespace": "rpg_hud",
 
   // ════════════════════════════════════════════════════════════════
-  //  Arcania HUD (V1.4)
+  //  Arcania HUD (V1.5)
   //  - 스크립트: title = "quest:<퀘스트창>", subtitle = "[CARD]<정보>" / "[BAR]<HP·MP·Lv>" 번갈아 전송
   //  - 데이터 컨트롤은 항상 보이는 루트에 둔다 (숨겨진 부모 안에선 바인딩이 갱신되지 않음)
-  //  - [스킬]/[메뉴] 버튼: 바닐라 핫바 칸 버튼(gui_hotbar_slot_button_prototype)을 그대로 쓴다.
-  //    9칸을 세로로 쌓고(1열 9행) 1~7번 칸은 화면 위로 밀어내서 8·9번 칸만 보이게 한다.
-  //    → 버튼을 누르면 핫바 8/9번 칸이 선택되고 스크립트가 감지해 스킬 / 메뉴 실행
-  //  - 접기: HUD 는 토글 입력을 처리하지 않으므로 스크립트가 빈 문자열을 보내 창을 숨긴다 (쉬프트+[메뉴])
-  //  - 바닐라 하트는 숨기고 핫바 위에 HP / MP / Lv 긴 바 (hud_screen.json)
+  //  - 최신 모바일 마크는 HUD 터치를 엔진(레이아웃 사용자화)이 직접 처리해서 JSON UI 버튼이 눌리지 않는다.
+  //    그래서 [스킬]/[메뉴] 버튼은 핫바 8·9번 칸 자체를 버튼으로 쓴다 (textures/ui/hotbar_7, hotbar_8 버튼 모양).
+  //  - 접기: 쉬프트+[메뉴] (스크립트가 빈 문자열을 보내 창을 숨김)
   // ════════════════════════════════════════════════════════════════
 
   "root": {
@@ -45,16 +43,13 @@
         "rpg_status@rpg_hud.status_bar": {}
       },
       {
-        "rpg_buttons@rpg_hud.slot_buttons": {}
-      },
-      {
         "rpg_panels": {
           "type": "stack_panel",
           "orientation": "vertical",
           "anchor_from": "top_right",
           "anchor_to": "top_right",
           "offset": [
-            -48,
+            -4,
             4
           ],
           "size": [
@@ -312,89 +307,5 @@
       }
     ],
     "text_alignment": "center"
-  },
-  "slot_buttons": {
-    "type": "grid",
-    "anchor_from": "top_right",
-    "anchor_to": "top_right",
-    "offset": [
-      -4,
-      -129
-    ],
-    "size": [
-      42,
-      171
-    ],
-    "grid_dimensions": [
-      1,
-      9
-    ],
-    "grid_item_template": "rpg_hud.slot_cell",
-    "collection_name": "hotbar_items",
-    "layer": 5
-  },
-  "slot_cell": {
-    "type": "panel",
-    "size": [
-      42,
-      19
-    ],
-    "$hotbar_collection_name": "hotbar_items",
-    "controls": [
-      {
-        "bg": {
-          "type": "image",
-          "texture": "textures/ui/rpg/button_default",
-          "size": [
-            40,
-            18
-          ],
-          "layer": 1
-        }
-      },
-      {
-        "item_icon@hud.hotbar_hud_item_icon": {
-          "size": [
-            13,
-            13
-          ],
-          "anchor_from": "left_middle",
-          "anchor_to": "left_middle",
-          "offset": [
-            4,
-            0
-          ],
-          "layer": 3
-        }
-      },
-      {
-        "sel": {
-          "type": "image",
-          "texture": "textures/ui/rpg/button_hover",
-          "size": [
-            40,
-            18
-          ],
-          "layer": 2,
-          "bindings": [
-            {
-              "binding_name": "#slot_selected",
-              "binding_name_override": "#visible",
-              "binding_type": "collection",
-              "binding_collection_name": "hotbar_items"
-            }
-          ]
-        }
-      },
-      {
-        "hotbar_slot_button@hud.gui_hotbar_slot_button_prototype": {
-          "size": [
-            40,
-            18
-          ],
-          "layer": 6
-        }
-      }
-    ]
   }
 }

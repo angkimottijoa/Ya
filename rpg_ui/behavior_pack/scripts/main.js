@@ -2,7 +2,7 @@
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { data, save, forget, msg, notify, isAdmin } from "./player.js";
 import { initCombat, castSkill, resetSpeed } from "./combat.js";
-import { initSkillTriggers, castWeaponSkill } from "./skills.js";
+import { initSkillTriggers, castWeaponSkill, loadout, currentSkillInfo } from "./skills.js";
 import { registerNpcEntity } from "./npcdb.js";
 import { navTick } from "./waypoints.js";
 import * as Q from "./quests.js";
@@ -41,7 +41,37 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
-  ensureSlotItem(p, "rpg:skill", SKILL_SLOT);
+  updateSkillSlot(p);
+}
+
+/** 8번 칸 = 스킬 버튼: 들고 있는 무기 분류의 스킬 아이콘 + 이름(스킬1 / 스킬2) */
+const lastSkillKey = new Map();
+function updateSkillSlot(p) {
+  const c = p.getComponent("minecraft:inventory").container;
+  const cur = c.getItem(SKILL_SLOT);
+  const { w } = loadout(p);
+  const { skill, sub } = currentSkillInfo(p);
+  const swap = data(p).set.skillSwap === true;
+  const a = swap ? sub : skill, b = swap ? skill : sub;
+  // 스킬이 없으면(무기 아님) 빈 스킬 칸
+  const id = a || b ? `rpg:skill_${w}` : "rpg:skill_none";
+  const name = a || b ? `§b§l스킬 1§r§f ${a?.name ?? "-"}  §7| §d⇧ 스킬 2§r§f ${b?.name ?? "-"}` : "§7스킬 없음 §8(무기를 들면 생김)";
+  const key = `${id}|${name}`;
+  if (cur?.typeId === id && lastSkillKey.get(p.id) === key) return;
+  for (let i = 0; i < c.size; i++) {
+    const it = c.getItem(i);
+    if (i !== SKILL_SLOT && it?.typeId.startsWith("rpg:skill")) c.setItem(i, undefined);
+  }
+  const it = new ItemStack(id, 1);
+  it.lockMode = ItemLockMode.slot;
+  it.keepOnDeath = true;
+  it.nameTag = name;
+  if (cur && !cur.typeId.startsWith("rpg:skill")) {
+    const rest = c.addItem(cur);
+    if (rest) p.dimension.spawnItem(rest, p.location);
+  }
+  c.setItem(SKILL_SLOT, it);
+  lastSkillKey.set(p.id, key);
 }
 
 // HUD [메뉴]/[스킬] 버튼 = 핫바 9번/8번 칸 선택. 선택되면 바로 원래 칸으로 되돌리고 실행.
@@ -56,8 +86,9 @@ system.runInterval(() => {
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
       if (cur === SKILL_SLOT) {
-        // HUD [스킬] = 기본 스킬 / 웅크린 채 [스킬] = 쉬프트 스킬
-        castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
+        // 스킬 버튼 = 스킬 1 / 쉬프트+스킬 버튼 = 스킬 2 (설정에서 바꾸기 가능)
+        const swap = data(p).set.skillSwap === true;
+        castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
         continue;
       }
       if (p.isSneaking) {
@@ -75,19 +106,31 @@ system.runInterval(() => {
         if (p.isValid()) openHome(p);
       }, 6);
     } else {
+      if (cur !== prev) updateSkillSlot(p);
       lastSlot.set(p.id, cur);
+    }
+    // 쉬프트를 누르면 어떤 스킬이 나갈지 알려줌 (설정에서 끌 수 있음)
+    const sneak = p.isSneaking;
+    if (sneak !== lastSneak.get(p.id)) {
+      lastSneak.set(p.id, sneak);
+      const d = data(p);
+      if (sneak && d.set.skillHint !== false && loadout(p).w !== "fist") {
+        const { skill, sub } = currentSkillInfo(p);
+        const s2 = d.set.skillSwap ? skill : sub;
+        if (s2) notify(p, `§d⇧ 스킬 2 §f${s2.name} §7· 스킬 버튼(8번 칸)`);
+      }
     }
   }
 }, 1);
+const lastSneak = new Map();
 
 // 메뉴북: 사용 → 메뉴 / 웅크리고 사용 → 직업 스킬
 // 제작자 도구: 사용 → 제작자 메뉴
 world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
   if (itemStack.typeId === "rpg:menu") {
     if (throttled(p)) return;
-    if (p.isSneaking) castSkill(p);
-    else system.run(() => openHome(p));
-  } else if (itemStack.typeId === "rpg:skill") {
+    system.run(() => openHome(p));
+  } else if (itemStack.typeId.startsWith("rpg:skill")) {
     if (!throttled(p)) castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
   } else if (itemStack.typeId === "rpg:quest_tool") {
     if (throttled(p)) return;

@@ -1,5 +1,5 @@
 // 퀘스트 엔진: 정의 저장(월드), 진행(플레이어), 목표 판정, 보상
-import { world } from "@minecraft/server";
+import { world, system } from "@minecraft/server";
 import { getJSON, setJSON } from "./db.js";
 import { data, save, addXp, addGold, msg, notify } from "./player.js";
 import { CLASSES } from "./classes.js";
@@ -76,6 +76,7 @@ export function blankQuest(id) {
     id, title: "새 퀘스트", desc: "", giver: "board", minLv: 1, cls: "", prereq: "",
     repeat: false, enabled: true, turnIn: "auto", obj: [], rw: { xp: 50, gold: 20, items: [] },
     type: "sub", region: "",
+    adv: {},
   };
 }
 
@@ -127,6 +128,14 @@ export function objNeed(o) {
   return o.t === "kill" || o.t === "collect" ? o.n : 1;
 }
 
+export const adv = (q) => q.adv ?? {};
+
+/** 아직 안 끝난 첫 목표 번호 (모두 끝났으면 -1) */
+export function firstOpen(p, q) {
+  for (let i = 0; i < q.obj.length; i++) if (objProgress(p, q, i) < objNeed(q.obj[i])) return i;
+  return -1;
+}
+
 export function objProgress(p, q, i) {
   const o = q.obj[i];
   if (o.t === "collect") return Math.min(o.n, countItem(p, o.id));
@@ -136,6 +145,10 @@ export function objProgress(p, q, i) {
 /** RawMessage: "좀비 처치 (3/5)" */
 export function objLine(p, q, i, withProgress = true) {
   const o = q.obj[i];
+  if (withProgress && adv(q).hidden) {
+    const f = firstOpen(p, q);
+    if (f >= 0 && i > f) return rt("§8- ??? §7(앞 목표를 끝내면 공개)");
+  }
   const verb = { kill: "처치", collect: "수집", visit: "방문", talk: "대화" }[o.t];
   const cur = withProgress ? objProgress(p, q, i) : 0;
   const need = objNeed(o);
@@ -150,9 +163,14 @@ export function isComplete(p, q) {
 export function state(p, q) {
   const d = data(p);
   if (d.q.a[q.id]) return isComplete(p, q) ? "ready" : "active";
+  const a = adv(q);
   if (q.type === "daily") {
     if (d.q.dd?.[q.id] === today()) return "done";
   } else if (d.q.d[q.id] && !q.repeat && q.type !== "repeat") return "done";
+  if (a.maxTimes > 0 && (d.q.d[q.id] ?? 0) >= a.maxTimes) return "done";
+  if (a.cooldownH > 0 && d.q.last?.[q.id] && Date.now() - d.q.last[q.id] < a.cooldownH * 3600000) return "locked";
+  if (a.lvMax > 0 && d.lv > a.lvMax) return "locked";
+  if (a.reqFlag && !d.flags?.[a.reqFlag]) return "locked";
   if (!q.enabled) return "locked";
   if (d.lv < (q.minLv ?? 1)) return "locked";
   if (q.cls && q.cls !== d.cls) return "locked";
@@ -166,6 +184,13 @@ export function lockReason(p, q) {
   if (d.lv < (q.minLv ?? 1)) return `레벨 ${q.minLv} 이상 필요`;
   if (q.cls && q.cls !== d.cls) return `${CLASSES[q.cls]?.name ?? q.cls} 전용`;
   if (q.prereq && !d.q.d[q.prereq]) return `선행: ${getQuest(q.prereq)?.title ?? q.prereq}`;
+  const a = adv(q);
+  if (a.cooldownH > 0 && d.q.last?.[q.id]) {
+    const left = a.cooldownH * 3600000 - (Date.now() - d.q.last[q.id]);
+    if (left > 0) return `다시 받을 수 있을 때까지 ${Math.ceil(left / 60000)}분`;
+  }
+  if (a.lvMax > 0 && d.lv > a.lvMax) return `레벨 ${a.lvMax} 이하 전용`;
+  if (a.reqFlag && !d.flags?.[a.reqFlag]) return a.reqFlagText || "조건을 만족하지 않음";
   return "";
 }
 
@@ -186,7 +211,8 @@ export function accept(p, id) {
     msg(p, `§c진행 중인 퀘스트는 최대 ${MAX_ACTIVE}개입니다.`);
     return false;
   }
-  d.q.a[id] = { p: q.obj.map(() => 0) };
+  d.q.a[id] = { p: q.obj.map(() => 0), t0: Date.now() };
+  if (adv(q).acceptMsg) p.sendMessage(`§e[${q.title}] §f${adv(q).acceptMsg}`);
   // 우선순위 목록: 메인 퀘스트는 맨 위, 나머지는 뒤에
   d.q.track = d.q.track.filter((t) => t !== id && d.q.a[t]);
   if (q.type === "main") d.q.track.unshift(id);
@@ -282,11 +308,40 @@ export function navText(p, t) {
   return `§b§l${arrow} ${dist}m${v} §r§f${t.label}`;
 }
 
+/** 완료 보고. 선택 보상이 있으면 고르는 화면을 띄우고 Promise 반환 */
 export function turnIn(p, id) {
   const d = data(p);
   const q = getQuest(id);
   if (!q || !d.q.a[id] || !isComplete(p, q)) return false;
-  for (const o of q.obj) if (o.t === "collect") removeItem(p, o.id, o.n);
+  const choices = adv(q).choice ?? [];
+  if (choices.length) {
+    return import("./ui.js").then(async ({ Screen }) => {
+      const scr = new Screen("L", `${q.title} / 보상 선택`);
+      let picked = null;
+      choices.forEach((it, i) => scr.item(rt("§f", itemName(it.id), ` §7×${it.n}`), undefined, () => { picked = i; }));
+      scr.select("보상 하나를 고르세요", undefined);
+      scr.body("§7아래 보상 중 하나를 받을 수 있습니다.");
+      await scr.show(p);
+      if (picked === null) return false;
+      return finishTurnIn(p, q, choices[picked]);
+    });
+  }
+  return finishTurnIn(p, q, null);
+}
+
+function finishTurnIn(p, q, choiceItem) {
+  const d = data(p);
+  const id = q.id;
+  if (!d.q.a[id] || !isComplete(p, q)) return false;
+  const a = adv(q);
+  if (!a.keepItems) for (const o of q.obj) if (o.t === "collect") removeItem(p, o.id, o.n);
+  if (choiceItem) giveItem(p, choiceItem.id, choiceItem.n);
+  (d.q.last = d.q.last ?? {})[id] = Date.now();
+  for (const f of String(a.flags ?? "").split(",").map((x) => x.trim()).filter(Boolean)) (d.flags = d.flags ?? {})[f] = true;
+  for (const c of String(a.cmds ?? "").split(";").map((x) => x.trim()).filter(Boolean)) {
+    try { p.runCommand(c.replace(/^\//, "")); } catch {}
+  }
+  if (a.doneMsg) p.sendMessage(`§6[${q.title}] §f${a.doneMsg}`);
   delete d.q.a[id];
   d.q.d[id] = (d.q.d[id] ?? 0) + 1;
   if (q.type === "daily") (d.q.dd = d.q.dd ?? {})[id] = today();
@@ -299,12 +354,13 @@ export function turnIn(p, id) {
   p.playSound("random.levelup", { pitch: 1.2 });
   notify(p, `§6§l퀘스트 완료 §r§f${q.title}`);
   p.sendMessage(rt("§6[Arcania]§r 보상: ", ...rewardLines(q).flatMap((l, i) => (i ? [" §7| ", l] : [l]))));
+  if (a.next && getQuest(a.next)) system.runTimeout(() => accept(p, a.next), 20);
   return true;
 }
 
 function checkAutoComplete(p, q) {
   if (!data(p).q.a[q.id]) return;
-  if (q.turnIn === "auto" && data(p).q.a[q.id] && isComplete(p, q) && !q.obj.some((o) => o.t === "collect")) {
+  if (q.turnIn === "auto" && data(p).q.a[q.id] && isComplete(p, q) && !q.obj.some((o) => o.t === "collect") && !(adv(q).choice ?? []).length) {
     turnIn(p, q.id);
   } else if (isComplete(p, q) && !data(p).q.a[q.id]?.notified) {
     data(p).q.a[q.id].notified = true;
@@ -320,8 +376,10 @@ function bump(p, pred) {
   for (const [id, st] of Object.entries(d.q.a)) {
     const q = getQuest(id);
     if (!q) continue;
+    const seqIdx = adv(q).seq ? firstOpen(p, q) : -2;
     q.obj.forEach((o, i) => {
       if (!pred(o)) return;
+      if (seqIdx !== -2 && i !== seqIdx) return;
       const need = objNeed(o);
       if ((st.p[i] ?? 0) < need) {
         st.p[i] = (st.p[i] ?? 0) + 1;
@@ -332,6 +390,51 @@ function bump(p, pred) {
   }
   if (changed) save(p);
   return changed;
+}
+
+export function failQuest(p, q, why) {
+  const d = data(p);
+  if (!d.q.a[q.id]) return;
+  delete d.q.a[q.id];
+  d.q.track = d.q.track.filter((t) => t !== q.id);
+  save(p);
+  countStat(q.id, "quit");
+  p.playSound("note.bass", { pitch: 0.6 });
+  notify(p, `§c§l퀘스트 실패 §r§f${q.title} §7(${why})`);
+  if (adv(q).failMsg) p.sendMessage(`§c[${q.title}] §f${adv(q).failMsg}`);
+}
+
+/** 플레이어 사망 시 '죽으면 실패' 퀘스트 처리 */
+export function onDeath(p) {
+  for (const id of Object.keys(data(p).q.a)) {
+    const q = getQuest(id);
+    if (q && adv(q).failOnDeath) failQuest(p, q, "사망");
+  }
+}
+
+// ───────── 선행/후속 묶음 정렬 ─────────
+/** 퀘스트 목록을 선행 → 후속 순서로 묶어서 정렬. 각 원소에 depth(들여쓰기) 포함 */
+export function chainSort(list) {
+  const ids = new Set(list.map((q) => q.id));
+  const kids = new Map();
+  const roots = [];
+  for (const q of list) {
+    if (q.prereq && ids.has(q.prereq) && q.prereq !== q.id) {
+      if (!kids.has(q.prereq)) kids.set(q.prereq, []);
+      kids.get(q.prereq).push(q);
+    } else roots.push(q);
+  }
+  const out = [];
+  const seen = new Set();
+  const walk = (q, depth) => {
+    if (seen.has(q.id)) return;
+    seen.add(q.id);
+    out.push({ q, depth });
+    for (const k of kids.get(q.id) ?? []) walk(k, depth + 1);
+  };
+  for (const r of roots) walk(r, 0);
+  for (const q of list) if (!seen.has(q.id)) walk(q, 0);
+  return out;
 }
 
 export function onKill(p, typeId, monster) {
@@ -345,6 +448,17 @@ export function onTalk(p, npcId) {
 /** 1초마다: 방문 목표 + 수집 목표 달성 알림 */
 export function tick(p) {
   const d = data(p);
+  for (const [id, st] of Object.entries(d.q.a)) {
+    const q = getQuest(id);
+    const lim = q ? adv(q).timeLimit : 0;
+    if (lim > 0 && st.t0 && Date.now() - st.t0 > lim * 60000) failQuest(p, q, "시간 초과");
+  }
+  if (system.currentTick % 100 < 20) {
+    for (const q of allQuests()) {
+      const al = adv(q).autoLv;
+      if (al > 0 && d.lv >= al && state(p, q) === "available" && Object.keys(d.q.a).length < MAX_ACTIVE) accept(p, q.id);
+    }
+  }
   const loc = p.location;
   bump(p, (o) => o.t === "visit" && (o.dim ?? "minecraft:overworld") === p.dimension.id &&
     Math.hypot(loc.x - o.x, loc.y - o.y, loc.z - o.z) <= (o.r ?? 5));

@@ -119,21 +119,34 @@ export function resetHud(p) {
   sent.delete(p.id);
 }
 
-/** 길 안내 파티클 (1초마다) – 목표 방향으로 점선 */
+/** 길 안내 파티클 (1초마다): 바닥에 금색 화살표(>) + 목적지 빛기둥. 내 화면에만 표시 */
 export function navParticles(p) {
   const d = data(p);
   if (d.set.nav === false || d.set.navFx === false) return;
   const id = priority(p).find((x) => !d.q.hide?.[x]);
   const t = manualTarget(p) ?? (id ? navTarget(p, getQuest(id)) : null);
   if (!t || t.dim !== p.dimension.id) return;
-  const dx = t.x - p.location.x, dy = t.y - p.location.y, dz = t.z - p.location.z;
-  const dist = Math.hypot(dx, dy, dz);
-  if (dist < 4) return;
-  for (let i = 1.5; i < Math.min(9, dist); i += 1.5) {
-    const k = i / dist;
-    const pos = { x: p.location.x + dx * k, y: p.location.y + 0.3 + Math.min(2, Math.max(-2, dy * k)), z: p.location.z + dz * k };
+  const fx = (name, pos) => {
     try {
-      p.spawnParticle ? p.spawnParticle("minecraft:villager_happy", pos) : p.dimension.spawnParticle("minecraft:villager_happy", pos);
+      if (p.spawnParticle) p.spawnParticle(name, pos);
+      else p.dimension.spawnParticle(name, pos);
     } catch {}
+  };
+  const L = p.location;
+  const dx = t.x - L.x, dy = t.y - L.y, dz = t.z - L.z;
+  const flat = Math.hypot(dx, dz);
+  const dist = Math.hypot(dx, dy, dz);
+  if (dist < 48) fx("rpg:nav_beam", { x: t.x, y: t.y, z: t.z });
+  if (flat < 3) return;
+  const ux = dx / flat, uz = dz / flat; // 진행 방향
+  const px = -uz, pz = ux; // 옆 방향
+  const reach = Math.min(13, flat - 1);
+  for (let s = 2; s <= reach; s += 1.8) {
+    const cx = L.x + ux * s, cz = L.z + uz * s;
+    const cy = L.y + 0.15 + Math.max(-3, Math.min(3, dy * (s / flat)));
+    // 화살표 모양 >  (끝점 + 양 날개 2단)
+    for (const [back, side] of [[0, 0], [0.3, 0.3], [0.3, -0.3], [0.6, 0.6], [0.6, -0.6]]) {
+      fx("rpg:nav_dot", { x: cx - ux * back + px * side, y: cy, z: cz - uz * back + pz * side });
+    }
   }
 }

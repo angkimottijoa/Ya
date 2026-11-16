@@ -11,6 +11,9 @@ const DEFAULT = {
   mp: null,
   bag: { sort: "rarity" },
   joined: false,
+  flags: {}, // 대화/퀘스트 플래그
+  met: {}, // NPC 만난 횟수
+  once: {}, // 한 번만 쓰는 대화 선택지
 };
 
 const cache = new Map();

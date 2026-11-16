@@ -10,6 +10,33 @@
     },
     "rpg_skill": {
       "textures": "textures/items/rpg/skill"
+    },
+    "rpg_skill_sword": {
+      "textures": "textures/items/rpg/skill_sword"
+    },
+    "rpg_skill_axe": {
+      "textures": "textures/items/rpg/skill_axe"
+    },
+    "rpg_skill_bow": {
+      "textures": "textures/items/rpg/skill_bow"
+    },
+    "rpg_skill_crossbow": {
+      "textures": "textures/items/rpg/skill_crossbow"
+    },
+    "rpg_skill_spear": {
+      "textures": "textures/items/rpg/skill_spear"
+    },
+    "rpg_skill_mace": {
+      "textures": "textures/items/rpg/skill_mace"
+    },
+    "rpg_skill_staff": {
+      "textures": "textures/items/rpg/skill_staff"
+    },
+    "rpg_skill_fist": {
+      "textures": "textures/items/rpg/skill_fist"
+    },
+    "rpg_skill_none": {
+      "textures": "textures/items/rpg/skill_none"
     }
   }
 }

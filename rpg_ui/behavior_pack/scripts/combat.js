@@ -93,7 +93,11 @@ export function initCombat() {
     }
     lastHit.delete(id);
     skillHit.delete(id);
-    if (killer?.typeId !== "minecraft:player" || typeId === "minecraft:player") return;
+    if (typeId === "minecraft:player") {
+      try { Q.onDeath(deadEntity); } catch {}
+      return;
+    }
+    if (killer?.typeId !== "minecraft:player") return;
     const [xp, gold] = MOB_REWARD[typeId.replace("minecraft:", "")] ?? (monster ? [8, 3] : [PASSIVE_XP, 0]);
     addXp(killer, xp);
     if (gold) addGold(killer, Math.round(gold * (0.7 + Math.random() * 0.6)));

@@ -70,6 +70,7 @@ export function openHome(p) {
     `\n\n§e§l조작§r\n§7HUD [메뉴] / 숫자키 9 §f메뉴\n§7쉬프트+[메뉴] §fHUD 창 접기/펼치기\n§7HUD [스킬] / 숫자키 8 §f기본 스킬\n§7쉬프트+[스킬] §f쉬프트 스킬\n§7쉬프트+공격 §f기본 스킬`,
   ));
   scr.action("퀘스트 게시판", () => openQuests(p, "all"));
+  scr.action("길찾기", () => openNav(p));
   scr.reopen = () => openHome(p);
   return scr.show(p);
 }
@@ -321,14 +322,15 @@ function questActions(scr, p, q, back) {
     if (Q.accept(p, q.id) && back.npc) Q.onTalk(p, back.npc);
     return back(q.id);
   });
-  if (st === "ready" && (q.turnIn === "auto" || back.npc === q.giver)) scr.action("§a완료 보고", () => { Q.turnIn(p, q.id); return back(); });
+  if (st === "ready" && (q.turnIn === "auto" || back.npc === q.giver)) scr.action("§a완료 보고", () => Promise.resolve(Q.turnIn(p, q.id)).then(() => back()));
   if (st === "active" || st === "ready") {
     const pr = Q.priority(p).indexOf(q.id);
     if (pr !== 0) scr.action("★ 길 안내 (최우선)", () => { Q.movePriority(p, q.id, "top"); return back(q.id); });
+    if (Q.navTarget(p, q)) scr.action("길찾기 열기", () => openNav(p, "quest", `quest:${q.id}`));
     if (pr > 0) scr.action("▲ 우선순위 올리기", () => { Q.movePriority(p, q.id, -1); return back(q.id); });
     if (pr < Q.priority(p).length - 1) scr.action("▼ 우선순위 내리기", () => { Q.movePriority(p, q.id, 1); return back(q.id); });
     scr.action(data(p).q.hide?.[q.id] ? "HUD에 표시" : "HUD에서 숨기기", () => { Q.toggleHidden(p, q.id); return back(q.id); });
-    scr.action("§c포기", () => { Q.abandon(p, q.id); return back(); });
+    if (!Q.adv(q).noAbandon) scr.action("§c포기", () => { Q.abandon(p, q.id); return back(); });
   }
 }
 
@@ -351,7 +353,16 @@ export function openQuests(p, cat = "active", sel, page = 0) {
       .filter((x) => (cat === "done" ? x.st === "done" : x.st !== "done"))
       .filter((x) => (["main", "sub", "daily", "repeat"].includes(cat) ? (x.q.type ?? "sub") === cat : true))
       .filter((x) => !(x.st === "locked" && x.q.prereq && !d.q.d[x.q.prereq]))
-      .sort((a, b) => order[a.st] - order[b.st] || (a.q.type === "main" ? -1 : 0));
+      .filter((x) => !(Q.adv(x.q).secret && x.st === "locked"));
+    // 선행 → 후속 퀘스트를 묶어서 정렬 (묶음 안에서는 연결 순서, 묶음끼리는 상태 순)
+    const byId = new Map(list.map((x) => [x.q.id, x]));
+    const groups = [];
+    for (const { q, depth } of Q.chainSort(list.map((x) => x.q))) {
+      if (depth === 0) groups.push([]);
+      groups.at(-1).push({ ...byId.get(q.id), depth });
+    }
+    groups.sort((a, b) => Math.min(...a.map((x) => order[x.st])) - Math.min(...b.map((x) => order[x.st])));
+    list = groups.flat();
   }
   const PAGE = 6;
   const pages = Math.max(1, Math.ceil(list.length / PAGE));
@@ -365,7 +376,8 @@ export function openQuests(p, cat = "active", sel, page = 0) {
     const pr = pri.indexOf(q.id);
     const nav = st === "active" || st === "ready" ? Q.navTarget(p, q) : null;
     const dist = nav && nav.dim === p.dimension.id ? ` · ${Math.round(Math.hypot(nav.x - p.location.x, nav.z - p.location.z))}m` : "";
-    scr.item(`${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] §f${q.title}\n${STATE_TAG[st]} §7${q.region || ""}${dist}`, ICON(t.icon), () => openQuests(p, cat, q.id, page), { on: q.id === sel });
+    const depth = list.find((x) => x.q === q)?.depth ?? 0;
+    scr.item(`${depth ? `${"  ".repeat(Math.min(3, depth - 1))}§7└ ` : ""}${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] §f${q.title}\n${STATE_TAG[st]} §7${q.region || ""}${dist}`, ICON(t.icon), () => openQuests(p, cat, q.id, page), { on: q.id === sel });
   }
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === cat);
@@ -385,46 +397,51 @@ export function openQuests(p, cat = "active", sel, page = 0) {
   return scr.show(p);
 }
 
-// ═════════ 스킬 (무기별) ═════════
+// ═════════ 스킬 (무기별 · 스킬 1 / 스킬 2) ═════════
+/** w: 무기 분류 또는 "item:<typeId>" (제작자가 스킬 목록을 지정한 무기) */
 export function openSkills(p, w, sel) {
   const d = data(p);
-  w = w ?? SK.heldClass(p);
-  const list = SK.skillsOf(w);
-  const eq = SK.equipped(p, w);
-  const eq2 = SK.equipped(p, w, "sub");
+  const lo = SK.loadout(p);
+  w = w ?? lo.key;
+  const isItem = w.startsWith("item:");
+  const list = isItem ? (SK.weaponCfg()[w.slice(5)]?.skills ?? []).map(SK.getSkill).filter(Boolean) : SK.skillsOf(w);
+  const eq = SK.equippedFor(p, w, list);
+  const eq2 = SK.equippedFor(p, w, list, "sub");
   sel = sel ?? eq?.id ?? list[0]?.id;
-  const wc = SK.WCLASS[w];
+  const wc = isItem ? { name: "내 무기", icon: SK.WCLASS[lo.w]?.icon ?? "class" } : SK.WCLASS[w];
+  const swap = d.set.skillSwap === true;
+  const t1 = swap ? "스킬 2" : "스킬 1", t2 = swap ? "스킬 1" : "스킬 2";
   const scr = new Screen("L", `스킬 / ${wc.name}`);
   for (const s of list) {
     const lock = d.lv < s.lv;
     const left = SK.readyIn(p, s.id);
-    scr.item(`${lock ? "§7" : "§f"}${s.name}${eq?.id === s.id ? " §e[기본]" : ""}${eq2?.id === s.id ? " §d[쉬프트]" : ""}\n§7${lock ? `Lv.${s.lv} 필요` : `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}`}`, ICON(wc.icon), () => openSkills(p, w, s.id), { on: s.id === sel });
+    scr.item(`${lock ? "§7" : "§f"}${s.name}${eq?.id === s.id ? ` §e[${t1}]` : ""}${eq2?.id === s.id ? ` §d[${t2}]` : ""}\n§7${lock ? `Lv.${s.lv} 필요` : `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}`}`, ICON(SK.WCLASS[s.w].icon), () => openSkills(p, w, s.id), { on: s.id === sel });
   }
   scr.tab("메뉴", ICON("back"), () => openHome(p));
+  if (lo.key.startsWith("item:")) scr.tab("내 무기", ICON(wc.icon), () => openSkills(p, lo.key), isItem);
   for (const [id, c] of Object.entries(SK.WCLASS)) scr.tab(c.name, ICON(c.icon), () => openSkills(p, id), id === w);
   chips(scr, p);
   scr.chip(ICON("skill"), `MP ${Math.floor(d.mp ?? maxMp(p))}/${maxMp(p)}`);
   const s = SK.getSkill(sel);
-  const weapons = Object.entries(SK.knownWeapons()).filter(([, c]) => c === w).map(([id]) => id);
+  const weapons = isItem ? [w.slice(5)] : Object.entries(SK.knownWeapons()).filter(([id, c]) => c === w && !SK.weaponCfg()[id]?.skills?.length).map(([id]) => id);
   if (s) {
-    scr.select(s.name, ICON(wc.icon));
+    scr.select(s.name, ICON(SK.WCLASS[s.w].icon));
     scr.body(rt(
-      `§b§l${wc.name} 스킬§r  ${d.lv >= s.lv ? (eq?.id === s.id ? "§e[기본 스킬]" : eq2?.id === s.id ? "§d[쉬프트 스킬]" : "§a[사용 가능]") : `§c[Lv.${s.lv} 필요]`}\n\n`,
+      `§b§l${wc.name}§r  ${d.lv >= s.lv ? (eq?.id === s.id ? `§e[스킬 1 장착]` : eq2?.id === s.id ? `§d[스킬 2 장착]` : "§a[사용 가능]") : `§c[Lv.${s.lv} 필요]`}\n\n`,
       `§f${s.desc}\n\n`,
       `§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n`,
       `§7계수 §f${s.kind === "magic" ? "지능" : s.kind === "ranged" ? "민첩" : s.kind === "melee" ? "힘" : "체력/지능"}\n\n`,
-      `§e§l발동 방법§r\n§e기본 스킬§f: 쉬프트+${w === "bow" || w === "crossbow" ? "발사" : "공격"} 또는 HUD [스킬]\n§d쉬프트 스킬§f: 쉬프트 누른 채 HUD [스킬]\n§7(PC: 숫자키 8 / 쉬프트+8)\n\n`,
-      `§e§l이 분류 무기 §r§7(자동 등록 ${weapons.length}개)\n§f`,
+      `§e§l조작§r\n§f스킬 버튼(핫바 8번 칸) §7= §e${t1}\n§f쉬프트 + 스킬 버튼 §7= §d${t2}\n${d.set.shiftAttack !== false ? `§f쉬프트 + ${w === "bow" || w === "crossbow" ? "발사" : "공격"} §7= §e스킬 1\n` : ""}§7(PC: 숫자키 8 / 쉬프트+8 · 설정에서 배치 변경)\n\n`,
+      `§e§l${isItem ? "이 무기" : "이 분류 무기"}§r §7(${weapons.length}개)\n§f`,
       weapons.length ? weapons.slice(0, 8).map((id) => id.replace("minecraft:", "")).join(", ") : "§7아직 없음 – 들기만 하면 자동 등록",
     ));
-    if (d.lv >= s.lv && eq?.id !== s.id) scr.action("§e기본 스킬로 장착", () => { SK.equip(p, s.id, "main"); return openSkills(p, w, s.id); });
-    if (d.lv >= s.lv && eq2?.id !== s.id) scr.action("§d쉬프트 스킬로 장착", () => { SK.equip(p, s.id, "sub"); return openSkills(p, w, s.id); });
+    if (d.lv >= s.lv && eq?.id !== s.id) scr.action("§e스킬 1로 장착", () => { SK.equip(p, s.id, "main", w); return openSkills(p, w, s.id); });
+    if (d.lv >= s.lv && eq2?.id !== s.id) scr.action("§d스킬 2로 장착", () => { SK.equip(p, s.id, "sub", w); return openSkills(p, w, s.id); });
     if (d.lv >= s.lv) scr.action("지금 사용", () => { SK.castWeaponSkill(p, s.id); });
   } else {
     scr.select(wc.name, ICON(wc.icon));
-    scr.body("§7이 분류에는 스킬이 없습니다.");
+    scr.body("§7스킬이 없습니다.");
   }
-  scr.action(`직업 스킬: ${clsOf(p).skill.name}`, () => { castSkill(p); });
   scr.reopen = () => openSkills(p, w, sel);
   return scr.show(p);
 }
@@ -605,10 +622,18 @@ export async function openSettings(p) {
     .toggle("퀘스트창 표시 (HUD 오른쪽)", d.set.quest)
     .toggle("캐릭터 카드 표시 (HUD 왼쪽)", d.set.card)
     .toggle("파티 초대 받기", d.set.invite)
-    .toggle("HUD 메뉴/스킬 버튼 사용 (핫바 9·8번 칸 고정)", d.set.slots !== false)
+    .toggle("메뉴/스킬 버튼 사용 (핫바 9·8번 칸)", d.set.slots !== false)
+    .dropdown("스킬 버튼 배치", ["스킬 버튼 = 스킬 1, 쉬프트+버튼 = 스킬 2", "스킬 버튼 = 스킬 2, 쉬프트+버튼 = 스킬 1"], d.set.skillSwap ? 1 : 0)
+    .toggle("쉬프트+공격으로 스킬 1 발동", d.set.shiftAttack !== false)
+    .toggle("쉬프트 누를 때 스킬 2 이름 안내", d.set.skillHint !== false)
+    .toggle("하단 HP/MP/Lv 바", d.set.status !== false)
+    .toggle("길 안내 표시 (화살표)", d.set.nav !== false)
+    .toggle("길 안내 파티클", d.set.navFx !== false)
     .show(p);
   if (!r.canceled) {
-    [d.set.quest, d.set.card, d.set.invite, d.set.slots] = r.formValues;
+    let sw;
+    [d.set.quest, d.set.card, d.set.invite, d.set.slots, sw, d.set.shiftAttack, d.set.skillHint, d.set.status, d.set.nav, d.set.navFx] = r.formValues;
+    d.set.skillSwap = sw === 1;
     save(p);
   }
   return openHome(p);
@@ -696,7 +721,7 @@ function openRooms(p, sel) {
 }
 
 // ═════════ 길찾기 (장소 / NPC / 퀘스트 목표) ═════════
-const NAV_FILTERS = [{ id: "all", name: "전체" }, { id: "wp", name: "장소" }, { id: "npc", name: "NPC" }, { id: "quest", name: "퀘스트 목표" }];
+const NAV_FILTERS = [{ id: "all", name: "전체" }, { id: "fav", name: "즐겨찾기" }, { id: "wp", name: "장소" }, { id: "npc", name: "NPC" }, { id: "quest", name: "퀘스트 목표" }];
 
 function navEntries(p) {
   const out = [];
@@ -717,7 +742,8 @@ function navEntries(p) {
 
 export function openNav(p, filter = "all", selKey) {
   const d = data(p);
-  let list = navEntries(p).filter((x) => filter === "all" || x.kind === filter);
+  const favs = d.navFav ?? {};
+  let list = navEntries(p).filter((x) => filter === "all" || (filter === "fav" ? favs[`${x.kind}:${x.id}`] : x.kind === filter));
   list.sort((a, b) => WP.distTo(p, a.t) - WP.distTo(p, b.t));
   const shown = list.slice(0, 7);
   const sel = list.find((x) => `${x.kind}:${x.id}` === selKey) ?? shown[0];
@@ -725,7 +751,7 @@ export function openNav(p, filter = "all", selKey) {
   for (const x of shown) {
     const dist = WP.distTo(p, x.t);
     const active = d.navTo && d.navTo.kind === x.kind && d.navTo.id === x.id;
-    scr.item(`${active ? "§d▶ " : "§f"}${x.name}\n§7${x.sub ?? ""} · ${dist === Infinity ? "다른 차원" : `${Math.round(dist)}m`}`, ICON(x.icon), () => openNav(p, filter, `${x.kind}:${x.id}`), { on: x === sel });
+    scr.item(`${active ? "§d▶ " : "§f"}${favs[`${x.kind}:${x.id}`] ? "§e★ §f" : ""}${x.name}\n§7${x.sub ?? ""} · ${dist === Infinity ? "다른 차원" : `${Math.round(dist)}m`}`, ICON(x.icon), () => openNav(p, filter, `${x.kind}:${x.id}`), { on: x === sel });
   }
   chrome(scr, p, "nav");
   if (sel) {
@@ -741,6 +767,14 @@ export function openNav(p, filter = "all", selKey) {
     } else {
       scr.action("§d길 안내 시작", () => { WP.startNav(p, sel.kind, sel.id); });
     }
+    const fk = `${sel.kind}:${sel.id}`;
+    if (sel.kind !== "quest") scr.action(favs[fk] ? "★ 즐겨찾기 해제" : "☆ 즐겨찾기 추가", () => {
+      d.navFav = { ...favs };
+      if (d.navFav[fk]) delete d.navFav[fk];
+      else d.navFav[fk] = true;
+      save(p);
+      return openNav(p, filter, fk);
+    });
     if (isAdmin(p)) scr.action("§7(관리자) 순간이동", () => { p.teleport({ x: sel.t.x, y: sel.t.y, z: sel.t.z }); });
   } else {
     scr.select("길찾기", ICON("nav"));

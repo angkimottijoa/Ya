@@ -12,7 +12,8 @@ import { shopList, saveShop } from "./shop.js";
 import { getJSON, setJSON, clone } from "./db.js";
 import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride } from "./itemdb.js";
 import { openHome, questDetailBody } from "./menu.js";
-import { openNpc, SKINS, ANIMS, CAMS, COND_TYPES, npcId, npcHasShop, npcShopList, npcDialog, saveDialog } from "./npc.js";
+import { openNpc, SKINS, ANIMS, CAMS, npcId, npcHasShop, npcShopList, npcDialog, saveDialog, baseAnim, setBaseAnim } from "./npc.js";
+import * as R from "./rules.js";
 import { npcRegistry, registerNpcEntity, unregisterNpc } from "./npcdb.js";
 
 const QT = Object.entries(Q.QTYPES);
@@ -22,6 +23,7 @@ const TABS = [
   { id: "catalog", name: "퀘스트 일람", icon: "all" },
   { id: "helper", name: "제작 도움", icon: "skill" },
   { id: "wp", name: "길찾기", icon: "nav" },
+  { id: "weapon", name: "무기·스킬", icon: "class" },
   { id: "npc", name: "NPC", icon: "npc" },
   { id: "shop", name: "상점", icon: "shop" },
   { id: "player", name: "플레이어", icon: "profile" },
@@ -44,7 +46,7 @@ export function openAdmin(p, tab = "quest", sel, page = 0) {
     msg(p, "§c제작자 권한이 없습니다. §7(/tag @s add rpg_admin)");
     return;
   }
-  return { quest: questTab, catalog: catalogTab, helper: helperTab, wp: wpTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
+  return { quest: questTab, catalog: catalogTab, helper: helperTab, wp: wpTab, weapon: weaponTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
 }
 
 // ═════════ 퀘스트 ═════════
@@ -56,8 +58,9 @@ function questTab(p, sel, page = 0) {
   const scr = new Screen("L", "제작자 도구 / 퀘스트");
   scr.item("§l+ 새 퀘스트 (상세)", ICON("plus"), () => createQuest(p));
   scr.item("§l+ 빠른 생성\n§7한 화면에서 처치/수집 퀘스트", ICON("skill"), () => quickQuest(p));
-  for (const q of all.slice(page * PAGE, page * PAGE + PAGE)) {
-    scr.item(`${q.enabled ? "" : "§7"}§l${q.title}§r\n§7${q.id} · ${q.giver === "board" ? "게시판" : q.giver}`, ICON("quest"), () => questTab(p, q.id, page), { on: q.id === sel });
+  const ordered = Q.chainSort(all);
+  for (const { q, depth } of ordered.slice(page * PAGE, page * PAGE + PAGE)) {
+    scr.item(`${depth ? `${"  ".repeat(Math.min(3, depth - 1))}§7└ ` : ""}${q.enabled ? "" : "§7"}§l${q.title}§r\n§7${q.id} · ${q.giver === "board" ? "게시판" : q.giver}`, ICON("quest"), () => questTab(p, q.id, page), { on: q.id === sel });
   }
   adminChrome(scr, p, "quest");
   const q = Q.getQuest(sel);
@@ -65,7 +68,7 @@ function questTab(p, sel, page = 0) {
     scr.select(q.title, ICON("quest"));
     scr.body(rt(
       `§7ID §r${q.id}\n§7의뢰자 §r${q.giver === "board" ? "게시판" : q.giver}\n§7완료 방식 §r${q.turnIn === "auto" ? "메뉴에서 자동/보고" : "의뢰자에게 보고"}\n`,
-      `§7종류 §r${Q.qtype(q).name}  §7지역 §r${q.region || "-"}\n§7최소 레벨 §r${q.minLv}  §7직업 §r${q.cls ? CLASSES[q.cls].name : "제한 없음"}\n§7선행 §r${q.prereq || "없음"}  §7반복 §r${q.repeat ? "O" : "X"}\n\n`,
+      `§e고급 §r${advSummary(q)}\n§7종류 §r${Q.qtype(q).name}  §7지역 §r${q.region || "-"}\n§7최소 레벨 §r${q.minLv}  §7직업 §r${q.cls ? CLASSES[q.cls].name : "제한 없음"}\n§7선행 §r${q.prereq || "없음"}  §7반복 §r${q.repeat ? "O" : "X"}\n\n`,
       questDetailBody(p, q),
     ));
     const re = () => questTab(p, q.id, page);
@@ -73,6 +76,7 @@ function questTab(p, sel, page = 0) {
     scr.action("목표 추가", () => addObjective(p, q, re));
     if (q.obj.length) scr.action("목표 삭제", () => removeObjective(p, q, re));
     scr.action("보상 편집", () => editRewards(p, q, re));
+    scr.action("§e고급 옵션", () => editAdvanced(p, q, re));
     scr.action(q.enabled ? "비활성화" : "활성화", () => { q.enabled = !q.enabled; Q.saveQuest(q); return re(); });
     scr.action("복제", () => {
       const c = clone(q);
@@ -425,7 +429,8 @@ async function spawnNpc(p) {
   saveDialog(e, { nodes: { start: { text: String(greet) || "안녕하신가.", choices: [] } } });
   e.setDynamicProperty("rpg:shop", !!shop);
   setKind(e, kind ? "combat" : "civil");
-  try { e.setProperty("rpg:skin", skin); e.setProperty("rpg:anim", anim); } catch {}
+  try { e.setProperty("rpg:skin", skin); } catch {}
+  setBaseAnim(e, anim);
   registerNpcEntity(e);
   msg(p, `NPC §e${e.nameTag}§r (${nid}) 소환됨`);
   return npcTab(p, nid);
@@ -443,7 +448,8 @@ export function editNpc(p, e, back) {
   if (!e.isValid()) return back();
   const scr = new Screen("L", `NPC 관리 / ${e.nameTag || "NPC"}`);
   scr.item("§f기본 정보\n§7이름 · ID · 외형 · 종류", ICON("npc"), () => npcBasic(p, e, re));
-  scr.item(`§f동작 / 애니메이션\n§7현재: ${ANIMS[animOf(e)]}`, ICON("skill"), () => npcAnim(p, e, re));
+  scr.item(`§f동작 / 애니메이션\n§7평소: ${ANIMS[baseAnim(e)]}`, ICON("skill"), () => npcAnim(p, e, re));
+  scr.item("§f반응 설정\n§7처음 만남 · 가까이 오면 · 대화 후", ICON("profile"), () => npcReact(p, e, re));
   scr.item("§f세부 대화 (대화 트리)\n§7노드 · 선택지 · 조건 · 명령어", ICON("chat"), () => dlgEditor(p, e, re));
   scr.item(`§f카메라 연출\n§7${CAMS[Number(e.getDynamicProperty("rpg:cam") ?? 0)]}`, ICON("nav"), () => npcCamera(p, e, re));
   scr.item(`§f상점 설정\n§7${npcHasShop(e) ? "켜짐" : "꺼짐"}`, ICON("shop"), () => npcShop(p, e, re));
@@ -482,19 +488,6 @@ async function npcBasic(p, e, back) {
   return back();
 }
 
-async function npcAnim(p, e, back) {
-  const r = await new ModalFormData()
-    .title(`동작 - ${e.nameTag}`)
-    .dropdown("기본 동작 (계속 반복)", ANIMS, animOf(e))
-    .toggle("대화 중 손짓 제스처", e.getDynamicProperty("rpg:no_gesture") !== true)
-    .show(p);
-  if (!r.canceled) {
-    try { e.setProperty("rpg:anim", r.formValues[0]); } catch {}
-    e.setDynamicProperty("rpg:no_gesture", !r.formValues[1]);
-  }
-  return back();
-}
-
 async function npcCamera(p, e, back) {
   const r = await new ModalFormData()
     .title(`카메라 연출 - ${e.nameTag}`)
@@ -510,7 +503,67 @@ async function npcCamera(p, e, back) {
   return back();
 }
 
-// ───── 대화 트리 편집기 ─────
+async function npcAnim(p, e, back) {
+  const r = await new ModalFormData()
+    .title(`동작 - ${e.nameTag}`)
+    .dropdown("평소 동작 (계속 반복)", ANIMS, baseAnim(e))
+    .toggle("대화 중 손짓 제스처", e.getDynamicProperty("rpg:no_gesture") !== true)
+    .show(p);
+  if (!r.canceled) {
+    setBaseAnim(e, r.formValues[0]);
+    e.setDynamicProperty("rpg:no_gesture", !r.formValues[1]);
+  }
+  return back();
+}
+
+/** NPC 반응: 처음 만남 / 가까이 오면 / 대화 후 */
+async function npcReact(p, e, back) {
+  const ap = getJSON(e, "rpg:approach", { r: 0, anim: 0, line: "" });
+  const af = getJSON(e, "rpg:after", { anim: 0, sec: 0 });
+  const dlg = npcDialog(e);
+  const r = await new ModalFormData()
+    .title(`반응 설정 - ${e.nameTag}`)
+    .toggle("처음 만났을 때 전용 대화 사용 ('first' 노드)", !!dlg.nodes.first)
+    .slider("가까이 오면 반응할 거리 (0 = 끔)", 0, 16, 1, ap.r ?? 0)
+    .dropdown("가까이 오면 할 동작 (3초)", ANIMS, ap.anim ?? 0)
+    .textField("가까이 오면 할 말 (화면 아래 표시)", "예) 어서 오게, 여행자!", ap.line ?? "")
+    .dropdown("대화가 끝난 뒤 동작", ANIMS, af.anim ?? 0)
+    .slider("대화 후 동작 유지 시간 (초)", 0, 30, 1, af.sec ?? 0)
+    .show(p);
+  if (!r.canceled) {
+    const [first, rad, anim, line, aanim, asec] = r.formValues;
+    if (first && !dlg.nodes.first) dlg.nodes.first = { text: "처음 보는 얼굴이군. 이 마을엔 무슨 일로 왔나?", choices: [{ label: "그냥 둘러보는 중입니다", goto: "start" }], anim: 1 };
+    if (!first) delete dlg.nodes.first;
+    saveDialog(e, dlg);
+    setJSON(e, "rpg:approach", { r: rad, anim, line: String(line) });
+    setJSON(e, "rpg:after", { anim: aanim, sec: asec });
+  }
+  return back();
+}
+
+// ───── 대화 트리 편집기 (노드 · 조건 · 행동 · 선택지) ─────
+const condTxt = (list) => (list ?? []).map(R.describe).filter(Boolean).join(", ");
+const actTxt = (list) => (list ?? []).map(R.describeAct).filter(Boolean).join(", ");
+
+/** 조건/행동 입력칸 n개를 폼에 추가 */
+function addRuleFields(f, defs, list, n, title) {
+  for (let i = 0; i < n; i++) {
+    const cur = list?.[i] ?? {};
+    f.dropdown(`${title} ${i + 1}`, defs.map((x) => x.name), Math.max(0, defs.findIndex((x) => x.id === (cur.t ?? ""))))
+      .textField(`  ${title} ${i + 1} - 이름/ID 값`, "퀘스트ID · 플래그 · 아이템ID · 명령어 · x y z", String(cur.k ?? ""))
+      .textField(`  ${title} ${i + 1} - 숫자 값`, "레벨 · 개수 · 골드 · % · 동작 번호", cur.v === undefined ? "" : String(cur.v));
+  }
+}
+function readRuleFields(vals, defs, n) {
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const [ti, k, v] = vals.splice(0, 3);
+    if (!defs[ti]?.id) continue;
+    out.push({ t: defs[ti].id, k: String(k).trim(), v: String(v).trim() === "" ? "" : Number(v) });
+  }
+  return out;
+}
+
 function dlgEditor(p, e, back, sel = "start") {
   const dlg = npcDialog(e);
   const ids = Object.keys(dlg.nodes);
@@ -520,41 +573,40 @@ function dlgEditor(p, e, back, sel = "start") {
   const scr = new Screen("L", `NPC 관리 / ${e.nameTag} / 대화 트리`);
   for (const id of ids.slice(0, 7)) {
     const n = dlg.nodes[id];
-    scr.item(`${id === "start" ? "§e★ " : "§f"}${id}\n§7${String(n.text).split("|")[0].slice(0, 22)} · 선택지 ${n.choices?.length ?? 0}`, ICON("chat"), () => re(id), { on: id === sel });
+    const tag = id === "start" ? "§e★ " : id === "first" ? "§b◆ " : n.cond?.length ? "§c🔒 " : "§f";
+    scr.item(`${tag}${id}\n§7${String(n.text).split("|")[0].slice(0, 20)} · 선택지 ${n.choices?.length ?? 0}`, ICON("chat"), () => re(id), { on: id === sel });
   }
   adminChrome(scr, p, "npc");
   scr.select(`노드: ${sel}`, ICON("chat"));
-  const cond = (c) => (c?.t ? ` §7[${COND_TYPES.find((t) => t.id === c.t)?.name} ${c.v}]` : "");
   scr.body(
-    `§7대사 (${String(node.text).split("|").length}페이지)\n§f${String(node.text).replace(/\|/g, "\n§7── §f")}\n\n§e§l선택지§r\n` +
-    ((node.choices ?? []).map((c, i) => `§f${i + 1}. ${c.label} §7→ ${c.goto || "대화 종료"}${c.cmd ? ` §d/${c.cmd}` : ""}${cond(c.cond)}`).join("\n") || "§7없음") +
-    (sel === "start" ? "\n\n§7(시작 노드에는 퀘스트·상점 선택지가 자동으로 붙음)" : ""),
+    `${sel === "start" ? "§e시작 노드 §7(퀘스트·상점 선택지 자동 추가)\n" : sel === "first" ? "§b처음 만났을 때 노드\n" : ""}` +
+    `§7대사 (${String(node.text).split("|").length}페이지)\n§f${String(node.text).replace(/\|/g, "\n§7── §f")}\n\n` +
+    `§7동작 §f${node.anim >= 0 ? ANIMS[node.anim] : "유지"}\n` +
+    `§7열림 조건 §f${condTxt(node.cond) || "없음"}${node.cond?.length ? `\n§7잠김 대사 §f${node.lockedText || "(기본)"}` : ""}\n` +
+    `§7들어올 때 행동 §f${actTxt(node.enter) || "없음"}\n§7자동 다음 §f${node.next || "없음"}\n\n§e§l선택지§r\n` +
+    (node.choices.map((c, i) => `§f${i + 1}. ${c.label} §7→ ${c.goto || "종료"}${c.once ? " §b(1회)" : ""}${c.cond?.length ? `\n   §c조건: ${condTxt(c.cond)}${c.show === "gray" ? " (회색 표시)" : ""}` : ""}${c.acts?.length ? `\n   §d행동: ${actTxt(c.acts)}` : ""}`).join("\n") || "§7없음"),
   );
-  scr.action("대사 편집", async () => {
-    const pages = String(node.text).split("|");
-    const f = new ModalFormData().title(`대사 - ${sel}`);
-    for (let i = 0; i < 5; i++) f.textField(`${i + 1}페이지${i ? " (비우면 없음)" : ""}`, "", pages[i]?.trim() ?? "");
-    const r = await f.show(p);
-    if (!r.canceled) {
-      node.text = r.formValues.map((v) => String(v).trim()).filter(Boolean).join("|") || "...";
-      saveDialog(e, dlg);
-    }
-    return re();
-  });
-  scr.action("선택지 추가", () => editChoice(p, e, dlg, sel, (node.choices ?? []).length, re));
-  if (node.choices?.length) scr.action("선택지 편집/삭제", () => pickChoice(p, e, dlg, sel, re));
+  scr.action("대사 / 동작 / 자동 다음", () => nodeBasic(p, e, dlg, sel, re));
+  scr.action("열림 조건 · 들어올 때 행동", () => nodeRules(p, e, dlg, sel, re));
+  scr.action("선택지 추가", () => editChoice(p, e, dlg, sel, node.choices.length, re));
+  if (node.choices.length) scr.action("선택지 편집 / 순서 / 삭제", () => pickChoice(p, e, dlg, sel, re));
   scr.action("새 노드 만들기", async () => {
-    const r = await new ModalFormData().title("새 대화 노드").textField("노드 ID (영문)", "예) story1", `node${ids.length}`).textField("대사 (| 로 페이지)", "", "").show(p);
+    const r = await new ModalFormData().title("새 대화 노드").textField("노드 ID (영문)", "예) story1", `node${ids.length}`).textField("대사 (| 로 페이지)", "", "")
+      .toggle("현재 노드에서 이 노드로 가는 선택지도 추가", true).textField("  그 선택지 이름", "예) 더 자세히 말해 주세요", "").show(p);
     if (r.canceled) return re();
     const nid = String(r.formValues[0]).trim().replace(/[^\w-]/g, "_");
     if (!nid || dlg.nodes[nid]) { msg(p, "§c쓸 수 없는 ID입니다."); return re(); }
     dlg.nodes[nid] = { text: String(r.formValues[1]) || "...", choices: [] };
+    if (r.formValues[2]) node.choices.push({ label: String(r.formValues[3]).trim() || nid, goto: nid });
     saveDialog(e, dlg);
     return re(nid);
   });
   if (sel !== "start") scr.action("§c이 노드 삭제", () => {
     delete dlg.nodes[sel];
-    for (const n of Object.values(dlg.nodes)) for (const c of n.choices ?? []) if (c.goto === sel) c.goto = "";
+    for (const n of Object.values(dlg.nodes)) {
+      for (const c of n.choices ?? []) if (c.goto === sel) c.goto = "";
+      if (n.next === sel) n.next = "";
+    }
     saveDialog(e, dlg);
     return re("start");
   });
@@ -562,37 +614,80 @@ function dlgEditor(p, e, back, sel = "start") {
   return scr.show(p);
 }
 
+async function nodeBasic(p, e, dlg, nodeId, back) {
+  const node = dlg.nodes[nodeId];
+  const pages = String(node.text).split("|");
+  const others = Object.keys(dlg.nodes).filter((k) => k !== nodeId);
+  const f = new ModalFormData().title(`노드 ${nodeId} - 대사`);
+  for (let i = 0; i < 6; i++) f.textField(`${i + 1}페이지${i ? " (비우면 없음)" : ""}`, "", pages[i]?.trim() ?? "");
+  f.dropdown("이 노드에서 NPC 동작", ["유지", ...ANIMS], (node.anim ?? -1) + 1)
+    .dropdown("선택지가 없을 때 '다음'으로 이어질 노드", ["없음", ...others], Math.max(0, others.indexOf(node.next ?? "") + 1));
+  const r = await f.show(p);
+  if (!r.canceled) {
+    const v = r.formValues;
+    node.text = v.slice(0, 6).map((x) => String(x).trim()).filter(Boolean).join("|") || "...";
+    node.anim = v[6] - 1;
+    node.next = v[7] ? others[v[7] - 1] : "";
+    saveDialog(e, dlg);
+  }
+  return back();
+}
+
+async function nodeRules(p, e, dlg, nodeId, back) {
+  const node = dlg.nodes[nodeId];
+  const f = new ModalFormData().title(`노드 ${nodeId} - 조건 / 행동`);
+  addRuleFields(f, R.COND_DEFS, node.cond, 2, "열림 조건");
+  f.textField("조건이 안 맞을 때 보여줄 대사", "예) 아직은 말해줄 수 없네.", node.lockedText ?? "");
+  addRuleFields(f, R.ACT_DEFS, node.enter, 3, "들어올 때 행동");
+  const r = await f.show(p);
+  if (!r.canceled) {
+    const v = [...r.formValues];
+    node.cond = readRuleFields(v, R.COND_DEFS, 2);
+    node.lockedText = String(v.shift() ?? "");
+    node.enter = readRuleFields(v, R.ACT_DEFS, 3);
+    saveDialog(e, dlg);
+  }
+  return back();
+}
+
 function pickChoice(p, e, dlg, nodeId, back) {
   const node = dlg.nodes[nodeId];
   const scr = new Screen("L", `대화 트리 / ${nodeId} / 선택지`);
-  node.choices.forEach((c, i) => scr.item(`§f${i + 1}. ${c.label}\n§7→ ${c.goto || "대화 종료"}`, ICON("chat"), () => editChoice(p, e, dlg, nodeId, i, back)));
+  node.choices.forEach((c, i) => scr.item(`§f${i + 1}. ${c.label}\n§7→ ${c.goto || "종료"}`, ICON("chat"), () => editChoice(p, e, dlg, nodeId, i, back)));
   adminChrome(scr, p, "npc");
-  scr.select("편집할 선택지", ICON("chat"));
-  scr.body("§7누르면 편집 화면이 열립니다.\n편집 화면에서 '삭제'를 켜면 지워집니다.");
+  scr.select("선택지", ICON("chat"));
+  scr.body("§7누르면 편집 화면이 열립니다.\n편집 화면에서 순서 이동과 삭제를 할 수 있습니다.");
   scr.action("돌아가기", back);
   return scr.show(p);
 }
 
 async function editChoice(p, e, dlg, nodeId, i, back) {
   const node = dlg.nodes[nodeId];
-  node.choices = node.choices ?? [];
-  const cur = node.choices[i] ?? { label: "", goto: "", cmd: "", cond: null };
+  const cur = node.choices[i] ?? { label: "", goto: "", cond: [], acts: [], show: "hide", once: false };
   const targets = ["", ...Object.keys(dlg.nodes)];
-  const quests = Q.allQuests();
-  const r = await new ModalFormData()
-    .title(i < node.choices.length ? "선택지 편집" : "선택지 추가")
+  const f = new ModalFormData()
+    .title(i < node.choices.length ? `선택지 ${i + 1} 편집` : "선택지 추가")
     .textField("버튼 이름", "예) 마을 이야기 해줘", cur.label)
     .dropdown("누르면 이동할 노드", targets.map((t) => (t ? t : "대화 종료")), Math.max(0, targets.indexOf(cur.goto ?? "")))
-    .textField("실행할 명령어 (선택, 플레이어 기준)", "예) give @s bread 3", cur.cmd ?? "")
-    .dropdown("표시 조건", COND_TYPES.map((c) => c.name), Math.max(0, COND_TYPES.findIndex((c) => c.id === (cur.cond?.t ?? ""))))
-    .textField("조건 값 (레벨 숫자 또는 퀘스트 ID)", quests[0]?.id ?? "", String(cur.cond?.v ?? ""))
-    .toggle("§c이 선택지 삭제", false)
-    .show(p);
+    .dropdown("조건이 안 맞을 때", ["숨기기", "회색으로 표시 (조건 안내)"], cur.show === "gray" ? 1 : 0)
+    .toggle("한 번만 선택 가능", !!cur.once);
+  addRuleFields(f, R.COND_DEFS, cur.cond, 2, "표시 조건");
+  addRuleFields(f, R.ACT_DEFS, cur.acts, 3, "누르면 행동");
+  f.dropdown("순서", ["그대로", "맨 위로", "한 칸 위로", "한 칸 아래로"], 0).toggle("§c이 선택지 삭제", false);
+  const r = await f.show(p);
   if (!r.canceled) {
-    const [label, gi, cmd, ci, cv, del] = r.formValues;
+    const v = [...r.formValues];
+    const [label, gi, showi, once] = v.splice(0, 4);
+    const cond = readRuleFields(v, R.COND_DEFS, 2);
+    const acts = readRuleFields(v, R.ACT_DEFS, 3);
+    const [order, del] = v;
     if (del) node.choices.splice(i, 1);
     else if (String(label).trim()) {
-      node.choices[i] = { label: String(label).trim(), goto: targets[gi], cmd: String(cmd).trim(), cond: ci ? { t: COND_TYPES[ci].id, v: String(cv).trim() } : null };
+      node.choices[i] = { label: String(label).trim(), goto: targets[gi], show: showi ? "gray" : "hide", once, cond, acts };
+      const move = (to) => { const [c] = node.choices.splice(i, 1); node.choices.splice(Math.max(0, Math.min(node.choices.length, to)), 0, c); };
+      if (order === 1) move(0);
+      if (order === 2) move(i - 1);
+      if (order === 3) move(i + 1);
     }
     saveDialog(e, dlg);
   }
@@ -1023,4 +1118,188 @@ async function bulkEdit(p) {
   }
   msg(p, `§a퀘스트 ${n}개 수정됨`);
   return helperTab(p);
+}
+
+// ═════════ 무기·스킬 연동 (커스텀 무기 → 분류 / 전용 스킬 / 공격력 / 배율) ═════════
+function weaponTab(p, selId, page = 0) {
+  const held = inv(p).getItem(p.selectedSlotIndex);
+  if (held && SK.weaponClassOf(held)) SK.heldClass(p); // 들고 있는 무기 자동 등록
+  const known = SK.knownWeapons();
+  const ids = [...new Set([...(held ? [held.typeId] : []), ...Object.keys(known), ...Object.keys(SK.weaponCfg())])];
+  const PAGE = 6;
+  const pages = Math.max(1, Math.ceil(ids.length / PAGE));
+  page = Math.min(page, pages - 1);
+  const shown = ids.slice(page * PAGE, page * PAGE + PAGE);
+  const sel = ids.includes(selId) ? selId : shown[0];
+  const scr = new Screen("L", "제작자 도구 / 무기·스킬");
+  for (const id of shown) {
+    const cfg = SK.weaponCfg()[id];
+    const cls = known[id] ?? (held?.typeId === id ? SK.weaponClassOf(held) : null);
+    scr.item(`§f${id.replace("minecraft:", "")}${held?.typeId === id ? " §e(손)" : ""}\n§7${cls ? SK.WCLASS[cls].name : "무기 아님"}${cfg?.skills?.length ? ` · 전용 스킬 ${cfg.skills.length}` : ""}${cfg?.atk ? ` · 공격력 ${cfg.atk}` : ""}`, iconOf(id), () => weaponTab(p, id, page), { on: id === sel });
+  }
+  adminChrome(scr, p, "weapon");
+  if (sel) {
+    const cfg = SK.weaponCfg()[sel] ?? {};
+    const cls = known[sel];
+    scr.select(rt(itemName(sel)), iconOf(sel));
+    scr.body(
+      `§7ID §f${sel}\n§7분류 §f${cls ? SK.WCLASS[cls].name : "-"} ${SK.weaponClassOf(new ItemStack(sel, 1)) === cls ? "§7(자동)" : "§e(지정)"}\n` +
+      `§7스킬 §f${cfg.skills?.length ? cfg.skills.map((s) => SK.getSkill(s)?.name).join(", ") : `분류 기본 (${cls ? SK.skillsOf(cls).map((s) => s.name).join(", ") : "-"})`}\n` +
+      `§7공격력 §f${cfg.atk ?? "자동"}  §7스킬 배율 §f${cfg.mul ?? 100}%\n\n` +
+      "§7새 애드온 무기는 손에 들면 자동 등록됩니다.\n분류가 맞지 않거나 전용 스킬을 주려면 '설정'을 누르세요.",
+    );
+    scr.action("설정 (분류 · 전용 스킬 · 공격력)", () => editWeapon(p, sel, () => weaponTab(p, sel, page)));
+    scr.action("스킬 편집기 (켜기/끄기 · 새 스킬)", () => skillEditor(p, SK.knownWeapons()[sel] ?? "sword"));
+    if (SK.weaponCfg()[sel]) scr.action("§c설정 초기화", () => { SK.setWeaponCfg(sel, null); SK.setWeaponClass(sel, ""); return weaponTab(p, sel, page); });
+  } else {
+    scr.select("무기·스킬", ICON("class"));
+    scr.body("§7등록된 무기가 없습니다.\n무기를 손에 들고 다시 열어 보세요.");
+    scr.action("스킬 편집기 (켜기/끄기 · 새 스킬)", () => skillEditor(p));
+  }
+  if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => weaponTab(p, undefined, (page + 1) % pages));
+  scr.reopen = () => weaponTab(p, selId, page);
+  return scr.show(p);
+}
+
+async function editWeapon(p, id, back) {
+  const cfg = SK.weaponCfg()[id] ?? {};
+  const keys = Object.keys(SK.WCLASS);
+  const cur = SK.knownWeapons()[id] ?? "sword";
+  const f = new ModalFormData()
+    .title(`무기 설정 - ${id}`)
+    .dropdown("무기 분류 (스킬 버튼 아이콘 · 기본 스킬 목록)", keys.map((k) => SK.WCLASS[k].name), Math.max(0, keys.indexOf(cur)))
+    .textField("기본 공격력 (비우면 자동)", "예) 9", cfg.atk ? String(cfg.atk) : "")
+    .slider("스킬 위력 배율 (%)", 50, 300, 10, cfg.mul ?? 100)
+    .toggle("§e전용 스킬 목록 사용 (아래에서 선택)", !!cfg.skills?.length);
+  for (const s of SK.allSkillsRaw()) f.toggle(`${SK.WCLASS[s.w].name} · ${s.name} §7(Lv.${s.lv})`, !!cfg.skills?.includes(s.id));
+  const r = await f.show(p);
+  if (!r.canceled) {
+    const [ci, atk, mul, useOwn, ...picks] = r.formValues;
+    SK.setWeaponClass(id, keys[ci]);
+    const skills = useOwn ? SK.allSkillsRaw().filter((_, i) => picks[i]).map((s) => s.id) : null;
+    SK.setWeaponCfg(id, { skills: skills?.length ? skills : null, atk: String(atk).trim() ? num(atk, null) : null, mul });
+  }
+  return back();
+}
+
+// ═════════ 스킬 편집기 (켜기/끄기 · 수치 변경 · 새 스킬) ═════════
+const KINDS = [{ id: "melee", name: "근접 (힘)" }, { id: "ranged", name: "원거리 (민첩)" }, { id: "magic", name: "마법 (지능)" }, { id: "heal", name: "회복" }, { id: "buff", name: "버프" }];
+
+function skillEditor(p, w = "sword", selId) {
+  const list = SK.allSkillsRaw().filter((s) => s.w === w);
+  const sel = list.find((s) => s.id === selId) ?? list[0];
+  const scr = new Screen("L", `제작자 도구 / 스킬 편집 · ${SK.WCLASS[w].name}`);
+  scr.item("§a+ 새 스킬 만들기", ICON("plus"), () => editSkill(p, null, w));
+  for (const s of list.slice(0, 6)) {
+    scr.item(`${s.enabled === false ? "§8[꺼짐] " : "§f"}${s.name}${s.custom ? " §d[제작]" : ""}\n§7Lv.${s.lv} · MP ${s.mp} · ${s.cd}초 · 위력 ${Math.round(s.pow * 100)}%`, ICON(SK.WCLASS[s.w].icon), () => skillEditor(p, w, s.id), { on: s === sel });
+  }
+  scr.tab("뒤로", ICON("back"), () => weaponTab(p));
+  for (const [id, c] of Object.entries(SK.WCLASS)) scr.tab(c.name, ICON(c.icon), () => skillEditor(p, id), id === w);
+  scr.chip(ICON("admin"), "스킬 편집");
+  if (sel) {
+    scr.select(sel.name, ICON(SK.WCLASS[sel.w].icon));
+    scr.body(`§7ID §f${sel.id}\n§7상태 ${sel.enabled === false ? "§c꺼짐 (아무도 못 씀)" : "§a켜짐"}\n§7무기 §f${SK.WCLASS[sel.w].name}\n§7효과 §f${SK.FX.find((f) => f.id === sel.fx)?.name ?? sel.fx}\n§7계수 §f${KINDS.find((k) => k.id === sel.kind)?.name}\n§7레벨 §f${sel.lv}  §7마나 §f${sel.mp}  §7대기 §f${sel.cd}초\n§7위력 §f${Math.round(sel.pow * 100)}%\n\n§f${sel.desc || ""}`);
+    scr.action(sel.enabled === false ? "§a켜기" : "§c끄기", () => { SK.saveSkillDef(sel.id, { enabled: sel.enabled === false }); return skillEditor(p, w, sel.id); });
+    scr.action("편집", () => editSkill(p, sel.id, w));
+    if (sel.custom) scr.action("§c삭제", () => confirm(p, `'${sel.name}' 스킬을 삭제할까요?`, () => { SK.deleteSkillDef(sel.id); return skillEditor(p, w); }, () => skillEditor(p, w, sel.id)));
+    else if (SK.skillDb()[sel.id]) scr.action("기본값으로 되돌리기", () => { SK.deleteSkillDef(sel.id); return skillEditor(p, w, sel.id); });
+  } else {
+    scr.select(SK.WCLASS[w].name, ICON(SK.WCLASS[w].icon));
+    scr.body("§7스킬이 없습니다.");
+  }
+  scr.reopen = () => skillEditor(p, w, selId);
+  return scr.show(p);
+}
+
+async function editSkill(p, id, w) {
+  const cur = id ? SK.getSkill(id) : { name: "", desc: "", w, lv: 1, mp: 15, cd: 8, pow: 1.5, kind: "melee", fx: "sword_spin" };
+  const wkeys = Object.keys(SK.WCLASS);
+  const r = await new ModalFormData()
+    .title(id ? `스킬 편집 - ${cur.name}` : "새 스킬")
+    .textField("이름", "예) 폭풍 베기", cur.name)
+    .textField("설명", "", cur.desc ?? "")
+    .dropdown("무기 분류 (이 무기를 들어야 사용)", wkeys.map((k) => SK.WCLASS[k].name), Math.max(0, wkeys.indexOf(cur.w)))
+    .dropdown("효과 (기존 스킬 동작 재사용)", SK.FX.map((f) => f.name), Math.max(0, SK.FX.findIndex((f) => f.id === cur.fx)))
+    .dropdown("위력 계수", KINDS.map((k) => k.name), Math.max(0, KINDS.findIndex((k) => k.id === cur.kind)))
+    .textField("필요 레벨", "", String(cur.lv))
+    .textField("마나", "", String(cur.mp))
+    .textField("재사용 대기 (초)", "", String(cur.cd))
+    .textField("위력 (%)", "150", String(Math.round(cur.pow * 100)))
+    .show(p);
+  if (r.canceled) return skillEditor(p, w, id);
+  const [name, desc, wi, fi, ki, lv, mp, cd, pow] = r.formValues;
+  if (!String(name).trim()) return skillEditor(p, w, id);
+  const nid = id ?? `custom_${Date.now().toString(36)}`;
+  SK.saveSkillDef(nid, {
+    name: String(name).trim(), desc: String(desc), w: wkeys[wi], fx: SK.FX[fi].id, kind: KINDS[ki].id,
+    lv: Math.max(1, num(lv, 1)), mp: Math.max(0, num(mp, 10)), cd: Math.max(1, num(cd, 8)), pow: Math.max(0.1, num(pow, 100) / 100),
+    ...(id ? {} : { custom: true, enabled: true }),
+  });
+  msg(p, `§a스킬 저장: §f${name}`);
+  return skillEditor(p, wkeys[wi], nid);
+}
+
+// ═════════ 퀘스트 고급 옵션 ═════════
+export function advSummary(q) {
+  const a = q.adv ?? {};
+  const out = [];
+  if (a.seq) out.push("목표 순서대로");
+  if (a.hidden) out.push("다음 목표 숨김");
+  if (a.timeLimit) out.push(`제한 ${a.timeLimit}분`);
+  if (a.failOnDeath) out.push("죽으면 실패");
+  if (a.noAbandon) out.push("포기 불가");
+  if (a.cooldownH) out.push(`재도전 ${a.cooldownH}시간`);
+  if (a.maxTimes) out.push(`최대 ${a.maxTimes}회`);
+  if (a.autoLv) out.push(`Lv.${a.autoLv} 자동 수락`);
+  if (a.lvMax) out.push(`Lv.${a.lvMax} 이하`);
+  if (a.reqFlag) out.push(`필요 플래그 ${a.reqFlag}`);
+  if (a.secret) out.push("조건 전까지 숨김");
+  if (a.flags) out.push(`완료 시 플래그 ${a.flags}`);
+  if (a.cmds) out.push("완료 명령어");
+  if (a.next) out.push(`다음 퀘스트 ${a.next}`);
+  if (a.choice?.length) out.push(`선택 보상 ${a.choice.length}개`);
+  if (a.keepItems) out.push("수집품 유지");
+  return out.join(" · ") || "없음";
+}
+
+async function editAdvanced(p, q, back) {
+  const a = q.adv ?? {};
+  const others = Q.allQuests().filter((x) => x.id !== q.id);
+  const r = await new ModalFormData()
+    .title(`고급 옵션 - ${q.title}`)
+    .toggle("§e진행§r 목표를 순서대로만 진행", !!a.seq)
+    .toggle("  앞 목표를 끝내야 다음 목표 공개 (???)", !!a.hidden)
+    .slider("  제한 시간 (분, 0 = 없음)", 0, 120, 1, a.timeLimit ?? 0)
+    .toggle("  죽으면 실패", !!a.failOnDeath)
+    .toggle("  포기 불가", !!a.noAbandon)
+    .slider("§e수락 조건§r 재도전 대기 (시간, 0 = 없음)", 0, 72, 1, a.cooldownH ?? 0)
+    .slider("  최대 완료 횟수 (0 = 무제한)", 0, 50, 1, a.maxTimes ?? 0)
+    .slider("  이 레벨이 되면 자동 수락 (0 = 끔)", 0, 100, 1, a.autoLv ?? 0)
+    .slider("  최대 레벨 (0 = 제한 없음)", 0, 100, 1, a.lvMax ?? 0)
+    .textField("  필요한 플래그 (NPC 대화에서 켜짐)", "예) met_chief", a.reqFlag ?? "")
+    .textField("  플래그가 없을 때 안내 문구", "예) 촌장과 먼저 이야기하세요", a.reqFlagText ?? "")
+    .toggle("  수락 조건 전에는 목록에서 숨김", !!a.secret)
+    .textField("§e메시지§r 수락할 때", "예) 서둘러야 한다!", a.acceptMsg ?? "")
+    .textField("  완료할 때", "예) 마을이 평화를 되찾았다.", a.doneMsg ?? "")
+    .textField("  실패할 때", "", a.failMsg ?? "")
+    .textField("§e완료 시§r 켤 플래그 (쉼표로 구분)", "예) chapter1_clear", a.flags ?? "")
+    .textField("  실행할 명령어 (; 로 구분, / 없이)", "예) title @s title 축하합니다; give @s diamond 1", a.cmds ?? "")
+    .dropdown("  끝나면 자동으로 시작할 다음 퀘스트", ["없음", ...others.map((x) => x.title)], Math.max(0, others.findIndex((x) => x.id === a.next) + 1))
+    .textField("  선택 보상 (하나 고름, 형식 id*수량, 쉼표)", "예) diamond_sword*1, bow*1", (a.choice ?? []).map((i) => `${i.id}*${i.n}`).join(", "))
+    .toggle("  수집 목표 아이템을 가져가지 않음", !!a.keepItems)
+    .show(p);
+  if (!r.canceled) {
+    const v = r.formValues;
+    q.adv = {
+      seq: v[0], hidden: v[1], timeLimit: v[2], failOnDeath: v[3], noAbandon: v[4],
+      cooldownH: v[5], maxTimes: v[6], autoLv: v[7], lvMax: v[8], reqFlag: String(v[9]).trim(), reqFlagText: String(v[10]).trim(), secret: v[11],
+      acceptMsg: String(v[12]), doneMsg: String(v[13]), failMsg: String(v[14]),
+      flags: String(v[15]).trim(), cmds: String(v[16]).trim(), next: v[17] ? others[v[17] - 1].id : "",
+      choice: parseItems(v[18]), keepItems: v[19],
+    };
+    if (q.adv.hidden) q.adv.seq = true;
+    Q.saveQuest(q);
+    msg(p, `§a고급 옵션 저장: §f${advSummary(q)}`);
+  }
+  return back();
 }

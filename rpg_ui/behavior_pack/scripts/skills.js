@@ -21,7 +21,7 @@ export const WCLASS = {
 
 // ───────── 스킬 정의 ─────────
 // kind: melee(힘 계수) / ranged(민첩 계수) / magic(지능 계수) / heal / buff
-export const SKILLS = [
+const SKILLS_BASE = [
   { id: "sword_spin", w: "sword", name: "회전 베기", lv: 1, mp: 12, cd: 6, kind: "melee", pow: 1.5, desc: "주변 3.5블록의 적을 베어 공격력의 150% 피해." },
   { id: "sword_dash", w: "sword", name: "질풍 돌진", lv: 5, mp: 18, cd: 10, kind: "melee", pow: 1.8, desc: "앞으로 돌진하며 경로의 적에게 180% 피해." },
   { id: "sword_judge", w: "sword", name: "심판의 일격", lv: 15, mp: 35, cd: 25, kind: "melee", pow: 4, desc: "바라보는 적 하나에게 400% 피해 + 3초 구속." },
@@ -40,8 +40,47 @@ export const SKILLS = [
   { id: "fist_breath", w: "fist", name: "숨 고르기", lv: 1, mp: 5, cd: 15, kind: "heal", pow: 0.5, desc: "체력을 조금 회복한다." },
   { id: "fist_combo", w: "fist", name: "연속 타격", lv: 3, mp: 8, cd: 5, kind: "melee", pow: 1.2, desc: "앞의 적에게 3연타 각 120%." },
 ];
-export const skillsOf = (w) => SKILLS.filter((s) => s.w === w);
-export const getSkill = (id) => SKILLS.find((s) => s.id === id);
+// 기본 스킬의 효과 = 자기 id. 제작자가 만든 스킬은 fx 로 기존 효과를 골라 쓴다.
+export const SKILLS = SKILLS_BASE;
+for (const s of SKILLS) s.fx = s.id;
+// 맨손 스킬은 기본적으로 꺼짐 (무기를 들어야 스킬이 생김) – 제작자 도구에서 켤 수 있음
+const DEFAULT_OFF = new Set(["fist_breath", "fist_combo"]);
+
+export const FX = [
+  { id: "sword_spin", name: "주변 베기 (원형 범위)" }, { id: "sword_dash", name: "돌진 + 범위" },
+  { id: "sword_judge", name: "단일 강타 + 구속" }, { id: "axe_slam", name: "내려찍기 + 띄우기" },
+  { id: "mace_quake", name: "지진 (넓은 범위)" }, { id: "axe_rage", name: "공격력 버프" },
+  { id: "bow_pierce", name: "관통 직선 (3명)" }, { id: "spear_thrust", name: "짧은 직선 관통" },
+  { id: "bow_rain", name: "범위 3연타 (화살비)" }, { id: "xbow_burst", name: "지점 폭발" },
+  { id: "staff_fire", name: "화염 폭발 + 화상" }, { id: "xbow_volley", name: "부채꼴 3발" },
+  { id: "spear_storm", name: "번개" }, { id: "staff_frost", name: "냉기 범위 + 구속" },
+  { id: "staff_heal", name: "파티 회복" }, { id: "fist_breath", name: "자기 회복" }, { id: "fist_combo", name: "3연타" },
+];
+
+// 제작자 도구 저장값: rpg:skilldb = { [id]: { ...변경할 필드, enabled, custom: true } }
+let sdb = null;
+export const skillDb = () => (sdb ??= getJSON(world, "rpg:skilldb", {}));
+export function saveSkillDef(id, patch) {
+  skillDb()[id] = { ...(skillDb()[id] ?? {}), ...patch };
+  setJSON(world, "rpg:skilldb", sdb);
+  cache = null;
+}
+export function deleteSkillDef(id) {
+  delete skillDb()[id];
+  setJSON(world, "rpg:skilldb", sdb);
+  cache = null;
+}
+let cache = null;
+/** 모든 스킬 (기본 + 제작, 변경 반영). enabled=false 포함 */
+export function allSkillsRaw() {
+  if (cache) return cache;
+  const db = skillDb();
+  const list = SKILLS.map((s) => ({ ...s, enabled: !DEFAULT_OFF.has(s.id), ...(db[s.id] ?? {}) }));
+  for (const [id, v] of Object.entries(db)) if (v.custom && !SKILLS.some((s) => s.id === id)) list.push({ id, kind: "melee", pow: 1, mp: 10, cd: 8, lv: 1, w: "sword", fx: "sword_spin", desc: "", enabled: true, ...v });
+  return (cache = list);
+}
+export const skillsOf = (w) => allSkillsRaw().filter((s) => s.w === w && s.enabled !== false);
+export const getSkill = (id) => allSkillsRaw().find((s) => s.id === id);
 
 // 직업 보너스 (해당 분류 스킬 피해/회복 증가 %)
 const CLASS_BONUS = {
@@ -111,30 +150,52 @@ export function heldClass(p) {
   return w ?? "fist";
 }
 
-// ───────── 장착 (무기 분류마다 기본 / 쉬프트 두 칸) / 쿨다운 ─────────
-//   기본 스킬: 웅크리고 공격, HUD [스킬] 버튼
-//   쉬프트 스킬: 웅크린 상태로 HUD [스킬] 버튼
-export function equipped(p, w, slot = "main") {
-  const d = data(p);
-  const key = slot === "sub" ? "skills2" : "skills";
-  const s = getSkill(d[key]?.[w]);
-  if (s && s.w === w && d.lv >= s.lv) return s;
-  const open = skillsOf(w).filter((x) => d.lv >= x.lv);
-  if (slot === "sub") {
-    const main = equipped(p, w, "main");
-    return open.find((x) => x.id !== main?.id) ?? null;
-  }
-  return open[0] ?? skillsOf(w)[0];
+// ───────── 무기별 설정 (제작자 도구 > 무기·스킬) ─────────
+//   rpg:wcfg = { [typeId]: { skills: [skillId...] | null, atk: number | null, mul: 퍼센트 } }
+//   skills 를 지정하면 그 무기는 분류와 상관없이 지정한 스킬만 쓴다 (커스텀 무기 연동)
+let wcfg = null;
+export const weaponCfg = () => (wcfg ??= getJSON(world, "rpg:wcfg", {}));
+export function setWeaponCfg(typeId, cfg) {
+  if (cfg) weaponCfg()[typeId] = cfg;
+  else delete weaponCfg()[typeId];
+  setJSON(world, "rpg:wcfg", wcfg);
 }
 
-export function equip(p, id, slot = "main") {
+/** 들고 있는 무기의 스킬 목록과 장착 키 (무기가 아니면 맨손 – 기본적으로 스킬 없음) */
+export function loadout(p) {
+  const st = heldStack(p);
+  const w = heldClass(p);
+  const cfg = st ? weaponCfg()[st.typeId] : null;
+  if (cfg?.skills?.length) return { key: `item:${st.typeId}`, list: cfg.skills.map(getSkill).filter((s) => s && s.enabled !== false), w, cfg };
+  return { key: w, list: skillsOf(w), w, cfg };
+}
+
+// ───────── 장착 (스킬 1 / 스킬 2) / 쿨다운 ─────────
+//   스킬 1: 쉬프트+공격, 스킬 버튼(핫바 8번 칸)      스킬 2: 쉬프트 누른 채 스킬 버튼
+//   (설정에서 1/2 바꾸기 가능)
+export function equippedFor(p, key, list, slot = "main") {
+  const d = data(p);
+  const store = slot === "sub" ? "skills2" : "skills";
+  const s = getSkill(d[store]?.[key]);
+  if (s && list.includes(s) && d.lv >= s.lv) return s;
+  const open = list.filter((x) => d.lv >= x.lv);
+  if (slot === "sub") {
+    const main = equippedFor(p, key, list, "main");
+    return open.find((x) => x.id !== main?.id) ?? null;
+  }
+  return open[0] ?? list[0] ?? null;
+}
+export const equipped = (p, w, slot = "main") => equippedFor(p, w, skillsOf(w), slot);
+
+export function equip(p, id, slot = "main", key) {
   const s = getSkill(id);
   const d = data(p);
-  const key = slot === "sub" ? "skills2" : "skills";
+  key = key ?? s.w;
+  const store = slot === "sub" ? "skills2" : "skills";
   const other = slot === "sub" ? "skills" : "skills2";
-  d[key] = d[key] ?? {};
-  d[key][s.w] = id;
-  if (d[other]?.[s.w] === id) delete d[other][s.w]; // 같은 스킬을 두 칸에 두지 않음
+  d[store] = d[store] ?? {};
+  d[store][key] = id;
+  if (d[other]?.[key] === id) delete d[other][key]; // 같은 스킬을 두 칸에 두지 않음
   save(p);
 }
 
@@ -145,9 +206,9 @@ export function readyIn(p, id) {
 
 /** HUD 표시용: 손에 든 무기의 장착 스킬 */
 export function currentSkillInfo(p) {
-  const w = heldClass(p);
-  const s = equipped(p, w);
-  const s2 = equipped(p, w, "sub");
+  const { key, list } = loadout(p);
+  const s = equippedFor(p, key, list);
+  const s2 = equippedFor(p, key, list, "sub");
   return { skill: s, left: s ? readyIn(p, s.id) : 0, sub: s2, left2: s2 ? readyIn(p, s2.id) : 0 };
 }
 
@@ -191,7 +252,8 @@ function line(p, len, step, particle) {
 function power(p, s) {
   const d = data(p);
   const held = heldStack(p);
-  const base = s.kind === "magic" ? 5 + stat(p, "int") * 0.6 : (weaponInfo(held?.typeId ?? "")?.atk ?? 3);
+  const cfg = held ? weaponCfg()[held.typeId] : null;
+  const base = (s.kind === "magic" ? 5 + stat(p, "int") * 0.6 : (cfg?.atk ?? weaponInfo(held?.typeId ?? "")?.atk ?? 3)) * ((cfg?.mul ?? 100) / 100);
   const statMul = s.kind === "melee" ? 1 + stat(p, "str") * 0.02 : s.kind === "ranged" ? 1 + stat(p, "dex") * 0.02 : 1;
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
   const cls = 1 + (CLASS_BONUS[d.cls]?.[s.w] ?? 0) / 100;
@@ -200,9 +262,10 @@ function power(p, s) {
 
 export function castWeaponSkill(p, id, slot = "main") {
   const d = data(p);
-  const s = id ? getSkill(id) : equipped(p, heldClass(p), slot);
+  const lo = loadout(p);
+  const s = id ? getSkill(id) : equippedFor(p, lo.key, lo.list, slot);
   if (!s) {
-    notify(p, "§7쉬프트 스킬이 비어 있습니다 §f(메뉴 > 스킬에서 장착)");
+    notify(p, `§7스킬 ${slot === "sub" ? 2 : 1}이 비어 있습니다 §f(메뉴 > 스킬에서 장착)`);
     return false;
   }
   if (d.lv < s.lv) {
@@ -227,7 +290,7 @@ export function castWeaponSkill(p, id, slot = "main") {
   const loc = p.location;
   const dmg = power(p, s);
 
-  switch (s.id) {
+  switch (s.fx ?? s.id) {
     case "sword_spin":
       for (const e of around(dim, loc, 3.5)) hit(p, e, dmg);
       ring(dim, loc, 2.5);
@@ -363,6 +426,7 @@ export function buffMul(p) {
 export function initSkillTriggers() {
   world.afterEvents.entityHitEntity?.subscribe(({ damagingEntity: p }) => {
     if (p?.typeId !== "minecraft:player" || !p.isSneaking) return;
+    if (data(p).set.shiftAttack === false) return;
     const w = heldClass(p);
     if (w === "bow" || w === "crossbow") return;
     castWeaponSkill(p);

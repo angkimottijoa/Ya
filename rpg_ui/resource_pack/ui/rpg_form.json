@@ -340,14 +340,14 @@
     "$marker": "[T]",
     "size": [
       34,
-      21
+      20
     ],
     "controls": [
       {
         "btn@rpg_form.rail_btn": {
           "size": [
-            19,
-            19
+            18,
+            18
           ],
           "anchor_from": "left_middle",
           "anchor_to": "left_middle"
