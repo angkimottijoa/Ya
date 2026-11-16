@@ -1,12 +1,12 @@
 // ═══════════════════════════════════════════════════════════════════════
-// 백호의 발톱 (V4.8) — 직업과 상관없이 쓰는 스킬 무기, 흑백 파티클
-//   ① 클릭  백호 · 할퀴기 : ↘ ↙ 엇갈려 X자로 할퀸 뒤, 앞으로 덮치며 거대한 가로 할퀴기 → 바닥에 발톱 자국
+// 백호의 도끼 (V4.8~) — 직업과 상관없이 쓰는 스킬 무기, 흑백 파티클
+//   ① 클릭  백호 · 할퀴기 : ↘ ↙ 엇갈려 X자로 할퀸 뒤, 앞으로 덮치며 거대한 가로 할퀴기 (발톱 줄은 옆에서 보면 ")")
 // 파티클: gen_baekho.py (bh_claw 발톱 자국 · bh_cluster 흑백 먼지 · bh_shock 충격파)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 
-export const CLAW_ID = "rpg:baekho_claw";
+export const AXE_ID = "rpg:baekho_axe";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
 const up = (l, y) => ({ x: l.x, y: l.y + y, z: l.z });
 const yawOf = (p) => p.getRotation().y;
@@ -53,18 +53,18 @@ function claw(dim, p, o = {}) {
   const u = { x: -rt.x * Math.cos(rr), y: -Math.sin(rr), z: -rt.z * Math.cos(rr) };
   const v = { x: -rt.x * Math.sin(rr), y: Math.cos(rr), z: -rt.z * Math.sin(rr) };
   const c = add(up(p.location, o.y ?? 1.25), f, o.dist ?? 2.2);
-  pt(dim, "bh_claw", c, { u, v, w: f, r: o.r ?? 4, dots: o.dots ?? 4, thick: o.thick ?? 0.62, h: o.h ?? 0.5, dur: o.dur ?? 0.09, life: o.life ?? 0.55, size: o.size ?? 1, n: o.n ?? 700, tone: 0 });
+  pt(dim, "bh_claw", c, { u, v, w: f, r: o.r ?? 4, dots: o.dots ?? 4, thick: o.thick ?? 0.62, h: o.h ?? 85, dur: o.dur ?? 0.09, life: o.life ?? 0.55, size: o.size ?? 1, n: o.n ?? 700, tone: 0 });
   return c;
 }
 
-// ① 백호 · 할퀴기: ↘ ↙ X자 → 덮치며 거대한 가로 할퀴기 + 바닥 발톱 자국
+// ① 백호 · 할퀴기: ↘ ↙ X자 → 덮치며 거대한 가로 할퀴기
 function scratch(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.potion(p, "resistance", 3, 1.5);
   const front = (d) => add(p.location, fwdOf(yawOf(p)), d);
   const hits = [
-    [1, -58, "slash", 0.8, { r: 4.2, dist: 2.1 }],
-    [6, 58, "slash_down", 0.8, { r: 4.2, dist: 2.1 }],
+    [1, -58, "slash", 0.8, { r: 4.4, dist: 2.7 }],
+    [6, 58, "slash_down", 0.8, { r: 4.4, dist: 2.7 }],
   ];
   for (const [t, roll, anim, mul, o] of hits) later(t, () => {
     M.anim(p, anim);
@@ -83,11 +83,9 @@ function scratch(ctx) {
   });
   later(14, () => {
     const yw = yawOf(p), f = fwdOf(yw), rt = rightOf(yw);
-    const c = claw(dim, p, { roll: 6, r: 6.6, dots: 5, thick: 0.8, dist: 2.8, size: 1.45, n: 1300, dur: 0.12, life: 0.75, h: -0.9 });
-    claw(dim, p, { roll: 6, r: 7.4, dots: 5, thick: 0.92, dist: 3.1, size: 0.7, n: 420, dur: 0.14, life: 0.5, h: -1.1 }); // 바깥 잔상
-    // 바닥에 남는 발톱 자국 (2.5초)
+    const c = claw(dim, p, { roll: 6, r: 6.6, dots: 5, thick: 0.8, dist: 3.4, size: 1.45, n: 1300, dur: 0.12, life: 0.75, h: 95 });
+    claw(dim, p, { roll: 6, r: 7.4, dots: 5, thick: 0.92, dist: 3.8, size: 0.7, n: 420, dur: 0.14, life: 0.5, h: 95 }); // 바깥 잔상
     const g = add(p.location, f, 3.2);
-    pt(dim, "bh_claw", up(g, 0.08), { u: rt, v: f, w: { x: 0, y: 1, z: 0 }, r: 5, dots: 5, thick: 0.7, h: 0, dur: 0.1, life: 2.5, size: 1.1, n: 700, tone: 0.25 });
     pt(dim, "bh_shock", up(g, 0.15), { n: 160, spd: 11, size: 1.2 });
     for (let k = 0; k < 8; k++) dust(dim, add(c, rt, (k - 3.5) * 0.8), { n: 10, r: 0.4, spd: 3, tone: k % 2 ? 0.85 : 0.05 });
     for (const e of M.around(dim, g, 4.2)) { hit(e, 1.6); M.toss(p.location, e, 1.6, 3.5); }
@@ -99,7 +97,7 @@ function scratch(ctx) {
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {
-  [CLAW_ID]: [
-    { id: "w_bh_1", key: 1, name: "백호 · 할퀴기", short: "할퀴기", lv: 1, mp: 10, cd: 3, pow: 1, run: scratch, desc: "↘ ↙ 로 엇갈려 할퀸 뒤, 앞으로 덮치며 거대한 다섯 줄 할퀴기. 바닥에 발톱 자국이 남는다." },
+  [AXE_ID]: [
+    { id: "w_bh_1", key: 1, name: "백호 · 할퀴기", short: "할퀴기", lv: 1, mp: 10, cd: 3, pow: 1, run: scratch, desc: "↘ ↙ 로 엇갈려 할퀸 뒤, 앞으로 덮치며 거대한 다섯 줄 할퀴기." },
   ],
 };

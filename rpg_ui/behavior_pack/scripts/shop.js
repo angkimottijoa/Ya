@@ -17,7 +17,7 @@ const DEFAULT_SHOP = [
   { id: "minecraft:experience_bottle", n: 4, price: 80 },
   // 스킬 검 (직업과 상관없이 ①②③ 스킬)
   { id: "rpg:cheongryong_sword", n: 1, price: 30000, sell: false },
-  { id: "rpg:baekho_claw", n: 1, price: 30000, sell: false },
+  { id: "rpg:baekho_axe", n: 1, price: 30000, sell: false },
   // 판매 전용 (사냥 전리품)
   { id: "minecraft:rotten_flesh", n: 1, price: 0, buy: false, sell: true, sp: 2 },
   { id: "minecraft:bone", n: 1, price: 0, buy: false, sell: true, sp: 3 },

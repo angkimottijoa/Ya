@@ -850,7 +850,7 @@ function playerTab(p, selId) {
     return re();
   });
   scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
-  scr.action("§f백호의 발톱 지급", () => { giveItem(t, "rpg:baekho_claw", 1); msg(p, "§f백호의 발톱을 지급했습니다."); return re(); });
+  scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });
   scr.action("골드 +1000", () => { addGold(t, 1000); return re(); });
   scr.action("레벨/스탯 초기화", () => confirm(p, `${t.name}의 레벨과 스탯을 초기화할까요?`, () => {

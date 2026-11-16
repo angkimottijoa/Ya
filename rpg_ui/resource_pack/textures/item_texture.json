@@ -104,8 +104,8 @@
     "rpg_cheongryong_sword": {
       "textures": "textures/items/rpg/cheongryong_sword"
     },
-    "rpg_baekho_claw": {
-      "textures": "textures/items/rpg/baekho_claw"
+    "rpg_baekho_axe": {
+      "textures": "textures/items/rpg/baekho_axe"
     }
   }
 }

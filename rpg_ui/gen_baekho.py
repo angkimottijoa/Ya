@@ -1,5 +1,5 @@
-"""백호의 발톱 (V4.8) — 흑백 파티클 + 무기 아이템
-  bh_claw     할퀴기 자국: 평행한 발톱 줄 dots 개, 한 번 호출로 획 순서대로 그어지는 애니메이션
+"""백호의 도끼 (V4.8~) — 흑백 파티클 + 무기 아이템
+  bh_claw     할퀴기 자국: 옆에서 보면 ")" 로 휜 발톱 줄 dots 개, 한 번 호출로 획 순서대로 그어지는 애니메이션
               줄 가운데 흰색 → 가장자리 검정 (호랑이 줄무늬 느낌), 끝은 뾰족, 일부 조각은 떨어짐
   bh_cluster  흑백 먼지 뭉치 (타격·물보라)
   bh_shock    바닥에서 퍼지는 흑백 충격파
@@ -34,17 +34,22 @@ def main():
     mid = f"math.sin({q} * 180)"              # 가운데 1, 양 끝 0 → 뾰족
     lane = f"(({i} - (variable.dots - 1) / 2) * variable.thick)"
     wid = f"(({R3} - 0.5) * 0.2 * variable.size * (0.25 + {mid} * 0.75))"
-    stag = f"({i} * 0.06 - variable.dots * 0.03)"  # 발톱마다 살짝 어긋나게
-    along = f"(({q} - 0.5 + {stag}) * variable.r)"
-    bulge = f"({mid} * 0.45)"
-    bend = f"({mid} * variable.h)"  # 발톱 줄이 활처럼 휘어짐
+    stag = f"({i} * 0.05 - variable.dots * 0.025)"  # 발톱마다 살짝 어긋나게
+    # 발톱 줄 = 옆에서 보면 ")" — 가운데가 앞으로 나가고 양 끝이 플레이어 쪽으로 감기는 원호 (u·w 면)
+    #   정면에서는 나란한 발톱 줄 (v 방향으로 간격), h = 호가 휘는 각도(도)
+    span = "math.max(10, variable.h)"
+    Rb = f"(variable.r / ({span} * 0.01745))"
+    th = f"(({q} - 0.5 + {stag}) * {span})"
+    along = f"({Rb} * math.sin({th}))"
+    perp = f"({lane} + {wid})"
+    bulge = f"({Rb} * (math.cos({th}) - 1))"
     delay = f"({q} * variable.dur + {i} * 0.012)"
     live = f"math.clamp((variable.particle_age - {delay}) / variable.life, 0, 1)"
     part("bh_claw", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
         "minecraft:emitter_shape_point": {
-            "offset": [f"variable.u.{c} * {along} + variable.v.{c} * ({lane} + {wid} + {mid} * {lane} * 0.18 + {bend}) + variable.w.{c} * {bulge}" for c in "xyz"],
+            "offset": [f"variable.u.{c} * {along} + variable.v.{c} * {perp} + variable.w.{c} * {bulge}" for c in "xyz"],
             "direction": ["variable.w.x", f"variable.w.y + 0.3", "variable.w.z"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"{delay} + variable.life * (0.7 + {R4} * 0.45)"},
         "minecraft:particle_initial_speed": f"{R4} > 0.72 ? 0.8 + {R4} : 0",
@@ -82,33 +87,34 @@ def main():
 
 
 def item():
-    """백호의 발톱: 흰 발톱 세 개 + 검은 줄무늬 손잡이 아이콘"""
+    """백호의 도끼: 흰 도끼날(검은 줄무늬) + 어두운 자루 아이콘"""
     im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     d = ImageDraw.Draw(im)
-    white, grey, black = (245, 245, 245, 255), (170, 170, 175, 255), (20, 20, 22, 255)
-    for k, (x0, y0) in enumerate([(5, 1), (8, 0), (11, 2)]):
-        d.line([(x0, y0), (x0 - 2, y0 + 7)], fill=white, width=2)
-        d.point((x0 - 1, y0 + 1), fill=grey)
-    d.rectangle([(1, 9), (9, 14)], fill=white)
-    for x in (2, 5, 8):
-        d.line([(x, 9), (x - 1, 14)], fill=black)
-    d.rectangle([(1, 9), (9, 14)], outline=black)
+    white, grey, black, wood = (245, 245, 245, 255), (175, 175, 182, 255), (18, 18, 20, 255), (60, 52, 50, 255)
+    d.line([(3, 14), (11, 4)], fill=wood, width=2)                   # 자루
+    d.polygon([(8, 1), (14, 3), (15, 8), (12, 9), (9, 5)], fill=white)  # 도끼날
+    d.line([(14, 3), (15, 8)], fill=grey)
+    d.line([(11, 2), (12, 5)], fill=black)                            # 호랑이 줄무늬
+    d.line([(13, 3), (13, 7)], fill=black)
+    d.polygon([(8, 1), (14, 3), (15, 8), (12, 9), (9, 5)], outline=black)
+    im.putpixel((2, 15), black)
     out = ROOT / "resource_pack" / "textures" / "items" / "rpg"
-    im.save(out / "baekho_claw.png")
+    im.save(out / "baekho_axe.png")
     atlas_p = ROOT / "resource_pack" / "textures" / "item_texture.json"
     atlas = json.loads(atlas_p.read_text())
-    atlas["texture_data"]["rpg_baekho_claw"] = {"textures": "textures/items/rpg/baekho_claw"}
+    atlas["texture_data"].pop("rpg_baekho_claw", None)
+    atlas["texture_data"]["rpg_baekho_axe"] = {"textures": "textures/items/rpg/baekho_axe"}
     atlas_p.write_text(json.dumps(atlas, ensure_ascii=False, indent=2))
     data = {"format_version": "1.21.40", "minecraft:item": {
-        "description": {"identifier": "rpg:baekho_claw", "menu_category": {"category": "equipment", "group": "itemGroup.name.sword"}},
+        "description": {"identifier": "rpg:baekho_axe", "menu_category": {"category": "equipment", "group": "itemGroup.name.axe"}},
         "components": {
-            "minecraft:icon": "rpg_baekho_claw",
-            "minecraft:display_name": {"value": "§f§l백호의 발톱 §r§7[스킬 무기 · 모든 직업]"},
+            "minecraft:icon": "rpg_baekho_axe",
+            "minecraft:display_name": {"value": "§f§l백호의 도끼 §r§7[스킬 무기 · 모든 직업]"},
             "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 12,
             "minecraft:enchantable": {"slot": "sword", "value": 22}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,
             "minecraft:use_modifiers": {"use_duration": 0.05, "movement_modifier": 1.0}}}}
-    (ROOT / "behavior_pack" / "items" / "baekho_claw.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))
+    (ROOT / "behavior_pack" / "items" / "baekho_axe.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))
 
 
 if __name__ == "__main__":
