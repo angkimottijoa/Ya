@@ -231,7 +231,7 @@ def main():
         **dust_look("0.15", tone=f"0.55 + {R3} * 0.35"),
     })
     # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
-    IW, IH, CX, CY, CELL = 240, 121, 180, 50, 6
+    IW, IH, CX, CY, CELL = 240, 121, 180, 50, 8
     px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
     S = "(variable.scale * 0.048)"
     # 픽셀 안 소수부로 살짝 흩뜨림 → 격자 느낌 제거
@@ -248,7 +248,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * (1.5 + {R4} * 0.7) * (1 - {AGE} * {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S} * (2.6 + {R4} * 1.2) * (1 - {AGE} * {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{px} * {CELL}", f"{py} * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음
@@ -410,6 +410,19 @@ def main():
             "size": [f"(0.35 + (1 - {R2}) * 0.5) * (1 - {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [7, 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": [f"0.75 + (1 - {R2}) * 0.25", f"0.9 + (1 - {R2}) * 0.1", 1, f"(0.25 + (1 - {R2}) * 0.6) * (1 - {AGE})"]},
+    }, material="particles_blend")
+    # 20) 나선 연기 (꾸미기): 부드럽게 커지며 퍼지는 흰·회청색 연기
+    part("cr_smoke", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_sphere": {"radius": "variable.r", "direction": "outwards"},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": f"0.15 + {R1} * 0.3",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.25, 0], "linear_drag_coefficient": 0.8},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.45 + {R3} * 0.35) * (0.6 + {AGE} * 0.9)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.72 + {R1} * 0.2", f"0.8 + {R1} * 0.15", f"0.9 + {R1} * 0.1", f"(0.55 - {AGE} * 0.5)"]},
     }, material="particles_blend")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {

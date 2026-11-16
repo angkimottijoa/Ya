@@ -393,6 +393,12 @@ function dragon(ctx) {
       if (t === T3 + 1) { M.sound(p, "mob.enderdragon.growl", 1.4, 0.9); shake(dim, o, 0.35, 1); glow(dim, cur, { size: 7, tone: 0.9, r: 1, n: 4, life: 0.4 }); }
       if (hidden(t)) return;
       drawDragon(dim, path, t, { thick, life: t > T3 ? 1.2 : 1.7, ground: o.y - 0.5 });
+      // 꾸미기: 용 몸을 감싸며 도는 나선 연기 두 가닥
+      { const F = frame(path, t - 1.5);
+        for (const k of [0, Math.PI]) {
+          const th = t * 0.55 + k, q = add(add(F.c, F.u, Math.cos(th) * thick * 2.3), F.v, Math.sin(th) * thick * 2.3);
+          if (q.y > o.y) pt(dim, "cr_smoke", q, { n: 2, r: 0.15, size: 1, life: 1.6 });
+        } }
       // 급강하: 몸을 스치는 바람 줄기
       if (t > T3 && cur.y > o.y) {
         const F = frame(path, t);
@@ -435,11 +441,21 @@ function dragon(ctx) {
       }
     });
   }
-  // 진짜 마크 번개: 주변 몹 위로 차례로 (몹이 없으면 떨어진 곳 주변)
-  later(T + 6, () => {
-    const mobs = M.around(dim, G, 14).filter((e) => Math.hypot(e.location.x - p.location.x, e.location.z - p.location.z) > 3).slice(0, 8);
-    const spots = mobs.length ? mobs.map((e) => e) : [0, 1, 2].map((i) => ({ location: { x: G.x + Math.cos(i * 2.1) * 4, y: G.y, z: G.z + Math.sin(i * 2.1) * 4 } }));
-    spots.forEach((e, i) => later(i * 5, () => {
+  // 급강하 중에도 떨어질 곳 주변으로 번개 세 줄기
+  for (const [dt, ang] of [[8, 0.4], [14, 2.6], [20, 4.6]]) later(T3 + dt, () => {
+    const at = { x: G.x + Math.cos(ang) * 6, y: G.y, z: G.z + Math.sin(ang) * 6 };
+    try { dim.spawnEntity("minecraft:lightning_bolt", at); } catch {}
+    pt(dim, "cr_pillar", at, { r: 0.8, h: 2, n: 100, life: 0.5 });
+  });
+  // 번개 구간: 주변 사람·몹 구속 + 몹 위로, 그리고 주변 곳곳에 진짜 번개 (3틱 간격)
+  later(T + 4, () => {
+    const mobs = M.around(dim, G, 14).filter((e) => Math.hypot(e.location.x - p.location.x, e.location.z - p.location.z) > 3).slice(0, 10);
+    const spots = [];
+    const rnd = Array.from({ length: 9 }, (_, i) => { const a = i * 2.4 + Math.random(), r = 3 + Math.random() * 9; return { location: { x: G.x + Math.cos(a) * r, y: G.y, z: G.z + Math.sin(a) * r } }; });
+    for (let i = 0; i < Math.max(mobs.length, rnd.length); i++) { if (mobs[i]) spots.push(mobs[i]); if (rnd[i]) spots.push(rnd[i]); }
+    const dur = spots.length * 3 + 14; // 틱
+    bind(ctx, G, 14, dur);
+    spots.forEach((e, i) => later(i * 3, () => {
       const at = e.isValid?.() === false ? null : { ...e.location };
       if (!at) return;
       try { dim.spawnEntity("minecraft:lightning_bolt", at); } catch {}
@@ -450,6 +466,30 @@ function dragon(ctx) {
       snow(dim, up(at, 1.5), 5, 2);
       if (e.id) hit(e, 2);
     }));
+  });
+}
+/** 구속: 반경 r 안의 다른 플레이어와 몹을 dur 틱 동안 묶어 둠 (발밑 고리 + 움직임 정지) */
+function bind(ctx, c, r, dur) {
+  const { p } = ctx, dim = p.dimension;
+  let list = [];
+  try {
+    list = dim.getEntities({ location: c, maxDistance: r, excludeTypes: ["minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] })
+      .filter((e) => e.id !== p.id);
+  } catch {}
+  for (const e of list) {
+    M.potion(e, "slowness", 255, dur / 20);
+    M.potion(e, "weakness", 3, dur / 20);
+    try { e.onScreenDisplay?.setActionBar("§b§l청룡의 번개에 구속되었다!"); } catch {}
+  }
+  for (let t = 0; t < dur; t += 2) later(t + 1, () => {
+    for (const e of list) {
+      if (!e.isValid()) continue;
+      try { e.typeId === "minecraft:player" ? e.applyKnockback(0, 0, 0, 0) : e.clearVelocity(); } catch {}
+      if (t % 10 === 0) {
+        pt(dim, "cr_ring", up(e.location, 0.1), { r: 0.9, h: 0, dots: 16, spin: 300, tone: 0.3, life: 0.5 });
+        pt(dim, "cr_ring", up(e.location, 1.1), { r: 0.7, h: 0, dots: 12, spin: -300, tone: 0.15, life: 0.5, tiltx: 0.3 });
+      }
+    }
   });
 }
 
@@ -503,8 +543,23 @@ function dragonDiveMain(ctx, hit) {
   // 비상 → 내리꽂기를 한 루프로: 큰 청룡이 플레이어 '옆'에서 같은 방향을 보고 나란히 날다가
   //   (머리 = 플레이어보다 약간 앞, 몸통 = 플레이어 옆을 지나 뒤로 흐름)
   //   내리꽂을 때 고개가 수평 → 아래로 자연스럽게 숙여지며 플레이어와 함께 땅에 박힘
-  const HOVER = 30, START = 17;
-  later(16, () => { M.potion(p, "levitation", 1, 1.2); M.potion(p, "slow_falling", 1, 2.2); });
+  const HOVER = 40, START = 17;
+  later(16, () => { M.potion(p, "levitation", 1, 1.1); M.potion(p, "slow_falling", 1, 2.8); });
+  /** 공중 이동: 이동 키(가능하면) 또는 이미 움직이던 방향으로 밀어줌 → 공중에서 자유롭게 위치 잡기 */
+  const steer = (t) => {
+    let dx = 0, dz = 0;
+    const yw = yawOf(p), f = fwdOf(yw), r = { x: -Math.cos((yw * Math.PI) / 180), z: -Math.sin((yw * Math.PI) / 180) };
+    try {
+      const mv = p.inputInfo?.getMovementVector?.();
+      if (mv && (Math.abs(mv.x) > 0.1 || Math.abs(mv.y) > 0.1)) { dx = f.x * mv.y - r.x * mv.x; dz = f.z * mv.y - r.z * mv.x; }
+    } catch {}
+    if (!dx && !dz) { // 이동 키를 못 읽으면: 플레이어가 움직이는 방향을 증폭
+      try { const v = p.getVelocity(); if (Math.hypot(v.x, v.z) > 0.03) { dx = v.x; dz = v.z; } } catch {}
+    }
+    const l = Math.hypot(dx, dz);
+    if (l < 0.01) return;
+    try { p.applyKnockback(dx / l, dz / l, 0.55, t < 18 ? 0.16 : 0.02); } catch {}
+  };
   let yawS = yawOf(p), pitchS = 0, t = 0, diveT = -1, landT = -1, G = null, hitAt = null;
   const angLerp = (a, b, k) => a + ((((b - a) % 360) + 540) % 360 - 180) * k;
   const SIDE = 2.4; // 플레이어 오른쪽 거리
@@ -532,6 +587,7 @@ function dragonDiveMain(ctx, hit) {
   const tick = () => {
     if (!p.isValid()) return;
     yawS = angLerp(yawS, yawOf(p), 0.3); // 시선을 부드럽게 따라감
+    if (diveT < 0 && t <= HOVER) steer(t);
     if (t === HOVER + 1) { // 내리꽂기 시작
       diveT = 0;
       M.anim(p, "smash");
@@ -585,7 +641,7 @@ export const WEAPON_SKILLS = {
   [SWORD_ID]: [
     { id: "w_cr_1", key: 1, name: "청룡 · 유수", short: "유수", lv: 1, mp: 12, cd: 4, pow: 1, run: flowingWater, desc: "앞으로 미끄러지며 몸을 감는 물살을 그린다." },
     { id: "w_cr_2", key: 2, name: "청룡 · 와선", short: "와선", lv: 1, mp: 25, cd: 14, pow: 1, run: whirlpool, desc: "기울어진 점선 물결 고리가 돌며 적을 끌어당긴다." },
-    { id: "w_cr_3", key: 3, name: "청룡 강림", short: "강림", lv: 1, mp: 45, cd: 30, pow: 1, run: dragon, desc: "거대한 먹구름 위에서 나타난 청룡이 아래를 한 바퀴 돌고 꿈틀대며 땅으로 떨어진 뒤, 주변 몹에게 번개가 떨어진다." },
-    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "크게 두 번 긋고 돌진하며 검기 → 솟구쳐 옆에 나란히 나타난 청룡과 함께 아래로 내리꽂고 번개." },
+    { id: "w_cr_3", key: 3, name: "청룡 강림", short: "강림", lv: 1, mp: 45, cd: 30, pow: 1, run: dragon, desc: "거대한 먹구름 위에서 나타난 청룡이 아래를 한 바퀴 돌고 솟구쳤다가 내리꽂힌 뒤, 주변을 구속하고 번개가 쏟아진다." },
+    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "크게 두 번 긋고 돌진하며 검기 → 솟구쳐 공중에서 2초간 자유롭게 이동, 옆에 나란히 나타난 눈꽃 청룡과 함께 아래로 내리꽂고 번개." },
   ],
 };

@@ -12,7 +12,18 @@ ROOT = Path(__file__).parent
 SRC = ROOT / "art" / "cheongryong_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_cr_dragonhead.png"
 TARGET_W = 240
-CELL = 6
+CELL = 8
+# ✱ 눈꽃 모양 (8x8): 예전 눈꽃 파티클과 같은 모양을 픽셀마다 찍음
+FLAKE = [
+    "X..X..X.",
+    ".X.X.X..",
+    "..XXX...",
+    "XXXXXXX.",
+    "..XXX...",
+    ".X.X.X..",
+    "X..X..X.",
+    "........",
+]
 
 
 def main():
@@ -54,11 +65,10 @@ def main():
                 sp[x, y] = (r, g, b, 255)
                 n += 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    # 픽셀 하나 = CELLxCELL 칸의 둥근 점 (모서리 투명) → 파티클 점이 네모가 아니라 동그랗게 보임
+    # 픽셀 하나 = CELLxCELL 칸의 ✱ 눈꽃 (나머지 투명) → 그림이 눈꽃 파티클로 찍힘
     big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
     bp = big.load()
-    c = (CELL - 1) / 2
-    disc = [(i, j) for i in range(CELL) for j in range(CELL) if (i - c) ** 2 + (j - c) ** 2 <= (CELL / 2) ** 2 - 0.3]
+    disc = [(i, j) for j, row in enumerate(FLAKE) for i, ch in enumerate(row) if ch == "X"]
     for y in range(small.size[1]):
         for x in range(small.size[0]):
             col = sp[x, y]

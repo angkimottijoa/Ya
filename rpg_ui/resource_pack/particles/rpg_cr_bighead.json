@@ -34,20 +34,20 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "(variable.scale * 0.048) * (1.5 + variable.particle_random_4 * 0.7) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)",
-     "(variable.scale * 0.048) * (1.5 + variable.particle_random_4 * 0.7) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)"
+     "(variable.scale * 0.048) * (2.6 + variable.particle_random_4 * 1.2) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)",
+     "(variable.scale * 0.048) * (2.6 + variable.particle_random_4 * 1.2) * (1 - (variable.particle_age / variable.particle_lifetime) * (variable.particle_age / variable.particle_lifetime) * 0.4)"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
-     "texture_width": 1440,
-     "texture_height": 726,
+     "texture_width": 1920,
+     "texture_height": 968,
      "uv": [
-      "math.floor(variable.particle_random_1 * 240) * 6",
-      "math.floor(variable.particle_random_2 * 121) * 6"
+      "math.floor(variable.particle_random_1 * 240) * 8",
+      "math.floor(variable.particle_random_2 * 121) * 8"
      ],
      "uv_size": [
-      6,
-      6
+      8,
+      8
      ]
     }
    }
