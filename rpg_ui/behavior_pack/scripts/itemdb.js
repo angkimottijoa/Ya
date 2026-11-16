@@ -1,5 +1,6 @@
 // 아이템 분류 / 희귀도 / 스탯 / 아이콘 / 이름
-import { ItemStack } from "@minecraft/server";
+import { ItemStack, world } from "@minecraft/server";
+import { getJSON, setJSON } from "./db.js";
 import { ITEM_TEX, BLOCK_TEX } from "./texmap.js";
 
 export const ICON = (n) => `textures/ui/rpg/icons/${n}`;
@@ -98,22 +99,47 @@ const ALIAS = {
   rpg_menu: "rpg/menu",
 };
 
+// 제작자 도구에서 지정한 아이콘 (typeId -> 텍스처 경로)
+let overrides = null;
+export function iconOverrides() {
+  if (!overrides) overrides = getJSON(world, "rpg:icons", {});
+  return overrides;
+}
+export function setIconOverride(id, path) {
+  const o = iconOverrides();
+  if (path) o[id] = path;
+  else delete o[id];
+  setJSON(world, "rpg:icons", o);
+}
+
+const CAT_ICON = { weapon: "class", armor: "armor", food: "food", material: "material", misc: "misc" };
+
 export function iconOf(id) {
+  const ov = iconOverrides()[id];
+  if (ov) return ov;
   if (id === "rpg:menu") return "textures/items/rpg/menu";
   if (id === "rpg:quest_tool") return "textures/items/rpg/quest_tool";
-  let s = short(id);
+  if (id === "rpg:skill") return ICON("skill");
+  const [ns, name] = id.includes(":") ? id.split(":") : ["minecraft", id];
+  // 다른 애드온 아이템: 대부분 textures/items/<이름> 에 아이콘이 있다 (아니면 제작자 도구 > 데이터 > 아이콘 지정)
+  if (ns !== "minecraft") return `textures/items/${name}`;
+  const s = name;
   const tries = [ALIAS[s], s, s.replace(/^wooden_/, "wood_").replace(/^golden_/, "gold_")];
   const m = s.match(/^cooked_(\w+)$/);
   if (m) tries.push(`${m[1]}_cooked`);
-  for (const t of tries) if (t && ITEM_TEX[t]) return ITEM_TEX[t];
-  if (BLOCK_TEX[s]) return BLOCK_TEX[s];
-  return ICON("misc");
+  let path;
+  for (const t of tries) if (t && ITEM_TEX[t]) { path = ITEM_TEX[t]; break; }
+  path = path ?? BLOCK_TEX[s];
+  // 3D 모델용 엔티티 텍스처(방패 등)는 아이콘으로 쓰면 깨져 보임 → 분류 아이콘
+  if (!path || path.startsWith("textures/entity")) return ICON(CAT_ICON[category(id)] ?? "misc");
+  return path;
 }
 
 /** 아이템 이름 RawMessage */
 export function itemName(stackOrId) {
   if (typeof stackOrId !== "string") {
     if (stackOrId.nameTag) return { text: stackOrId.nameTag };
+    if (!stackOrId.typeId.startsWith("minecraft:") && !stackOrId.localizationKey) return { text: pretty(stackOrId.typeId) };
     const k = stackOrId.localizationKey;
     if (k) return { translate: k };
     return { text: pretty(stackOrId.typeId) };

@@ -56,10 +56,7 @@ export function addXp(p, amount, silent = false) {
   }
   save(p);
   if (up) {
-    p.onScreenDisplay.setTitle(`§6§lLEVEL UP`, {
-      subtitle: `§fLv.${d.lv} §7· 스탯 포인트 +${up * 3}`,
-      fadeInDuration: 5, stayDuration: 40, fadeOutDuration: 10,
-    });
+    notify(p, `§6§lLEVEL UP! §r§fLv.${d.lv} §7· 스탯 포인트 +${up * 3}`);
     p.playSound("random.levelup");
     p.dimension.spawnParticle("minecraft:totem_particle", p.location);
   } else if (!silent) {
@@ -71,6 +68,11 @@ export function addGold(p, n) {
   const d = data(p);
   d.gold = Math.max(0, d.gold + Math.round(n));
   save(p);
+}
+
+/** 알림: 액션바 (title 은 HUD 데이터 전용이라 쓰지 않음) */
+export function notify(p, text) {
+  p.onScreenDisplay.setActionBar(text);
 }
 
 export function msg(p, text) {

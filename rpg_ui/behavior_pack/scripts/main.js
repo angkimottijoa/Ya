@@ -1,15 +1,18 @@
 // Arcania RPG - 진입점
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
-import { data, save, forget, msg, isAdmin } from "./player.js";
+import { data, save, forget, msg, notify, isAdmin } from "./player.js";
 import { initCombat, castSkill } from "./combat.js";
 import * as Q from "./quests.js";
 import * as HUD from "./hud.js";
-import { openHome, openNpc, openQuests } from "./menu.js";
+import { openHome, openQuests } from "./menu.js";
+import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
-const MENU_SLOT = 8; // 핫바 9번 칸
+const MENU_SLOT = 8; // 핫바 9번 칸 = HUD [메뉴] 버튼
+const SKILL_SLOT = 7; // 핫바 8번 칸 = HUD [스킬] 버튼
 const lastUse = new Map();
+const lastSlot = new Map();
 
 function throttled(p) {
   const t = system.currentTick;
@@ -18,20 +21,44 @@ function throttled(p) {
   return false;
 }
 
-/** 메뉴북을 핫바 9번 칸에 고정 지급 */
-function ensureMenuItem(p) {
+/** 메뉴북(9번 칸)과 스킬(8번 칸)을 고정 지급 */
+function ensureSlotItem(p, id, slot) {
   const c = p.getComponent("minecraft:inventory").container;
-  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId === "rpg:menu") return;
-  const it = new ItemStack("rpg:menu", 1);
+  if (c.getItem(slot)?.typeId === id) return;
+  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId === id) c.setItem(i, undefined);
+  const it = new ItemStack(id, 1);
   it.lockMode = ItemLockMode.slot;
   it.keepOnDeath = true;
-  const old = c.getItem(MENU_SLOT);
-  c.setItem(MENU_SLOT, it);
+  const old = c.getItem(slot);
+  c.setItem(slot, it);
   if (old) {
     const rest = c.addItem(old);
     if (rest) p.dimension.spawnItem(rest, p.location);
   }
 }
+function ensureMenuItem(p) {
+  ensureSlotItem(p, "rpg:menu", MENU_SLOT);
+  ensureSlotItem(p, "rpg:skill", SKILL_SLOT);
+}
+
+// HUD [메뉴]/[스킬] 버튼 = 핫바 9번/8번 칸 선택. 선택되면 바로 원래 칸으로 되돌리고 실행.
+// (PC 에선 숫자키 9 / 8)
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    const cur = p.selectedSlotIndex;
+    const prev = lastSlot.get(p.id) ?? 0;
+    if ((cur === MENU_SLOT || cur === SKILL_SLOT) && data(p).set.slots !== false) {
+      const back = prev === MENU_SLOT || prev === SKILL_SLOT ? 0 : prev;
+      p.selectedSlotIndex = back;
+      lastSlot.set(p.id, back);
+      if (throttled(p)) continue;
+      if (cur === MENU_SLOT) openHome(p);
+      else castSkill(p);
+    } else {
+      lastSlot.set(p.id, cur);
+    }
+  }
+}, 1);
 
 // 메뉴북: 사용 → 메뉴 / 웅크리고 사용 → 직업 스킬
 // 제작자 도구: 사용 → 제작자 메뉴
@@ -40,6 +67,8 @@ world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
     if (throttled(p)) return;
     if (p.isSneaking) castSkill(p);
     else system.run(() => openHome(p));
+  } else if (itemStack.typeId === "rpg:skill") {
+    if (!throttled(p)) castSkill(p);
   } else if (itemStack.typeId === "rpg:quest_tool") {
     if (throttled(p)) return;
     system.run(() => openAdmin(p));
@@ -84,7 +113,7 @@ world.afterEvents.playerSpawn.subscribe(({ player: p, initialSpawn }) => {
     if (initialSpawn && !d.joined) {
       d.joined = true;
       save(p);
-      p.onScreenDisplay.setTitle("§6§lA R C A N I A", { subtitle: "§f9번 칸의 메뉴북을 사용해 보세요", fadeInDuration: 10, stayDuration: 80, fadeOutDuration: 20 });
+      notify(p, "§6§lA R C A N I A §r§f· 오른쪽 위 §e[메뉴]§f 버튼 (PC: 숫자키 9)");
     }
   }, 20);
 });

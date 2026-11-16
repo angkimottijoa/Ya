@@ -2,7 +2,7 @@
 import { world, EquipmentSlot } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { Screen, rt } from "./ui.js";
-import { data, save, stat, xpNeed, addGold, msg, isAdmin, byId, MAX_LV } from "./player.js";
+import { data, save, stat, xpNeed, addGold, msg, notify, isAdmin, byId, MAX_LV } from "./player.js";
 import { CLASSES, STATS, CLASS_CHANGE_COST } from "./classes.js";
 import * as Q from "./quests.js";
 import * as P from "./party.js";
@@ -12,6 +12,7 @@ import {
   inv, countItem, removeItem, giveItem,
 } from "./itemdb.js";
 import { openAdmin } from "./admin.js";
+import * as CH from "./chat.js";
 
 // ───────── 공통 크롬(레일 + 재화 칩) ─────────
 const SECTIONS = [
@@ -19,6 +20,7 @@ const SECTIONS = [
   { id: "profile", name: "내 정보", icon: "profile", open: (p) => openProfile(p) },
   { id: "class", name: "직업", icon: "class", open: (p) => openClass(p) },
   { id: "party", name: "파티", icon: "party", open: (p) => openParty(p) },
+  { id: "chat", name: "채팅", icon: "chat", open: (p) => openChat(p) },
   { id: "quest", name: "퀘스트", icon: "quest", open: (p) => openQuests(p) },
   { id: "bag", name: "배낭", icon: "bag", open: (p) => openBag(p) },
   { id: "shop", name: "상점", icon: "shop", open: (p) => openShop(p) },
@@ -48,17 +50,17 @@ export function openHome(p) {
   for (const s of SECTIONS.slice(1)) scr.item(s.name, ICON(s.icon), () => s.open(p));
   if (isAdmin(p)) scr.item("제작자 도구", ICON("admin"), () => openAdmin(p));
   chrome(scr, p, "home");
-  scr.select(`${c.color}${p.name}`, ICON(c.icon));
+  scr.select(`${c.color}${p.name}`, ICON(c.icon), true);
   const active = Object.keys(d.q.a).length;
   const pt = P.partyOf(p.id);
   scr.body(rt(
     `§l${c.name}§r  Lv.${d.lv}\n`,
-    d.lv >= MAX_LV ? "§6MAX LEVEL\n" : `§8경험치 §r${d.xp} / ${xpNeed(d.lv)}\n`,
-    `§8골드 §r${d.gold}\n\n`,
-    `§8진행 중 퀘스트 §r${active}개\n`,
-    `§8파티 §r${pt ? pt.name : "없음"}\n`,
-    d.pts ? `\n§2미사용 스탯 포인트 ${d.pts}!\n§8내 정보에서 분배하세요.` : "",
-    `\n\n§8스킬: §r${c.skill.name}\n§8(메뉴북을 웅크린 채 사용)`,
+    d.lv >= MAX_LV ? "§6MAX LEVEL\n" : `§7경험치 §r${d.xp} / ${xpNeed(d.lv)}\n`,
+    `§7골드 §r${d.gold}\n\n`,
+    `§7진행 중 퀘스트 §r${active}개\n`,
+    `§7파티 §r${pt ? pt.name : "없음"}\n`,
+    d.pts ? `\n§2미사용 스탯 포인트 ${d.pts}!\n§7내 정보에서 분배하세요.` : "",
+    `\n\n§7스킬: §r${c.skill.name}\n§7(메뉴북을 웅크린 채 사용)`,
   ));
   scr.action("퀘스트 게시판", () => openQuests(p));
   scr.reopen = () => openHome(p);
@@ -72,13 +74,13 @@ export function openProfile(p, sel = "str") {
   const scr = new Screen("L", "내 정보 / 능력치");
   for (const s of STATS) {
     const total = stat(p, s.id);
-    scr.item(`§l${s.name}§r  ${total}  §8(분배 ${d.stat[s.id]})`, ICON({ str: "class", dex: "archer", int: "mage", vit: "cleric" }[s.id]),
+    scr.item(`§l${s.name}§r  ${total}  §7(분배 ${d.stat[s.id]})`, ICON({ str: "class", dex: "archer", int: "mage", vit: "cleric" }[s.id]),
       () => openProfile(p, s.id), { on: s.id === sel });
   }
   chrome(scr, p, "profile");
   const s = STATS.find((x) => x.id === sel);
-  scr.select(`${s.name} (${stat(p, sel)})`, ICON("profile"));
-  scr.body(`§l${s.name}§r\n${s.desc}\n\n§8분배 포인트: §r${d.stat[sel]}\n§8직업 보너스: §r${stat(p, sel) - d.stat[sel]}\n\n§2남은 포인트: ${d.pts}\n\n§8${c.name} Lv.${d.lv}`);
+  scr.select(`${p.name}`, ICON("profile"), true);
+  scr.body(`§l${s.name}§r\n${s.desc}\n\n§7분배 포인트: §r${d.stat[sel]}\n§7직업 보너스: §r${stat(p, sel) - d.stat[sel]}\n\n§2남은 포인트: ${d.pts}\n\n§7${c.name} Lv.${d.lv}`);
   const spend = (n) => () => {
     n = Math.min(n, d.pts);
     if (n > 0) {
@@ -104,13 +106,13 @@ export function openClass(p, sel) {
   const scr = new Screen("L", "직업");
   for (const [id, c] of Object.entries(CLASSES)) {
     if (id === "novice") continue;
-    scr.item(`${c.color}§l${c.name}§r${d.cls === id ? "  §8[현재]" : ""}\n§8${c.skill.name}`, ICON(c.icon), () => openClass(p, id), { on: id === sel });
+    scr.item(`${c.color}§l${c.name}§r${d.cls === id ? "  §7[현재]" : ""}\n§7${c.skill.name}`, ICON(c.icon), () => openClass(p, id), { on: id === sel });
   }
   chrome(scr, p, "class");
   const c = CLASSES[sel];
   const base = Object.entries(c.base).map(([k, v]) => `${STATS.find((s) => s.id === k).name} +${v}`).join(", ");
   scr.select(`${c.color}${c.name}`, ICON(c.icon));
-  scr.body(`${c.desc}\n\n§8기본 능력치\n§r${base || "-"}\n\n§8스킬: §l${c.skill.name}§r\n${c.skill.desc}\n§8재사용 ${c.skill.cd}초`);
+  scr.body(`${c.desc}\n\n§7기본 능력치\n§r${base || "-"}\n\n§7스킬: §l${c.skill.name}§r\n${c.skill.desc}\n§7재사용 ${c.skill.cd}초`);
   if (d.cls !== sel) {
     const cost = d.cls === "novice" ? 0 : CLASS_CHANGE_COST;
     scr.action(cost ? `전직 (${cost}G)` : "이 직업 선택", () => {
@@ -122,7 +124,7 @@ export function openClass(p, sel) {
       d.cls = sel;
       save(p);
       p.playSound("random.levelup");
-      p.onScreenDisplay.setTitle(`${c.color}§l${c.name}`, { subtitle: "새로운 길을 걷기 시작했다", fadeInDuration: 5, stayDuration: 40, fadeOutDuration: 10 });
+      notify(p, `${c.color}§l${c.name}§r§f 의 길을 걷기 시작했다`);
       return openClass(p, sel);
     });
   }
@@ -141,14 +143,14 @@ function partyBoard(p, sel) {
   const list = P.allParties().filter((x) => x.open);
   sel = sel ?? list[0]?.id;
   for (const x of list.slice(0, 7)) {
-    scr.item(`§l${x.name}§r  §8${x.members.length}/${P.MAX_MEMBERS}\n§8${x.msg}`, ICON("party"), () => partyBoard(p, x.id), { on: x.id === sel });
+    scr.item(`§l${x.name}§r  §7${x.members.length}/${P.MAX_MEMBERS}\n§7${x.msg}`, ICON("party"), () => partyBoard(p, x.id), { on: x.id === sel });
   }
   chrome(scr, p, "party");
   const x = P.getParty(sel);
   if (x) {
     scr.select(x.name, ICON("party"));
     scr.body(
-      `§8모집글\n§r${x.msg}\n\n§8리더 §r${x.names[x.leader]}\n§8최소 레벨 §r${x.minLv}\n§8가입 방식 §r${x.auto ? "자유 가입" : "승인 필요"}\n\n§8멤버\n§r` +
+      `§7모집글\n§r${x.msg}\n\n§7리더 §r${x.names[x.leader]}\n§7최소 레벨 §r${x.minLv}\n§7가입 방식 §r${x.auto ? "자유 가입" : "승인 필요"}\n\n§7멤버\n§r` +
       x.members.map((m) => x.names[m]).join("\n"),
     );
     scr.action(x.auto ? "가입하기" : "가입 신청", () => {
@@ -158,7 +160,7 @@ function partyBoard(p, sel) {
     });
   } else {
     scr.select("모집 중인 파티 없음", ICON("party"));
-    scr.body("§8지금 모집 중인 파티가 없습니다.\n\n직접 파티를 만들고 모집글을 올려 보세요!");
+    scr.body("§7지금 모집 중인 파티가 없습니다.\n\n직접 파티를 만들고 모집글을 올려 보세요!");
   }
   scr.action("파티 만들기", async () => {
     const r = await new ModalFormData().title("파티 만들기").textField("파티 이름", "예) 새벽 원정대", `${p.name}의 파티`).show(p);
@@ -178,14 +180,14 @@ function partyView(p, pt, sel) {
   for (const id of pt.members) {
     const m = byId(id);
     const md = m ? data(m) : null;
-    const line2 = m ? `§8Lv.${md.lv} ${CLASSES[md.cls].name} · §c${Math.ceil(m.getComponent("minecraft:health").currentValue)}♥` : "§8오프라인";
+    const line2 = m ? `§7Lv.${md.lv} ${CLASSES[md.cls].name} · §c${Math.ceil(m.getComponent("minecraft:health").currentValue)}♥` : "§7오프라인";
     scr.item(`${id === pt.leader ? "§6♛ " : ""}§l${pt.names[id]}§r\n${line2}`, ICON(m ? CLASSES[md.cls].icon : "profile"), () => partyView(p, pt, id), { on: id === sel });
   }
   chrome(scr, p, "party");
   scr.select(pt.names[sel], ICON("profile"));
   scr.body(
-    `§8모집글\n§r${pt.msg}\n§8모집 ${pt.open ? "공개" : "비공개"} · ${pt.auto ? "자유 가입" : "승인제"} · 최소 Lv.${pt.minLv}\n\n` +
-    `§8파티 혜택\n§r- 48블록 안 파티원 처치 시\n  경험치 40% 공유\n- 처치 퀘스트 진행 공유\n- 성직자 치유 대상`,
+    `§7모집글\n§r${pt.msg}\n§7모집 ${pt.open ? "공개" : "비공개"} · ${pt.auto ? "자유 가입" : "승인제"} · 최소 Lv.${pt.minLv}\n\n` +
+    `§7파티 혜택\n§r- 48블록 안 파티원 처치 시\n  경험치 40% 공유\n- 처치 퀘스트 진행 공유\n- 성직자 치유 대상`,
   );
   if (leader) {
     if (pt.req.length) scr.action(`가입 요청 (${pt.req.length})`, () => partyRequests(p, pt));
@@ -208,11 +210,11 @@ function partyRequests(p, pt, sel) {
   const scr = new Screen("L", `파티 / 가입 요청`);
   for (const id of pt.req) {
     const m = byId(id);
-    scr.item(`§l${pt.names[id]}§r\n§8${m ? `Lv.${data(m).lv} ${CLASSES[data(m).cls].name}` : "오프라인"}`, ICON("profile"), () => partyRequests(p, pt, id), { on: id === sel });
+    scr.item(`§l${pt.names[id]}§r\n§7${m ? `Lv.${data(m).lv} ${CLASSES[data(m).cls].name}` : "오프라인"}`, ICON("profile"), () => partyRequests(p, pt, id), { on: id === sel });
   }
   chrome(scr, p, "party");
   scr.select(sel ? pt.names[sel] : "요청 없음", ICON("profile"));
-  scr.body(sel ? "가입을 수락하시겠습니까?" : "§8대기 중인 요청이 없습니다.");
+  scr.body(sel ? "가입을 수락하시겠습니까?" : "§7대기 중인 요청이 없습니다.");
   if (sel) {
     scr.action("수락", () => {
       const m = byId(sel);
@@ -247,7 +249,7 @@ async function partyInvite(p, pt) {
 function invitePrompt(t, pt, from) {
   const scr = new Screen("L", "파티 초대");
   scr.select(pt.name, ICON("party"));
-  scr.body(`§e${from}§r 님이\n§l${pt.name}§r 파티에 초대했습니다.\n\n§8멤버 ${pt.members.length}/${P.MAX_MEMBERS}`);
+  scr.body(`§e${from}§r 님이\n§l${pt.name}§r 파티에 초대했습니다.\n\n§7멤버 ${pt.members.length}/${P.MAX_MEMBERS}`);
   scr.action("수락", () => {
     if (P.getParty(pt.id) && P.addMember(pt, t)) return;
     msg(t, "§c파티에 들어갈 수 없습니다.");
@@ -274,16 +276,16 @@ async function partySettings(p, pt) {
 }
 
 // ═════════ 퀘스트 ═════════
-const STATE_TAG = { ready: "§2[완료 가능]", active: "§6[진행 중]", available: "§9[수락 가능]", locked: "§8[잠김]", done: "§8[완료]" };
+const STATE_TAG = { ready: "§2[완료 가능]", active: "§6[진행 중]", available: "§9[수락 가능]", locked: "§7[잠김]", done: "§7[완료]" };
 
 export function questDetailBody(p, q) {
   const st = Q.state(p, q);
-  const lines = [`${STATE_TAG[st]}§r\n`, q.desc ? `${q.desc}\n` : "", "\n§8목표\n"];
+  const lines = [`${STATE_TAG[st]}§r\n`, q.desc ? `${q.desc}\n` : "", "\n§7목표\n"];
   q.obj.forEach((_, i) => lines.push(Q.objLine(p, q, i, st === "active" || st === "ready"), "\n"));
-  lines.push("\n§8보상\n");
+  lines.push("\n§7보상\n");
   Q.rewardLines(q).forEach((l) => lines.push(l, "\n"));
   if (st === "locked") lines.push(`\n§c${Q.lockReason(p, q)}`);
-  if (q.giver !== "board") lines.push(`\n§8의뢰자: ${q.giverName ?? q.giver}`);
+  if (q.giver !== "board") lines.push(`\n§7의뢰자: ${q.giverName ?? q.giver}`);
   return rt(lines);
 }
 
@@ -322,7 +324,7 @@ export function openQuests(p, sel) {
     questActions(scr, p, q, back);
   } else {
     scr.select("퀘스트 없음", ICON("quest"));
-    scr.body("§8지금 받을 수 있는 퀘스트가 없습니다.\n\nNPC에게 말을 걸어 보세요.");
+    scr.body("§7지금 받을 수 있는 퀘스트가 없습니다.\n\nNPC에게 말을 걸어 보세요.");
   }
   scr.action("완료한 퀘스트", () => openDoneQuests(p));
   scr.reopen = () => openQuests(p, sel);
@@ -333,10 +335,10 @@ function openDoneQuests(p) {
   const d = data(p);
   const scr = new Screen("L", "퀘스트 / 완료 기록");
   const done = Object.entries(d.q.d).map(([id, n]) => ({ q: Q.getQuest(id), n })).filter((x) => x.q).slice(0, 7);
-  for (const { q, n } of done) scr.item(`§l${q.title}§r\n§8완료 ${n}회`, ICON("quest"), () => openDoneQuests(p));
+  for (const { q, n } of done) scr.item(`§l${q.title}§r\n§7완료 ${n}회`, ICON("quest"), () => openDoneQuests(p));
   chrome(scr, p, "quest");
   scr.select("완료 기록", ICON("star"));
-  scr.body(`§8총 완료한 퀘스트 §r${Object.keys(d.q.d).length}개`);
+  scr.body(`§7총 완료한 퀘스트 §r${Object.keys(d.q.d).length}개`);
   scr.action("돌아가기", () => openQuests(p));
   return scr.show(p);
 }
@@ -394,18 +396,18 @@ export function openBag(p, cat = "all", selKey, page = 0) {
     const it = sel.it;
     const r = rarity(it);
     const info = weaponInfo(it.typeId);
-    const lines = [`§8${info?.kind ?? CATS.find((c) => c.id === category(it.typeId)).name}\n`];
-    if (info?.atk) lines.push(`\n§8기초 공격력\n§l§0${info.atk}§r\n`);
-    if (info?.def !== undefined && info.def) lines.push(`\n§8방어력\n§l§0${info.def}§r\n`);
-    lines.push(`§6${STARS(r)}§r  §8×${it.amount}\n`);
+    const lines = ["§l§f", itemName(it), "§r\n", `§7${info?.kind ?? CATS.find((c) => c.id === category(it.typeId)).name}\n`];
+    if (info?.atk) lines.push(`\n§7기초 공격력\n§l§f${info.atk}§r\n`);
+    if (info?.def !== undefined && info.def) lines.push(`\n§7방어력\n§l§f${info.def}§r\n`);
+    lines.push(`§6${STARS(r)}§r  §7×${it.amount}\n`);
     const dur = it.getComponent("minecraft:durability");
-    if (dur) lines.push(`§8내구도 §r${dur.maxDurability - dur.damage}/${dur.maxDurability}\n`);
+    if (dur) lines.push(`§7내구도 §r${dur.maxDurability - dur.damage}/${dur.maxDurability}\n`);
     try {
       const en = it.getComponent("minecraft:enchantable")?.getEnchantments() ?? [];
       if (en.length) lines.push("\n§5", en.map((e) => `${ENCH_KO[e.type.id] ?? e.type.id} ${roman(e.level)}`).join("\n"), "\n");
     } catch {}
     const lore = it.getLore();
-    if (lore.length) lines.push("\n§8", lore.join("\n"), "\n");
+    if (lore.length) lines.push("\n§7", lore.join("\n"), "\n");
     if (sel.eq) lines.push(`\n§2${sel.eq.name}에 장착 중`);
     scr.select(rt(itemName(it)), iconOf(it.typeId));
     scr.body(rt(lines));
@@ -444,7 +446,7 @@ export function openBag(p, cat = "all", selKey, page = 0) {
     }
   } else {
     scr.select(catName, ICON(CATS.find((c) => c.id === cat).icon));
-    scr.body("§8이 분류에 아이템이 없습니다.");
+    scr.body("§7이 분류에 아이템이 없습니다.");
   }
   scr.action(`정렬: ${SORTS[sort]}`, () => {
     const keys = Object.keys(SORTS);
@@ -458,11 +460,12 @@ export function openBag(p, cat = "all", selKey, page = 0) {
 }
 
 // ═════════ 상점 ═════════
-export function openShop(p, selIdx = 0, crumb = "상점") {
+/** src: null = 공용 상점, { list, npc } = NPC 전용 상점 */
+export function openShop(p, selIdx = 0, crumb = "상점", src = null) {
   const d = data(p);
-  const list = shopList();
+  const list = src?.list ?? shopList();
   const scr = new Screen("G", crumb);
-  list.slice(0, 30).forEach((e, i) => scr.item(`${e.price}G`, iconOf(e.id), () => openShop(p, i, crumb), { on: i === selIdx, rarity: rarity({ typeId: e.id, getComponent: () => undefined }) }));
+  list.slice(0, 30).forEach((e, i) => scr.item(`${e.price}G`, iconOf(e.id), () => openShop(p, i, crumb, src), { on: i === selIdx, rarity: rarity({ typeId: e.id, getComponent: () => undefined }) }));
   chrome(scr, p, "shop");
   const e = list[selIdx];
   if (e) {
@@ -470,10 +473,10 @@ export function openShop(p, selIdx = 0, crumb = "상점") {
     scr.select(rt(itemName(e.id), e.n > 1 ? ` ×${e.n}` : ""), iconOf(e.id));
     const info = weaponInfo(e.id);
     scr.body(rt(
-      `§8${info?.kind ?? CATS.find((c) => c.id === category(e.id)).name}\n`,
-      info?.atk ? `\n§8기초 공격력 §r${info.atk}\n` : "",
-      info?.def ? `\n§8방어력 §r${info.def}\n` : "",
-      `\n§8가격 §6${e.price}G §8(${e.n}개)\n§8판매가 §r${sellPrice(e)}G/개\n\n§8보유 §r${owned}개\n§8내 골드 §6${d.gold}G`,
+      `§7${info?.kind ?? CATS.find((c) => c.id === category(e.id)).name}\n`,
+      info?.atk ? `\n§7기초 공격력 §r${info.atk}\n` : "",
+      info?.def ? `\n§7방어력 §r${info.def}\n` : "",
+      `\n§7가격 §6${e.price}G §7(${e.n}개)\n§7판매가 §r${sellPrice(e)}G/개\n\n§7보유 §r${owned}개\n§7내 골드 §6${d.gold}G`,
     ));
     const buy = (times) => () => {
       const cost = e.price * times;
@@ -484,7 +487,7 @@ export function openShop(p, selIdx = 0, crumb = "상점") {
         addGold(p, -cost);
         p.playSound("random.orb");
       }
-      return openShop(p, selIdx, crumb);
+      return openShop(p, selIdx, crumb, src);
     };
     scr.action(`구매 (${e.price}G)`, buy(1));
     scr.action(`5번 구매 (${e.price * 5}G)`, buy(5));
@@ -492,19 +495,19 @@ export function openShop(p, selIdx = 0, crumb = "상점") {
       scr.action(`1개 판매 (+${sellPrice(e)}G)`, () => {
         if (removeItem(p, e.id, 1)) addGold(p, sellPrice(e));
         p.playSound("random.orb", { pitch: 1.5 });
-        return openShop(p, selIdx, crumb);
+        return openShop(p, selIdx, crumb, src);
       });
       scr.action(`전부 판매 (+${sellPrice(e) * owned}G)`, () => {
         if (removeItem(p, e.id, owned)) addGold(p, sellPrice(e) * owned);
         p.playSound("random.orb", { pitch: 1.5 });
-        return openShop(p, selIdx, crumb);
+        return openShop(p, selIdx, crumb, src);
       });
     }
   } else {
     scr.select("상점", ICON("shop"));
-    scr.body("§8판매 중인 물건이 없습니다.");
+    scr.body("§7판매 중인 물건이 없습니다.");
   }
-  scr.reopen = () => openShop(p, selIdx, crumb);
+  scr.reopen = () => openShop(p, selIdx, crumb, src);
   return scr.show(p);
 }
 
@@ -516,42 +519,92 @@ export async function openSettings(p) {
     .toggle("퀘스트창 표시 (HUD 오른쪽)", d.set.quest)
     .toggle("캐릭터 카드 표시 (HUD 왼쪽)", d.set.card)
     .toggle("파티 초대 받기", d.set.invite)
+    .toggle("HUD 메뉴/스킬 버튼 사용 (핫바 9·8번 칸 고정)", d.set.slots !== false)
     .show(p);
   if (!r.canceled) {
-    [d.set.quest, d.set.card, d.set.invite] = r.formValues;
+    [d.set.quest, d.set.card, d.set.invite, d.set.slots] = r.formValues;
     save(p);
   }
   return openHome(p);
 }
 
-// ═════════ NPC 대화 ═════════
-export function openNpc(p, npc, sel) {
-  const npcId = npc.getDynamicProperty("rpg:npc_id") ?? "npc";
-  const name = npc.nameTag || "NPC";
-  if ((npc.getDynamicProperty("rpg:role") ?? "quest") === "shop") return openShop(p, 0, `${name} / 상점`);
+// ═════════ 채팅 ═════════
+function fmtTime(t) {
+  const d = new Date(t);
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
 
-  const talked = Q.onTalk(p, npcId);
-  const list = Q.allQuests()
-    .filter((q) => q.giver === npcId)
-    .map((q) => ({ q, st: Q.state(p, q) }))
-    .filter((x) => x.st !== "done" && x.st !== "locked");
-  sel = sel ?? list[0]?.q.id;
-  const scr = new Screen("L", `${name} / 대화`);
-  for (const { q, st } of list) scr.item(`§l${q.title}§r\n${STATE_TAG[st]}`, ICON("quest"), () => openNpc(p, npc, q.id), { on: q.id === sel });
-  chips(scr, p);
-  scr.tab("메뉴", ICON("back"), () => openHome(p));
-  const q = Q.getQuest(sel);
-  if (q) {
-    scr.select(q.title, ICON("npc"));
-    scr.body(questDetailBody(p, q));
-    const back = (id) => openNpc(p, npc, id ?? sel);
-    back.npc = npcId;
-    questActions(scr, p, q, back);
-  } else {
-    scr.select(name, ICON("npc"));
-    scr.body(rt(npc.getDynamicProperty("rpg:greet") ?? "안녕하신가, 모험가.", talked ? "\n\n§2(대화 목표 달성)" : ""));
+export function openChat(p, ch = "global") {
+  const list = CH.channels(p);
+  if (!list.find((c) => c.ch === ch)) ch = "global";
+  CH.markSeen(p, ch);
+  const cur = list.find((c) => c.ch === ch);
+  const scr = new Screen("L", `채팅 / ${cur.name}`);
+  for (const c of list.slice(0, 7)) {
+    const n = CH.unread(p, c.ch);
+    scr.item(`§f${c.name}${n ? `  §d§l● ${n}` : ""}`, ICON(c.icon), () => openChat(p, c.ch), { on: c.ch === ch });
   }
-  scr.action("작별 인사", () => {});
-  scr.reopen = () => openNpc(p, npc, sel);
+  chrome(scr, p, "chat");
+  scr.select(cur.name, ICON(cur.icon));
+  const msgs = CH.log(ch).slice(-14);
+  scr.body(msgs.length
+    ? msgs.map((m) => `§7${fmtTime(m.t)} ${m.from === p.id ? "§a" : "§e"}§l${m.name}§r§7: §f${m.text}`).join("\n")
+    : "§7아직 메시지가 없습니다.\n\n아래 '메시지 보내기'로 대화를 시작하세요.");
+  scr.action("✎ 메시지 보내기", async () => {
+    const r = await new ModalFormData().title(cur.name).textField("메시지", "내용 입력", "").show(p);
+    if (!r.canceled) CH.send(p, ch, r.formValues[0]);
+    return openChat(p, ch);
+  });
+  scr.action("새 1:1 대화", async () => {
+    const others = world.getAllPlayers().filter((x) => x.id !== p.id);
+    if (!others.length) {
+      msg(p, "§7접속 중인 다른 플레이어가 없습니다.");
+      return openChat(p, ch);
+    }
+    const r = await new ModalFormData().title("1:1 대화").dropdown("상대", others.map((x) => x.name), 0).show(p);
+    if (r.canceled) return openChat(p, ch);
+    return openChat(p, CH.openDm(p, others[r.formValues[0]]));
+  });
+  scr.action("채팅방 만들기 / 참가", () => openRooms(p));
+  if (ch.startsWith("room:")) scr.action("§c채팅방 나가기", () => { CH.leaveRoom(p, ch.slice(5)); return openChat(p); });
+  if (cur.to) scr.action("1:1 대화 닫기", () => { CH.closeDm(p, cur.to); return openChat(p); });
+  scr.reopen = () => openChat(p, ch);
+  return scr.show(p);
+}
+
+function openRooms(p, sel) {
+  const rooms = CH.allRooms();
+  sel = sel ?? rooms[0]?.name;
+  const scr = new Screen("L", "채팅 / 채팅방");
+  for (const r of rooms.slice(0, 7)) {
+    scr.item(`§f# ${r.name}${r.pw ? " §7(비공개)" : ""}\n§7${r.members.length}명 · 방장 ${r.names[r.owner] ?? "?"}`, ICON("room"), () => openRooms(p, r.name), { on: r.name === sel });
+  }
+  chrome(scr, p, "chat");
+  const r = rooms.find((x) => x.name === sel);
+  scr.select(r ? `# ${r.name}` : "채팅방", ICON("room"));
+  scr.body(r ? `§7멤버\n§f${r.members.map((m) => r.names[m]).join(", ")}${r.pw ? "\n\n§7비밀번호가 걸린 방입니다." : ""}` : "§7열린 채팅방이 없습니다.\n새로 만들어 보세요!");
+  if (r && !r.members.includes(p.id)) scr.action("참가하기", async () => {
+    let pw = "";
+    if (r.pw) {
+      const f = await new ModalFormData().title(`# ${r.name}`).textField("비밀번호", "", "").show(p);
+      if (f.canceled) return openRooms(p, sel);
+      pw = String(f.formValues[0]);
+    }
+    const res = CH.joinRoom(p, r.name, pw);
+    if (res === "pw") msg(p, "§c비밀번호가 틀렸습니다.");
+    return res === "ok" ? openChat(p, `room:${r.name}`) : openRooms(p, sel);
+  });
+  if (r?.members.includes(p.id)) scr.action("입장", () => openChat(p, `room:${r.name}`));
+  scr.action("새 채팅방 만들기", async () => {
+    const f = await new ModalFormData().title("채팅방 만들기").textField("방 이름 (최대 16자)", "예) 던전 공략", "").textField("비밀번호 (비우면 공개)", "", "").show(p);
+    if (f.canceled) return openRooms(p, sel);
+    const name = String(f.formValues[0]).trim().slice(0, 16);
+    if (!CH.createRoom(p, name, String(f.formValues[1]))) {
+      msg(p, "§c만들 수 없는 이름이거나 이미 있는 방입니다.");
+      return openRooms(p, sel);
+    }
+    return openChat(p, `room:${name}`);
+  });
+  scr.action("돌아가기", () => openChat(p));
   return scr.show(p);
 }

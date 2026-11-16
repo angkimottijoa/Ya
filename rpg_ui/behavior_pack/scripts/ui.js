@@ -15,7 +15,7 @@ export function rt(...parts) {
 }
 
 export class Screen {
-  /** mode: "G" 그리드 | "H" 타일 | "L" 리스트 */
+  /** mode: "G" 그리드 | "H" 타일 | "L" 리스트 | "D" NPC 대화창 */
   constructor(mode, crumb) {
     this.mode = mode;
     this.crumb = crumb;
@@ -39,8 +39,9 @@ export class Screen {
     this.chips.push({ text, icon });
     return this;
   }
-  select(text, icon) {
-    this.sel = { text, icon };
+  /** 상세 카드 헤더. doll=true 면 아이콘 대신 내 캐릭터 3D */
+  select(text, icon, doll = false) {
+    this.sel = { text, icon, doll };
     return this;
   }
   body(b) {
@@ -53,16 +54,17 @@ export class Screen {
   }
 
   async show(player, tries = 0) {
-    const f = new ActionFormData().title(`[RPG:${this.mode}]${this.crumb}`).body(rt(this.bodyText));
+    const f = new ActionFormData().title(`[RPG:${this.mode}]§l${this.crumb}`).body(rt(this.bodyText));
     const handlers = [];
+    // §r: 글자가 숫자로 시작하면 UI 식에서 숫자로 바뀌어 안 보이는 문제 방지 / §l: 굵게
     const add = (marker, e, fn) => {
-      f.button(rt(marker, e.text), e.icon || undefined);
+      f.button(rt(marker, "§r§l", e.text), e.icon || undefined);
       handlers.push(fn ?? null);
     };
     for (const it of this.items) add(`[I]${it.on ? "[ON]" : ""}${it.rarity ? `[R${it.rarity}]` : ""}`, it, it.fn);
     for (const t of this.tabs) add(`[T]${t.on ? "[ON]" : ""}`, t, t.fn);
     for (const c of this.chips) add("[C]", c, null);
-    if (this.sel) add("[S]", this.sel, null);
+    if (this.sel) add(this.sel.doll ? "[S][P]" : "[S]", this.sel, null);
     for (const a of this.actions) add("[A]", { text: a.text }, a.fn);
 
     const res = await f.show(player);

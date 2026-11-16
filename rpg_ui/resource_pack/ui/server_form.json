@@ -1,6 +1,11 @@
 {
   "namespace": "server_form",
 
+  // 화면 열고 닫을 때의 슬라이드/페이드 애니메이션 제거 → 버튼 누를 때 딜레이 감소
+  "third_party_server_screen": {
+    "$screen_animations": []
+  },
+
   // 서버 폼(ActionFormData)을 RPG 라우터로 보낸다.
   // 제목에 [RPG:*] 플래그가 없으면 바닐라 레이아웃 그대로(텍스처만 테마 적용).
   "main_screen_content": {

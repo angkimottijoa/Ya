@@ -3,12 +3,48 @@
   "render_controllers": {
     "controller.render.rpg_npc": {
       "arrays": {
-        "textures": { "Array.skins": [ "Texture.steve", "Texture.alex" ] },
-        "geometries": { "Array.geos": [ "Geometry.wide", "Geometry.slim" ] }
+        "textures": {
+          "Array.skins": [
+            "Texture.steve",
+            "Texture.alex",
+            "Texture.knight",
+            "Texture.merchant",
+            "Texture.mage",
+            "Texture.cleric",
+            "Texture.smith",
+            "Texture.guard",
+            "Texture.custom_1",
+            "Texture.custom_2",
+            "Texture.custom_3",
+            "Texture.custom_4"
+          ]
+        },
+        "geometries": {
+          "Array.geos": [
+            "Geometry.wide",
+            "Geometry.slim",
+            "Geometry.wide",
+            "Geometry.slim",
+            "Geometry.wide",
+            "Geometry.slim",
+            "Geometry.wide",
+            "Geometry.wide",
+            "Geometry.wide",
+            "Geometry.wide",
+            "Geometry.wide",
+            "Geometry.wide"
+          ]
+        }
       },
       "geometry": "Array.geos[q.property('rpg:skin')]",
-      "materials": [ { "*": "Material.default" } ],
-      "textures": [ "Array.skins[q.property('rpg:skin')]" ]
+      "materials": [
+        {
+          "*": "Material.default"
+        }
+      ],
+      "textures": [
+        "Array.skins[q.property('rpg:skin')]"
+      ]
     }
   }
 }

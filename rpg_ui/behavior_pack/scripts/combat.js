@@ -1,6 +1,6 @@
 // 전투: 스탯 보너스(힘/민첩), 킬 보상, 파티 경험치 공유, 직업 스킬, 지속 스탯 효과
 import { world, system, EntityDamageCause } from "@minecraft/server";
-import { data, stat, addXp, addGold, msg } from "./player.js";
+import { data, stat, addXp, addGold, msg, notify } from "./player.js";
 import { CLASSES } from "./classes.js";
 import { nearbyMembers } from "./party.js";
 import * as Q from "./quests.js";
@@ -119,7 +119,7 @@ export function castSkill(p) {
   const c = CLASSES[d.cls] ?? CLASSES.novice;
   const left = skillReadyIn(p);
   if (left > 0) {
-    p.onScreenDisplay.setTitle(" ", { subtitle: `§7${c.skill.name} 재사용 대기 ${Math.ceil(left)}초`, fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 5 });
+    notify(p, `§7${c.skill.name} 재사용 대기 §f${Math.ceil(left)}초`);
     return;
   }
   const int = stat(p, "int");
@@ -197,5 +197,5 @@ export function castSkill(p) {
       p.playSound("random.orb");
     }
   }
-  p.onScreenDisplay.setTitle(" ", { subtitle: `${c.color}${c.skill.name}!`, fadeInDuration: 0, stayDuration: 15, fadeOutDuration: 5 });
+  notify(p, `${c.color}§l${c.skill.name}!`);
 }

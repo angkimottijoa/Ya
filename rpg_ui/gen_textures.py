@@ -425,6 +425,49 @@ ICONS = {
     ],
 }
 
+ICONS["chat"] = [
+    "............",
+    ".gggggggggg.",
+    "gccccccccccg",
+    "gcckcckcckcg",
+    "gccccccccccg",
+    "gccccccccccg",
+    ".gggccggggg.",
+    "...gcg......",
+    "...gg.......",
+    "..g.........",
+    "............",
+    "............",
+]
+ICONS["room"] = [
+    "..gggggggg..",
+    ".gccccccccg.",
+    ".gcbbbbbbcg.",
+    ".gccccccccg.",
+    ".gcbbbbcccg.",
+    ".gccccccccg.",
+    ".gggggggggg.",
+    "...gg..gg...",
+    "..gccggccg..",
+    "..gccggccg..",
+    "...gg..gg...",
+    "............",
+]
+ICONS["dm"] = [
+    "............",
+    "gggggggggggg",
+    "gGccccccccGg",
+    "gcGccccccGcg",
+    "gccGccccGccg",
+    "gcccGccGcccg",
+    "gccccGGccccg",
+    "gccccccccccg",
+    "gccccccccccg",
+    "gggggggggggg",
+    "............",
+    "............",
+]
+
 # 직업 아이콘
 ICONS["warrior"] = ICONS["class"]
 ICONS["archer"] = [
@@ -488,7 +531,25 @@ def rpg_textures():
     save(vgrad((4, 4), (130, 220, 120), (60, 150, 70)), RPG / "xp_fill.png")
 
     # 메뉴 화면 공통
-    save(Image.new("RGBA", (1, 1), P["dim"]), RPG / "screen_bg.png")
+    save(Image.new("RGBA", (1, 1), (8, 10, 18, 215)), RPG / "screen_bg.png")
+    save(frame((16, 16), (20, 24, 38, 235), (52, 58, 84, 255), None, radius=1), RPG / "content_bg.png", 4)
+
+    # 대화창 (하단 그라데이션 + 금색 장식선 + 선택지 알약)
+    dg = Image.new("RGBA", (4, 64))
+    for y in range(64):
+        a = int(235 * min(1, (y / 63) ** 0.8))
+        for x in range(4):
+            dg.putpixel((x, y), (6, 8, 14, a))
+    save(dg, RPG / "dlg_bg.png")
+    line = Image.new("RGBA", (64, 5), (0, 0, 0, 0))
+    d = ImageDraw.Draw(line)
+    d.line([(0, 2), (63, 2)], fill=P["gold_dark"])
+    d.line([(8, 2), (55, 2)], fill=P["gold"])
+    d.polygon([(32, 0), (34, 2), (32, 4), (30, 2)], fill=P["gold_light"])
+    save(line, RPG / "dlg_line.png")
+    save(frame((24, 16), (24, 26, 36, 200), (90, 92, 110, 200), None, radius=6), RPG / "choice_default.png", 7)
+    save(frame((24, 16), (60, 54, 34, 225), P["gold"], None, radius=6), RPG / "choice_hover.png", 7)
+    save(frame((24, 16), (12, 12, 18, 230), P["gold_dark"], None, radius=6), RPG / "choice_pressed.png", 7)
     rail = frame((16, 16), P["navy"], None, None, notch=False)
     d = ImageDraw.Draw(rail)
     d.line([(15, 0), (15, 15)], fill=P["gold_dark"])
@@ -530,27 +591,31 @@ def rpg_textures():
     save(frame((24, 24), (64, 60, 100, 240), P["gold"], P["gold_dark"], radius=2), RPG / "tile_hover.png", 6)
     save(frame((24, 24), (20, 22, 36, 245), P["gold_dark"], None, radius=2), RPG / "tile_pressed.png", 6)
 
-    # 리스트 행
-    save(frame((16, 16), (34, 38, 60, 215), (60, 64, 92, 255), None, radius=1), RPG / "row_default.png", 4)
-    save(frame((16, 16), (60, 60, 96, 235), P["gold"], None, radius=1), RPG / "row_hover.png", 4)
-    save(frame((16, 16), P["cream"], P["gold"], None, radius=1), RPG / "row_on.png", 4)
+    # 리스트 행 (항상 밝은 글자: 어두운 바탕 / 선택은 금빛 바탕)
+    save(frame((16, 16), (30, 34, 52, 240), (58, 64, 92, 255), None, radius=1), RPG / "row_default.png", 4)
+    save(frame((16, 16), (48, 52, 80, 245), P["gold"], None, radius=1), RPG / "row_hover.png", 4)
+    on = frame((16, 16), (74, 60, 30, 245), P["gold_light"], P["gold"], radius=1)
+    ImageDraw.Draw(on).line([(2, 2), (2, 13)], fill=P["gold_light"])
+    save(on, RPG / "row_on.png", 4)
 
-    # 상세 카드: 헤더(남색 그라데이션) / 본문(양피지)
-    head = vgrad((16, 16), (74, 80, 110), (44, 48, 72), 245)
+    # 상세 카드: 헤더(남색 그라데이션) / 본문(진한 남색 – 밝은 글자가 잘 보이도록)
+    head = vgrad((16, 16), (70, 76, 108), (36, 40, 62), 250)
     d = ImageDraw.Draw(head)
     d.line([(0, 0), (15, 0)], fill=(150, 156, 186, 255))
     save(head, RPG / "card_head.png", 4)
-    save(frame((16, 16), P["cream"], None, None, notch=False), RPG / "card_body.png", 4)
-    save(frame((16, 12), P["navy_light"], P["gold_dark"], None, notch=False), RPG / "card_title.png", 3)
+    body = frame((16, 16), (22, 25, 40, 245), None, None, notch=False)
+    ImageDraw.Draw(body).line([(0, 15), (15, 15)], fill=P["gold_dark"])
+    save(body, RPG / "card_body.png", 4)
+    save(frame((16, 12), (16, 18, 30, 235), P["gold_dark"], None, notch=False), RPG / "card_title.png", 3)
 
-    # 액션 버튼 (양피지 알약, 원형 아이콘 자리)
-    save(frame((24, 16), P["cream"], P["cream_line"], None, radius=4), RPG / "action_default.png", 6)
-    save(frame((24, 16), (255, 248, 230, 255), P["gold"], None, radius=4), RPG / "action_hover.png", 6)
-    save(frame((24, 16), P["cream_dark"], P["cream_line"], None, radius=4), RPG / "action_pressed.png", 6)
+    # 액션 버튼 (남색 알약 + 금테, 호버 시 금빛)
+    save(frame((24, 16), (40, 44, 68, 245), P["gold_dark"], None, radius=4), RPG / "action_default.png", 6)
+    save(frame((24, 16), (92, 74, 36, 250), P["gold_light"], P["gold"], radius=4), RPG / "action_hover.png", 6)
+    save(frame((24, 16), (20, 22, 34, 250), P["gold_dark"], None, radius=4), RPG / "action_pressed.png", 6)
     dot = Image.new("RGBA", (10, 10), (0, 0, 0, 0))
     d = ImageDraw.Draw(dot)
-    d.ellipse([0, 0, 9, 9], fill=P["ink"])
-    d.ellipse([2, 2, 7, 7], outline=P["gold"])
+    d.ellipse([0, 0, 9, 9], fill=P["gold_dark"])
+    d.ellipse([2, 2, 7, 7], fill=P["gold_light"])
     save(dot, RPG / "action_dot.png")
 
     # 아이콘
@@ -657,6 +722,9 @@ def item_icons():
         "................",
     ]
     save(ascii_icon(tool, big), ITEMS / "quest_tool.png")
+    sk = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    sk.paste(ascii_icon(ICONS["skill"], big), (2, 2))
+    save(sk, ITEMS / "skill.png")
 
 
 def main():

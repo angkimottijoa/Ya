@@ -3,10 +3,22 @@
   "minecraft:client_entity": {
     "description": {
       "identifier": "rpg:npc",
-      "materials": { "default": "entity_alphatest" },
+      "materials": {
+        "default": "entity_alphatest"
+      },
       "textures": {
         "steve": "textures/entity/steve",
-        "alex": "textures/entity/alex"
+        "alex": "textures/entity/alex",
+        "knight": "textures/entity/rpg_npc/knight",
+        "merchant": "textures/entity/rpg_npc/merchant",
+        "mage": "textures/entity/rpg_npc/mage",
+        "cleric": "textures/entity/rpg_npc/cleric",
+        "smith": "textures/entity/rpg_npc/smith",
+        "guard": "textures/entity/rpg_npc/guard",
+        "custom_1": "textures/entity/rpg_npc/custom_1",
+        "custom_2": "textures/entity/rpg_npc/custom_2",
+        "custom_3": "textures/entity/rpg_npc/custom_3",
+        "custom_4": "textures/entity/rpg_npc/custom_4"
       },
       "geometry": {
         "wide": "geometry.humanoid.custom",
@@ -15,9 +27,18 @@
       "animations": {
         "look_at_target": "animation.humanoid.look_at_target.default"
       },
-      "scripts": { "animate": [ "look_at_target" ] },
-      "render_controllers": [ "controller.render.rpg_npc" ],
-      "spawn_egg": { "base_color": "#181c2e", "overlay_color": "#d6ac52" }
+      "scripts": {
+        "animate": [
+          "look_at_target"
+        ]
+      },
+      "render_controllers": [
+        "controller.render.rpg_npc"
+      ],
+      "spawn_egg": {
+        "base_color": "#181c2e",
+        "overlay_color": "#d6ac52"
+      }
     }
   }
 }

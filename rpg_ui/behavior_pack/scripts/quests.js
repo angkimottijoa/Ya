@@ -1,7 +1,7 @@
 // 퀘스트 엔진: 정의 저장(월드), 진행(플레이어), 목표 판정, 보상
 import { world } from "@minecraft/server";
 import { getJSON, setJSON } from "./db.js";
-import { data, save, addXp, addGold, msg } from "./player.js";
+import { data, save, addXp, addGold, msg, notify } from "./player.js";
 import { CLASSES } from "./classes.js";
 import { itemName, entityName, countItem, removeItem, giveItem } from "./itemdb.js";
 import { rt } from "./ui.js";
@@ -166,7 +166,7 @@ export function accept(p, id) {
   d.q.track = d.q.track.slice(0, 3);
   save(p);
   p.playSound("random.pop", { pitch: 0.8 });
-  p.onScreenDisplay.setTitle("§e퀘스트 수락", { subtitle: q.title, fadeInDuration: 5, stayDuration: 30, fadeOutDuration: 10 });
+  notify(p, `§e§l퀘스트 수락 §r§f${q.title}`);
   checkAutoComplete(p, q);
   return true;
 }
@@ -198,7 +198,7 @@ export function turnIn(p, id) {
   for (const it of q.rw.items ?? []) giveItem(p, it.id, it.n);
   addXp(p, q.rw.xp ?? 0, true);
   p.playSound("random.levelup", { pitch: 1.2 });
-  p.onScreenDisplay.setTitle("§6§l퀘스트 완료", { subtitle: q.title, fadeInDuration: 5, stayDuration: 40, fadeOutDuration: 10 });
+  notify(p, `§6§l퀘스트 완료 §r§f${q.title}`);
   p.sendMessage(rt("§6[Arcania]§r 보상: ", ...rewardLines(q).flatMap((l, i) => (i ? [" §7| ", l] : [l]))));
   return true;
 }
@@ -211,10 +211,7 @@ function checkAutoComplete(p, q) {
     data(p).q.a[q.id].notified = true;
     save(p);
     p.playSound("note.pling", { pitch: 1.5 });
-    p.onScreenDisplay.setTitle("§a목표 달성", {
-      subtitle: `${q.title} §7- ${q.turnIn === "auto" ? "메뉴에서 완료하세요" : "의뢰자에게 보고하세요"}`,
-      fadeInDuration: 5, stayDuration: 40, fadeOutDuration: 10,
-    });
+    notify(p, `§a§l목표 달성 §r§f${q.title} §7- ${q.turnIn === "auto" ? "메뉴에서 완료하세요" : "의뢰자에게 보고하세요"}`);
   }
 }
 
