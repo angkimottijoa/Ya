@@ -568,7 +568,35 @@ function dragonDiveMain(ctx, hit) {
     const f = fwdOf(yw), rx = -Math.cos((yw * Math.PI) / 180), rz = -Math.sin((yw * Math.PI) / 180);
     return { x: p.location.x + f.x * 1.2 + rx * SIDE, y: p.location.y + dy, z: p.location.z + f.z * 1.2 + rz * SIDE };
   };
-  const draw = (at, pitch, grow, life = 0.2) => pt(dim, "cr_bighead", at, { yaw: yawS, pitch, n: 3800, life, scale: 1.1 * grow });
+  // 그림 목(왼쪽 끝) 뒤로 이어지는 물결 몸통: 그림과 같은 면(yaw·pitch)에서 헤엄치듯 꿈틀, 꼬리로 갈수록 가늘어짐
+  let tick0 = 0;
+  const tail = (at, pitch, grow) => {
+    const sc = 1.1 * grow, hd = { yaw: yawS, pitch };
+    const NECK_X = -180 * 0.048, NECK_Y = 24 * 0.048, R0 = 20 * 0.048; // 그림 좌표 → 블록 (scale 1 기준)
+    const L = 15, seg = 22, tt = tick0;
+    const spine = [];
+    for (let k = 0; k <= seg; k++) {
+      const sd = (k / seg) * L, env = Math.min(1, sd / 3);
+      const lx = NECK_X - sd + Math.sin((sd * 18 - tt * 26) * Math.PI / 180) * 0.4 * env;
+      const ly = NECK_Y + Math.sin((sd * 24 - tt * 30) * Math.PI / 180) * 1.1 * env - sd * 0.06;
+      const lz = Math.sin((sd * 17 - tt * 22) * Math.PI / 180) * 1.5 * env;
+      spine.push(headPt(at, hd, lx, ly, lz, sc));
+    }
+    for (let k = 1; k <= seg; k++) {
+      const a = spine[k - 1], b = spine[k], q = k / seg;
+      const d = norm(sub(b, a)), u = norm(Math.abs(d.y) > 0.95 ? cross(d, { x: 1, y: 0, z: 0 }) : cross(d, { x: 0, y: 1, z: 0 }));
+      pt(dim, "cr_tube", b, { u, v: cross(u, d), r: R0 * sc * (1 - q * 0.82), n: Math.round(34 * (1 - q * 0.5)), life: 0.16 });
+      if (k % 4 === tt % 4) pt(dim, "cr_snow", b, { n: 2, r: R0 * sc * (1.2 - q) });
+      if (k % 6 === tt % 6) cluster(dim, b, { n: 4, r: 0.4, spd: 1.2, tone: 0.2 });
+    }
+    // 꼬리 끝 물보라
+    if (tt % 2 === 0) cluster(dim, spine[seg], { n: 8, r: 0.3, spd: 2.5, tone: 0.1 });
+  };
+  const draw = (at, pitch, grow, life = 0.2) => {
+    pt(dim, "cr_bighead", at, { yaw: yawS, pitch, n: 3800, life, scale: 1.1 * grow });
+    tail(at, pitch, grow);
+    tick0++;
+  };
   const land = () => {
     const ff = fwdOf(yawS);
     G = { ...p.location };
