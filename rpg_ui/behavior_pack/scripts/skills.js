@@ -11,7 +11,9 @@ import * as J from "./jobs.js";
 import * as M from "./ms.js";
 import * as SB from "./spellbook.js";
 import * as MSR from "./msrun.js";
-import { WEAPON_SKILLS } from "./cheongryong.js";
+import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
+import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
+const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS };
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
