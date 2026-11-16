@@ -1,0 +1,867 @@
+#무지개떡볶이 만듬 2차수정은 가능하지만 2차배포는 안됩니다.
+
+predefined-items: 
+    도사: 
+        type: "268:1" 
+        name: '&f도사의 &7부채'
+        lore:
+          - "&f설명 넣어주시고 밑에거는 지우셔도 됩니다!"
+          - "&8made by 무지개떡볶이"
+        unbreakable: true
+        attributes:   
+            attr1: "generic.attackDamage 10 add mainhand"
+            
+#---쉬프트 + 쉬프트---#
+
+도사_SS_passive1:
+    spell-class: ".PassiveSpell"
+    always-granted: true
+    triggers:
+        - stopsneak
+    modifiers:
+        - holding 268:1 required
+    spells:
+        - 도사_SS_dummy
+
+도사_SS_dummy:    
+    spell-class: ".buff.DummySpell"     
+    duration: 0.5
+
+도사_SS_passive2:
+    spell-class: ".PassiveSpell"
+    always-granted: true
+    triggers:
+        - sneak
+    modifiers:
+        - holding 268:1 required
+        - buffactive 도사_SS_dummy required
+    spells:
+        - 도사_SS_Invisibility(mode=full)
+    send-failure-messages: true
+        
+도사_SS_Invisibility: 
+    spell-class: ".buff.InvisibilitySpell"
+    cooldown: 240
+    toggle: false
+    prevent-pickups: flase
+    cancel-on-give-damage: true
+    cancel-on-logout: true
+    cancel-on-spell-cast: false
+    duration: 10
+    str-fade: "&f《 도사 》 은신이 해제되었습니다."
+    effects:
+      1:
+        effect: particles
+        position: caster
+        particle-name: cloud
+        speed: 0.1
+        count: 20
+        horiz-spread: 1
+        vert-spread: 1
+        forward-offset: 0
+        y-offset: 1
+      2:
+        effect: particles
+        position: disabled
+        particle-name: cloud
+        speed: 0.5
+        count: 15
+        horiz-spread: 0.5
+        vert-spread: 0.5
+        forward-offset: 0
+        y-offset: 1
+      3:
+        effect: particles
+        position: disabled
+        particle-name: blockdust_95_0
+        speed: 0.5
+        count: 15
+        horiz-spread: 0.5
+        vert-spread: 0.5
+        forward-offset: 0
+        y-offset: 1
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.zombie_villager.converted
+        volume: 1
+        pitch: 2
+      s2:
+        position: disabled
+        effect: sound
+        sound: entity.zombie_villager.remedy
+        volume: 0.5
+        pitch: 2
+      s3:
+        position: disabled
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 1
+        pitch: 1
+        
+#---패시브---#
+
+도사_P_passive:
+    spell-class: ".PassiveSpell"
+    always-granted: true
+    triggers:
+        - kill
+    modifiers:
+        - hasitem 268:1 required
+    spells:
+        - 도사_P_Potion
+        
+도사_P_Potion:    
+    spell-class: ".targeted.PotionEffectSpell"
+    type: 5
+    strength: 1
+    duration: 60
+    targeted: false
+    effects:
+      1:
+        position: caster
+        effect: effectlibentity
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.5cos(0.1t)"
+            yEquation: "0.1"
+            zEquation: "1.5sin(0.1t)"
+            duration: 3000
+            particle: CLOUD
+            particles: 10
+            cycle: false
+            color: FF0000
+            speed: 0.05
+            orient: true
+            orientPitch: false
+            
+#---우클릭---#
+
+도사_R_M:
+    spell-class: ".MultiSpell" 
+    always-granted: true  
+    right-click-cast-item: 도사
+    modifiers:
+        - sneaking castinstead 도사_SR_M
+    cooldown: 10
+    spells:
+        - 도사_R_pp
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "sin(0.02t)rand(-4,4) + 6sin(0.02t)"
+            yEquation: "1"
+            zEquation: "cos(0.02t)rand(-4,4) + 6cos(0.02t)"
+            duration: 240
+            particle: CLOUD
+            particles: 40
+            cycle: false
+            color: FF0000
+            speed: 0.1
+            orient: true
+            orientPitch: true
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 1
+        pitch: 0.6
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.bat.takeoff
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.zombie_villager.cure
+        volume: 1
+        pitch: 2
+        
+도사_R_pp:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 3
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: false
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 20
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: true
+    hit-ground: true
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 1
+    start-forward-offset: 0
+    max-distance: 0
+    max-duration: 0
+    spell: 도사_R_area
+    
+도사_R_area:
+    spell-class: ".targeted.AreaEffectSpell"    
+    horizontal-radius: 6
+    vertical-radius: 6
+    point-blank: true  
+    target-players: true    
+    target-non-players: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    spells:    
+        - 도사_R_P
+        
+도사_R_P:       
+    spell-class: ".targeted.PainSpell"     
+    damage: 6
+    
+#---쉬프트 + 좌클릭---#
+
+도사_SL_M:
+    spell-class: ".MultiSpell"
+    always-granted: true  
+    cast-item: 도사
+    modifiers:
+        - sneaking required
+    cooldown: 60
+    spells:
+        - 도사_SL_MarkPp1
+        - 도사_SL_MarkPp2
+        - 도사_SL_MarkPp3
+        - 도사_SL_MarkPp4
+        - 도사_SL_MarkPp5
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "7cos(0.1t)sin(0.01t)"
+            yEquation: "0.1"
+            zEquation: "7sin(0.1t)sin(0.01t)"
+            duration: 250
+            particle: CLOUD
+            particles: 30
+            cycle: false
+            color: FF0000
+            speed: 0.1
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 1
+        pitch: 2
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.generic.explode
+        volume: 2
+        pitch: 0.6
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.irongolem.death
+        volume: 2
+        pitch: 1.2
+        
+도사_SL_MarkPp1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: true
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 7
+    max-duration: 100
+    spell: 도사_SL_TM
+    
+도사_SL_MarkPp2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 72
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: true
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 7
+    max-duration: 100
+    spell: 도사_SL_TM
+    
+도사_SL_MarkPp3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 144
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: true
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 7
+    max-duration: 100
+    spell: 도사_SL_TM
+
+도사_SL_MarkPp4:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 216
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: true
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 7
+    max-duration: 100
+    spell: 도사_SL_TM
+
+도사_SL_MarkPp5:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 288
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: true
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 1
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: false
+    hit-air-at-end: true
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 7
+    max-duration: 100
+    spell: 도사_SL_TM
+
+도사_SL_AreaPp:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    particle-name: take
+    particle-count: 0
+    particle-speed: 0
+    hug-surface: false
+    height-from-surface: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    spell-interval: 10
+    hit-radius: 2
+    vertical-hit-radius: 2
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    hit-air-during: true
+    hit-air-at-end: false
+    start-y-offset: 0
+    start-forward-offset: 0
+    max-distance: 1
+    max-duration: 3
+    spell: 도사_SL_area
+    effects:
+      1:
+        effect: particles
+        position: special
+        particle-name: cloud
+        speed: 0.1
+        count: 2
+        horiz-spread: 0.5
+        vert-spread: 1
+        forward-offset: 0
+        y-offset: 1
+        
+도사_SL_TM:
+    spell-class: ".TargetedMultiSpell"
+    stop-on-fail: false
+    spells:
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area
+        - DELAY 10
+        - 도사_SL_area2
+            
+도사_SL_area:
+    spell-class: ".targeted.AreaEffectSpell"    
+    horizontal-radius: 5
+    vertical-radius: 5
+    point-blank: true  
+    target-players: true    
+    target-non-players: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    spells:    
+        - 도사_SL_P
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "sin(0.16t)rand(-0.5,0.5) + 4sin(0.16t)"
+            yEquation: "cos(0.16t) + 1"
+            zEquation: "cos(0.16t)rand(-0.5,0.5) + 4cos(0.16t)"
+            duration: 180
+            particle: CLOUD
+            particles: 10
+            cycle: false
+            speed: 0.05
+            orient: true
+            orientPitch: false
+      2:
+        position: special
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "sin(0.04t)rand(-0.5,0.5) + 4sin(0.04t)"
+            yEquation: "cos(0.04t) + 1"
+            zEquation: "cos(0.04t)rand(-0.5,0.5) + 4cos(0.04t)"
+            duration: 180
+            particle: redstone
+            particles: 40
+            cycle: false
+            color: FFFFFF
+            orient: true
+            orientPitch: false
+      3:
+        position: special
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.5sin(0.16t)"
+            yEquation: "cos(0.8t) + 1"
+            zEquation: "0.5cos(0.16t)"
+            duration: 500
+            particle: CLOUD
+            particles: 3
+            cycle: false
+            speed: 0.05
+            orient: true
+            orientPitch: false
+      s1:
+        position: special
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 0.2
+        pitch: 1
+      s2:
+        position: special
+        effect: sound
+        sound: entity.blaze.hurt
+        volume: 0.4
+        pitch: 0.6
+      s3:
+        position: special
+        effect: sound
+        sound: entity.bat.takeoff
+        volume: 0.2
+        pitch: 0.6
+        
+도사_SL_area2:
+    spell-class: ".targeted.AreaEffectSpell"    
+    horizontal-radius: 6
+    vertical-radius: 5
+    point-blank: true  
+    target-players: true    
+    target-non-players: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    spells:    
+        - 도사_SL_P
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        effectlib:
+          class: SphereEffect
+          particle: EXPLOSION_LARGE
+          radius: 0.6
+          yOffset: 0
+          particles: 10
+          radiusIncrease: 1
+          iterations: 10
+          period: 1
+          speed: 0
+      2:
+        position: special
+        effect: effectlib
+        effectlib:
+          class: SphereEffect
+          particle: CLOUD
+          radius: 0.6
+          yOffset: 0
+          particles: 10
+          radiusIncrease: 1
+          iterations: 10
+          period: 1
+          speed: 0.1
+      s1:
+        position: special
+        effect: sound
+        sound: entity.generic.explode
+        volume: 1
+        pitch: 0
+      s2:
+        position: special
+        effect: sound
+        sound: entity.zombie_villager.cure
+        volume: 0.5
+        pitch: 2
+      s3:
+        position: special
+        effect: sound
+        sound: entity.generic.explode
+        volume: 1
+        pitch: 2
+        
+도사_SL_P:       
+    spell-class: ".targeted.PainSpell"     
+    damage: 2
+    
+#---쉬프트 + 우클릭---#
+
+도사_SR_M:
+    spell-class: ".MultiSpell"
+    always-granted: true  
+    cooldown: 120
+    spells:
+        - 도사_SR_area1
+        - DELAY 10
+        - 도사_SR_area1
+        - DELAY 10
+        - 도사_SR_area1
+        - DELAY 10
+        - 도사_SR_area2
+
+도사_SR_area1:
+    spell-class: ".targeted.AreaEffectSpell"    
+    horizontal-radius: 10
+    vertical-radius: 6
+    point-blank: true  
+    target-players: true    
+    target-non-players: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    spells:    
+        - 도사_SR_TM
+    effects:
+      1:
+        position: caster
+        effect: effectlibentity
+        effectlib:
+            class: EquationEffect
+            xEquation: "sin(0.02t)rand(-6,6) + 7sin(0.02t)"
+            yEquation: "1"
+            zEquation: "cos(0.02t)rand(-6,6) - 7cos(0.02t)"
+            duration: 500
+            particle: CLOUD
+            particles: 35
+            cycle: false
+            color: FF0000
+            speed: 0.05
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlibentity
+        effectlib:
+            class: EquationEffect
+            xEquation: "10sin(0.04t)"
+            yEquation: "1"
+            zEquation: "-10cos(0.04t)"
+            duration: 500
+            particle: CLOUD
+            particles: 15
+            cycle: false
+            color: FF0000
+            speed: 0.05
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 1
+        pitch: 0
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.wither.hurt
+        volume: 1
+        pitch: 0.6
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.flap
+        volume: 2
+        pitch: 2
+      s4:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.flap
+        volume: 1
+        pitch: 2
+      s5:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 2
+      s6:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 3
+      s7:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 4
+      s8:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 5
+      s9:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 6
+      s10:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 7
+      s11:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 8
+      s12:
+        position: caster
+        effect: sound
+        sound: entity.enderdragon.hurt
+        volume: 1
+        pitch: 2
+        delay: 9
+        
+도사_SR_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - 도사_SR_FT
+        - DELAY 1
+        - 도사_SR_FT
+        - DELAY 1
+        - 도사_SR_FT
+        - DELAY 1
+        - 도사_SR_FT
+        - DELAY 1
+        - 도사_SR_FT
+        
+도사_SR_FT:     
+    spell-class: ".targeted.ForcetossSpell"   
+    horizontal-force: -7
+    vertical-force: 0
+    
+도사_SR_area2:
+    spell-class: ".targeted.AreaEffectSpell"    
+    horizontal-radius: 10
+    vertical-radius: 6
+    point-blank: true  
+    target-players: true    
+    target-non-players: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    spells:    
+        - 도사_SR_Dot
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "sin(0.02t)rand(-6,6) + 7sin(0.02t)"
+            yEquation: "-3.5cos(0.01t) + 3.5"
+            zEquation: "cos(0.02t)rand(-6,6) - 7cos(0.02t)"
+            duration: 500
+            particle: CLOUD
+            particles: 35
+            cycle: false
+            color: FF0000
+            speed: 0.2
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "10sin(0.12t)"
+            yEquation: "-3.5cos(0.06t) + 3.5"
+            zEquation: "-10cos(0.12t)"
+            duration: 500
+            particle: EXPLOSION_LARGE
+            particles: 6
+            cycle: false
+            color: FF0000
+            speed: 5
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.zombie_villager.cure
+        volume: 1
+        pitch: 0
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.wither.hurt
+        volume: 2
+        pitch: 0.6
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.zombie.attack_door_wood
+        volume: 1
+        pitch: 0
+      s4:
+        position: caster
+        effect: sound
+        sound: entity.zombie.break_door_wood
+        volume: 1
+        pitch: 0
+        
+도사_SR_Dot:       
+    spell-class: ".targeted.DotSpell"     
+    interval: 2
+    duration: 6
+    damage: 10
+    

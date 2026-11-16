@@ -12,6 +12,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 import * as M from "./ms.js";
 import { nearbyMembers } from "./party.js";
+import { ELEMENTS } from "./elements.js";
 
 const { S, C, L, K } = M;
 const H = (p) => ({ ...p.location });
@@ -711,6 +712,7 @@ export const SPELLS = {
     },
   },
 };
+Object.assign(SPELLS, ELEMENTS); // V3.0 원소 VFX 스킬
 const dist = (a, b) => Math.hypot(a.location.x - b.location.x, a.location.z - b.location.z);
 
 /** 각 스펠이 어떤 자바 MagicSpells 를 옮겨 와 다시 만든 것인지 (스펠 시험장에 표시) */

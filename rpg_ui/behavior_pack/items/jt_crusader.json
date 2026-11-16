@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_crusader",
       "minecraft:display_name": {
-        "value": "§e성전사의 전쟁망치 §7[3차 성전사 전용]"
+        "value": "§e업화의 전쟁망치 §7[3차 성전사 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

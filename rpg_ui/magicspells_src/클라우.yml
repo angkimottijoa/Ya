@@ -1,0 +1,1770 @@
+predefined-items:
+    cle:
+        type: "276"
+        name: "&e차&5가&1운 &e달&1빛 &e클&5라&1우"
+        unbreakable: true
+        attributes:
+            1: "generic.attackDamage 1 add"
+
+variables:
+    클라우SRC:
+        type: player
+        default: 0
+        min: 0
+        max: 1
+        permanent: true
+    클라우:
+        type: player
+        default: 0
+        min: 0
+        max: 1
+        permanent: true
+    clePS:
+        type: player
+        default: 0
+        min: 0
+        max: 3
+        permanent: true
+
+달빛:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - clePS +3
+
+클라우on:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - 클라우 +1
+
+클라우off:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - 클라우 -1
+
+클라우PSpassiveS1:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals 클라우:1 required
+    triggers:
+        - spellcast 클라우RCmulti1
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f이 &e%var:clePS:0%&1번 &e반&1짝&9였&1다"
+    variable-mods-cast:
+        - clePS +1
+
+클라우PSpassiveS2:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals 클라우:1 required
+    triggers:
+        - spellcast 클라우SLCMulti1
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f이 &e%var:clePS:0%&1번 &e반&1짝&9였&1다"
+    variable-mods-cast:
+        - clePS +1
+
+클라우PSpassiveS3:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals 클라우:1 required
+    triggers:
+        - spellcast 클라우SRCmulti1
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f이 &e%var:clePS:0%&1번 &e반&1짝&9였&1다"
+    variable-mods-cast:
+        - clePS +1
+
+클라우PSpassiveC1:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals clePS:1 required
+    triggers:
+        - ticks 120
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f을 &9잃&1었&e다"
+    variable-mods-cast:
+        - clePS -3
+
+클라우PSpassiveC2:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals clePS:2 required
+    triggers:
+        - ticks 120
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f을 &9잃&1었&e다"
+    variable-mods-cast:
+        - clePS -3
+
+클라우PSpassiveC3:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals clePS:3 required
+    triggers:
+        - ticks 120
+    spells:
+        - 클라우RCdummy1
+    str-cast-self: "&e달&1빛&f을 &9잃&1었&e다"
+    variable-mods-cast:
+        - clePS -3
+
+클라우PSpassive3:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals clePS:3 required
+    triggers:
+        - kill 
+    spells:
+        - 클라우PSinvisibility
+    str-cast-self: "&e달&1빛&f에 &1몸&9을 &1감&e추&9고&1..."
+    variable-mods-cast:
+        - clePS -3
+
+클라우PSinvisibility: 
+    spell-class: ".buff.InvisibilitySpell"
+    duration: 5
+    toggle: true
+    prevent-pickups: true
+    cancel-on-give-damage: false
+    cancel-on-logout: true
+    cancel-on-spell-cast: false
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.3sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.5sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.7sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: sound
+        sound: entity.bat.ambient
+        volume: 2
+        pitch: 0.5
+      5:
+        position: caster
+        effect: sound
+        sound: entity.wither.spawn
+        volume: 1
+        pitch: 0
+
+클라우RCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 25
+    str-on-cooldown: "&f[&e클&1라&9우&f]초승달 베기(우클릭)&f 쿨타임이 %c초남았습니다."
+    right-click-cast-item: cle
+    modifiers:
+        - sneaking castinstead 클라우SRCmulti1
+    spells:
+        - 클라우RCPP2
+        - 클라우RCPP1
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.blaze.hurt
+        volume: 2
+        pitch: 2.5
+      2:
+        position: caster
+        effect: sound
+        sound:  entity.wither.shoot
+        volume: 1
+        pitch: 2.5
+      3:
+        position: caster
+        effect: sound
+        sound:  entity.bat.ambient
+        volume: 2
+        pitch: 0
+      4:
+        position: caster
+        effect: sound
+        sound:  entity.bat.ambient
+        volume: 2
+        pitch: 0
+      5:
+        position: caster
+        effect: sound
+        sound:  entity.bat.ambient
+        volume: 2
+        pitch: 0
+
+클라우RCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 40
+    ignore-armor: false
+    effects:
+      c1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c4:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c5:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c6:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c7:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c8:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: "1"
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+
+클라우RCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 클라우RCpain1
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8sin(0.0285t)"
+            yEquation: "0.8cos(0.0285t)+1"
+            zEquation: "1.8cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.1sin(0.0285t)"
+            yEquation: "0.8cos(0.0285t)+1"
+            zEquation: "1.9cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.4sin(0.0285t)"
+            yEquation: "0.8cos(0.0285t)+1"
+            zEquation: "1.9cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8sin(0.0285t)"
+            yEquation: "1.3cos(0.0285t)+1"
+            zEquation: "2.8cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.1sin(0.0285t)"
+            yEquation: "1.3cos(0.0285t)+1"
+            zEquation: "2.9cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.4sin(0.0285t)"
+            yEquation: "1.3cos(0.0285t)+1"
+            zEquation: "2.9cos(0.0285t)"
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+클라우RCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 50
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0.1
+    particle-vertical-spread: 0.1
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 클라우RCaera1
+
+클라우RCdummy1:
+    spell-class: ".instant.DummySpell"
+
+클라우RCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 40
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0.1
+    particle-vertical-spread: 0.1
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 클라우RCdummy1
+    effects:
+      c1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c5:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c6:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c7:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c8:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+
+
+
+
+클라우SLCdummy3:
+    spell-class: ".instant.DummySpell"
+    cast-item: cle
+    modifiers:
+        - sneaking castinstead 클라우SLCMulti1
+
+클라우SLCMulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 50
+    str-on-cooldown: "&f[&e클&1라&9우&f]달빛의 춤(쉬프트 좌클릭)&f 쿨타임이 %c초남았습니다."
+    spells:
+        - 클라우SLC리프1
+        - 클라우SLCPP1
+        - 클라우SLCdummy2
+        - DELAY 3
+        - 클라우SLCdummy2
+        - DELAY 3
+        - 클라우SLCdummy2
+        - DELAY 2
+        - 클라우SLCdummy1
+        - DELAY 1
+        - 클라우SLCshadowstep
+        - DELAY 1
+        - 클라우SLCaera2
+
+클라우SLCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 45
+    ignore-armor: false
+
+클라우SLCpain2:
+    spell-class: ".targeted.PainSpell"
+    damage: 20
+    ignore-armor: true
+
+클라우SLCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 클라우SLCpain2
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8sin(0.0285t)"
+            yEquation: "-1.8cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.1sin(0.0285t)"
+            yEquation: "-1.9cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.4sin(0.0285t)"
+            yEquation: "-1.9cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8sin(0.0285t)+1"
+            yEquation: "-2.8cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.1sin(0.0285t)+1"
+            yEquation: "-2.9cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.4sin(0.0285t)+1"
+            yEquation: "-2.9cos(0.0285t)+1"
+            zEquation: ""
+            duration: 100
+            particle: redstone
+            particles: 70
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+클라우SLCshadowstep:
+    spell-class: ".targeted.ShadowstepSpell"
+    range: 100
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.generic.explode
+        volume: 1
+        pitch: -2
+      2:
+        position: caster
+        effect: sound
+        sound:  entity.irongolem.death
+        volume: 2
+        pitch: -2
+
+클라우SLCdummy1:
+    spell-class: ".instant.DummySpell"
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.015t-1"
+            yEquation: "(1.4-0.0004t)cos(0.0325t)+1"
+            zEquation: "(1.4-0.0004t)sin(0.0325t)"
+            duration: 160
+            particle: redstone
+            particles: 385
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.015t-1"
+            yEquation: "(1.6-0.0004t)cos(0.0325t)+1"
+            zEquation: "(1.6-0.0004t)sin(0.0325t)"
+            duration: 160
+            particle: redstone
+            particles: 385
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.015t-1"
+            yEquation: "(1.8-0.0004t)cos(0.0325t)+1"
+            zEquation: "(1.8-0.0004t)sin(0.0325t)"
+            duration: 160
+            particle: redstone
+            particles: 385
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+클라우SLCdummy2:
+    spell-class: ".instant.DummySpell"
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.8sin(t)+1"
+            zEquation: "1.8cos(t)"
+            duration: 40
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2sin(t)+1"
+            zEquation: "2cos(t)"
+            duration: 40
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2.2sin(t)+1"
+            zEquation: "2.2cos(t)"
+            duration: 40
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+클라우SLC리프1:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: -15
+    upward-velocity: 0
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: true
+    client-only: false
+    land-spell: [<spell>]
+
+클라우SLCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 30
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 1
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0.1
+    particle-vertical-spread: 0.1
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 클라우SLCaera1
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.blaze.hurt
+        volume: 2
+        pitch: 2.5
+      2:
+        position: caster
+        effect: sound
+        sound:  entity.wither.shoot
+        volume: 1
+        pitch: 2.5
+
+클라우SLCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 클라우SLCpain1
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8sin(0.0285t)-2"
+            yEquation: ""
+            zEquation: "1.8cos(0.0285t)"
+            duration: 90
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.1sin(0.0285t)-2"
+            yEquation: ""
+            zEquation: "1.9cos(0.0285t)"
+            duration: 90
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.4sin(0.0285t)-2"
+            yEquation: ""
+            zEquation: "1.9cos(0.0285t)"
+            duration: 90
+            particle: redstone
+            particles: 110
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c5:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "2.0sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c6:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "2.2sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c7:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c8:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "1.8cos(0.0585t)-3"
+            yEquation: ""
+            zEquation: "1.8sin(0.0585t)"
+            duration: 1
+            particle: redstone
+            particles: 50
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+
+
+
+클라우SRCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 70
+    str-on-cooldown: "&f[&e클&1라&9우&f]개기월식(쉬프트 우클릭)&f 쿨타임이 %c초남았습니다."
+    spells:
+        - 클라우SLCinvisibility
+        - 클라우SRCPP1
+    variable-mods-cast:
+        - 클라우SRC +1
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.shulker_bullet.hit 
+        volume: 2
+        pitch: 2.5
+      2:
+        position: caster
+        effect: sound
+        sound:  entity.bat.ambient
+        volume: 1
+        pitch: 2.5
+
+클라우SRCpassive1:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - givedamage
+    modifiers:
+        - variableequals 클라우SRC:1 required
+    spells:
+         - 클라우SRCpain1
+    variable-mods-cast:
+        - 클라우SRC -1
+
+클라우SRCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 30
+    ignore-armor: true
+    effects:
+      1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.3sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.5sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.7sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "2.8sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "3sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "3.2sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      4: 
+        position: target
+        effect: effectlib 
+        height-offset: 1
+        delay: 0
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: 4B0082
+            particles: 110
+            spikeHeight: 0.7
+            spikeHalf: 1
+            innerRadius: 0.1
+            iterations: 1
+            period: 1
+      5: 
+        position: target
+        effect: effectlib 
+        height-offset: 1
+        delay: 0
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: 151B8D
+            particles: 110
+            spikeHeight: 0.8
+            spikeHalf: 1
+            innerRadius: 0.15
+            iterations: 1
+            period: 1
+      6: 
+        position: target
+        effect: effectlib 
+        height-offset: 1
+        delay: 0
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: FFF380
+            particles: 110
+            spikeHeight: 0.9
+            spikeHalf: 1
+            innerRadius: 0.2
+            iterations: 1
+            period: 1
+
+
+클라우SLCinvisibility: 
+    spell-class: ".buff.InvisibilitySpell"
+    duration: 10
+    toggle: true
+    prevent-pickups: true
+    cancel-on-give-damage: true
+    cancel-on-logout: true
+    cancel-on-spell-cast: false
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.3sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.5sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "1.3cos(0.0185t)+3"
+            zEquation: "1.7sin(0.0185t)-1"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+
+클라우SRCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 40
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0.1
+    particle-vertical-spread: 0.1
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 클라우RCdummy1
+    effects:
+      c1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "4.8sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "5.2sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "5.6sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "5sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c5:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "5.4sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c6:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "5.8sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+      c7:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "2.8sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 4B0082
+            speed: 0
+            orient: true
+            orientPitch: false
+      c8:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "3sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: 151B8D
+            speed: 0
+            orient: true
+            orientPitch: false
+      c9:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.8cos(0.0185t)"
+            yEquation: ""
+            zEquation: "3.2sin(0.0185t)"
+            duration: 1
+            particle: redstone
+            particles: 150
+            cycle: false
+            color: FFF380
+            speed: 0
+            orient: true
+            orientPitch: false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

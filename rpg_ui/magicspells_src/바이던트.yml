@@ -1,0 +1,1535 @@
+predefined-items:
+    bye:
+        type: "267"
+        name: "&3영&b혼&7수&8확&3자&f의 &8창 &3바&7이&8던&3트"
+        unbreakable: true
+        attributes:
+            1: "generic.attackDamage 6.66 add"
+
+variables:
+    바이던트PSon:
+        type: player
+        default: 0
+        min: 0
+        max: 1
+        permanent: true
+    byePS:
+        type: player
+        default: 0
+        min: 0
+        max: 10
+        permanent: true
+
+바이던트on:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - 바이던트PSon +1
+
+바이던트off:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - 바이던트PSon -1
+
+바이던트PSpassive1:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals 바이던트PSon:1 required
+    triggers:
+        - kill player
+    spells:
+        - 바이던트PSpotion1
+    str-cast-self: "&3영&7혼&f을 &3%var:byePS:0%&7개 &3수확&7하였다"
+    variable-mods-cast:
+        - byePS +1
+
+바이던트PSpotion1:
+    spell-class: ".targeted.PotionEffectSpell"
+    range: 1
+    type: 1
+    strength: 0
+    duration: 100
+    targeted: false
+
+바이던트PSpassive2_1:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:1 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain1
+
+바이던트PSpassive2_2:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:2 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain2
+
+바이던트PSpassive2_3:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:3 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain3
+
+바이던트PSpassive2_4:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:4 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain4
+
+바이던트PSpassive2_5:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:5 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain5
+
+바이던트PSpassive2_6:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:6 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain6
+
+바이던트PSpassive2_7:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:7 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain7
+
+바이던트PSpassive2_8:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:8 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain8
+
+바이던트PSpassive2_9:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:9 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain9
+
+바이던트PSpassive2_10:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals byePS:10 required
+    triggers:
+        - givedamage
+    spells:
+        - 바이던트PSpain10
+
+바이던트PSpassiveD:
+    spell-class: ".PassiveSpell"
+    modifiers:
+        - variableequals 바이던트PSon:1 required
+    triggers:
+        - death
+    spells:
+        - 바이던트PSpain1
+    variable-mods-cast:
+        - byePS -100
+
+바이던트PSpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 1
+    ignore-armor: true
+
+바이던트PSpain2:
+    spell-class: ".targeted.PainSpell"
+    damage: 2
+    ignore-armor: true
+
+바이던트PSpain3:
+    spell-class: ".targeted.PainSpell"
+    damage: 3
+    ignore-armor: true
+
+바이던트PSpain4:
+    spell-class: ".targeted.PainSpell"
+    damage: 4
+    ignore-armor: true
+
+바이던트PSpain5:
+    spell-class: ".targeted.PainSpell"
+    damage: 5
+    ignore-armor: true
+
+바이던트PSpain6:
+    spell-class: ".targeted.PainSpell"
+    damage: 6
+    ignore-armor: true
+
+바이던트PSpain7:
+    spell-class: ".targeted.PainSpell"
+    damage: 7
+    ignore-armor: true
+
+바이던트PSpain8:
+    spell-class: ".targeted.PainSpell"
+    damage: 8
+    ignore-armor: true
+
+바이던트PSpain9:
+    spell-class: ".targeted.PainSpell"
+    damage: 9
+    ignore-armor: true
+
+바이던트PSpain10:
+    spell-class: ".targeted.PainSpell"
+    damage: 10
+    ignore-armor: true
+
+바이던트RCMulti1:
+    spell-class: ".MultiSpell"
+    charges: 3
+    cooldown: 15
+    str-on-cooldown: "&f(&3바&7이&8던&3트&f)우클릭의 쿨타임이 %c초남았습니다."
+    right-click-cast-item: bye
+    modifiers:
+        - sneaking castinstead 바이던트SRCPP1
+    spells:
+        - 바이던트RC리프1
+        - 바이던트RCaera1
+        - DELAY 10
+        - 바이던트RC리프1
+        - 바이던트RCaera2
+        - DELAY 10
+        - 바이던트RCaera1
+
+바이던트RC리프1:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 15
+    upward-velocity: 3
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: false
+    client-only: false
+    land-spell: [<spell>]
+
+바이던트RCdrainlife1:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 35
+    give-type: health
+    give-amt: 3
+    animation-speed: 2
+    ignore-armor: false
+    show-spell-effect: false
+
+바이던트RCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 4
+    vertical-radius: 4
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 바이던트RCdrainlife1
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.1sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.4sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.7sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      a1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      a2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.1sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "3.7cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      a3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.4sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      a4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.7sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "4.3cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.blaze.hurt
+        volume: 2
+        pitch: 2
+
+바이던트RCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 4
+    vertical-radius: 4
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 바이던트RCdrainlife1
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.1sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.4sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.7sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      a1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      a2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.1sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-3.7cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      a3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.4sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-4cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      a4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.7sin(0.0125t)"
+            yEquation: "0.7cos(0.0125t)+1"
+            zEquation: "-4.3cos(0.0125t)"
+            duration: 200
+            particle: redstone
+            particles: 155
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.blaze.hurt
+        volume: 2
+        pitch: 2
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 0.5
+        pitch: 2
+
+바이던트SLCdummy1:
+    spell-class: ".instant.DummySpell"
+    cast-item: bye
+    modifiers:
+        - sneaking castinstead 바이던트SLCmulti1
+
+바이던트SLCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 35
+    str-on-cooldown: "&f(&3바&7이&8던&3트&f)쉬프트 좌클릭의 쿨타임이 %c초남았습니다."
+    spells:
+        - 바이던트SLCPP1
+        - 바이던트SLCpotion1
+
+바이던트SLCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0.1
+    particle-vertical-spread: 0.1
+    start-forward-offset: 1
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 바이던트SLCMulti2
+
+바이던트SLCMulti2:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - 바이던트SLCaera1
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera1
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera1
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera2
+        - DELAY 10
+        - 바이던트SLCaera1
+    effects:
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.wither.spawn
+        volume: 1
+        pitch: 1
+        
+바이던트SLCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 8
+    vertical-radius: 3
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.2cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.2sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.4cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.4sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.6cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.6sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.9cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.9sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: target
+        effect: sound
+        sound: entity.wither.death
+        volume: 1
+        pitch: 1
+
+바이던트SLCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 8
+    vertical-radius: 3
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 바이던트SLCpotion2
+          - 바이던트SLCpain1
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.2cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.2sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.4cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.4sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.6cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.6sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.9cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "5.8sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 135
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "5cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "8.3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "8.3cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      s3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "8.6sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "8.6cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      s4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "8.9sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "8.9cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      a1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-8sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-8cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      a2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-8.3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-8.3cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      a3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-8.6sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-8.6cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      a4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-8.9sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-8.9cos(0.0125t)"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 0.5
+        pitch: 2
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.wither.death
+        volume: 1
+        pitch: 0
+
+
+바이던트SLCpotion2:
+    spell-class: ".targeted.PotionEffectSpell"
+    range: 1
+    type: 2
+    strength: 500
+    duration: 50
+    targeted: true
+
+바이던트SLCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 25
+    ignore-armor: false
+
+바이던트SLCpotion1:
+    spell-class: ".targeted.PotionEffectSpell"
+    range: 1
+    type: 1
+    strength: 2
+    duration: 300
+    targeted: false
+
+
+
+
+
+바이던트SRCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    cooldown: 50
+    str-on-cooldown: "&f(&3바&7이&8던&3트&f)쉬프트 우클릭의 쿨타임이 %c초남았습니다."
+    projectile-velocity: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 2
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 바이던트SRCaera1
+
+바이던트SRCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 바이던트SRCMulti1
+          - 바이던트SRCforcetoss1
+          - 바이던트SRCpain1
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.2cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "2.2sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.4cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "2.4sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.6cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "2.6sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "2.9cos(2+2t)2sin(0.001 * (1-2t))"
+            yEquation: ""
+            zEquation: "2.9sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+
+바이던트SRCMulti1:
+    spell-class: ".TargetedMultiSpell"
+    stop-on-fail: false
+    spells:
+        - DELAY 5
+        - 바이던트SRCstun1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain3
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain3
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain3
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain2
+        - DELAY 1
+        - 바이던트SRCpain3
+    effects:
+      s1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3sin(0.0125t)2sin(0.001 * (1-0.1t))"
+            yEquation: "-0.0055t+8"
+            zEquation: "3cos(0.0125t)2sin(0.001 * (1-0.1t))"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.3sin(0.0125t)2sin(0.001 * (1-0.1t))"
+            yEquation: "-0.0055t+7"
+            zEquation: "3.3cos(0.0125t)2sin(0.001 * (1-0.1t))"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      s3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.6sin(0.0125t)2sin(0.001 * (1-0.1t))"
+            yEquation: "-0.0055t+6"
+            zEquation: "3.6cos(0.0125t)2sin(0.001 * (1-0.1t))"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      s4:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.9sin(0.0125t)2sin(0.001 * (1-0.1t))"
+            yEquation: "-0.0055t+5"
+            zEquation: "3.9cos(0.0125t)2sin(0.001 * (1-0.1t))"
+            duration: 490
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+
+바이던트SRCpain2:
+    spell-class: ".targeted.PainSpell"
+    damage: 1
+    ignore-armor: true
+
+
+바이던트SRCpain3:
+    spell-class: ".targeted.PainSpell"
+    damage: 1
+    ignore-armor: true
+    effects:
+      1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2.2cos(2+2t)2sin(0.001 * (1-2t))"
+            zEquation: "2.2sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2.4cos(2+2t)2sin(0.001 * (1-2t))"
+            zEquation: "2.4sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2.6cos(2+2t)2sin(0.001 * (1-2t))"
+            zEquation: "2.6sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: ""
+            yEquation: "2.9cos(2+2t)2sin(0.001 * (1-2t))"
+            zEquation: "2.9sin(2+2t)2sin(0.001 * (1-2t))"
+            duration: 340
+            particle: redstone
+            particles: 75
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: target
+        effect: sound
+        sound: entity.wither.death
+        volume: 0.8
+        pitch: -1
+      s2:
+        position: target
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 0.1
+        pitch: -2
+
+바이던트SRCstun1:
+    spell-class: ".targeted.StunSpell"
+    duration: 3
+    ignore-armor: true
+    target-self: false
+
+바이던트SRCforcetoss1:
+    spell-class: ".targeted.ForcetossSpell"
+    damage: 0
+    horizontal-force: 0
+    vertical-force: 25
+    effects:
+      s1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "3cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "3.3cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      s3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.6sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "3.6cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      s4:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.9sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "3.9cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      a1:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-3cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 8EEBEC
+            speed: 0
+            orient: true
+            orientPitch: false
+      a2:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-3.3sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-3.3cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 81D8D0
+            speed: 0
+            orient: true
+            orientPitch: false
+      a3:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-3.6sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-3.6cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 3EA99F
+            speed: 0
+            orient: true
+            orientPitch: false
+      a4:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "-3.9sin(0.0125t)"
+            yEquation: "0.0055t-1"
+            zEquation: "-3.9cos(0.0125t)"
+            duration: 990
+            particle: redstone
+            particles: 105
+            cycle: false
+            color: 438D80
+            speed: 0
+            orient: true
+            orientPitch: false
+      s1:
+        position: target
+        effect: sound
+        sound: entity.generic.explode
+        volume: 0.5
+        pitch: -2
+      s2:
+        position: target
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 0.2
+        pitch: -2
+      s3:
+        position: target
+        effect: sound
+        sound: entity.enderdragon.flap
+        volume: 2
+        pitch: 0
+
+바이던트SRCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 25
+    ignore-armor: false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

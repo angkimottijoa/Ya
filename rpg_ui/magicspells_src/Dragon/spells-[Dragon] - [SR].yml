@@ -1,0 +1,1437 @@
+Dragon_ShiftR_M:
+    spell-class: ".MultiSpell"
+    cooldown: 120
+    modifiers:
+        - sneaking required
+    str-on-cooldown: "&f[ &b&lMagicSpells &f] &4&l\uC26C\uD504\uD2B8\uC6B0\uD074\uB9AD &f&l\uCFE8\uD0C0\uC784\uC774 &b&l%c&l&f\uCD08 &a&l\uB0A8\uC558\uC2B5\uB2C8\uB2E4"
+    always-granted: true
+    spells:
+        - Dragon_Mark_PP
+
+Dragon_Mark_TM_MagicZone:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Dragon_Mark_TM_MagicZone_Damage_Area_PP
+        - DELAY 20
+        - Dragon_Mark_TM_MagicZone_Damage_Area_PP
+        - DELAY 20
+        - Dragon_Mark_TM_MagicZone_Damage_Area_PP
+        - DELAY 20
+        - Dragon_Mark_TM_MagicZone_Damage_Area_PP
+        - DELAY 20
+        - Dragon_Mark_TM_MagicZone_Damage_Area_PP
+
+Dragon_Mark_ShiftR_Pain:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 40
+
+Dragon_Mark_TM_MagicZone_Damage_Area_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    tick-interval: 1
+    projectile-spread: 0
+    special-effect-interval: 1
+    particle-name: take
+    particle-speed: 0
+    particle-count: 1
+    particle-horizontal-spread: 0.01
+    particle-vertical-spread: 0.01
+    max-distance: 1
+    max-duration: 10
+    start-y-offset: 1
+    start-forward-offset: -0.75
+    hit-air-during: true
+    spell-interval: 1
+    hit-radius: 1
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: Dragon_Mark_TM_MagicZone_Damage_Area_PP_Area
+    effects:
+      1:
+        position: special
+        effect: particles
+        particle-name: cloud
+        horiz-spread: 5.5
+        vert-spread: 0.05
+        speed: 0.1
+        count: 50
+        y-offset: -4
+      2:
+        position: special
+        effect: particles
+        particle-name: fireworksSpark
+        horiz-spread: 5.5
+        vert-spread: 0.05
+        speed: 0.1
+        count: 50
+        y-offset: -4
+
+Dragon_Mark_TM_MagicZone_Damage_Area_PP_Area:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 15
+    vertical-radius: 15
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: players, nonplayers
+    spells:
+        - Dragon_Mark_TM_MagicZone_Area_TmAny
+
+Dragon_Mark_TM_MagicZone_Area_TmAny:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Dragon_Mark_ShiftR_Pain
+        - Dragon_Mark_TM_MagicZone_Wither
+        - Dragon_Mark_TM_MagicZone_Area_Blindness
+        - Dragon_Mark_TM_MagicZone_Area_Slowness
+
+Dragon_Mark_TM_MagicZone_Blindness:
+    spell-class: ".targeted.PotionEffectSpell"
+    always-granted: true
+    type: 15
+    strength: 0
+    duration: 70
+    targeted: true
+    can-target: players, nonplayers
+
+Dragon_Mark_TM_MagicZone_Slowness:
+    spell-class: ".targeted.PotionEffectSpell"
+    always-granted: true
+    type: 2
+    strength: 3
+    duration: 30
+    targeted: true
+    can-target: players, nonplayers
+
+Dragon_Mark_TM_MagicZone_Wither:
+    spell-class: ".targeted.PotionEffectSpell"
+    always-granted: true
+    type: 20
+    strength: 2
+    duration: 30
+    targeted: true
+    can-target: players, nonplayers
+
+Dragon_Mark_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: true
+    start-forward-offset: -3
+    start-y-offset: 3
+    hit-radius: 1.5
+    vertical-hit-radius: 1.5
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: Dragon_Mark_Cloud_TM
+    effects:
+      1[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 19
+      2[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 21
+      3[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 25
+      4[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 27
+      5[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 29
+      6[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 32
+      7[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 35
+      8[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 37
+      9[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 40
+      10[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 42
+      11[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 44
+      12[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 46
+      13[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 49
+      14[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 52
+      15[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 54
+      16[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 57
+      17[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 62
+      18[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 64
+      19[S]:
+        position: special
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 1.5
+        pitch: 2
+        delay: 66
+      20[S]:
+        position: special
+        effect: sound
+        sound:  entity.wither.ambient
+        volume: 1.5
+        pitch: 1.5
+        delay: 80
+      21[S]:
+        position: special
+        effect: sound
+        sound:  entity.wither.spawn
+        volume: 1.5
+        pitch: 1.5
+        delay: 100
+      1:
+        position: special
+        delay: 20
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_1.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 3500
+            relativeOffset: -1,2,0
+      2:
+        position: special
+        delay: 22
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_2.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 3400
+            relativeOffset: -1,2,0
+      3:
+        position: special
+        delay: 26
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_3.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 3200
+            relativeOffset: -1,2,0
+      4:
+        position: special
+        delay: 28
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_4.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 3100
+            relativeOffset: -1,2,0
+      5:
+        position: special
+        delay: 30
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_5.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 3000
+            relativeOffset: -1,2,0
+      6:
+        position: special
+        delay: 33
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_6.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2850
+            relativeOffset: -1,2,0
+      7:
+        position: special
+        delay: 36
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_7.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2700
+            relativeOffset: -1,2,0
+      8:
+        position: special
+        delay: 38
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_8.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2600
+            relativeOffset: -1,2,0
+      9:
+        position: special
+        delay: 41
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_9.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2450
+            relativeOffset: -1,2,0
+      10:
+        position: special
+        delay: 43
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_10.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2350
+            relativeOffset: -1,2,0
+      11:
+        position: special
+        delay: 45
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_11.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2250
+            relativeOffset: -1,2,0
+      12:
+        position: special
+        delay: 47
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_12.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2150
+            relativeOffset: -1,2,0
+      13:
+        position: special
+        delay: 50
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_13.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 2000
+            relativeOffset: -1,2,0
+      14:
+        position: special
+        delay: 53
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_14.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1850
+            relativeOffset: -1,2,0
+      15:
+        position: special
+        delay: 55
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_15.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1750
+            relativeOffset: -1,2,0
+      16:
+        position: special
+        delay: 58
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_16.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1600
+            relativeOffset: -1,2,0
+      17:
+        position: special
+        delay: 63
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_17.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1350
+            relativeOffset: -1,2,0
+      18:
+        position: special
+        delay: 65
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_18.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1250
+            relativeOffset: -1,2,0
+      19:
+        position: special
+        delay: 67
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_Mark_19.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.015
+            iterations: 1
+            period: 1
+            duration: 1150
+            relativeOffset: -1,2,0
+      20:
+        position: special
+        delay: 100
+        effect: effectlib
+        effectlib:
+            class: ColoredImageEffect
+            fileName: plugins/MagicSpells/[Image] Dragon/Dragon_ShiftR.png
+            transparency: true
+            enableRotation: false
+            stepY: 7
+            stepX: 7
+            size: 0.02
+            iterations: 1
+            period: 3
+            duration: 7000
+            relativeOffset: -1,2,0
+      P_1:
+        position: special
+        effect: particles
+        particle-name: explode
+        horiz-spread: 4
+        delay: 101
+        vert-spread: 4
+        count: 300
+        speed: 0.1
+        forward-offset: 0
+        y-offset: 0
+        z-offset: 0
+      P_2:
+        position: special
+        effect: particles
+        particle-name: instantSpell
+        horiz-spread: 4
+        delay: 101
+        vert-spread: 4
+        count: 300
+        speed: 0.1
+        forward-offset: 0
+        y-offset: 0
+        z-offset: 0
+      Effectlib_1:
+        delay: 100
+        position: special
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "5sin(0.005t)+5cos(0.005t)"
+            yEquation: "0.0075t-3"
+            zEquation: "5cos(0.005t)-5sin(0.005t)"
+            particle: END_ROD
+            duration: 1000
+            particles: 80
+            color: 6E2FC7
+            cycle: false
+            orient: true
+            orientPitch: false
+      Effectlib_2:
+        delay: 100
+        position: special
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "5sin(0.005t)+5cos(0.005t)"
+            yEquation: "0.0075t-3"
+            zEquation: "5cos(0.005t)-5sin(0.005t)"
+            particle: END_ROD
+            duration: 1000
+            particles: 80
+            color: 6E2FC7
+            cycle: false
+            orient: true
+            orientPitch: false
+            yaw_offset: 90
+      Effectlib_3:
+        delay: 100
+        position: special
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "5sin(0.005t)+5cos(0.005t)"
+            yEquation: "0.0075t-3"
+            zEquation: "5cos(0.005t)-5sin(0.005t)"
+            particle: END_ROD
+            duration: 1000
+            particles: 80
+            color: 6E2FC7
+            cycle: false
+            orient: true
+            orientPitch: false
+            yaw_offset: 180
+      Effectlib_4:
+        delay: 100
+        position: special
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "5sin(0.005t)+5cos(0.005t)"
+            yEquation: "0.0075t-3"
+            zEquation: "5cos(0.005t)-5sin(0.005t)"
+            particle: END_ROD
+            duration: 1000
+            particles: 80
+            color: 6E2FC7
+            cycle: false
+            orient: true
+            orientPitch: false
+            yaw_offset: 270
+
+Dragon_Mark_Cloud_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - DELAY 120
+        - Dragon_Mark_Cloud_PP
+        - DELAY 20
+        - Dragon_Mark_TM_MagicZone
+        - Dragon_Mark_Rain_PP
+        - DELAY 20
+        - Dragon_Mark_Rain_PP
+        - DELAY 20
+        - Dragon_Mark_Rain_PP
+        - DELAY 20
+        - Dragon_Mark_Rain_PP
+    effects:
+      1:
+        position: target
+        effect: sound
+        sound:  entity.wither.death
+        volume: 1.5
+        pitch: 0.5
+        delay: 120
+
+Dragon_Mark_Cloud_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: largesmoke
+    particle-speed: 0.1
+    particle-count: 30
+    particle-horizontal-spread: 5
+    particle-vertical-spread: 0.5
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 1
+    max-duration: 5
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: false
+    start-forward-offset: 1
+    start-y-offset: 10
+    start-z-offset: 0
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: Dragon_Mark_Dummy
+    effects:
+      1:
+        position: special
+        effect: particles
+        particle-name: cloud
+        horiz-spread: 5
+        vert-spread: 0.5
+        count: 30
+        speed: 0.1
+        forward-offset: 0
+        y-offset: 0
+        z-offset: 0
+
+Dragon_Mark_Rain_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-gravity: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: -50
+    particle-name: take
+    particle-speed: 0
+    particle-count: 1
+    particle-horizontal-spread: 0.01
+    particle-vertical-spread: 0.01
+    hug-surface: false
+    hit-radius: 1
+    vertical-hit-radius: 1
+    start-y-offset: 10
+    max-distance: 30
+    max-duration: 3
+    stop-on-hit-entity: true
+    stop-on-hit-ground: true
+    hit-ground: true
+    hit-players: true
+    hit-non-players: true
+    spell: Dragon_Mark_Dummy
+    effects:
+      1[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "1"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      2[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      3[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0.7"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      4[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "3.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      5[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-3"
+            yEquation: "0.000001cos(t)"
+            zEquation: "1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      6[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "4.8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      7[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      8[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-2.7"
+            yEquation: "0.000001cos(t)"
+            zEquation: "1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      9[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "3.9"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      10[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "4.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      11[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "4.1"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      12[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "3.4"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      13[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.7"
+            yEquation: "0.000001cos(t)"
+            zEquation: "1.6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      14[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+2.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      15[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-5.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      16[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-7.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      17[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+7.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      18[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "5.8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      19[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      20[R]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)"
+            zEquation: "6.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      1[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-1"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      2[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-0.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      3[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-0.7"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      4[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-3.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      5[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-3"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      6[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-4.8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      7[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-0.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      8[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-2.7"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      9[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-3.9"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      10[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-4.5"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      11[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-4.1"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      12[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-3.4"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      13[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.7"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-1.6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      14[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+2.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      15[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-5.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-6"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      16[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-7.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      17[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+7.5"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      18[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+3.9"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-5.8"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      19[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-1.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+      20[L]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)"
+            zEquation: "-6.2"
+            duration: 0.1
+            particle: drip_Water
+            particles: 1
+            cycle: false
+            color: 0054FF
+            orient: true
+            orientPitch: false
+
+Dragon_Mark_Dummy:
+    spell-class: ".targeted.DummySpell"

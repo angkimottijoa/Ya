@@ -1,0 +1,528 @@
+variables:
+    shadow:
+        type: player
+        default: 0
+        min: 0
+        max: 100
+        permanent: true
+    shadow_armor:
+        type: player
+        default: 0
+        min: 0
+        max: 20
+        permanent: false
+
+Shadow_Force_Add_Dummy:
+    spell-class: ".instant.DummySpell"
+    incantations:
+        - /ShadowAdd
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &f&l\uD604\uC7AC &5&l\uADF8\uB9BC\uC790 &7&l\uC911\uCCA9 &0&l[&f&l%var:shadow:0%&7/&f&l100&0&l]"
+    variable-mods-cast:
+        - shadow +100
+
+Shadow_Force_Remove_Dummy:
+    spell-class: ".instant.DummySpell"
+    incantations:
+        - /ShadowRemove
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &f&l\uD604\uC7AC &5&l\uADF8\uB9BC\uC790 &7&l\uC911\uCCA9 &0&l[&f&l%var:shadow:0%&7/&f&l100&0&l]"
+    variable-mods-cast:
+        - shadow -100
+
+Shadow_DoubleShift_BuffDummy:
+    spell-class: ".buff.DummySpell"
+    duration: 0.2
+
+Shadow_DoubleShift_Passive1:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - stopsneak
+    modifiers:
+        - holding 272 required
+    spells: 
+        - Shadow_DoubleShift_BuffDummy
+
+Shadow_DoubleShift_Passive2:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - sneak
+    modifiers:
+        - buffactive Shadow_DoubleShift_BuffDummy required
+    spells: 
+        - Shadow_DoubleShift_Ex
+
+Shadow_DoubleShift_Ex:
+    spell-class: ".ExternalCommandSpell"
+    cooldown: 0
+    command-to-execute: 
+        - "c Shadow_DoubleShift_Check_Variable"
+
+Shadow_DoubleShift_Check_Variable:
+    spell-class: ".instant.DummySpell"
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &f&l\uD604\uC7AC &5&l\uADF8\uB9BC\uC790 &7&l\uC911\uCCA9 &0&l[&f&l%var:shadow:0%&7/&f&l100&0&l]"
+
+==========#Passive_Armor#=============:
+
+Passive_Armor_Ticks_298:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 298 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_299:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 299 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_300:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 300 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_301:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 301 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_302:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 302 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_303:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 303 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_304:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 304 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_305:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 305 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_306:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 306 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_307:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 307 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_308:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 308 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_309:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 309 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_310:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 310 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_311:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 311 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_312:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 312 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_313:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 313 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_314:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 314 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_315:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 315 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_316:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 316 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_317:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - wearing 317 required
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor +2
+
+Passive_Armor_Ticks_2:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - hasitem 272 required
+    spells: 
+        - Shadow_Dummy
+    variable-mods-cast:
+        - shadow_armor -1
+
+Passive_Armor_Ticks_3:
+    spell-class: ".PassiveSpell"
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &5&l\uADF8\uB9BC\uC790&f&l\uC5D0 \uC758\uD574 &b&l\uAC11\uC637&f&l\uC744 \uC785\uC744 \uC218 &c&l\uC5C6\uC2B5\uB2C8\uB2E4"
+    triggers:
+        - ticks 20
+    modifiers:
+        - variableequals shadow_armor:20 required
+        - hasitem 272 required
+    spells: 
+        - Passive_Armor_Passive_Stun
+
+Passive_Armor_Passive_Stun:
+    spell-class: ".targeted.StunSpell"
+    target-self: true
+    can-target: self
+    duration: 1
+    effects:
+      0:
+        position: target
+        effect: title
+        title: "&f[ &5&l\uADF8\uB9BC\uC790 &f]"
+        subtitle: "&f[ &c&l\uAC11\uC637\uC744 \uCC29\uC6A9\uD560 \uC218 \uC5C6\uC2B5\uB2C8\uB2E4! &f]"
+        fade-in: 5
+        stay: 20
+        fade-out: 5
+
+===========#Passive_Night#================:
+
+Passive_Night_Ticks:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 20
+    modifiers:
+        - night required
+        - holding 272 required
+        - variablelessthan shadow:100 required
+    spells: 
+        - Passive_Night_Ticks_Dummy
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.ghast.shoot
+        volume: 0.5
+        pitch: 0.1
+      2:
+        position: caster
+        effect: particles
+        particle-name: largesmoke
+        horiz-spread: 1
+        vert-spread: 0.05
+        count: 30
+        speed: 0.1
+        y-offset: 0.05
+      3:
+        position: caster
+        effect: particles
+        particle-name: witchMagic
+        horiz-spread: 1
+        vert-spread: 0.05
+        count: 30
+        speed: 0.1
+        y-offset: 0.05
+
+Passive_Night_Ticks_Dummy:
+    spell-class: ".instant.DummySpell"
+    always-granted: true
+    variable-mods-cast:
+        - shadow +1
+
+==========#패시브위더표식#==========:
+
+Passive_WitherBuff_Marking:
+    spell-class: ".PassiveSpell"
+    target-modifiers:
+        - potioneffect 20 denied
+    chance: 25
+    triggers:
+        - givedamage
+    modifiers:
+        - holding 272 required
+    spells: 
+        - Passive_WitherBuff_Marking_TM
+
+Passive_WitherBuff_Marking_TM:
+    spell-class: ".TargetedMultiSpell"
+    target-modifiers:
+        - potioneffect 20 denied
+    spells:
+        - Passive_WitherBuff_Marking_TM_Sup
+        - DELAY 20
+        - Passive_WitherBuff_Marking_TM_Sup
+        - DELAY 20
+        - Passive_WitherBuff_Marking_TM_Sup
+        - DELAY 20
+        - Passive_WitherBuff_Marking_TM_Sup
+        - DELAY 20
+        - Passive_WitherBuff_Marking_TM_Sup
+
+Passive_WitherBuff_Marking_TM_Sup:
+    spell-class: ".TargetedMultiSpell"
+    target-modifiers:
+        - potioneffect 20 denied
+    spells:
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+        - DELAY 1
+        - ShadowSword_Target_Wither_Buff
+
+ShadowSword_Target_Wither_Buff:
+    spell-class: ".targeted.PotionEffectSpell"
+    target-modifiers:
+        - potioneffect 20 denied
+    always-granted: true
+    type: 20
+    strength: 3
+    duration: 20
+    targeted: true
+    can-target: players, nonplayers
+    effects:
+      1:
+        position: target
+        effect: particles
+        particle-name: witchMagic
+        horiz-spread: 1
+        vert-spread: 0.05
+        count: 15
+        speed: 0.1
+        y-offset: 0.05
+      agdfg:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.7"
+            yEquation: "0.9cos(20t)+1.5"
+            zEquation: "0.15cos(17t)"
+            duration: 100
+            particle: redstone
+            particles: 20
+            cycle: false
+            color: 000000
+            orientPitch: false
+      htjjfd:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.7"
+            yEquation: "0.3cos(20t)+1.6"
+            zEquation: "0.075cos(17t)+0.28"
+            duration: 100
+            particle: redstone
+            particles: 4
+            cycle: false
+            color: 000000
+            orientPitch: false
+      jssxcv:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.7"
+            yEquation: "0.3cos(20t)+1.6"
+            zEquation: "0.075cos(17t)-0.28"
+            duration: 100
+            particle: redstone
+            particles: 4
+            cycle: false
+            color: 000000
+            orientPitch: false
+

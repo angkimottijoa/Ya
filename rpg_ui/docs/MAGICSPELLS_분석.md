@@ -73,3 +73,10 @@
 ## 5. 이식하지 않은 것
 - ColoredImageEffect(이미지를 점으로 찍기): 이번 방침(이미지 없이 수식)에 맞춰 제외. 필요하면 PNG → 점 목록 굽기로 추가 가능.
 - PassiveSpell(조건 발동), 변수(variables) 누적형 패시브: 다음 단계 후보.
+
+## 6. V3.0: "거의 그대로" 이식으로 전환
+- 직접 재설계(spellbook) 대신 **yml 원본을 변환기로 그대로** 옮김: `ms_convert.py` → `msdata.js` + `rpg:mss_*` 파티클 609개
+- 식 변환 예: `2cos(1+8t)2sin(0.001 * (1-2t))` → `2*math.cos(57.29578*(1+8*(T)))*2*math.sin(57.29578*(0.001*(1-2*(T))))`, T = 정수 점 번호
+- 반복(iterations = duration/50/period)과 cycle 을 따라 "그려지는" 효과는 시간 순서대로, cycle 이면 한 번에
+- orient: EffectLib rotateVector(yaw) 와 같은 축 (로컬 z = 앞, x = 왼쪽)
+- 원본에 있지만 의미가 다른 것: sneaking 조건은 발동 키(②③)가 대신, potioneffect/variable 조건은 무시

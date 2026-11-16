@@ -1,0 +1,6744 @@
+Dragon_L_Ex:
+    spell-class: ".ExternalCommandSpell"
+    cast-item: DragonAxe
+    always-granted: true
+    command-to-execute: 
+        - "c Dragon_ShiftL_L_M"
+        - "c Dragon_ShiftL_M"
+
+Dragon_ShiftL_L_M:
+    spell-class: ".MultiSpell"
+    modifiers:
+        - sneaking denied
+        - buffactive Dragon_SL_Air_Dummy required
+    spells:
+        - Dragon_SL_Air_Dummy
+        - DELAY 5
+        - Dragon_SL_Ground_Dummy
+        - Dragon_SL_Velocity
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound: entity.irongolem.death
+        volume: 2
+        pitch: 0.1
+        delay: 0
+      2:
+        position: caster
+        effect: sound
+        sound: entity.irongolem.death
+        volume: 2
+        pitch: 2
+        delay: 5
+
+Dragon_ShiftL_M:
+    spell-class: ".MultiSpell"
+    cooldown: 60
+    modifiers:
+        - sneaking required
+        - buffactive Dragon_SL_Air_Dummy denied
+    str-on-cooldown: "&f[ &b&lMagicSpells &f] &c&l\uC26C\uD504\uD2B8\uC88C\uD074\uB9AD &f&l\uCFE8\uD0C0\uC784\uC774 &b&l%c&l&f\uCD08 &a&l\uB0A8\uC558\uC2B5\uB2C8\uB2E4"
+    always-granted: true
+    spells:
+        - Dragon_SL_Leap
+        - Dragon_SL_ShapeAxe_1_Dummy
+        - Dragon_Passsive_ShiftL_Dummy
+        - DELAY 25
+        - Dragon_SL_Air_Dummy_Ex
+        - Dragon_SL_ShapeAxe_1_Dummy
+        - Dragon_SL_ShapeAxe_2_Dummy
+
+Dragon_SL_Air_Dummy_Ex:
+    spell-class: ".ExternalCommandSpell"
+    always-granted: true
+    command-to-execute: 
+        - "c Dragon_SL_Air_Dummy"
+
+Dragon_ShiftL_Passive_Air_Sound:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 20
+    modifiers:
+        - buffactive Dragon_SL_Air_Dummy required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.experience_orb.pickup
+        volume: 1
+        pitch: 0.89
+
+Dragon_ShiftL_Passive_Air:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - buffactive Dragon_SL_Air_Dummy required
+    spells: 
+        - Dragon_SL_Leap_Air_Set
+    effects:
+      0:
+        position: caster
+        effect: title
+        title: "&f[ &b&lSystem &f]"
+        subtitle: "&f[ &c&l\uC88C\uD074\uB9AD\uC2DC \uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC73C\uB85C \uB3CC\uC9C4\uD569\uB2C8\uB2E4! &f]"
+        fade-in: 1
+        stay: 5
+        fade-out: 1
+
+Dragon_SL_Ground_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 15
+
+Dragon_SL_Velocity:
+  spell-class: ".instant.VelocitySpell"
+  speed: 5
+
+Dragon_SL_Air_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 10
+    str-cast-self: "&f&l[ &b&lSystem &f] &c&l10\uCD08 \uB0B4\uB85C \uC0AC\uC6A9\uD558\uC9C0 \uC54A\uC73C\uBA74 \uC2A4\uD0AC \uC0AC\uC6A9\uC774 \uCDE8\uC18C\uB429\uB2C8\uB2E4."
+
+Dragon_SL_Leap_Air_Set:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 0
+    upward-velocity: 0.55
+    cancel-damage: true
+
+Dragon_SL_Leap:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 0
+    upward-velocity: 25
+    cancel-damage: true
+    effects:
+      1[S]:
+        position: caster
+        effect: sound
+        sound:  entity.enderdragon.growl
+        volume: 3
+        pitch: 0.89
+        delay: 0
+      Effectlib_1:
+        delay: 1
+        position: caster
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "4sin(0.04t)+4cos(0.04t)"
+            yEquation: "0.04t"
+            zEquation: "4cos(0.04t)-4sin(0.04t)"
+            particle: explosion_large
+            duration: 1000
+            particles: 40
+            cycle: false
+            orient: true
+            orientPitch: false
+      Effectlib_2:
+        delay: 1
+        position: caster
+        effect: effectlib
+        effectlib: 
+            class: EquationEffect
+            xEquation: "4sin(0.04t)+4cos(0.04t)"
+            yEquation: "0.04t"
+            zEquation: "4cos(0.04t)-4sin(0.04t)"
+            particle: cloud
+            duration: 1000
+            particles: 40
+            speed: 1
+            cycle: false
+            orient: true
+            orientPitch: false
+
+Dragon_ShiftL_Passive_Ground:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - buffactive Dragon_SL_Ground_Dummy required
+        - onblock 0 denied
+    spells: 
+        - Dragon_SL_Ground_Dummy
+        - Dragon_Passsive_ShiftL_Dummy
+        - Dragon_ShiftL_Area
+        - Dragon_SL_ShapeAxe_2_Dummy
+    effects:
+      S1:
+        position: caster
+        effect: sound
+        sound: entity.zombie_villager.cure
+        volume: 1.5
+        pitch: 0.8
+      S2:
+        position: caster
+        effect: sound
+        sound: entity.zombie.break_door_wood
+        volume: 1.5
+        pitch: 0.5
+      S3:
+        position: caster
+        effect: sound
+        sound: entity.generic.explode
+        volume: 1.5
+        pitch: 1
+      3:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: 10
+        y-offset: 6
+        z-offset: 10
+      4:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: 3
+        y-offset: 4
+        z-offset: -8
+      5:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: -8
+        y-offset: 6
+        z-offset: 8
+      6:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: -3
+        y-offset: 2
+        z-offset: -6
+      7:
+        position: caster
+        effect: particles
+        particle-name: lava
+        horiz-spread: 11
+        vert-spread: 0.05
+        speed: 0.1
+        count: 150
+        forward-offset: 0
+        y-offset: 0.1
+        z-offset: 0
+      8:
+        position: caster
+        effect: particles
+        particle-name: largeexplode
+        horiz-spread: 11
+        vert-spread: 0.05
+        speed: 0.1
+        count: 40
+        forward-offset: 0
+        y-offset: 0.1
+        z-offset: 0
+      9:
+        position: caster
+        effect: particles
+        particle-name: cloud
+        horiz-spread: 11
+        vert-spread: 0.05
+        speed: 0.1
+        count: 200
+        forward-offset: 0
+        y-offset: 0.1
+        z-offset: 0
+      10:
+        position: caster
+        effect: sound
+        sound: entity.wither.death
+        volume: 2
+        pitch: 1
+        delay: 55
+
+Dragon_ShiftL_Area:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 30
+    vertical-radius: 30
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: players, nonplayers
+    spells:
+        - Dragon_ShiftL_Pain_TM
+
+Dragon_ShiftL_Pain_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Dragon_ShiftL_Pain_First
+        - Dragon_SL_ForceToss_First
+        - DELAY 15
+        - Dragon_ShiftL_Stun
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_SL_ForceToss_Set_Air
+        - DELAY 1
+        - Dragon_ShiftL_Pain_Second
+
+Dragon_SL_ForceToss_First:
+    spell-class: ".targeted.ForcetossSpell"
+    horizontal-force: 0
+    vertical-force: 10
+    can-target: players,monsters,nonplayers
+    cancel-damage: true
+    effects:
+      0: 
+        position: target
+        delay: 15
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect
+            particle: redstone
+            color: 0054FF
+            radius: 1.5
+            particles: 10
+            iterations: 100
+            period: 1
+            duration: 2000
+            relativeOffset: 0,1,0
+      1: 
+        position: target
+        delay: 15
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect
+            particle: redstone
+            color: FFFFFF
+            radius: 1.5
+            particles: 5
+            iterations: 100
+            period: 1
+            duration: 2000
+            relativeOffset: 0,1,0
+      Sphere_1:
+        position: target
+        delay: 55
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect 
+            particle: spell
+            radius: 1.5
+            radius_increase: 0.5
+            particles: 20
+            iterations: 100
+            period: 1
+            duration: 1000
+      Sphere_2:
+        position: target
+        delay: 55
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect 
+            particle: redstone
+            color: FF0000
+            radius: 1.5
+            radius_increase: 0.5
+            particles: 20
+            iterations: 100
+            period: 1
+            duration: 1000
+
+Dragon_SL_ForceToss_Set_Air:
+    spell-class: ".targeted.ForcetossSpell"
+    horizontal-force: 0
+    vertical-force: 0.5
+    can-target: players,monsters,nonplayers
+    cancel-damage: true
+
+Dragon_ShiftL_Stun:
+    spell-class: ".targeted.StunSpell"
+    target-self: false
+    can-target: players, nonplayers
+    duration: 2
+
+Dragon_ShiftL_Pain_First:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 19
+
+Dragon_ShiftL_Pain_Second:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 81
+
+=========#DragonAxeShape#==========:
+
+Dragon_SL_ShapeAxe_1_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 7
+
+Dragon_SL_ShapeAxe_1_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 2
+    modifiers:
+        - buffactive Dragon_SL_ShapeAxe_1_Dummy required
+    spells: 
+        - Dragon_ShiftL_Axe_Shape_PP1
+
+Dragon_SL_ShapeAxe_2_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 11
+
+Dragon_SL_ShapeAxe_2_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 2
+    modifiers:
+        - buffactive Dragon_SL_ShapeAxe_2_Dummy required
+    spells: 
+        - Dragon_ShiftL_Axe_Shape_PP2
+
+Dragon_ShiftL_Axe_Shape_PP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    hug-surface: false
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: false
+    start-forward-offset: 0
+    start-y-offset: 2
+    start-z-offset: 2
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: true
+    stop-on-hit-ground: true
+    spell: Dragon_Mark_Dummy
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      5:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      6:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      7:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      8:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      9:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      10:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      11:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      12:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      13:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      14:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      15:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      16:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      17:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      18:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      19:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      20:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      21:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      22:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      23:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      24:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      25:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      26:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      27:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      28:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      29:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      30:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      31:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      32[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      33[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      34[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      35[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      36[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      37[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      38[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      39[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      40[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      41[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      42[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      43[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      44[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      45[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      46[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      47[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      48[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      49[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      50[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      51[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      52[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      53[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      54[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      55[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      56[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      57[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      58[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      59[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      60[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      61[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      62[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      63[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      64[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      65[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      66[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      67[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      68[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      69[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      70[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      71[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      72[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      73[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      74[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      75[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      76[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      77[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      78[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      79[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      80[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      81[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      82[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      83[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      84[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      85[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      86[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      87[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      88[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      89[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      90[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      91[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      92[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      93[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      94[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      95[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      96[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      97[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      32[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      33[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      34[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      35[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      36[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      37[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      38[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      39[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      40[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      41[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      42[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      43[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      44[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      45[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      46[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      47[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      48[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      49[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      50[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      51[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      52[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      53[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      54[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      55[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      56[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      57[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      58[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      59[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      60[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      61[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      62[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      63[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      64[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      65[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      66[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      67[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      68[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      69[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      70[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      71[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      72[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      73[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      74[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      75[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      76[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      77[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      78[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      79[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      80[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      81[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      82[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      83[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      84[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      85[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      86[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      87[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      88[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      89[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      90[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      91[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      92[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      93[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      94[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      95[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      96[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+      97[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: -45
+
+Dragon_ShiftL_Axe_Shape_PP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    hug-surface: false
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: false
+    start-forward-offset: 0
+    start-y-offset: 1
+    start-z-offset: 2
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: true
+    stop-on-hit-ground: true
+    spell: Dragon_Mark_Dummy
+    effects:
+      1:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      2:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      3:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      4:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      5:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      6:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      7:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      8:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-3"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      9:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      10:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      11:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      12:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      13:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      14:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      15:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      16:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      17:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      18:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      19:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      20:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      21:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      22:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      23:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      24:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      25:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      26:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      27:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      28:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      29:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      30:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      31:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)"
+            yEquation: "0.000001cos(t)+1.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      32[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      33[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      34[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      35[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      36[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      37[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      38[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      39[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      40[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      41[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      42[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      43[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      44[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      45[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.2"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      46[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      47[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      48[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      49[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      50[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      51[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      52[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      53[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.4"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      54[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      55[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      56[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      57[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+0.8"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      58[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      59[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      60[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      61[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      62[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      63[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      64[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      65[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      66[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      67[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      68[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      69[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      70[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      71[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      72[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      73[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      74[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      75[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      76[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      77[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      78[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      79[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      80[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      81[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      82[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      83[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      84[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      85[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      86[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      87[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      88[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      89[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      90[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.4"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      91[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      92[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      93[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      94[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      95[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      96[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      97[F]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)+1.6"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      32[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      33[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      34[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      35[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      36[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-3.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      37[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      38[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      39[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      40[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      41[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      42[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      43[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      44[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      45[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.2"
+            yEquation: "0.000001cos(t)+1.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      46[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-4.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      47[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      48[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-3.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      49[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      50[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      51[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      52[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      53[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.4"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      54[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      55[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      56[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      57[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-0.8"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      58[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      59[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      60[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      61[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      62[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      63[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      64[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      65[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      66[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      67[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      68[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      69[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      70[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      71[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      72[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      73[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      74[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      75[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      76[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      77[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      78[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      79[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.2"
+            yEquation: "0.000001cos(t)+1.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      80[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      81[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      82[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      83[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      84[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      85[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      86[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      87[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      88[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 0054FF
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      89[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+0.8"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      90[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.4"
+            yEquation: "0.000001cos(t)+1"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      91[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      92[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      93[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)-0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      94[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      95[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.2"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      96[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.4"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+      97[B]:
+        position: special
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.000001cos(t)-1.6"
+            yEquation: "0.000001cos(t)+0.6"
+            zEquation: "0"
+            color: 000000
+            duration: 0.1
+            particle: redstone
+            particles: 1
+            cycle: true
+            orientPitch: true
+            orient: true
+            iterations: 1
+            yaw_offset: 0
+            pitch_offset: 45
+
+
+

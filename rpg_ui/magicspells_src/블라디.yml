@@ -1,0 +1,1240 @@
+predefined-items:
+    blood:
+        type: "283"
+        name: "&4핏&c빛&f칼날 &4블&c라&f디"
+        unbreakable: true
+        attributes:
+            1: "generic.attackDamage 15 add"
+
+블라디RCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 7
+    str-on-cooldown: "&f(블러디)&4우클릭&f 쿨타임이 %c초남았습니다."
+    right-click-cast-item: blood
+    modifiers:
+        - sneaking castinstead 블라디SRCmulti1
+    spells:
+        - 블라디RCPP1
+        - 블라디RCaera1
+        - DELAY 2
+        - 블라디RCaera1
+        - DELAY 2
+        - 블라디RCaera1
+
+블라디RCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 4.5
+    vertical-radius: 4.5
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디RCdrainlife
+    effects:
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.zombie.remedy
+         volume: 1
+         pitch: 0
+        s2:
+         position: caster
+         effect: sound
+         sound: entity.wither.shoot
+         volume: 1
+         pitch: 0
+
+블라디RCdrainlife:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 5
+    give-type: health
+    give-amt: 8
+    animation-speed: 2
+    ignore-armor: true
+    show-spell-effect: true
+
+블라디RCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 블라디RCaera1
+    effects:
+      c1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.8sin(t)" 
+            yEquation: "0" 
+            zEquation: "1.8cos(t)" 
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF9999
+            orient: false 
+      c2: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.7sin(t)" 
+            yEquation: "0" 
+            zEquation: "1.7cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF6666
+            orient: false  
+      c3: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.6sin(t)" 
+            yEquation: "0" 
+            zEquation: "1.6cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF3333
+            orient: false  
+      c4: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.5sin(t)" 
+            yEquation: "0" 
+            zEquation: "1.5cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: 990000
+            orient: false 
+      d1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4sin(t)" 
+            yEquation: "0" 
+            zEquation: "2cos(t)" 
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF9999
+            orient: false 
+      d2: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4.1sin(t)" 
+            yEquation: "0" 
+            zEquation: "2.1cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF6666
+            orient: false  
+      d3: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4.2sin(t)" 
+            yEquation: "0" 
+            zEquation: "2.2cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF3333
+            orient: false  
+      d4: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4.3sin(t)" 
+            yEquation: "0" 
+            zEquation: "2.3cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: 990000
+            orient: false 
+      a1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "2sin(t)" 
+            yEquation: "0" 
+            zEquation: "4cos(t)" 
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF9999
+            orient: false 
+      a2: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "2.1sin(t)" 
+            yEquation: "0" 
+            zEquation: "4.1cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF6666
+            orient: false  
+      a3: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "2.2sin(t)" 
+            yEquation: "0" 
+            zEquation: "4.2cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: FF3333
+            orient: false  
+      a4: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "2.3sin(t)" 
+            yEquation: "0" 
+            zEquation: "4.3cos(t)"
+            duration: 1
+            particle: redstone 
+            particles: 200
+            cycle: true 
+            color: 990000
+            orient: false        
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "4cos(0.0025t)"
+            duration: 320
+            particle: redstone
+            particles: 520
+            cycle: false
+            color: FF9999
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.4sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "4cos(0.0025t)"
+            duration: 320
+            particle: redstone
+            particles: 520
+            cycle: false
+            color: FF6666
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "4cos(0.0025t)"
+            duration: 320
+            particle: redstone
+            particles: 520
+            cycle: false
+            color: FF3333
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "5.2sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "4cos(0.0025t)"
+            duration: 320
+            particle: redstone
+            particles: 520
+            cycle: false
+            color: 990000
+            speed: 0
+            orient: true
+            orientPitch: false
+
+블라디SLCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 20
+    str-on-cooldown: "&f(블러디)쉬프트&4좌클릭&f 쿨타임이 %c초남았습니다."
+    spells:
+        - 블라디SLCPP1
+        - DELAY 10
+        - 블라디SLCPP1
+        - DELAY 10
+        - 블라디SLCPP1
+        - DELAY 10
+        - 블라디SLCaera2
+        - 블라디LCdummy1
+
+블라디SLCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 10
+    vertical-radius: 10
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디SLCdrainlife2
+          - 블라디SLCforcetoss2
+    effects:
+      1: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "3sin(t)" 
+            yEquation: "0.03(t)" 
+            zEquation: "3cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 400
+            cycle: true 
+            color: FF9999
+            orient: false 
+            iterations: 100
+            period: 1
+      2: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "3.1sin(t)" 
+            yEquation: "0.025(t)" 
+            zEquation: "3.1cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 420
+            cycle: true 
+            color: FF6666
+            orient: false 
+            iterations: 100
+            period: 1
+      3: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "3.2sin(t)" 
+            yEquation: "0.02(t)" 
+            zEquation: "3.2cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 440
+            cycle: true 
+            color: FF3333
+            orient: false 
+            iterations: 100
+            period: 1
+      4: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "3.3sin(t)" 
+            yEquation: "0.05(t)" 
+            zEquation: "3.3cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 460
+            cycle: true 
+            color: 990000
+            orient: false 
+            iterations: 100
+            period: 1
+      1a: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1sin(t)" 
+            yEquation: "0.5(t)" 
+            zEquation: "3cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 100
+            cycle: true 
+            color: FF9999
+            orient: false 
+            iterations: 100
+            period: 1
+      2a: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.1sin(t)" 
+            yEquation: "0.5(t)" 
+            zEquation: "1.1cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 120
+            cycle: true 
+            color: FF6666
+            orient: false 
+            iterations: 100
+            period: 1
+      3a: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.2sin(t)" 
+            yEquation: "0.5(t)" 
+            zEquation: "1.2cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 140
+            cycle: true 
+            color: FF3333
+            orient: false 
+            iterations: 100
+            period: 1
+      4a: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.3sin(t)" 
+            yEquation: "0.05(t)" 
+            zEquation: "1.3cos(t)" 
+            duration: 1
+            particle: redstone
+            particles: 160
+            cycle: true 
+            color: 990000
+            orient: false 
+            iterations: 100
+            period: 1
+
+블라디SLCforcetoss2:
+    spell-class: ".targeted.ForcetossSpell"
+    damage: 0
+    horizontal-force: 20
+    vertical-force: 20
+
+블라디SLCdrainlife2:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 15
+    give-type: health
+    give-amt: -2
+    animation-speed: 2
+    ignore-armor: false
+    show-spell-effect: true
+
+블라디SLCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 7
+    vertical-radius: 7
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디SLCdrainlife
+          - 블라디SLCforcetoss
+    
+블라디SLCforcetoss:
+    spell-class: ".targeted.ForcetossSpell"
+    damage: 0
+    horizontal-force: -20
+    vertical-force: -20
+
+블라디SLCdrainlife:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 7
+    give-type: health
+    give-amt: 5
+    animation-speed: 2
+    ignore-armor: false
+    show-spell-effect: true
+    effects:
+      1:
+        position: line
+        effect: particles
+        particle-name: reddust
+        count: 10
+        speed: 0
+        y-offset: 1
+        horiz-spread: 0.1
+        vert-spread: 0.1
+        distance-between: 0.6
+
+블라디SLCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 블라디SLCaera1
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: redstone
+            color: FF9999
+            strands: 6
+            particles: 80
+            radius: 7
+            curve: 0.01
+            rotation: 1
+            iterations: 1
+            period: 10
+       2: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: redstone
+            color: FF6666
+            strands: 8
+            particles: 80
+            radius: 7
+            curve: 0.21
+            rotation: 1
+            iterations: 1
+            period: 10
+       3: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: redstone
+            color: FF3333
+            strands: 10
+            particles: 80
+            radius: 7
+            curve: 0.21
+            rotation: 1
+            iterations: 1
+            period: 10
+       4: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: redstone
+            color: 990000
+            strands: 12
+            particles: 80
+            radius: 7
+            curve: 0.21
+            rotation: 1
+            iterations: 1
+            period: 1
+
+블라디SLCaera3:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 2.6
+    vertical-radius: 2
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디SLCdrainlife3
+  
+블라디SLCdrainlife3:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 20
+    give-type: health
+    give-amt: -1
+    animation-speed: 2
+    ignore-armor: false
+    show-spell-effect: true
+
+variables:
+    블라디SLC:
+        type: player
+        default: 0
+        min: 0
+        max: 1
+        permanent: true
+
+블라디SLCdummy1:
+    spell-class: ".instant.DummySpell"
+    cooldown: 1.5
+    str-on-cooldown: "&f(블러디)&4좌클릭&f 쿨타임이 %c초남았습니다."
+    cast-item: blood
+    modifiers:
+        - sneaking castinstead 블라디SLCmulti1
+
+블라디SLCdummy2:
+    spell-class: ".instant.DummySpell"
+    variable-mods-cast:
+        - 블라디SLC +1
+
+블라디LCdummy1:
+    spell-class: ".buff.DummySpell"
+    duration: 10
+
+블라디SLCpassive0:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - spellcast 블라디SLCdummy1
+    modifiers:
+        - buffactive 블라디LCdummy1 required
+    spells:
+         - 블라디SLCdummy2
+
+블라디SLCpassive1:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - spellcast 블라디SLCdummy2
+    modifiers:
+        - variableequals 블라디SLC:1 required
+    spells:
+         - 블라디SLCPPL1
+
+블라디SLCpassive2:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - spellcast 블라디SLCdummy2
+    modifiers:
+        - variableequals 블라디SLC:2 required
+    spells:
+         - 블라디SLCPPL2
+    variable-mods-cast:
+        - 블라디SLC -2
+
+블라디SLCPPL2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 블라디SLCaera3
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "-3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF9999
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.4sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "-3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF6666
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "-3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF3333
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.2sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "-3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 990000
+            speed: 0
+            orient: true
+            orientPitch: false
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.blaze.hurt
+         volume: 1
+         pitch: -2
+
+블라디SLCPPL1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 블라디SLCaera3
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF9999
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.4sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF6666
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: FF3333
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "4.2sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.1cos(0.0025t) + 2"
+            zEquation: "3cos(0.0025t)"
+            duration: 270
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 990000
+            speed: 0
+            orient: true
+            orientPitch: false
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.blaze.hurt
+         volume: 1
+         pitch: -2
+
+블라디SRCmulti1:
+    spell-class: ".MultiSpell"
+    cooldown: 45
+    str-on-cooldown: "&f(블러디)쉬프트&4우클릭&f 쿨타임이 %c초남았습니다."
+    spells:
+        - ​블라디SRCinvulner
+        - 블라디SRCaera1
+        - 블라디SRCpotion1
+        - DELAY 20
+        - 블라디SRCaera1
+        - 블라디SRCpotion1
+        - DELAY 20
+        - 블라디SRCaera1
+        - 블라디SRCpotion1
+        - DELAY 20
+        - 블라디SRCaera1
+        - 블라디SRCpotion1
+        - DELAY 20
+        - 블라디SRCaera1
+
+블라디SRCpassive1:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 6
+    modifiers:
+        - buffactive ​블라디SRCinvulner required
+    spells:
+         - 블라디SRCaera4
+
+블라디SRCaera4:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 9
+    vertical-radius: 9
+    max-targets: 100
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디SRCdrainlife2
+    effects:
+        1:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: 990000
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        2:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.8cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.8sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF3333
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        3:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.6cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.6sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF6666
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        4:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF9999
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        s1:
+         position: caster
+         effect: sound
+         sound: weather.rain.above
+         volume: 1
+         pitch: 0
+        s2:
+         position: caster
+         effect: sound
+         sound: entity.wither.death
+         volume: 0.3
+         pitch: 0
+
+블라디SRCdrainlife2:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 2
+    give-type: health
+    give-amt: 2
+    animation-speed: 2
+    ignore-armor: true
+    show-spell-effect: true
+
+​블라디SRCinvulner:
+    spell-class: ".buff.InvulnerabilitySpell"
+    damage-causes:
+        - block explosion
+        - contact
+        - custom
+        - drowning
+        - entity attack
+        - entity explosion
+        - fall
+        - fire
+        - fire tick
+        - lava
+        - lightning
+        - magic
+        - poison
+        - projectile
+        - starvation
+        - suffocation
+        - void
+        - wither
+    duration: 5
+    effects:
+        1:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: 990000
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        2:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.8cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.8sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF3333
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        3:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.6cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.6sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF6666
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        4:
+         position: special
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3.4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "3.4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 750
+             particle: redstone
+             color: FF9999
+             particles: 100
+             cycle: false
+             orient: true
+             orientPitch: false
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.wolf.growl
+         volume: 2
+         pitch: 0
+
+블라디SRCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 9
+    vertical-radius: 9
+    max-targets: 100
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 블라디SRCdrainlife1
+    effects:
+       1: 
+        position: caster
+        effect: effectlib 
+        delay: 3
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: 990000
+            particles: 150
+            spikeHeight: 5.3
+            spikeHalf: 0
+            innerRadius: 1.3
+            iterations: 1
+            period: 1
+       2: 
+        position: caster
+        effect: effectlib 
+        delay: 2
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: FF3333
+            particles: 150
+            spikeHeight: 5.2
+            spikeHalf: 0
+            innerRadius: 1.2
+            iterations: 1
+            period: 1
+       3: 
+        position: caster
+        effect: effectlib 
+        delay: 1
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: FF6666
+            particles: 150
+            spikeHeight: 5.1
+            spikeHalf: 0
+            innerRadius: 1.1
+            iterations: 1
+            period: 1
+       4: 
+        position: caster
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: FF9999
+            particles: 150
+            spikeHeight: 5
+            spikeHalf: 0
+            innerRadius: 1
+            iterations: 1
+            period: 1
+
+블라디SRCdrainlife1:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 10
+    give-type: health
+    give-amt: 1
+    animation-speed: 2
+    ignore-armor: true
+    show-spell-effect: true
+
+블라디SRCpotion1:
+    spell-class: ".targeted.PotionEffectSpell"
+    range: 1
+    type: 7
+    strength: 2
+    duration: 1
+    targeted: false

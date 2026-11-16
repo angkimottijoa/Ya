@@ -1,0 +1,1050 @@
+Shadow_RightClick_Ex:
+    spell-class: ".ExternalCommandSpell"
+    right-click-cast-item: Shadow
+    command-to-execute: 
+        - "c Shadow_Resonate_RightClick_M"
+        - "c Shadow_RightClick_Dagger_M"
+        - "c Shadow_Other_Self_NoShadow_Ex"
+        - "c Shadow_Other_Self_M"
+
+Shadow_Other_Self_Buff:
+    spell-class: ".buff.InvulnerabilitySpell"
+    damage-causes:
+        - block explosion
+        - contact
+        - custom
+        - drowning
+        - entity attack
+        - entity explosion
+        - fall
+        - fire
+        - fire tick
+        - lava
+        - lightning
+        - magic
+        - poison
+        - projectile
+        - starvation
+        - suffocation
+        - void
+        - wither
+    duration: 10
+    always-granted: true
+
+ShadowSword_BuffOn_Passive_Invisible:
+    spell-class: ".targeted.PotionEffectSpell"
+    cooldown: 0
+    always-granted: true
+    type: 14
+    strength: 0
+    duration: 8
+    targeted: false
+    can-target: self
+
+ShadowSword_BuffOn_Passive_Speed:
+    spell-class: ".targeted.PotionEffectSpell"
+    cooldown: 0
+    always-granted: true
+    type: 1
+    strength: 3
+    duration: 8
+    targeted: false
+    can-target: self
+
+ShadowSword_BuffOn_Passive_Strength:
+    spell-class: ".targeted.PotionEffectSpell"
+    cooldown: 0
+    always-granted: true
+    type: 5
+    strength: 1
+    duration: 8
+    targeted: false
+    can-target: self
+
+ShadowSword_BuffOn_Passive:
+    spell-class: ".PassiveSpell"
+    always-granted: true
+    triggers:
+        - ticks 1
+    modifiers:
+        - buffactive Shadow_Other_Self_Buff required
+    spells:
+        - ShadowSword_BuffOn_Passive_Invisible
+        - ShadowSword_BuffOn_Passive_Speed
+        - ShadowSword_BuffOn_Passive_Strength
+    effects:
+      GuRimza_sadasdsad:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.9cos(20t)+1"
+            zEquation: "0.15cos(17t)"
+            duration: 100
+            particle: redstone
+            particles: 15
+            cycle: false
+            color: 000000
+            orientPitch: false
+      assf2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.9cos(20t)+1"
+            zEquation: "0.15cos(17t)"
+            duration: 100
+            particle: redstone
+            particles: 15
+            cycle: false
+            color: 000000
+            orientPitch: false
+      wertq:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)+0.28"
+            duration: 100
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 000000
+            orientPitch: false
+      qwr:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)-0.28"
+            duration: 100
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 000000
+            orientPitch: false
+      dzf:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)+0.28"
+            duration: 100
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 000000
+            orientPitch: false
+      fgh:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)-0.28"
+            duration: 100
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 000000
+            orientPitch: false
+      zsdfsaf:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.4"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgsfdg:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+0.35"
+            zEquation: "0.2"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgsfdgf:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.7"
+            zEquation: "0.2"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgsdfgf:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "-0.4"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgsdfg:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+0.35"
+            zEquation: "-0.2"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgsdfg:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.7"
+            zEquation: "-0.2"
+            duration: 100
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sfdggsdf:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3cos(17t)"
+            yEquation: "2"
+            zEquation: "0.3cos(20t)"
+            duration: 100
+            particle: redstone
+            particles: 3
+            cycle: false
+            color: 000000
+            orientPitch: false
+      sdfgdfg:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.25cos(17t)"
+            yEquation: "0"
+            zEquation: "0.25cos(20t)"
+            duration: 100
+            particle: redstone
+            particles: 3
+            cycle: false
+            color: 000000
+            orientPitch: false
+
+Shadow_Other_Self_NoShadow_Ex:
+    spell-class: ".ExternalCommandSpell"
+    modifiers:
+        - variablelessthan shadow:100 required
+        - sneaking required
+    command-to-execute: 
+        - "c Shadow_Other_Self_NoShadow_Check_Variable1"
+        - "c Shadow_Other_Self_NoShadow_Check_Variable2"
+
+Shadow_Other_Self_NoShadow_Check_Variable1:
+    spell-class: ".instant.DummySpell"
+    modifiers:
+        - variablelessthan shadow:100 required
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &4&l\uADF8\uB9BC\uC790 \uC911\uCCA9\uC774 \uBD80\uC871\uD569\uB2C8\uB2E4"
+
+Shadow_Other_Self_NoShadow_Check_Variable2:
+    spell-class: ".instant.DummySpell"
+    modifiers:
+        - variablelessthan shadow:100 required
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &f&l\uD604\uC7AC &5&l\uADF8\uB9BC\uC790 &7&l\uC911\uCCA9 &0&l[&f&l%var:shadow:0%&7/&f&l100&0&l]"
+
+Shadow_Other_Self_ConsumeShadow_Ex:
+    spell-class: ".ExternalCommandSpell"
+    always-granted: true
+    modifiers:
+        - variableequals shadow:100 required
+    command-to-execute: 
+        - "c Shadow_Other_Self_ConsumeShadow_Dummy"
+
+Shadow_Other_Self_ConsumeShadow_Dummy:
+    spell-class: ".instant.DummySpell"
+    always-granted: true
+    modifiers:
+        - variableequals shadow:100 required
+    variable-mods-cast:
+        - shadow -100
+
+Shadow_Other_Self_M:
+    spell-class: ".MultiSpell"
+    modifiers:
+        - variableequals shadow:100 required
+        - sneaking required
+    spells:
+        - Shadow_Other_Self_ConsumeShadow_Ex
+        - Shadow_Other_Self_Villager_Reach_PP
+        - DELAY 8
+        - Shadow_Other_Self_Buff
+        - Shadow_Other_Self_AnimatedBall_Area
+        - DELAY 192
+        - Shadow_Other_Self_Recall
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.wither.spawn
+        volume: 1
+        pitch: 0.9
+      2:
+        position: caster
+        effect: sound
+        sound:  entity.irongolem.death
+        volume: 1
+        pitch: -3
+        delay: 5
+      3:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: largesmoke
+        horiz-spread: 3
+        vert-spread: 2
+        count: 300
+        speed: 0.1
+      4:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: explode
+        horiz-spread: 3
+        vert-spread: 2
+        count: 150
+        speed: 0.1
+      5:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: witchMagic
+        horiz-spread: 3
+        vert-spread: 2
+        count: 300
+        speed: 0.1
+
+Shadow_Other_Self_Mark:
+    spell-class: ".instant.MarkSpell"
+    name: Shadow_Other_Self_Mark
+    permanent-marks: true
+
+Shadow_Other_Self_Recall:
+    spell-class: ".instant.RecallSpell"
+    mark-spell: Shadow_Other_Self_Mark
+    max-range: 0
+    allow-cross-world: true
+    use-bed-location: false
+
+Shadow_Other_Self_Villager_Grip: 
+    spell-class: ".targeted.GripSpell" 
+    can-target: villager
+
+Shadow_Other_Self_Villager_Grip_Area:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 5
+    vertical-radius: 5
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: villager
+    spells:
+        - Shadow_Other_Self_Villager_Grip
+
+Shadow_Other_Self_AnimatedBall_Area:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 5
+    vertical-radius: 5
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: villager
+    spells:
+        - Shadow_Other_Self_AnimatedBall_Area_Speed
+        - Shadow_Other_Self_AnimatedBall_Area_Speed_TM
+        - Shadow_Other_Self_AnimatedBall_Area_Line
+
+Shadow_Other_Self_AnimatedBall_Area_Speed_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - DELAY 200
+        - Shadow_Other_Self_Villager_Kill_Pain
+
+Shadow_Other_Self_AnimatedBall_Area_Line:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+        - DELAY 20
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Sup
+
+Shadow_Other_Self_AnimatedBall_Area_Line_Sup:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+        - DELAY 2
+        - Shadow_Other_Self_AnimatedBall_Area_Line_Dummy
+
+Shadow_Other_Self_AnimatedBall_Area_Line_Dummy:
+    spell-class: ".targeted.DummySpell"
+    effects:
+      0a:
+        position: line
+        effect: particles
+        particle-name: reddust
+        color: 161616
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        y-offset: 0.03
+        count: 1
+        distance-between: 0.45 
+
+Shadow_Other_Self_Villager_Kill_Pain:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 100000
+
+Shadow_Other_Self_AnimatedBall_Area_Speed:
+    spell-class: ".targeted.PotionEffectSpell"
+    target-modifiers:
+        - potioneffect 21 required
+        - potioneffect 14 required
+        - potioneffect 2 required
+    always-granted: true
+    type: 1
+    strength: 0
+    duration: 7
+    targeted: true
+    effects:
+      Cube:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: AnimatedBallEffect
+            particle: spell_witch
+            particles: 150
+            particlesPerIteration: 10
+            size: 0.5
+            xFactor: 1.5
+            yFactor: 2.5
+            zFactor: 1.5
+            yOffset: 0.8
+            iterations: 200
+            period: 1
+            type: REPEATING
+      Shadow_¾Õ:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.9cos(20t)+1"
+            zEquation: "0.15cos(17t)"
+            duration: 10000
+            particle: redstone
+            particles: 15
+            cycle: false
+            color: 191919
+            orientPitch: false
+      Back_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.9cos(20t)+1"
+            zEquation: "0.15cos(17t)"
+            duration: 10000
+            particle: redstone
+            particles: 15
+            cycle: false
+            color: 191919
+            orientPitch: false
+      FrontRight_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)+0.28"
+            duration: 10000
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 191919
+            orientPitch: false
+      FrontLeft_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)-0.28"
+            duration: 10000
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 191919
+            orientPitch: false
+      BackRight_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)+0.28"
+            duration: 10000
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 191919
+            orientPitch: false
+      BackLeft_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "-0.3"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.075cos(17t)-0.28"
+            duration: 10000
+            particle: redstone
+            particles: 2
+            cycle: false
+            color: 191919
+            orientPitch: false
+      NextToRight_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "0.4"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      RightToNext_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+0.35"
+            zEquation: "0.2"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      NextToRightUp_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.7"
+            zEquation: "0.2"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      NextToLeft_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.1"
+            zEquation: "-0.4"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      RightToLeft_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+0.35"
+            zEquation: "-0.2"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      NextToLeftUp_Shadow:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.2cos(17t)+0"
+            yEquation: "0.3cos(20t)+1.7"
+            zEquation: "-0.2"
+            duration: 10000
+            particle: redstone
+            particles: 5
+            cycle: false
+            color: 191919
+            orientPitch: false
+      Shadow_Head:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.3cos(17t)"
+            yEquation: "2"
+            zEquation: "0.3cos(20t)"
+            duration: 10000
+            particle: redstone
+            particles: 3
+            cycle: false
+            color: 191919
+            orientPitch: false
+      Shadow_Bottom:
+        position: target
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: EquationEffect
+            xEquation: "0.25cos(17t)"
+            yEquation: "0"
+            zEquation: "0.25cos(20t)"
+            duration: 10000
+            particle: redstone
+            particles: 3
+            cycle: false
+            color: 191919
+            orientPitch: false
+
+Shadow_Other_Self_Villager_Reach_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    height-from-surface: 0.1
+    hug-surface: true
+    projectile-horiz-offset: 180
+    projectile-vert-offset: 1
+    projectile-velocity: 20
+    particle-horizontal-spread: 0.01
+    particle-vertical-spread: 0.01
+    projectile-spread: 0
+    projectile-gravity: 0
+    start-forward-offset: 0
+    tick-interval: 1
+    special-effect-interval: 1
+    particle-count: 0
+    particle-speed: 1
+    particle-name: take
+    max-distance: 2
+    start-y-offset: 0
+    hit-air-at-end: true
+    hit-players: false
+    hit-non-players: false
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    hit-ground: false
+    spell: Shadow_Other_Self_Villager_TM
+
+Shadow_Other_Self_Villager_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - Shadow_Other_Self_Villager_Shape_PP
+        - ShadowSword_OtherSelf_Finding_Place_PP
+        - ShadowSword_OtherSelf_Villager
+        - Shadow_Other_Self_Mark
+
+Shadow_Other_Self_Villager_Shape_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    hug-surface: true
+    height-from-surface: 0
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: true
+    start-forward-offset: 0
+    start-y-offset: 0
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: Shadow_Dummy
+
+============#Shadows#==============:
+
+ShadowSword_OtherSelf_Damaged_Passive:
+    spell-class: ".PassiveSpell"
+    always-granted: true
+    triggers:
+        - spellcast ShadowSword_OtherSelf_Finding_WaterBreath
+    modifiers:
+        - buffactive Shadow_Other_Self_Buff required
+    spells:
+        - Shadow_Other_Self_Recall
+        - Shadow_Other_Self_Buff
+        - ShadowSword_OtherSelf_Damaged_Stop_Area
+        - ShadowSword_OtherSelf_Damaged_Stop_Stun
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound:  entity.wither.death
+        volume: 1
+        delay: 1
+        pitch: 0.9
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib: 
+            class: AnimatedBallEffect
+            particle: spell_witch
+            particles: 150
+            particlesPerIteration: 10
+            size: 0.5
+            xFactor: 1
+            yFactor: 2
+            zFactor: 1
+            yOffset: 0.8
+            iterations: 200
+            period: 1
+            type: REPEATING
+      3:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: largesmoke
+        horiz-spread: 3
+        vert-spread: 2
+        count: 300
+        speed: 0.1
+      4:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: explode
+        horiz-spread: 3
+        vert-spread: 2
+        count: 150
+        speed: 0.1
+      5:
+        delay: 0
+        position: caster
+        effect: particles
+        particle-name: witchMagic
+        horiz-spread: 3
+        vert-spread: 2
+        count: 300
+        speed: 0.1
+
+ShadowSword_OtherSelf_Damaged_Stop_Stun:
+    spell-class: ".targeted.StunSpell"
+    target-self: true
+    can-target: self
+    duration: 10
+    effects:
+      0:
+        position: target
+        effect: title
+        title: "&f[ &b&l\uAE30\uC808\uD568 &f]"
+        subtitle: "&f[ &c&l\uADF8\uB9BC\uC790\uBD84\uC2E0\uC774 \uD53C\uD574\uB97C \uC785\uC5C8\uC2B5\uB2C8\uB2E4! &f]"
+        fade-in: 5
+        stay: 180
+        fade-out: 5
+
+ShadowSword_OtherSelf_Damaged_Stop_Area:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 1
+    can-target: villager
+    spells:
+        - Shadow_Other_Self_Villager_Kill_Pain
+
+Shadow_Other_Self_Villager_Kill_Pain:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 100000
+
+ShadowSword_OtherSelf_Finding_Place_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: true
+    start-forward-offset: 0
+    start-y-offset: 0
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: ShadowSword_OtherSelf_Finding_Place_TM
+
+ShadowSword_OtherSelf_Finding_Place_TM:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+        - DELAY 20
+        - ShadowSword_OtherSelf_Finding_Place_TM_Sup
+
+ShadowSword_OtherSelf_Finding_Place_TM_Sup:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+        - DELAY 1
+        - ShadowSword_OtherSelf_Finding_AreaPP
+
+Shadow_Dummy:
+    spell-class: ".targeted.DummySpell"
+
+ShadowSword_OtherSelf_Villager:
+    spell-class: ".targeted.SpawnMonsterSpell"
+    location: target
+    entity-type: Villager
+    tamed: true
+    potion-effects:
+      - 2 10000 255
+      - 21 10000 19
+      - 14 10000 0
+      - 6 1 25
+    attributes:
+      - "generic.knockbackResistance 100 add"
+
+ShadowSword_OtherSelf_Finding_AreaPP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    target-modifiers:
+        - potioneffect 21 required
+        - potioneffect 14 required
+        - potioneffect 2 required
+        - healthbelow 99 required
+    projectile-velocity: 10
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    tick-interval: 1
+    projectile-spread: 0
+    special-effect-interval: 1
+    particle-name: take
+    particle-speed: 0
+    particle-count: 1
+    particle-horizontal-spread: 0.01
+    particle-vertical-spread: 0.01
+    max-distance: 1
+    max-duration: 10
+    start-y-offset: 1
+    start-forward-offset: 0
+    hit-air-during: true
+    spell-interval: 1
+    hit-radius: 3
+    hit-players: false
+    hit-non-players: true
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: ShadowSword_OtherSelf_Finding_WaterBreath
+
+ShadowSword_OtherSelf_Finding_WaterBreath:
+    spell-class: ".targeted.PotionEffectSpell"
+    target-modifiers:
+        - potioneffect 21 required
+        - potioneffect 14 required
+        - potioneffect 2 required
+        - healthbelow 99 required
+    always-granted: true
+    type: 13
+    strength: 0
+    duration: 20
+    targeted: true
+    can-target: villager
+

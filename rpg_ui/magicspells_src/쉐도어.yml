@@ -1,0 +1,1389 @@
+predefined-items:
+    sw:
+        type: "275"
+        name: "쉐도어"
+        unbreakable: true
+        attributes:
+            1: "generic.attackDamage 10 add"
+
+쉐도어RCmultiM:
+    spell-class: ".MultiSpell"
+    right-click-cast-item: sw
+    cooldown: 8
+    str-on-cooldown: "&f(&0쉐&7도&8어&f)우클릭의 쿨타임이 %c초남았습니다."
+    modifiers:
+        - sneaking castinstead 쉐도어SRCmulti
+    spells:
+        - 쉐도어RCPP1
+        - 쉐도어RCPP2
+        - 쉐도어RCPP3
+        - 쉐도어RCPP4
+        - 쉐도어RCPP5
+        
+쉐도어RCMulti2:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - 쉐도어RCpain1
+        - DELAY 10
+        - 쉐도어RCpain2
+
+쉐도어RCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 35
+    ignore-armor: false
+    effects:
+        1:
+         position: target
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "1"
+             zEquation: "3sin(10+t)2sin(0.001 * (1-t))"
+             duration: 150
+             particle: SPELL_WITCH
+             color: CC0033
+             particles: 300
+             cycle: false
+             orient: true
+             orientPitch: false
+        2:
+         position: target
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "3cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "1"
+             zEquation: "3sin(10+t)2sin(0.001 * (1-t))"
+             duration: 150
+             particle: SMOKE_NORMAL
+             color: CC0033
+             particles: 300
+             cycle: false
+             orient: true
+             orientPitch: false
+        a1: 
+         position: target
+         effect: effectlib 
+         effectlib: 
+             class: SphereEffect 
+             particle: SMOKE_NORMAL
+             color: ff0000 
+             radius: 3
+             particles: 550
+             iterations: 1
+             period: 1
+        a2: 
+         position: target
+         effect: effectlib 
+         effectlib: 
+             class: SphereEffect 
+             particle: SPELL_WITCH
+             color: ff0000 
+             radius: 3
+             particles: 550
+             iterations: 1
+             period: 1
+
+쉐도어RCPP2_1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 15
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.2
+    particle-vertical-spread: 0.2
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 15
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCMulti2
+
+쉐도어RCPP5:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: -40
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCPP2_1
+    effects:
+      4: 
+        position: target
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+          class: VortexEffect
+          particle: SPELL_WITCH
+          radius: 1
+          grow: 0.1
+          radials: 16
+          circles: 7
+          helixes: 1
+          iterations: 22
+          period: 0.5
+
+쉐도어RCPP4:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 40
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCPP2_1
+    effects:
+      4: 
+        position: target
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+          class: VortexEffect
+          particle: SPELL_WITCH
+          radius: 1
+          grow: 0.1
+          radials: 16
+          circles: 7
+          helixes: 1
+          iterations: 22
+          period: 0.5
+
+쉐도어RCPP3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: -20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCPP2_1
+    effects:
+      4: 
+        position: target
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+          class: VortexEffect
+          particle: SPELL_WITCH
+          radius: 1
+          grow: 0.1
+          radials: 16
+          circles: 7
+          helixes: 1
+          iterations: 22
+          period: 0.5
+
+쉐도어RCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCPP2_1
+    effects:
+      4: 
+        position: target
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+          class: VortexEffect
+          particle: SPELL_WITCH
+          radius: 1
+          grow: 0.1
+          radials: 16
+          circles: 7
+          helixes: 1
+          iterations: 22
+          period: 0.5
+
+쉐도어RCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어RCPP2_1
+    effects:
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "6sin(0.0025t)rand(-0.100,0.415) + 1.8sin(0.0025t)"
+            yEquation: "1.8"
+            zEquation: "2.5cos(0.0025t)"
+            duration: 200
+            particle: SMOKE_NORMAL
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 0
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "6sin(0.0025t)rand(-0.100,0.415) + 1.8sin(0.0025t)"
+            yEquation: "1"
+            zEquation: "2.5cos(0.0025t)"
+            duration: 200
+            particle: SMOKE_NORMAL
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 0
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "6sin(0.0025t)rand(-0.100,0.415) + 1.8sin(0.0025t)"
+            yEquation: "0.2"
+            zEquation: "2.5cos(0.0025t)"
+            duration: 200
+            particle: SMOKE_NORMAL
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 0
+            orient: true
+            orientPitch: false
+      4: 
+        position: target
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+          class: VortexEffect
+          particle: SPELL_WITCH
+          radius: 1
+          grow: 0.1
+          radials: 16
+          circles: 7
+          helixes: 1
+          iterations: 22
+          period: 0.5
+
+쉐도어SRCmulti:
+    spell-class: ".MultiSpell"
+    cooldown: 60
+    str-on-cooldown: "&f(&0쉐&7도&8어&f)쉬프트 우클릭의 쿨타임이 %c초남았습니다."
+    spells:
+        - 쉐도어SRCPP1
+        - 쉐도어SRCstun1
+        - 쉐도어SRCmulti2
+        - DELAY 130
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - DELAY 2
+        - 쉐도어SRCPP2
+        - 쉐도어SRCaera2
+      
+쉐도어SRCmulti2:
+    spell-class: ".MultiSpell"
+    spells:
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+        - DELAY 5
+        - 쉐도어SRCaera1
+
+쉐도어SRCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 20
+    vertical-radius: 20
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 쉐도어SRCpain3
+    effects:
+        1:
+          delay: 0
+          position: special
+          effect: effectlib
+          height-offset: 0
+          effectlib:
+              class: ModifiedEffect
+              duration: 900
+              effect:
+                   class: SphereEffect
+                   radius: 6
+                   particles: 420
+                   particle: SPELL_WITCH
+                   color: FFFF00
+                   relativeOffset: 0,1w,0
+              parameters:
+                   radius: "t * 0.5"
+        3: 
+          position: special 
+          effect: effectlib 
+          delay: 0
+          effectlib:  
+              class: HelixEffect
+              particle: SPELL_WITCH
+              strands: 8
+              particles: 210
+              radius: 13
+              curve: 10000
+              rotation: 1
+              iterations: 1
+              period: 10
+        5: 
+          position: special 
+          effect: effectlib 
+          delay: 0
+          effectlib:  
+              class: HelixEffect
+              particle: SMOKE_NORMAL
+              strands: 3
+              particles: 210
+              radius: 13
+              curve: 10000
+              rotation: 1
+              iterations: 1
+              period: 10
+
+쉐도어SRCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 13
+    vertical-radius: 13
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 쉐도어SRCforcetoss
+          - 쉐도어SRCpain1
+          - 쉐도어SRCdrainlife
+
+쉐도어SRCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 20
+
+쉐도어SRCdrainlife:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 1
+    give-type: health
+    give-amt: 5
+    animation-speed: 2
+    ignore-armor: false
+    show-spell-effect: true
+
+쉐도어SRCpain3:
+    spell-class: ".targeted.PainSpell"
+    damage: 100
+
+쉐도어SRCforcetoss:
+    spell-class: ".targeted.ForcetossSpell"
+    damage: 0
+    horizontal-force: -8
+    vertical-force: -8
+
+쉐도어SRCstun1:
+    spell-class: ".targeted.StunSpell"
+    duration: 8.5
+    target-self: true      
+      
+쉐도어SRCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 4
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: pain2
+    effects:
+       4g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       3g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       2g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       1g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       5g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       6g: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       4: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       3: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       2: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       1: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       5: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       6: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 1
+          yFactor: 5
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 1.6
+          iterations: 170
+          period: 1
+       7G: 
+        position: special 
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: SPELL_WITCH
+          color: 000000
+          radius: 1
+          particles: 100
+          iterations: 10
+          period: 17
+       1d: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 4
+          yFactor: 5
+          zFactor: 4
+          xoffset: 0
+          yoffset: 5
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 170
+          period: 1
+       2d: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 1
+          particles: 240
+          xFactor: 4
+          yFactor: 5
+          zFactor: 4
+          xoffset: 0
+          yoffset: 5
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 170
+          period: 1
+       3d: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SPELL_WITCH
+          pariclesPerlteration: 10
+          size: 2
+          particles: 240
+          xFactor: 4
+          yFactor: 3
+          zFactor: 4
+          xoffset: 0
+          yoffset: 5
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 170
+          period: 1
+       4d: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: SMOKE_NORMAL
+          pariclesPerlteration: 10
+          size: 2
+          particles: 240
+          xFactor: 4
+          yFactor: 3
+          zFactor: 4
+          xoffset: 0
+          yoffset: 5
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 170
+          period: 1
+       5d:
+         position: caster
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 650
+             particle: SPELL_WITCH
+             color: FBFF00
+             particles: 50
+             cycle: false
+             orient: true
+             orientPitch: false
+       6d:
+         position: caster
+         effect: effectlib
+         delay: 0
+         effectlib:
+             class: EquationEffect
+             xEquation: "4cos(10+t)2sin(0.001 * (1-t))"
+             yEquation: "0"
+             zEquation: "4sin(10+t)2sin(0.001 * (1-t))"
+             duration: 650
+             particle: SMOKE_NORMAL
+             color: FBFF00
+             particles: 50
+             cycle: false
+             orient: true
+             orientPitch: false
+
+쉐도어SRCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 4
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: pain2
+    effects:
+       3: 
+        position: special 
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: SPELL_WITCH
+          color: 000000
+          radius: 1
+          particles: 300
+          iterations: 1
+          period: 1
+       2: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1cos(t)" 
+            yEquation: "" 
+            zEquation: "1sin(t)" 
+            duration: 1
+            particle: redstone 
+            particles: 100
+            cycle: true 
+            color: 000000 
+            orient: true
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "1.5cos(t)" 
+            yEquation: "" 
+            zEquation: "3sin(t)" 
+            duration: 1
+            particle: redstone 
+            particles: 150
+            cycle: true 
+            color: 000000 
+            orient: true
+            
+쉐도어SLCmultidummy1:
+    spell-class: ".buff.DummySpell"
+    cast-item: sw
+    modifiers:
+        - sneaking castinstead 쉐도어SLCmulti
+    duration: 0.5
+
+쉐도어SLCmulti:
+    spell-class: ".MultiSpell"
+    cooldown: 35
+    str-on-cooldown: "&f(&0쉐&7도&8어&f)쉬프트 좌클릭의 쿨타임이 %c초남았습니다."
+    spells:
+        - 쉐도어SLCPP1
+        - 쉐도어SLCPP2
+        - 쉐도어SLCPP3
+        - 쉐도어SLCPP4
+        - 쉐도어SLCPP0
+
+쉐도어SLCPP0:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCMultiT
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: SPELL_WITCH
+            color: FF9999
+            strands: 9
+            particles: 100
+            radius: 5
+            curve: 1
+            rotation: 1
+            iterations: 10
+            period: 1
+
+쉐도어SLCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCMultiT
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: SPELL_WITCH
+            color: FF9999
+            strands: 9
+            particles: 100
+            radius: 5
+            curve: 1
+            rotation: 1
+            iterations: 10
+            period: 1
+
+쉐도어SLCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-horiz-offset: 90
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCMultiT
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: SPELL_WITCH
+            color: FF9999
+            strands: 9
+            particles: 100
+            radius: 5
+            curve: 1
+            rotation: 1
+            iterations: 10
+            period: 1
+
+쉐도어SLCPP3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-horiz-offset: -90
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCMultiT
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: SPELL_WITCH
+            color: FF9999
+            strands: 9
+            particles: 100
+            radius: 5
+            curve: 1
+            rotation: 1
+            iterations: 10
+            period: 1
+
+쉐도어SLCPP4:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 10
+    projectile-horiz-offset: -180
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCMultiT
+    effects:
+       1: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: HelixEffect
+            particle: SPELL_WITCH
+            color: FF9999
+            strands: 9
+            particles: 100
+            radius: 5
+            curve: 1
+            rotation: 1
+            iterations: 10
+            period: 1
+
+쉐도어SLCMultiT:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - DELAY 5
+        - 쉐도어SLCPP22
+
+쉐도어SLCPP22:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: smoke
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 쉐도어SLCaera1
+    effects:
+      1: 
+        position: special
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4sin(t)" 
+            yEquation: "0.01(t)" 
+            zEquation: "4cos(t)" 
+            duration: 1
+            particle: SPELL_WITCH
+            particles: 900
+            cycle: true 
+            color: FF9999
+            orient: false 
+            iterations: 1
+            period: 1
+      2: 
+        position: special
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: EquationEffect 
+            xEquation: "4sin(t)" 
+            yEquation: "0.01(t)" 
+            zEquation: "4cos(t)" 
+            duration: 1
+            particle: SMOKE_NORMAL
+            particles: 900
+            cycle: true 
+            color: FF9999
+            orient: false 
+            iterations: 1
+            period: 1
+
+쉐도어SLCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 5
+    vertical-radius: 5
+    max-targets: 1000
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 쉐도어SLCpain1
+          - 쉐도어SLCsilence
+         
+쉐도어SLCsilence:
+    spell-class: ".targeted.SilenceSpell"
+    range: 10
+    prevent-cast: true
+    prevent-chat: false
+    prevent-commands: false
+    duration: 100
+    allowed-spells:
+        - list
+        - help
+         
+쉐도어SLCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 50
+    ignore-armor: false

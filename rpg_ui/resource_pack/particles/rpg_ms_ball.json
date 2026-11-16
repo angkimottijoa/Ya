@@ -42,15 +42,15 @@
       },
       "minecraft:particle_appearance_billboard": {
         "size": [
-          "variable.size * 0.07 * (0.75 + variable.particle_random_3 * 0.5) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))",
-          "variable.size * 0.07 * (0.75 + variable.particle_random_3 * 0.5) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))"
+          "variable.size * 0.2 * (0.75 + variable.particle_random_3 * 0.5) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))",
+          "variable.size * 0.2 * (0.75 + variable.particle_random_3 * 0.5) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))"
         ],
         "facing_camera_mode": "lookat_xyz",
         "uv": {
           "texture_width": 16,
           "texture_height": 16,
           "uv": [
-            "math.floor(variable.particle_random_4 * 3) + 1",
+            "math.floor(variable.particle_random_4 * 2) + 6",
             0
           ],
           "uv_size": [

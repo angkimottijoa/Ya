@@ -1,0 +1,86 @@
+Shadow_Q_Passive:
+    spell-class: ".PassiveSpell"
+    delay: -1
+    always-granted: true
+    triggers:
+        - dropitem 272
+    cancel-default-action: true
+    spells: 
+        - Shadow_Q_Ex
+
+Shadow_Q_Ex:
+    spell-class: ".ExternalCommandSpell"
+    always-granted: true
+    command-to-execute: 
+        - "c Shadow_Q_TM"
+
+Shadow_Q_TM:
+    spell-class: ".TargetedMultiSpell"
+    target-modifiers:
+        - potioneffect 20 required
+    range: 20
+    can-target: players, nonplayers
+    require-entity-target: true
+    always-granted: true
+    cooldown: 10
+    str-no-target: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &c&l\uBC14\uB77C\uBCF4\uB294 \uB300\uC0C1\uC774 \uB108\uBB34 \uBA40\uAC70\uB098 \uD45C\uC2DD\uC774 \uC5C6\uC2B5\uB2C8\uB2E4!"
+    str-on-cooldown: "&f[ &5&l&5&l\uADF8\uB9BC\uC790 &f] &7&l\uADF8\uB9BC\uC790\uBC1C\uAC78\uC74C &f&l\uCFE8\uD0C0\uC784\uC774 &b&l%c&l&f\uCD08 &a&l\uB0A8\uC558\uC2B5\uB2C8\uB2E4"
+    no-target: false
+    spells:
+        - Shadow_Q_TM_ShadowStep
+
+Shadow_Q_TM_ShadowStep:
+    spell-class: ".targeted.ShadowstepSpell"
+    target-modifiers:
+        - potioneffect 20 required
+    can-target: players, nonplayers
+    effects:
+      1:
+        position: target
+        effect: sound
+        sound: entity.zombie.infect
+        volume: 1
+        pitch: 0.5
+        delay: 1
+      2:
+        position: target
+        effect: particles
+        particle-name: witchMagic
+        horiz-spread: 0.5
+        vert-spread: 0.5
+        speed: 0.1
+        count: 100
+        y-offset: 0.3
+      3:
+        position: target
+        effect: particles
+        particle-name: smoke
+        horiz-spread: 0.5
+        vert-spread: 0.5
+        speed: 0.1
+        count: 100
+        y-offset: 0.3
+        delay: 0
+
+Shadow_Q_TM_ShadowStep_SpellCast_Passive:
+    spell-class: ".PassiveSpell"
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790 &f] &f&l\uD604\uC7AC &5&l\uADF8\uB9BC\uC790 &7&l\uC911\uCCA9 &0&l[&f&l%var:shadow:0%&7/&f&l100&0&l]"
+    triggers:
+        - spellcast Shadow_Q_TM_ShadowStep
+    spells: 
+        - Shadow_Q_TM_ShadowStep_SpellCast_Ex
+    variable-mods-cast:
+        - shadow +30
+
+Shadow_Q_TM_ShadowStep_SpellCast_Ex:
+    spell-class: ".ExternalCommandSpell"
+    cooldown: 0
+    command-to-execute: 
+        - "c Shadow_Q_TM_ShadowStep_SpellCast_Dummy"
+
+Shadow_Q_TM_ShadowStep_SpellCast_Dummy:
+    spell-class: ".instant.DummySpell"
+    always-granted: true
+    str-cast-self: "&f[ &5&l\uADF8\uB9BC\uC790\uBC1C\uAC78\uC74C &f] &f&l\uADF8\uB9BC\uC790 \uC911\uCCA9\uC744 \uC313\uC558\uC2B5\uB2C8\uB2E4!"
+
+

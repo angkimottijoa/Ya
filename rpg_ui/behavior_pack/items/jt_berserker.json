@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_berserker",
       "minecraft:display_name": {
-        "value": "§c광전사의 전투도끼 §7[2차 광전사 전용]"
+        "value": "§c핏빛칼날 블라디 §7[2차 광전사 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

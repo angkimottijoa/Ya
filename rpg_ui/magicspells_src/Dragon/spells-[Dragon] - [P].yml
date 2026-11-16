@@ -1,0 +1,2319 @@
+variables:
+    dragon:
+        type: player
+        default: 0
+        min: 0
+        max: 3
+        permanent: true
+    dragonshield:
+        type: player
+        default: 0
+        min: 0
+        max: 101
+        permanent: false
+
+Dragon_AttackAxe_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - givedamage
+    modifiers:
+        - variableequals dragon:3 denied
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    variable-mods-cast:
+        - dragon +1
+
+Dragon_Passsive_R_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 9.9
+
+Dragon_Passsive_ShiftL_Dummy:
+    spell-class: ".buff.DummySpell"
+    always-granted: true
+    duration: 12
+
+Dragon_AttackAxe_Passive_Actionbar_R_Dummy:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - buffactive Dragon_Passsive_R_Dummy required
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &c&l\uC2A4\uD0AC\uC744 \uC2DC\uC804\uD558\uACE0 \uC788\uC5B4 \uC77C\uC2DC\uC801\uC73C\uB85C \uBE44\uD65C\uC131\uD654\uB429\uB2C8\uB2E4"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_SL_Dummy:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - buffactive Dragon_Passsive_ShiftL_Dummy required
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &c&l\uC2A4\uD0AC\uC744 \uC2DC\uC804\uD558\uACE0 \uC788\uC5B4 \uC77C\uC2DC\uC801\uC73C\uB85C \uBE44\uD65C\uC131\uD654\uB429\uB2C8\uB2E4"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_0:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - variableequals dragon:0 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &f&l\u25A1\u25A1\u25A1"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_1:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - variableequals dragon:1 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &1&l\u25A0&f&l\u25A1\u25A1"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_2:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - variableequals dragon:2 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &1&l\u25A0\u25A0&f&l\u25A1"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_3:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 2
+    modifiers:
+        - variableequals dragon:3 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_Passive_FullStack_Strength
+        - Dragon_Passive_Axe_Effect_PP
+    effects:
+      eff1:
+        position: caster
+        effect: actionbartext
+        message: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f] &1&l\u25A0\u25A0\u25A0"
+        broadcast: false
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_M:
+    spell-class: ".MultiSpell"
+    spells:
+        - DELAY 2
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Ex
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Ex:
+    spell-class: ".ExternalCommandSpell"
+    always-granted: true
+    command-to-execute:
+        - "c Dragon_AttackAxe_Passive_Actionbar_3_Attack_Dummy"
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Dummy:
+    spell-class: ".instant.DummySpell"
+    always-granted: true
+    variable-mods-cast:
+        - dragon -3
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Spellcast:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - spellcast Dragon_AttackAxe_Passive_Actionbar_3_Attack_Slowness
+    modifiers:
+        - holding 279 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+    spells: 
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_M
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Slowness:
+    spell-class: ".targeted.PotionEffectSpell"
+    target-modifiers:
+        - potioneffect 2 denied
+        - potioneffect 13 denied
+    type: 2
+    strength: 49
+    duration: 100
+    targeted: true
+    can-target: players, nonplayers
+    effects:
+      0:
+        position: target
+        effect: title
+        title: "&f[ &1&l\uC6A9&f&l\uC758&b&l\uD45C\uC2DD &f]"
+        subtitle: "&f[ &1&l\uC6A9&f&l\uC758 &b&l\uD45C\uC2DD&f&l\uC774 \uC0C8\uACA8\uC838 &c&l\uC6C0\uC9C1\uC77C \uC218 \uC5C6\uC2B5\uB2C8\uB2E4! &f]"
+        fade-in: 5
+        stay: 100
+        fade-out: 5
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_WaterBreath:
+    spell-class: ".targeted.PotionEffectSpell"
+    target-modifiers:
+        - potioneffect 2 denied
+        - potioneffect 13 denied
+    type: 13
+    strength: 0
+    duration: 1200
+    targeted: true
+    can-target: players, nonplayers
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Buff_TM:
+    spell-class: ".TargetedMultiSpell"
+    target-modifiers:
+        - potioneffect 2 denied
+        - potioneffect 13 denied
+    spells:
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_WaterBreath
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Slowness
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+        - DELAY 10
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack_Effectlib:
+    spell-class: ".targeted.DummySpell"
+    effects:
+      Rotate_1:
+        position: target
+        delay: 0
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.11sin(0.15t)rand(-0.01,0.01) + 0.9sin(0.15t)"
+            yEquation: "0.04sin(0.45t)rand(-0.01,0.01) - 1 - 0.04sin(0.15t)rand(-0.01,0.01)+1.2cos(0.15t) + 2"
+            zEquation: "-0.11sin(0.05t)rand(-0.01,0.01) - 0.9cos(0.15t)"
+            duration: 550
+            particle: redstone
+            color: 0054FF
+            particles: 5
+            cycle: false
+            speed: 0
+            orient: true
+            orientPitch: false
+            yaw-offset: 0
+      Rotate_2:
+        position: target
+        delay: 0
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "-0.11sin(0.15t)rand(-0.01,0.01) - 0.9sin(0.15t)"
+            yEquation: "0.04sin(0.45t)rand(-0.01,0.01) - 1 - 0.04sin(0.15t)rand(-0.01,0.01)+1.2cos(0.15t) + 2"
+            zEquation: "0.11sin(0.05t)rand(-0.01,0.01) + 0.9cos(0.15t)"
+            duration: 550
+            particle: redstone
+            color: FFFFFF
+            particles: 5
+            cycle: false
+            speed: 0
+            orient: true
+            orientPitch: false
+            yaw-offset: 0
+
+Dragon_AttackAxe_Passive_Actionbar_3_Attack:
+    spell-class: ".PassiveSpell"
+    target-modifiers:
+        - potioneffect 2 denied
+        - potioneffect 13 denied
+    triggers:
+        - givedamage
+    modifiers:
+        - variableequals dragon:3 required
+        - buffactive Dragon_Passsive_R_Dummy denied
+        - buffactive Dragon_Passsive_ShiftL_Dummy denied
+        - holding 279 required
+    spells: 
+        - Dragon_AttackAxe_Passive_Actionbar_3_Attack_Buff_TM
+    effects:
+      1:
+        position: target
+        effect: particles
+        particle-name: cloud
+        horiz-spread: 0.75
+        vert-spread: 0.75
+        speed: 0.25
+        count: 100
+        y-offset: 1
+      2:
+        position: target
+        effect: particles
+        particle-name: largesmoke
+        horiz-spread: 0.75
+        vert-spread: 0.75
+        speed: 0.25
+        count: 100
+        y-offset: 1
+      3a:
+        position: target
+        effect: sound
+        sound: entity.zombie_villager.cure
+        volume: 1.5
+        pitch: 0.8
+
+ShieldEffect_Dragon_Speed:
+    spell-class: ".targeted.PotionEffectSpell"
+    type: 1
+    strength: 1
+    duration: 8
+    targeted: false
+    can-target: self
+
+ShieldEffect_Dragon_Jump:
+    spell-class: ".targeted.PotionEffectSpell"
+    type: 8
+    strength: 3
+    duration: 8
+    targeted: false
+    can-target: self
+
+Dragon_Passive_FullStack_Strength:
+    spell-class: ".targeted.PotionEffectSpell"
+    type: 5
+    strength: 1
+    duration: 8
+    targeted: false
+    can-target: self
+
+Dragon_ShieldEffect_Cast_Passive:
+    spell-class: ".PassiveSpell"
+    str-cast-self: "&f&l[ &b&l\uC751\uB8E1&f&l\uC758&e&l\uAC00\uD638 &f] &b&l\uBCF4\uD638\uB9C9&f\uC774 \uB2F9\uC2E0\uC744 \uB458\uB7EC\uC309\uB2C8\uB2E4."
+    triggers:
+        - ticks 1
+    modifiers:
+        - variableequals dragonshield:100 required
+        - hasitem 279 required
+    spells: 
+        - Dragon_Effect_Passive_Ball_PP
+    effects:
+      1:
+        position: caster
+        effect: particles
+        particle-name: instantSpell
+        horiz-spread: 0.75
+        vert-spread: 0.75
+        speed: 0.25
+        count: 250
+        y-offset: 1
+      2:
+        position: caster
+        effect: particles
+        particle-name: largesmoke
+        horiz-spread: 0.75
+        vert-spread: 0.75
+        speed: 0.25
+        count: 250
+        y-offset: 1
+      3a:
+        position: caster
+        effect: sound
+        sound: entity.wither.spawn
+        volume: 1.5
+        pitch: 2
+
+Dragon_ShieldEffect_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - variableequals dragonshield:101 required
+        - hasitem 279 required
+    spells: 
+        - Dragon_Effect_Passive_Ball_PP
+        - ShieldEffect_Dragon_Speed
+        - ShieldEffect_Dragon_Jump
+
+Dragon_ShieldEffect_Passive2:
+    spell-class: ".PassiveSpell"
+    cooldown: 1
+    chance: 100
+    cancel-default-action: true
+    str-cast-self: "&f&l[ &b&l\uC751\uB8E1&f&l\uC758&e&l\uAC00\uD638 &f] &b&l\uBCF4\uD638\uB9C9&f&l\uC774 \uACF5\uACA9\uC744 1\uD68C \uBC29\uC5B4\uD569\uB2C8\uB2E4."
+    triggers:
+        - takedamage
+    modifiers:
+        - variableequals dragonshield:101 required
+        - hasitem 279 required
+    spells: 
+        - Dragon_Mark_Dummy
+    variable-mods-cast:
+        - dragonshield -101
+    effects:
+      1:
+        position: caster
+        effect: sound
+        sound: entity.horse.armor
+        volume: 1.5
+        pitch: 0.5
+      Rotate_1:
+        position: caster
+        delay: 0
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.22sin(0.15t)rand(-0.01,0.01) + 1.8sin(0.15t)"
+            yEquation: "0.04sin(0.45t)rand(-0.01,0.01) - 1 - 0.04sin(0.15t)rand(-0.01,0.01)+1.2cos(0.15t) + 2"
+            zEquation: "-0.22sin(0.05t)rand(-0.01,0.01) - 1.8cos(0.15t)"
+            duration: 550
+            particle: spell_instant
+            particles: 5
+            cycle: false
+            speed: 0
+            orient: true
+            orientPitch: false
+            yaw-offset: 0
+      Rotate_2:
+        position: caster
+        delay: 0
+        effect: effectlib
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.22sin(0.15t)rand(-0.01,0.01) + 1.8sin(0.15t)"
+            yEquation: "0.04sin(0.45t)rand(-0.01,0.01) - 1 - 0.04sin(0.15t)rand(-0.01,0.01)+1.2cos(0.15t) + 2"
+            zEquation: "0.22sin(0.05t)rand(-0.01,0.01) + 1.8cos(0.15t)"
+            duration: 550
+            particle: spell_instant
+            particles: 5
+            cycle: false
+            speed: 0
+            orient: true
+            orientPitch: false
+            yaw-offset: 0
+
+Dragon_Shield_UpVariable_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - hasitem 279 required
+        - variableequals dragonshield:101 denied
+    spells: 
+        - Dragon_Mark_Dummy
+    variable-mods-cast:
+        - dragonshield +1
+
+Dragon_Shield_DownVariable_Passive_Take:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - takedamage
+    modifiers:
+        - hasitem 279 required
+        - variableequals dragonshield:101 denied
+    spells: 
+        - Dragon_Mark_Dummy
+    variable-mods-cast:
+        - dragonshield -101
+
+Dragon_Shield_DownVariable_Passive_Give:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - givedamage
+    modifiers:
+        - hasitem 279 required
+        - variableequals dragonshield:101 denied
+    spells: 
+        - Dragon_Mark_Dummy
+    variable-mods-cast:
+        - dragonshield -101
+
+Dragon_Effect_Passive_Ball_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    particle-name: take
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    special-effect-interval: 1
+    tick-interval: 1
+    max-distance: 0
+    max-duration: 0
+    hit-players: true
+    hit-non-players: true
+    hit-air-at-end: true
+    start-forward-offset: 0
+    start-y-offset: 1
+    hit-radius: 1
+    vertical-hit-radius: 1
+    stop-on-hit-entity: false
+    stop-on-hit-ground: false
+    spell: Dragon_Mark_Dummy
+    effects:
+      0: 
+        position: special
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect
+            particle: redstone
+            color: 0054FF
+            radius: 1.5
+            particles: 10
+            iterations: 100
+            period: 1
+            duration: 100
+      1: 
+        position: special
+        effect: effectlib 
+        effectlib: 
+            class: SphereEffect
+            particle: redstone
+            color: FFFFFF
+            radius: 1.5
+            particles: 5
+            iterations: 100
+            period: 1
+            duration: 100
+
+Dragon_Passive_Axe_Effect_PP:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2.0
+    projectile-spread: 0
+    projectile-gravity: 0
+    projectile-horiz-offset: 90
+    height-from-surface: 0.3
+    start-forward-offset: 0
+    start-y-offset: 5
+    power-affects-velocity: true
+    tick-interval: 13
+    special-effect-interval: 1
+    particle-count: 1
+    particle-speed: 0
+    particle-name: take
+    particle-horizontal-spread: 0.01
+    particle-vertical-spread: 0.01
+    hit-radius: 1
+    vertical-hit-radius: 1
+    max-distance: 1
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: true
+    stop-on-hit-ground: true
+    hit-ground: true
+    hug-surface: false
+    max-duration: 9999
+    spell: Dragon_Mark_Dummy
+    effects:
+      1:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.4
+        color: 000000
+      2:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.2
+        color: 0054FF
+      3:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4
+        color: 0054FF
+      4:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.8
+        color: 0054FF
+      5:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.6
+        color: 000000
+      6:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.4
+        color: 000000
+      7:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.2
+        color: 000000
+      8:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3
+        color: 000000
+      9:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -2.8
+        color: 000000
+      10:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -2.6
+        color: 000000
+      11:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -2.4
+        color: 000000
+      12:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -2.2
+        color: 000000
+      13:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -2
+        color: 000000
+      14:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.8
+        color: 000000
+      15:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.6
+        color: 000000
+      16:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.4
+        color: 000000
+      17:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        color: 0054FF
+      18:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1
+        color: 000000
+      19:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        color: 0054FF
+      20:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        color: 000000
+      21:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        color: 000000
+      22:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        color: 000000
+      23:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        color: 000000
+      24:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        color: 000000
+      25:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        color: 000000
+      26:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        color: 000000
+      27:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        color: 0054FF
+      28:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1
+        color: 0054FF
+      29:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        color: 0054FF
+      30:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.4
+        color: 0054FF
+      31:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.6
+        color: 000000
+      32:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.4
+        z-offset: 0.2
+        color: 000000
+      33:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.2
+        z-offset: 0.2
+        color: 000000
+      34:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4
+        z-offset: 0.2
+        color: 0054FF
+      35:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.8
+        z-offset: 0.2
+        color: 000000
+      36:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.6
+        z-offset: 0.2
+        color: 000000
+      37:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: 0.2
+        color: 0054FF
+      38:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: 0.2
+        color: 0054FF
+      39:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 0.2
+        color: 0054FF
+      40:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: 0.2
+        color: 000000
+      41:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 0.2
+        color: 0054FF
+      42:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: 0.2
+        color: 000000
+      43:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: 0.2
+        color: 0054FF
+      44:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: 0.2
+        color: 0054FF
+      45:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.4
+        z-offset: 0.2
+        color: 000000
+      46:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.4
+        z-offset: -0.2
+        color: 000000
+      47:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.2
+        z-offset: -0.2
+        color: 000000
+      48:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4
+        z-offset: -0.2
+        color: 0054FF
+      49:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.8
+        z-offset: -0.2
+        color: 000000
+      50:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.6
+        z-offset: -0.2
+        color: 000000
+      51:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: -0.2
+        color: 0054FF
+      52:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: -0.2
+        color: 0054FF
+      53:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -0.2
+        color: 0054FF
+      54:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: -0.2
+        color: 000000
+      55:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -0.2
+        color: 0054FF
+      56:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: -0.2
+        color: 000000
+      57:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: -0.2
+        color: 0054FF
+      58:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: -0.2
+        color: 0054FF
+      59:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.4
+        z-offset: -0.2
+        color: 000000
+      60:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.2
+        z-offset: 0.4
+        color: 000000
+      61:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4
+        z-offset: 0.4
+        color: 000000
+      62:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.8
+        z-offset: 0.4
+        color: 000000
+      63:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 0.4
+        color: 0054FF
+      64:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 0.4
+        color: 0054FF
+      65:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 0.4
+        color: 0054FF
+      66:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 0.4
+        color: 0054FF
+      67:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: 0.4
+        color: 000000
+      68:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4.2
+        z-offset: -0.4
+        color: 000000
+      69:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -4
+        z-offset: -0.4
+        color: 000000
+      70:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -3.8
+        z-offset: -0.4
+        color: 000000
+      71:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -0.4
+        color: 0054FF
+      72:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -0.4
+        color: 0054FF
+      73:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -0.4
+        color: 0054FF
+      74:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -0.4
+        color: 0054FF
+      75:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: -0.4
+        color: 000000
+      76:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0
+        z-offset: 0.6
+        color: 0054FF
+      77:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0
+        z-offset: -0.6
+        color: 0054FF
+      78:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0
+        z-offset: 0.8
+        color: 0054FF
+      79:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 0.8
+        color: 0054FF
+      80:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 0.8
+        color: 0054FF
+      81:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0
+        z-offset: -0.8
+        color: 0054FF
+      82:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -0.8
+        color: 0054FF
+      83:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -0.8
+        color: 0054FF
+      84:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: 1
+        color: 000000
+      85:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 1
+        color: 0054FF
+      86:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: 1
+        color: 0054FF
+      87:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 1
+        color: 000000
+      88:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 1
+        color: 0054FF
+      89:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 1
+        color: 000000
+      90:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: 1
+        color: 0054FF
+      91:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: 1
+        color: 0054FF
+      92:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: 1
+        color: 000000
+      93:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: -1
+        color: 000000
+      94:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -1
+        color: 0054FF
+      95:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: -1
+        color: 0054FF
+      96:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -1
+        color: 000000
+      97:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -1
+        color: 0054FF
+      98:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -1
+        color: 000000
+      99:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: -1
+        color: 0054FF
+      100:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: -1
+        color: 0054FF
+      101:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: -1
+        color: 000000
+      102:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: 1.2
+        color: 000000
+      103:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1
+        z-offset: 1.2
+        color: 000000
+      104:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: 1.2
+        color: 0054FF
+      105:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 1.2
+        color: 0054FF
+      106:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: 1.2
+        color: 0054FF
+      107:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 1.2
+        color: 0054FF
+      108:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 1.2
+        color: 000000
+      109:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 1.2
+        color: 0054FF
+      110:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: 1.2
+        color: 0054FF
+      111:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: 1.2
+        color: 0054FF
+      112:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: 1.2
+        color: 0054FF
+      113:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1
+        z-offset: 1.2
+        color: 000000
+      114:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: 1.2
+        color: 000000
+      115:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1.2
+        z-offset: -1.2
+        color: 000000
+      116:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1
+        z-offset: -1.2
+        color: 000000
+      117:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: -1.2
+        color: 0054FF
+      118:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -1.2
+        color: 0054FF
+      119:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: -1.2
+        color: 0054FF
+      120:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -1.2
+        color: 0054FF
+      121:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -1.2
+        color: 000000
+      122:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -1.2
+        color: 0054FF
+      123:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: -1.2
+        color: 0054FF
+      124:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: -1.2
+        color: 0054FF
+      125:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: -1.2
+        color: 0054FF
+      126:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1
+        z-offset: -1.2
+        color: 000000
+      127:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1.2
+        z-offset: -1.2
+        color: 000000
+      128:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1
+        z-offset: 1.4
+        color: 000000
+      129:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: 1.4
+        color: 000000
+      130:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 1.4
+        color: 0054FF
+      131:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: 1.4
+        color: 0054FF
+      132:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 1.4
+        color: 0054FF
+      133:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 1.4
+        color: 0054FF
+      134:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 1.4
+        color: 0054FF
+      135:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: 1.4
+        color: 0054FF
+      136:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: 1.4
+        color: 0054FF
+      137:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: 1.4
+        color: 000000
+      138:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1
+        z-offset: 1.4
+        color: 000000
+      139:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -1
+        z-offset: -1.4
+        color: 000000
+      140:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.8
+        z-offset: -1.4
+        color: 000000
+      141:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -1.4
+        color: 0054FF
+      142:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: -1.4
+        color: 0054FF
+      143:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -1.4
+        color: 0054FF
+      144:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -1.4
+        color: 0054FF
+      145:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -1.4
+        color: 0054FF
+      146:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: -1.4
+        color: 0054FF
+      147:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: -1.4
+        color: 0054FF
+      148:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.8
+        z-offset: -1.4
+        color: 000000
+      149:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 1
+        z-offset: -1.4
+        color: 000000
+      150:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: 1.6
+        color: 000000
+      151:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: 1.6
+        color: 000000
+      152:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: 1.6
+        color: 000000
+      153:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: 1.6
+        color: 000000
+      154:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: 1.6
+        color: 000000
+      155:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: 1.6
+        color: 000000
+      156:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: 1.6
+        color: 000000
+      157:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.6
+        z-offset: -1.6
+        color: 000000
+      158:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.4
+        z-offset: -1.6
+        color: 000000
+      159:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0.2
+        z-offset: -1.6
+        color: 000000
+      160:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: -0
+        z-offset: -1.6
+        color: 000000
+      161:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.2
+        z-offset: -1.6
+        color: 000000
+      162:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.4
+        z-offset: -1.6
+        color: 000000
+      163:
+        position: special
+        effect: particles
+        particle-name: reddust
+        horiz-spread: 0.01
+        vert-spread: 0.01
+        speed: 0
+        count: 1
+        y-offset: 0.6
+        z-offset: -1.6
+        color: 000000
+

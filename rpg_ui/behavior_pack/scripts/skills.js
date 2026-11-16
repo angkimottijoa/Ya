@@ -10,6 +10,7 @@ import { weaponInfo, inv } from "./itemdb.js";
 import * as J from "./jobs.js";
 import * as M from "./ms.js";
 import * as SB from "./spellbook.js";
+import * as MSR from "./msrun.js";
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
@@ -178,6 +179,18 @@ export function castWeaponSkill(p, id) {
     notify(p, `§7${s.name} §c- ${J.PATHS[s.path]?.tool?.name ?? "전용 도구"}를 들어야 사용 가능`);
     return false;
   }
+  // 원본 콤보(buffactive castinstead)가 열려 있으면 쿨다운·마나 없이 다음 단계
+  if (s.next && MSR.canCast(p, s.next)) {
+    anim(p, "smash");
+    MSR.cast({ p, scale: Math.max(0.2, power(p, s) / 25), size: 1 }, s.next);
+    notify(p, `§b§l${s.name}! §r§7(연계)`);
+    return true;
+  }
+  if (s.ms && MSR.comboReady(p, s.ms)) {
+    runEffect(p, s, power(p, s));
+    notify(p, `§b§l${s.name}! §r§7(연계)`);
+    return true;
+  }
   const left = readyIn(p, s.id);
   if (left > 0) {
     notify(p, `§7${s.name} 재사용 대기 §f${Math.ceil(left)}초`);
@@ -200,6 +213,17 @@ export function castWeaponSkill(p, id) {
 // ───────── 효과: spellbook.js (MagicSpells 이식 엔진) ─────────
 function runEffect(p, s, dmg) {
   const d = data(p);
+  if (s.ms) {
+    // 자바 MagicSpells 원본 실행: 원본 피해 수치 × (스킬 위력 / 25)
+    anim(p, s.anim ?? "slash");
+    MSR.cast({ p, scale: Math.max(0.2, dmg / 25), size: 1 }, s.ms);
+    // 원본에선 패시브가 주던 피해: 시전 뒤 바라본 적에게 마무리 일격
+    if (s.hit) {
+      const t = p.getEntitiesFromViewDirection({ maxDistance: 20, excludeTypes: ["minecraft:player", "rpg:npc"] })[0]?.entity;
+      if (t) system.runTimeout(() => { try { if (t.isValid()) { M.skillHit.set(t.id, system.currentTick); t.applyDamage(Math.round(dmg * s.hit), { cause: "entityAttack", damagingEntity: p }); } } catch {} }, 20);
+    }
+    return;
+  }
   const pal = (M.PAL[s.pal] ?? M.PAL[J.PATH_PAL[s.path]] ?? M.PAL.cloud).map(M.hex);
   const ctx = {
     p, dim: p.dimension, s, dmg, pal, data: d, tick: system.currentTick,

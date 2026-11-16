@@ -1,0 +1,72 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:vfx_fountain",
+   "basic_render_parameters": {
+    "material": "particles_add",
+    "texture": "textures/particle/rpg_glow"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_steady": {
+    "spawn_rate": 500,
+    "max_particles": 800
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": "variable.life"
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "0.6 + variable.particle_random_3 * 0.5"
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "((variable.particle_random_4 < 0.6) ? math.cos(math.floor(variable.particle_random_2 * 6) * 60 + variable.yaw) * variable.r * 0.55 : math.cos(variable.particle_random_1 * 360) * variable.r * variable.particle_random_2)",
+     0.1,
+     "((variable.particle_random_4 < 0.6) ? math.sin(math.floor(variable.particle_random_2 * 6) * 60 + variable.yaw) * variable.r * 0.55 : math.sin(variable.particle_random_1 * 360) * variable.r * variable.particle_random_2)"
+    ],
+    "direction": [
+     "(variable.particle_random_1 - 0.5) * 0.15",
+     1,
+     "(variable.particle_random_3 - 0.5) * 0.15"
+    ]
+   },
+   "minecraft:particle_initial_speed": "(variable.particle_random_4 < 0.6) ? 9 + variable.particle_random_3 * 4 : 3 + variable.particle_random_3 * 3",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     -9,
+     0
+    ],
+    "linear_drag_coefficient": 0.4
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * 0.32 * (0.8 + variable.particle_random_3 * 0.4)",
+     "variable.size * 0.32 * (0.8 + variable.particle_random_3 * 0.4)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 1,
+     "texture_height": 1,
+     "uv": [
+      0,
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": [
+     "variable.color.r",
+     "variable.color.g",
+     "variable.color.b",
+     "variable.color.a * math.min(1, (variable.particle_age / variable.particle_lifetime) / 0.05) * math.clamp((1 - (variable.particle_age / variable.particle_lifetime)) * 3, 0, 1)"
+    ]
+   }
+  }
+ }
+}

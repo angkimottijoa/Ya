@@ -11,11 +11,11 @@
     "components": {
       "minecraft:icon": "rpg_jt_elementalist",
       "minecraft:display_name": {
-        "value": "§b원소의 지팡이 §7[2차 원소술사 전용]"
+        "value": "§b크티아스의 마도서 §7[2차 원소술사 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
-      "minecraft:damage": 5,
+      "minecraft:damage": 6,
       "minecraft:enchantable": {
         "slot": "sword",
         "value": 18

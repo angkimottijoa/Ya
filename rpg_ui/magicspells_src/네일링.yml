@@ -1,0 +1,1811 @@
+predefined-items:
+    neil:
+        type: "283"
+        name: "&3혹한&1의 &b단검 &3네일&b링"
+        unbreakable: true
+        attributes:
+            1: "generic.attackDamage 15 add"
+
+네일링RCmulti:
+    spell-class: ".MultiSpell"
+    right-click-cast-item: neil
+    cooldown: 8
+    str-on-cooldown: "&f(&3네일&b링&f)우클릭의 쿨타임이 %c초남았습니다."
+    modifiers:
+        - sneaking castinstead 네일링SRCmulti
+    spells:
+        - 네일링RC리프1
+        - DELAY 2
+        - 네일링RCPP3_1
+        - 네일링RCPP3_2
+        - 네일링RCPP3_3
+        - 네일링RCPP3_3
+        - 네일링RCPP2_2
+        - 네일링RCPP2_1
+        - 네일링RCPP2_3
+        - DELAY 4
+        - 네일링RC리프2
+        - 네일링RCPP2
+        - DELAY 5
+        - 네일링RCPP1
+        - DELAY 5
+        - 네일링RCPP2
+
+네일링RC리프2:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 20
+    upward-velocity: -3
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: false
+    client-only: false
+    land-spell: [<spell>]
+
+네일링RC리프1:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: -6
+    upward-velocity: 6
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: false
+    client-only: false
+    land-spell: [<spell>]
+
+네일링RCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 2.5
+    vertical-radius: 3
+    max-targets: 5
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링RCdrainlife
+          - 네일링RCpain1
+
+네일링RCdrainlife:
+    spell-class: ".targeted.DrainlifeSpell"
+    range: 15
+    take-type: health
+    take-amt: 5
+    give-type: health
+    give-amt: -2
+    animation-speed: 2
+    ignore-armor: true
+    show-spell-effect: true
+
+네일링RCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 20
+
+네일링RCPP3_1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 20
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_252_3
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.05
+    particle-vertical-spread: 0.05
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+    effects:
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.arrow.shoot
+         volume: 1
+         pitch: 0
+        s2:
+         position: caster
+         effect: sound
+         sound: entity.arrow.shoot
+         volume: 1
+         pitch: 0
+        s3:
+         position: caster
+         effect: sound
+         sound: entity.arrow.shoot
+         volume: 1
+         pitch: 0
+
+네일링RCPP3_2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 20
+    projectile-horiz-offset: 20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_252_3
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.05
+    particle-vertical-spread: 0.05
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+
+네일링RCPP3_3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 24
+    projectile-horiz-offset: -20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_252_3
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.05
+    particle-vertical-spread: 0.05
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+
+네일링RCPP2_1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 20
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_35_15
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.15
+    particle-vertical-spread: 0.15
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true 
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+
+네일링RCPP2_2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 20
+    projectile-horiz-offset: 20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_35_15
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.15
+    particle-vertical-spread: 0.15
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+
+네일링RCPP2_3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 24
+    projectile-horiz-offset: -20
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 1
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: blockdust_35_15_0
+    particle-speed: 0
+    particle-count: 30
+    particle-horizontal-spread: 0.15
+    particle-vertical-spread: 0.15
+    start-forward-offset: 0
+    start-y-offset: 1.2
+    max-distance: 10
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: true
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCpain1
+
+네일링RCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCaera1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false
+        s2:
+         position: caster
+         effect: sound
+         sound: entity.creeper.death
+         volume: 1
+         pitch: 0
+        s1:
+         position: caster
+         effect: sound
+         sound: entity.creeper.hurt
+         volume: 2
+         pitch: 0
+        s3:
+         position: caster
+         effect: sound
+         sound: entity.wither.shoot
+         volume: 2
+         pitch: 0
+
+네일링RCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링RCaera1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false           
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.creeper.death
+        volume: 1
+        pitch: 0
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.creeper.hurt
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 2
+        pitch: 0
+ 
+네일링SRCmulti:
+    spell-class: ".MultiSpell"
+    cooldown: 120
+    str-on-cooldown: "&f(&3네일&b링&f)쉬프트 우클릭의 쿨타임이 %c초남았습니다."
+    spells:
+        - 네일링SRCshadowstep
+        - DELAY 3
+        - 네일링SRCPP1
+        - DELAY 4
+        - 네일링SRCPP2
+        - DELAY 4
+        - 네일링SRCPP1
+        - DELAY 4
+        - 네일링SRCPP2
+        - DELAY 4
+        - 네일링SRC리프1
+        - 네일링SRCPP3
+        - DELAY 2
+        - 네일링SRCPP4
+        
+네일링SRCMulti2:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+        - DELAY 2
+        - 네일링SRCaera3
+
+네일링SRCPP4:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 1
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SRCMulti2
+
+네일링SRC리프1:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: -10
+    upward-velocity: 10
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: false
+    client-only: false
+    land-spell: [<spell>]
+
+네일링SRCshadowstep:
+    spell-class: ".targeted.ShadowstepSpell"
+    range: 20
+
+네일링SRCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SRCaera1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.creeper.death
+        volume: 1
+        pitch: 0
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.creeper.hurt
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 2
+        pitch: 0
+
+네일링SRCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SRCaera1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.creeper.death
+        volume: 1
+        pitch: 0
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.creeper.hurt
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 2
+        pitch: 0
+
+네일링SRCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 2
+    vertical-radius: 2
+    max-targets: 5
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링SlCstun
+          - 네일링RCpain1
+
+네일링SRCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 3
+    ignore-armor: true
+
+네일링SRCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 7
+    vertical-radius: 7
+    max-targets: 111
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링SlCpotion1
+          - 네일링SRCpain2
+
+네일링SRCpain2:
+    spell-class: ".targeted.PainSpell"
+    damage: 40
+    ignore-armor: false
+
+네일링SlCpotion1:
+    spell-class: ".targeted.PotionEffectSpell"
+    range: 1
+    type: 2
+    strength: 2
+    duration: 100
+    targeted: true
+
+네일링SRCaera3:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 12
+    vertical-radius: 12
+    max-targets: 50
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링SRCpain3
+
+네일링SRCpain3:
+    spell-class: ".targeted.PainSpell"
+    damage: 2
+    ignore-armor: true
+
+네일링SRCPP3:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 0
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: true
+    height-from-surface: 1
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 0
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SRCMulti2
+    effects:
+       1A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 4
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       2A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       3A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       4A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 1
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       5A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 2
+          yFactor: 2
+          zFactor: 4
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       6A: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 4
+          yFactor: 2
+          zFactor: 2
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       1AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       2AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       3AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       4AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       5AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 2
+          yFactor: 4
+          zFactor: 2
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       6AD: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       1: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       2: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       3: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       4: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       5: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       6: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 2
+          particles: 540
+          xFactor: 3
+          yFactor: 2
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       1D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 1
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       2D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 2
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       3D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 3
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       4D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 4
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       5D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 2
+          yFactor: 4
+          zFactor: 2
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 5
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       6D: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3
+          particles: 540
+          xFactor: 3
+          yFactor: 4
+          zFactor: 3
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 6
+          yRotation: 0
+          zRotation: 0
+          iterations: 100
+          period: 1
+       1G: 
+        position: special 
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: redstone
+          color: 64B5F6
+          radius: 3
+          particles: 100
+          iterations: 50
+          period: 4
+       2G: 
+        position: special 
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: redstone
+          color: 000000
+          radius: 3
+          particles: 100
+          iterations: 50
+          period: 4
+       3G: 
+        position: special 
+        effect: effectlib 
+        delay: 0
+        effectlib:  
+            class: StarEffect
+            particle: redstone
+            color: 64B5F6
+            particles: 550
+            spikeHeight: 3
+            spikeHalf: 0
+            innerRadius: 1
+            iterations: 1
+            period: 1
+
+네일링SLC캐스트용:
+    spell-class: ".targeted.DummySpell"
+    cast-item: neil
+    modifiers:
+        - sneaking castinstead 네일링SLCmulti2
+
+네일링SLCmulti2:
+    spell-class: ".MultiSpell"
+    cooldown: 40
+    str-on-cooldown: "&f(&3네일&b링&f)쉬프트 좌클릭의 쿨타임이 %c초남았습니다."
+    spells:
+        - 네일링SLCPP1
+        - 네일링SLC리프
+        - DELAY 5
+        - 네일링SLCPP2
+        - 네일링SLC리프
+        - DELAY 5
+        - 네일링SLCPP1
+        - 네일링SLC리프
+        - DELAY 5
+        - 네일링SLCPP2
+        - 네일링SLC리프
+        - DELAY 5
+        - 네일링SLCPP1
+        - 네일링SLC리프
+        - DELAY 5
+        - 네일링SLCPP2
+        - 네일링SLC리프
+        - DELAY 10
+        - 네일링SLCPP1
+
+네일링SLC리프:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 15
+    upward-velocity: 1
+    rotation: 0
+    add-velocity-instead: true
+    cancel-damage: false
+    client-only: false
+    land-spell: [<spell>]
+
+네일링SLCMulti1:
+    spell-class: ".TargetedMultiSpell"
+    spells:
+        - 네일링SLCaera1
+        - DELAY 10
+        - 네일링SLCaera2
+        - DELAY 10
+        - 네일링SLCaera2
+        - DELAY 10
+        - 네일링SLCaera2
+        - DELAY 10
+        - 네일링SLCaera2
+        - DELAY 10
+        - 네일링SLCaera2
+        - DELAY 10
+        - 네일링SLCaera2
+
+네일링SLCaera1:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 3
+    vertical-radius: 3
+    max-targets: 1
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링SLCpain1
+    effects:
+       1: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 1.2
+          particles: 540
+          xFactor: 4
+          yFactor: 2
+          zFactor: 4
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       2: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 1.1
+          particles: 540
+          xFactor: 4
+          yFactor: 2
+          zFactor: 4
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       3: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 3.2
+          particles: 540
+          xFactor: 1
+          yFactor: 2
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       4: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 3.1
+          particles: 540
+          xFactor: 1
+          yFactor: 2
+          zFactor: 1
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       7: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 1.2
+          particles: 540
+          xFactor: 5
+          yFactor: 2
+          zFactor: 2
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       8: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 1.1
+          particles: 540
+          xFactor: 5
+          yFactor: 2
+          zFactor: 2
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       5: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 000000
+          pariclesPerlteration: 1
+          size: 1.2
+          particles: 540
+          xFactor: 2
+          yFactor: 2
+          zFactor: 5
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+       6: 
+        position: caster
+        effect: effectlib 
+        effectlib: 
+          class: AnimatedBallEffect
+          particle: redstone
+          color: 64B5F6
+          pariclesPerlteration: 1
+          size: 1.1
+          particles: 540
+          xFactor: 2
+          yFactor: 2
+          zFactor: 5
+          xoffset: 0
+          yoffset: 0
+          zoffset: 0
+          xRotation: 0
+          yRotation: 0
+          zRotation: 0
+          iterations: 60
+          period: 1
+
+네일링SLCpain1:
+    spell-class: ".targeted.PainSpell"
+    damage: 20
+    ignore-armor: false
+
+네일링SLCaera2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 5
+    vertical-radius: 5
+    max-targets: 500
+    point-blank: true
+    target-caster: false
+    target-invisible-players: false
+    fail-if-no-targets: false
+    spells:
+          - 네일링SLCpain2
+
+네일링SLCpain2:
+    spell-class: ".targeted.PainSpell"
+    damage: 10
+    ignore-armor: false
+
+네일링SLCPP1:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 2
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SLCMulti1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + 1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.creeper.death
+        volume: 1
+        pitch: 0
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.creeper.hurt
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 2
+        pitch: 0
+
+네일링SLCPP2:
+    spell-class: ".instant.ParticleProjectileSpell"
+    projectile-velocity: 1
+    projectile-horiz-offset: 0
+    projectile-vert-offset: 0
+    projectile-gravity: 0
+    projectile-spread: 0
+    hug-surface: false
+    height-from-surface: 0
+    tick-interval: 20
+    spell-interval: 1
+    special-effect-interval: 1
+    particle-name: depthSuspend
+    particle-speed: 0
+    particle-count: 0
+    particle-horizontal-spread: 0
+    particle-vertical-spread: 0
+    start-forward-offset: 0
+    start-y-offset: 1
+    max-distance: 0
+    hit-players: true
+    hit-non-players: true
+    stop-on-hit-entity: false
+    hit-air-during: false
+    hit-air-at-end: true
+    stop-on-hit-ground: false
+    spell: 네일링SLCMulti1
+    effects:
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "1.7sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 320
+            cycle: false
+            color: 000000
+            speed: 0
+            orient: true
+            orientPitch: false
+      4:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.24sin(0.0025t)rand(-0.415,0.415) + 2.5sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.245,0.245) + -1.5cos(0.0025t)"
+            duration: 200
+            particle: redstone 
+            particles: 310
+            cycle: false
+            color: 64B5F6
+            speed: 0
+            orient: true
+            orientPitch: false
+      s2:
+        position: caster
+        effect: sound
+        sound: entity.creeper.death
+        volume: 1
+        pitch: 0
+      s1:
+        position: caster
+        effect: sound
+        sound: entity.creeper.hurt
+        volume: 2
+        pitch: 0
+      s3:
+        position: caster
+        effect: sound
+        sound: entity.wither.shoot
+        volume: 2
+        pitch: 0

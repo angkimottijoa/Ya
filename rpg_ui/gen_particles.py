@@ -23,7 +23,7 @@ def billboard(size, uv=None, shrink=0.6, facing="rotate_xyz", env=False, hot=2.5
     """size: 크기, env=True 면 sin 포락선(작게→크게→작게), 아니면 점점 줄어듦.
     색: 처음엔 흰 심(뜨거운 빛) → hot 배속으로 스킬 색에 섞임. 텍스처: 바닐라 atlas 0행 점 (frame 3~6)"""
     grow = f"math.sin({AGE} * 180)" if env else f"(1 - {shrink} * {AGE})"
-    sz = f"({size} + variable.particle_random_3 * {size} * 0.5) * variable.size * {grow}"
+    sz = f"({size * 1.8:.3f} + variable.particle_random_3 * {size * 0.9:.3f}) * variable.size * {grow}"
     mix = f"math.min(1, {AGE} * {hot})"
     col = lambda c: f"1 - (1 - variable.color.{c}) * {mix}"
     return {
@@ -31,7 +31,7 @@ def billboard(size, uv=None, shrink=0.6, facing="rotate_xyz", env=False, hot=2.5
             "size": [sz, sz],
             "facing_camera_mode": facing,
             "uv": {"texture_width": 16, "texture_height": 16,
-                   "uv": list(uv) if uv else ["math.floor(variable.particle_random_3 * 4) + 3", 0], "uv_size": [1, 1]},
+                   "uv": list(uv) if uv else ["math.floor(variable.particle_random_3 * 2) + 6", 0], "uv_size": [1, 1]},
         },
         "minecraft:particle_appearance_tinting": {"color": [col("r"), col("g"), col("b"), FADE]},
     }
@@ -283,14 +283,14 @@ if __name__ == "__main__":
 R1, R2, R3, R4 = (f"variable.particle_random_{i}" for i in (1, 2, 3, 4))
 
 
-def dust(size=0.07):
+def dust(size=0.2):
     """레드스톤 먼지: 불투명, 색 그대로, 끝에서 작아지며 사라짐"""
     sz = f"variable.size * {size} * (0.75 + {R3} * 0.5) * (1 - math.pow({AGE}, 3))"
     return {
         "minecraft:particle_appearance_billboard": {
             "size": [sz, sz],
             "facing_camera_mode": "lookat_xyz",
-            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R4} * 3) + 1", 0], "uv_size": [1, 1]},
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R4} * 2) + 6", 0], "uv_size": [1, 1]},
         },
         "minecraft:particle_appearance_tinting": {"color": ["variable.color.r", "variable.color.g", "variable.color.b", 1]},
     }

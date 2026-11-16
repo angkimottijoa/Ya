@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V2.9.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V3.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,19 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V3.0 변경 — 받은 매직스펠을 거의 그대로 이식 + 원소 VFX
+- `ms_convert.py`: `magicspells_src/` 의 자바 MagicSpells yml 12종을 그대로 읽어
+  - 스펠 → `scripts/msdata.js` (인터프리터 `scripts/msrun.js` 가 MultiSpell/DELAY/AreaEffect/ParticleProjectile/Pain/Drainlife/
+    Forcetoss/Stun/Potion/Leap/Shadowstep/무적/투명/Dot/buff 콤보(buffactive castinstead)를 원본 의미대로 실행)
+  - EffectLib 효과 → 파티클 `rpg:mss_*` (식 "3.8sin(0.0125t)" 을 Molang 으로 그대로, t 는 원본처럼 정수 점 번호)
+  - 자바 규칙도 옮김: 맞은 뒤 10틱 무적(큰 피해의 차이만), 틱당 이펙트 수 제한
+- 2·3차 직업 12개에 원본 무기 스킬 배치 (①우클릭 ②쉬프트 우클릭 ③쉬프트 좌클릭 순)
+  클라우→검성, 발뭉→검황, 블라디→광전사, 응룡의 도끼→파괴자, 네일링→저격수, 쉐도어→매의 눈,
+  바이던트→사냥꾼, 도살자→야수왕, 크티아스→원소술사, 그림자→대마법사, 도사→사제, 데런 총칼→성기사
+- 나머지(1차 4직업, 뇌전술사·폭풍의 군주·대주교·성전사)는 직접 제작. 4직업은 빛나는 원소 VFX
+  (`gen_vfx.py`: 커스텀 빛 텍스처 + 가산 파티클 — 빛의 고리 영역, 교차하는 빛의 선, 지그재그 번개, 회전 마법진, 물기둥, 소용돌이, 불티)
+- 파티클이 작던 문제: 바닐라 점 텍스처의 가장 작은 프레임을 쓰고 있었음 → 큰 프레임 + 크기 3배
 
 ## V2.9 변경 — 자바 MagicSpells 이식 + 스킬 재창조
 - `scripts/ms.js`: MagicSpells 스펠 클래스(Multi/Leap/AreaEffect/ParticleProjectile/Pain/Drain/Forcetoss/Stun/Shadowstep…)와

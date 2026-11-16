@@ -1,0 +1,546 @@
+Balmung_RightClick_M_Dummy_First:
+    spell-class: ".buff.DummySpell"
+    duration: 5
+    always-granted: true
+
+Balmung_RightClick_M_Dummy_Second:
+    spell-class: ".buff.DummySpell"
+    duration: 5
+    always-granted: true
+
+Balmung_RightClick_Air_Passive:
+    spell-class: ".PassiveSpell"
+    triggers:
+        - ticks 1
+    modifiers:
+        - onblock 0 denied
+        - buffactive Balmung_RightClick_M_Dummy_Air required
+    spells: 
+        - Balmung_RightClick_M_Dummy_Air
+        - Balmung_RightClick_PainArea2
+    effects:
+      0:
+        position: caster
+        effect: sound
+        sound: entity.irongolem.death
+        volume: 2.1
+        pitch: 0.1
+        delay: 0
+      2:
+        position: caster
+        effect: sound
+        sound: entity.generic.explode
+        volume: 2.1
+        pitch: 1
+        delay: 0
+      3:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: 10
+        y-offset: 6
+        z-offset: 10
+      4:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: 3
+        y-offset: 4
+        z-offset: -8
+      5:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: -8
+        y-offset: 6
+        z-offset: 8
+      6:
+        position: caster
+        effect: particles
+        particle-name: hugeexplosion
+        horiz-spread: 2
+        vert-spread: 2
+        speed: 0.1
+        count: 5
+        forward-offset: -3
+        y-offset: 2
+        z-offset: -6
+      7:
+        position: caster
+        effect: particles
+        particle-name: lava
+        horiz-spread: 5.5
+        vert-spread: 0.05
+        speed: 0.1
+        count: 150
+        forward-offset: 0
+        y-offset: 0.01
+        z-offset: 0
+
+Balmung_RightClick_PainArea:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 5
+    vertical-radius: 5
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: players, nonplayers
+    spells:
+        - Balmung_RightClick_Target_Pain
+
+Balmung_RightClick_Target_Pain:
+    spell-class: ".targeted.PainSpell"
+    ignore-armor: true
+    damage: 5
+
+Balmung_RightClick_PainArea2:
+    spell-class: ".targeted.AreaEffectSpell"
+    horizontal-radius: 15
+    vertical-radius: 15
+    point-blank: true
+    fail-if-no-targets: false
+    spell-source-in-center: true
+    max-targets: 999
+    can-target: players, nonplayers
+    spells:
+        - Balmung_RightClick_Target_Pain
+
+Balmung_RightClick_M_Dummy_Air:
+    spell-class: ".buff.DummySpell"
+    duration: 10
+    always-granted: true
+
+Balmung_RightClick_M:
+    spell-class: ".MultiSpell"
+    str-on-cooldown: "&f[ &5&l\uBC1C\uBB49 &f] &c&l\uC6B0\uD074\uB9AD &f&l\uCFE8\uD0C0\uC784\uC774 &b&l%c&l&f\uCD08 &a&l\uB0A8\uC558\uC2B5\uB2C8\uB2E4"
+    modifiers:
+        - sneaking denied
+        - buffactive Balmung_RightClick_M_Dummy_First castinstead Balmung_RightClick2_M
+    always-granted: true
+    cooldown: 10
+    spells:
+        - Balmung_RightClick_Leap1
+        - DELAY 3
+        - Balmung_RightClick_Leap2
+        - DELAY 8
+        - Balmung_RightClick_M_Dummy_First
+        - Balmung_RightClick_Blade_R
+        - DELAY 10
+        - Balmung_RightClick_PainArea
+
+Balmung_RightClick2_M:
+    spell-class: ".MultiSpell"
+    modifiers:
+        - sneaking denied
+        - buffactive Balmung_RightClick_M_Dummy_Second castinstead Balmung_RightClick3_M
+    spells:
+        - Balmung_RightClick_Leap1
+        - DELAY 3
+        - Balmung_RightClick_Leap2
+        - DELAY 8
+        - Balmung_RightClick_M_Dummy_Second
+        - Balmung_RightClick_Blade_L
+        - DELAY 10
+        - Balmung_RightClick_PainArea
+
+Balmung_RightClick3_M:
+    spell-class: ".MultiSpell"
+    spells:
+        - Balmung_RightClick_M_Dummy_First
+        - Balmung_RightClick_M_Dummy_Second
+        - Balmung_RightClick_Leap3
+        - DELAY 10
+        - Balmung_RightClick_M_Dummy_Air 
+        - Balmung_RightClick_Blade_Mid
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_PainArea2
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap_고정
+        - DELAY 1
+        - Balmung_RightClick_Leap4
+
+Balmung_RightClick_Leap1:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 0
+    upward-velocity: 10
+    cancel-damage: true
+
+Balmung_RightClick_Leap2:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 30
+    upward-velocity: -5
+    cancel-damage: true
+
+Balmung_RightClick_Leap3:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: -16
+    upward-velocity: 12
+    cancel-damage: true
+    effects:
+      S-1:
+        position: caster
+        effect: sound
+        sound:  entity.enderdragon.flap
+        volume: 2.5
+        pitch: 0.1
+        delay: 0
+
+Balmung_RightClick_Leap_고정:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 0
+    upward-velocity: 0.5
+    cancel-damage: true
+
+Balmung_RightClick_Leap4:
+    spell-class: ".instant.LeapSpell"
+    forward-velocity: 16
+    upward-velocity: -12
+    cancel-damage: true
+    effects:
+      S-1:
+        position: caster
+        effect: sound
+        sound:  entity.wither.hurt
+        volume: 2.5
+        pitch: 0.89
+        delay: 0
+      S-3:
+        position: special
+        effect: sound
+        sound:  entity.generic.explode
+        volume: 2
+        pitch: 1
+
+Balmung_RightClick_Blade_R:
+    spell-class: ".instant.DummySpell"
+    effects:
+      Sounds_1:
+        position: caster
+        effect: sound
+        sound:  entity.irongolem.death
+        volume: 2
+        pitch: 0.5
+        delay: 10
+      Sounds_2:
+        position: caster
+        effect: sound
+        sound:  entity.wither.shoot
+        volume: 2
+        pitch: 0.89
+      Sounds_3:
+        position: caster
+        effect: sound
+        sound:  entity.zombie_villager.cure
+        volume: 2
+        pitch: 0.89
+        delay: 10
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 1"
+            zEquation: "0.5sin(0.0025t)rand(-0.445,0.445) + 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "0.5sin(0.0025t)rand(-0.445,0.445) + 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 3"
+            zEquation: "0.5sin(0.0025t)rand(-0.445,0.445) + 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      1Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: explosion_large
+          radius: 2
+          radius_increase: 1
+          particles: 30
+          iterations: 100
+          period: 1
+          duration: 500
+      2Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: lava
+          radius: 2
+          radius_increase: 1
+          particles: 15
+          iterations: 100
+          period: 1
+          duration: 500
+
+Balmung_RightClick_Blade_L:
+    spell-class: ".instant.DummySpell"
+    effects:
+      Sounds_1:
+        position: caster
+        effect: sound
+        sound:  entity.irongolem.death
+        volume: 2
+        pitch: 0.5
+        delay: 10
+      Sounds_2:
+        position: caster
+        effect: sound
+        sound:  entity.wither.shoot
+        volume: 2
+        pitch: 0.89
+      Sounds_3:
+        position: caster
+        effect: sound
+        sound:  entity.zombie_villager.cure
+        volume: 2
+        pitch: 0.89
+        delay: 10
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 1"
+            zEquation: "-0.5sin(0.0025t)rand(-0.445,0.445) - 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 2"
+            zEquation: "-0.5sin(0.0025t)rand(-0.445,0.445) - 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      3:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.44sin(0.0025t)rand(-0.445,0.445) + 3.8sin(0.0025t)"
+            yEquation: "0.02sin(0.0075t)rand(-0.445,0.445) - 1 - 0.02sin(0.0025t)rand(-0.445,0.445)+1.5cos(0.0025t) + 3"
+            zEquation: "-0.5sin(0.0025t)rand(-0.445,0.445) - 3.5cos(0.0025t)"
+            duration: 200
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      1Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: explosion_large
+          radius: 2
+          radius_increase: 1
+          particles: 30
+          iterations: 100
+          period: 1
+          duration: 500
+      2Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: lava
+          radius: 2
+          radius_increase: 1
+          particles: 15
+          iterations: 100
+          period: 1
+          duration: 500
+
+Balmung_RightClick_Blade_Mid:
+    spell-class: ".instant.DummySpell"
+    effects:
+      Sounds_1:
+        position: caster
+        effect: sound
+        sound:  entity.irongolem.death
+        volume: 2
+        pitch: 0.5
+        delay: 10
+      Sounds_2:
+        position: caster
+        effect: sound
+        sound:  entity.wither.shoot
+        volume: 2
+        pitch: 0.89
+      Sounds_3:
+        position: caster
+        effect: sound
+        sound:  entity.zombie_villager.cure
+        volume: 2
+        pitch: 0.89
+        delay: 10
+      1:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.55sin(0.0025t)rand(-0.99,0.99) + 4.75sin(0.0025t)"
+            yEquation: "0.1sin(0.0075t)rand(-0.99,0.99) - 1 - 0.1sin(0.0025t)rand(-0.99,0.99)+3cos(0.0025t) + 2"
+            zEquation: "-0.55sin(0.0025t)rand(-0.99,0.99) - 4.75cos(0.0025t)"
+            duration: 400
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      2:
+        position: caster
+        effect: effectlib
+        delay: 0
+        effectlib:
+            class: EquationEffect
+            xEquation: "0.55sin(0.0025t)rand(-0.99,0.99) + 4.75sin(0.0025t)"
+            yEquation: "0.1sin(0.0075t)rand(-0.99,0.99) - 1 - 0.1sin(0.0025t)rand(-0.99,0.99)+3cos(0.0025t) + 2"
+            zEquation: "0.55sin(0.0025t)rand(-0.99,0.99) + 4.75cos(0.0025t)"
+            duration: 400
+            particle: redstone
+            particles: 320
+            cycle: false
+            color: 4D00ED
+            speed: 2
+            orient: true
+            orientPitch: false
+      1Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: explosion_large
+          radius: 2
+          radius_increase: 1
+          particles: 30
+          iterations: 100
+          period: 1
+          duration: 1500
+      2Ex: 
+        position: caster
+        delay: 10
+        effect: effectlib 
+        effectlib: 
+          class: SphereEffect 
+          particle: lava
+          radius: 2
+          radius_increase: 1
+          particles: 15
+          iterations: 100
+          period: 1
+          duration: 1500
+
