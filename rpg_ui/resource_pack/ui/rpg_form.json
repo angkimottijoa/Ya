@@ -1352,7 +1352,7 @@
           "anchor_to": "bottom_middle",
           "size": [
             "100%",
-            "35%"
+            "40%"
           ],
           "layer": 1,
           "controls": [
@@ -1367,7 +1367,7 @@
                   14
                 ],
                 "size": [
-                  "70%",
+                  "74%",
                   "100%c"
                 ],
                 "layer": 2,
@@ -1377,7 +1377,7 @@
                       "type": "label",
                       "size": [
                         "100%",
-                        11
+                        16
                       ],
                       "text_alignment": "center",
                       "color": [
@@ -1397,7 +1397,8 @@
                           "source_property_name": "(#title_text - '[RPG:D]')",
                           "target_property_name": "#npc_name"
                         }
-                      ]
+                      ],
+                      "font_size": "large"
                     }
                   },
                   {
@@ -1405,7 +1406,7 @@
                       "type": "panel",
                       "size": [
                         "100%",
-                        7
+                        9
                       ],
                       "controls": [
                         {
@@ -1436,7 +1437,8 @@
                       ],
                       "shadow": true,
                       "localize": false,
-                      "text": "#form_text"
+                      "text": "#form_text",
+                      "font_scale_factor": 1.15
                     }
                   }
                 ]

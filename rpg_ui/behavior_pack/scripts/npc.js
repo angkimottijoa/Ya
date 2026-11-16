@@ -160,7 +160,7 @@ function showNode(p, npc, nodeId, page, entering = false) {
 
   // 잠긴 노드
   if (!R.checkAll(p, node.cond, ctx)) {
-    scr.body(node.lockedText || "§7(아직 들을 수 없는 이야기다)");
+    scr.body(`§l§7${node.lockedText || "(아직 들을 수 없는 이야기다)"}`);
     scr.item("§f돌아가기", ICON("back"), () => showNode(p, npc, "start", 999));
     scr.item("§7대화 종료", ICON("close"), () => {});
     return scr.show(p);
@@ -176,7 +176,8 @@ function showNode(p, npc, nodeId, page, entering = false) {
   const pages = String(node.text ?? "").split("|").map((s) => s.trim()).filter(Boolean);
   page = Math.max(0, Math.min(page, pages.length - 1));
   const last = page >= pages.length - 1;
-  scr.body(pages[page] ?? "");
+  // 대사는 굵은 흰 글씨 (이후 §색 코드를 써도 굵기 유지되도록 각 줄 앞에 §l)
+  scr.body((pages[page] ?? "").split("\n").map((l) => `§l§f${l}`).join("\n"));
   if (!last) {
     scr.item("§f다음 ▶", ICON("chat"), () => showNode(p, npc, nodeId, page + 1));
   } else {

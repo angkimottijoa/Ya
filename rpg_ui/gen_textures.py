@@ -653,7 +653,7 @@ def rpg_textures():
     # 대화창 (하단 그라데이션 + 금색 장식선 + 선택지 알약)
     dg = Image.new("RGBA", (4, 64))
     for y in range(64):
-        a = int(235 * min(1, (y / 63) ** 0.8))
+        a = int(250 * min(1, (y / 40) ** 0.6))
         for x in range(4):
             dg.putpixel((x, y), (6, 8, 14, a))
     save(dg, RPG / "dlg_bg.png")
