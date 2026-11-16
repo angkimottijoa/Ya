@@ -583,7 +583,7 @@ function dragonDiveMain(ctx, hit) {
       const nx = x - len * Math.cos(slope), ny = y + len * Math.sin(slope);
       const cx = (x + nx) / 2, cy = (y + ny) / 2;
       const ang = (Math.atan2(y - ny, x - nx) * 180) / Math.PI; // 토막의 +x(머리 쪽)가 앞 토막을 향하게
-      pt(dim, "cr_bigbody", headPt(at, hd, cx, cy, 0, sc), { yaw: yawS, pitch, a0: ang, scale: sc * taper, n: Math.round(360 * taper + 60), life });
+      pt(dim, "cr_bigbody", headPt(at, hd, cx, cy, 0, sc), { yaw: yawS, pitch, a0: ang, scale: sc * taper, n: Math.round(115 * taper + 25), life: life * 3 }); // 잔류 시간 길게 → 잔상
       x = nx; y = ny; dist += len;
     }
   };

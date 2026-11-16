@@ -22,20 +22,27 @@
      "(((((math.floor(variable.particle_random_1 * 24) - 12.0 + (variable.particle_random_1 * 24 - math.floor(variable.particle_random_1 * 24))) * (variable.scale * 0.048)) * math.cos(variable.a0) - ((26 - math.floor(variable.particle_random_2 * 56) - (variable.particle_random_2 * 56 - math.floor(variable.particle_random_2 * 56))) * (variable.scale * 0.048)) * math.sin(variable.a0)) * math.cos(variable.pitch) - (((math.floor(variable.particle_random_1 * 24) - 12.0 + (variable.particle_random_1 * 24 - math.floor(variable.particle_random_1 * 24))) * (variable.scale * 0.048)) * math.sin(variable.a0) + ((26 - math.floor(variable.particle_random_2 * 56) - (variable.particle_random_2 * 56 - math.floor(variable.particle_random_2 * 56))) * (variable.scale * 0.048)) * math.cos(variable.a0)) * math.sin(variable.pitch)) * math.cos(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.sin(variable.yaw))"
     ],
     "direction": [
-     0,
-     1,
-     0
+     "(variable.particle_random_3 - 0.5)",
+     "(variable.particle_random_4 - 0.3)",
+     "(variable.particle_random_3 * variable.particle_random_4 - 0.25)"
     ]
    },
    "minecraft:particle_lifetime_expression": {
     "max_lifetime": "variable.life * (0.8 + variable.particle_random_4 * 0.4)"
    },
-   "minecraft:particle_initial_speed": 0,
-   "minecraft:particle_motion_dynamic": {},
+   "minecraft:particle_initial_speed": "0.15 + variable.particle_random_4 * 0.35",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     0.25,
+     0
+    ],
+    "linear_drag_coefficient": 1.2
+   },
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "(variable.scale * 0.048) * (2.4 + variable.particle_random_4 * 1.2) * (0.9 + (variable.particle_age / variable.particle_lifetime) * 0.25)",
-     "(variable.scale * 0.048) * (2.4 + variable.particle_random_4 * 1.2) * (0.9 + (variable.particle_age / variable.particle_lifetime) * 0.25)"
+     "(variable.scale * 0.048) * (2.4 + variable.particle_random_4 * 1.2) * ((variable.particle_age / variable.particle_lifetime) < 0.25 ? 1 : 1 - ((variable.particle_age / variable.particle_lifetime) - 0.25) * 0.9)",
+     "(variable.scale * 0.048) * (2.4 + variable.particle_random_4 * 1.2) * ((variable.particle_age / variable.particle_lifetime) < 0.25 ? 1 : 1 - ((variable.particle_age / variable.particle_lifetime) - 0.25) * 0.9)"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {

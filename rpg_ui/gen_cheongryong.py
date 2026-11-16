@@ -462,12 +462,13 @@ def main():
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
         "minecraft:emitter_shape_point": {"offset": [f"(-{fx2} * math.sin(variable.yaw) + {lz2} * math.cos(variable.yaw))", fy2,
-                                                     f"({fx2} * math.cos(variable.yaw) + {lz2} * math.sin(variable.yaw))"], "direction": [0, 1, 0]},
+                                                     f"({fx2} * math.cos(variable.yaw) + {lz2} * math.sin(variable.yaw))"], "direction": [f"({R3} - 0.5)", f"({R4} - 0.3)", f"({R3} * {R4} - 0.25)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
-        "minecraft:particle_initial_speed": 0,
-        "minecraft:particle_motion_dynamic": {},
+        # 잔상: 오래 남으며 천천히 흩어져 떠오름 → 지나간 자리에 몸통이 물결처럼 남음
+        "minecraft:particle_initial_speed": f"0.15 + {R4} * 0.35",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.25, 0], "linear_drag_coefficient": 1.2},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S2} * (2.4 + {R4} * 1.2) * (0.9 + {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S2} * (2.4 + {R4} * 1.2) * ({AGE} < 0.25 ? 1 : 1 - ({AGE} - 0.25) * 0.9)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"({by} + {BY0}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
