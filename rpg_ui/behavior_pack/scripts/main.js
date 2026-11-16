@@ -12,10 +12,11 @@ import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
-const MENU_SLOT = 8; // 핫바 9번 칸 = HUD [메뉴] 버튼
-const SKILL_SLOT = 7; // 핫바 8번 칸 = 점프 옆 [스킬] 버튼 (스킬 사용)
-// 핫바 = 아이템 7칸(1~7번) + 버튼 2개(8번 스킬, 9번 메뉴)
-const RESERVED = [SKILL_SLOT, MENU_SLOT];
+// V2.0 모바일 핫바 분리: 1~6번 아이템(오른쪽 세로), 7번 메뉴·8번 스킬창(오른쪽 위), 9번 스킬(오른쪽 아래)
+const MENU_SLOT = 6; // 핫바 7번 칸 = [메뉴]
+const SKILL_SLOT = 8; // 핫바 9번 칸 = 오른쪽 아래 [스킬] (쉬프트 = 스킬 2)
+const SKILLWIN_SLOT = 7; // 핫바 8번 칸 = [스킬창]
+const RESERVED = [MENU_SLOT, SKILLWIN_SLOT, SKILL_SLOT];
 const lastUse = new Map();
 const lastSlot = new Map();
 
@@ -43,9 +44,7 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
-  // 예전 버전의 스킬창 아이템(7번 칸) 정리
-  const c = p.getComponent("minecraft:inventory").container;
-  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId === "rpg:skillbook") c.setItem(i, undefined);
+  ensureSlotItem(p, "rpg:skillbook", SKILLWIN_SLOT);
   updateSkillSlot(p);
 }
 
@@ -96,8 +95,8 @@ system.runInterval(() => {
         castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
         continue;
       }
-      if (p.isSneaking) {
-        // 쉬프트+9번 칸 = 스킬창
+      if (cur === SKILLWIN_SLOT || p.isSneaking) {
+        // 8번 칸 = 스킬창 (쉬프트+메뉴도 스킬창)
         system.runTimeout(() => {
           if (p.isValid()) openSkills(p);
         }, 6);

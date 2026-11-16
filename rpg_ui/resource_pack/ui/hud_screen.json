@@ -53,11 +53,48 @@
     "bindings": []
   },
 
-  // [V2.0 테스트] 모바일 핫바를 화면 위쪽으로 70px 올림.
-  // 올라간 핫바를 눌렀을 때 반응하면 → 터치가 JSON 위치를 따라감 → 핫바 칸을 원하는 곳에 나눠 배치 가능.
-  // 원래 아래 자리(빈 곳)를 눌러야 반응하면 → 터치는 엔진이 고정 → 핫바 위치 변경 불가.
+  // ════════════════════════════════════════════════════════════════
+  //  [V2.0] 모바일 핫바 분리 배치 (실기 테스트: 터치가 JSON 위치를 따라감 확인)
+  //   1~6번: 오른쪽 가장자리 세로 / 7번(메뉴)·8번(스킬창): 오른쪽 위 / 9번(스킬): 오른쪽 아래
+  //   바닐라 핫바 패널을 화면 크기로 키우고, 그 안에 바닐라 핫바 칸(gui_hotbar_grid_item_pocket)을 쓴
+  //   세로 그리드를 잘라서(clips_children) 필요한 칸만 보이게 한다.
+  // ════════════════════════════════════════════════════════════════
   "hotbar_panel_pocket": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
     "use_anchored_offset": false,
-    "offset": [ 0, -70 ]
+    "offset": [ 0, 0 ],
+    "property_bag": {},
+    "bindings": [],
+    "controls": [
+      // 1~6번 칸: 오른쪽 세로
+      {
+        "rpg_main_slots@rpg_hud.slot_window": {
+          "anchor_from": "right_middle", "anchor_to": "right_middle", "offset": [ -3, 8 ],
+          "$win_size": [ 24, 144 ], "$grid_off": [ 0, 0 ], "$grid_h": 216
+        }
+      },
+      // 오른쪽 위: [인벤토리] [8번 스킬창] [7번 메뉴]
+      {
+        "rpg_inventory_btn": {
+          "type": "panel", "size": [ 24, 24 ], "anchor_from": "top_right", "anchor_to": "top_right", "offset": [ -59, 3 ],
+          "controls": [
+            {
+              "hotbar_elipses_panel_right@hud.hotbar_elipses_panel_right_art": {
+                "$hotbar_elipses_panel_right_art_size": [ "100%", "100%" ],
+                "$hotbar_elipses_button_size": [ "80%", "80%" ],
+                "$elipses_image_size": [ "75%", "75%" ]
+              }
+            }
+          ]
+        }
+      },
+      { "rpg_skillwin_slot@rpg_hud.slot_window": { "anchor_from": "top_right", "anchor_to": "top_right", "offset": [ -31, 3 ], "$win_size": [ 24, 24 ], "$grid_off": [ 0, -168 ], "$grid_h": 216 } },
+      { "rpg_menu_slot@rpg_hud.slot_window": { "anchor_from": "top_right", "anchor_to": "top_right", "offset": [ -3, 3 ], "$win_size": [ 24, 24 ], "$grid_off": [ 0, -144 ], "$grid_h": 216 } },
+      // 오른쪽 아래: 9번 칸 = 큰 스킬 버튼
+      { "rpg_skill_slot@rpg_hud.slot_window": { "anchor_from": "bottom_right", "anchor_to": "bottom_right", "offset": [ -36, -46 ], "$win_size": [ 34, 34 ], "$grid_off": [ 0, -272 ], "$grid_h": 306 } }
+    ]
   }
 }

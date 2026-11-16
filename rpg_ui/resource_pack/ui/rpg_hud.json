@@ -1,14 +1,6 @@
 {
+
   "namespace": "rpg_hud",
-
-  // ════════════════════════════════════════════════════════════════
-  //  Arcania HUD (V1.8)
-  //  - 스크립트: title = "quest:<퀘스트창>", subtitle = "[CARD]<정보>" / "[BAR]<HP·MP·Lv>" 번갈아 전송
-  //  - 모바일 마크는 HUD 에 애드온이 그린 버튼/토글의 터치를 받지 않는다 (실기 확인).
-  //    핫바 = 아이템 7칸 + 버튼 2개: 8 = 스킬(쉬프트 = 스킬 2), 9 = 메뉴(쉬프트 = 스킬창)
-  //    버튼 모양은 textures/ui/hotbar_7, hotbar_8
-  // ════════════════════════════════════════════════════════════════
-
   "root": {
     "type": "panel",
     "size": [
@@ -48,26 +40,14 @@
           "anchor_from": "top_right",
           "anchor_to": "top_right",
           "offset": [
-            -4,
-            4
+            -32,
+            31
           ],
           "size": [
             150,
             "100%c"
           ],
           "controls": [
-            {
-              "menu_bar@rpg_hud.menu_bar": {}
-            },
-            {
-              "gap": {
-                "type": "panel",
-                "size": [
-                  "100%",
-                  2
-                ]
-              }
-            },
             {
               "quest_window@rpg_hud.quest_popup": {}
             },
@@ -319,35 +299,44 @@
     ],
     "text_alignment": "center"
   },
-  "menu_bar": {
-    "type": "image",
-    "texture": "textures/ui/rpg/bar",
-    "size": [
-      "100%",
-      16
+  "slot_window": {
+    "type": "panel",
+    "$win_size|default": [
+      24,
+      24
     ],
+    "$grid_off|default": [
+      0,
+      0
+    ],
+    "$grid_h|default": 216,
+    "size": "$win_size",
+    "clips_children": true,
     "controls": [
       {
-        "legend": {
-          "type": "label",
-          "anchor_from": "center",
-          "anchor_to": "center",
-          "offset": [
-            0,
-            1
+        "grid": {
+          "type": "grid",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": "$grid_off",
+          "size": [
+            "100%",
+            "$grid_h"
           ],
-          "layer": 3,
-          "font_scale_factor": 0.8,
-          "text": "§b§l8§r§f 스킬 §7(⇧ 스킬2)  §6§l9§r§f 메뉴 §7(⇧ 스킬창)",
-          "color": [
+          "grid_dimensions": [
             1,
-            1,
-            1
+            9
           ],
-          "shadow": true,
-          "localize": false
+          "grid_item_template": "rpg_hud.hotbar_cell_v",
+          "collection_name": "hotbar_items"
         }
       }
+    ]
+  },
+  "hotbar_cell_v@hud.gui_hotbar_grid_item_pocket": {
+    "size": [
+      "100%",
+      "11.111%"
     ]
   }
 }
