@@ -2,7 +2,7 @@
 import { world } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { Screen, rt } from "./ui.js";
-import { data, save, addXp, addGold, msg, isAdmin } from "./player.js";
+import { data, save, addXp, addGold, msg, isAdmin, setLevel, MAX_LV } from "./player.js";
 import { CLASSES } from "./classes.js";
 import * as Q from "./quests.js";
 import * as SK from "./skills.js";
@@ -787,15 +787,28 @@ function playerTab(p, selId) {
   const all = world.getAllPlayers().slice(0, 7);
   const t = all.find((x) => x.id === selId) ?? p;
   const scr = new Screen("L", "제작자 도구 / 플레이어");
+  const jobName = (d) => J.PATHS[J.currentPath(d)]?.name ?? "모험가";
   for (const x of all) {
     const d = data(x);
-    scr.item(`§l${x.name}§r${isAdmin(x) ? " §6[관리자]" : ""}\n§7Lv.${d.lv} ${CLASSES[d.cls].name} · ${d.gold}G`, ICON("profile"), () => playerTab(p, x.id), { on: x === t });
+    scr.item(`§l${x.name}§r${isAdmin(x) ? " §6[관리자]" : ""}\n§7Lv.${d.lv} ${jobName(d)} · ${d.gold}G`, ICON("profile"), () => playerTab(p, x.id), { on: x === t });
   }
   adminChrome(scr, p, "player");
   const d = data(t);
-  scr.select(t.name, ICON(CLASSES[d.cls].icon));
-  scr.body(`§7레벨 §r${d.lv}  §7경험치 §r${d.xp}\n§7골드 §r${d.gold}\n§7직업 §r${CLASSES[d.cls].name}\n§7스탯 포인트 §r${d.pts}\n§7진행 퀘스트 §r${Object.keys(d.q.a).length}\n§7완료 퀘스트 §r${Object.keys(d.q.d).length}`);
+  scr.select(t.name, ICON(J.PATHS[J.currentPath(d)]?.icon ?? "profile"));
+  scr.body(`§7레벨 §r${d.lv}  §7경험치 §r${d.xp}\n§7골드 §r${d.gold}\n§7직업 §r${J.chain(d).map((id) => J.PATHS[id].name).join(" → ") || "모험가"}\n§7스탯 포인트 §r${d.pts}\n§7진행 퀘스트 §r${Object.keys(d.q.a).length}\n§7완료 퀘스트 §r${Object.keys(d.q.d).length}\n\n§7명령어로도 가능: §f/scriptevent rpg:level 40\n§f/scriptevent rpg:gold 5000`);
   const re = () => playerTab(p, t.id);
+  scr.action("§e레벨·골드 직접 설정", async () => {
+    const r = await new ModalFormData().title(`${t.name} - 레벨·골드 설정`)
+      .slider("레벨", 1, MAX_LV, 1, d.lv)
+      .textField("골드", "", String(d.gold))
+      .show(p);
+    if (!r.canceled) {
+      const [lv, gold] = r.formValues;
+      if (Number(lv) !== d.lv) setLevel(t, lv);
+      if (Number.isFinite(Number(gold))) { d.gold = Math.max(0, Math.floor(Number(gold))); save(t); }
+    }
+    return re();
+  });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });
   scr.action("골드 +1000", () => { addGold(t, 1000); return re(); });
   scr.action("레벨/스탯 초기화", () => confirm(p, `${t.name}의 레벨과 스탯을 초기화할까요?`, () => {

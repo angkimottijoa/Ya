@@ -74,6 +74,19 @@ export function addXp(p, amount, silent = false) {
   }
 }
 
+/** 레벨 직접 설정 (제작자 도구 / scriptevent). 스탯 포인트는 레벨에 맞게 다시 계산 (이미 찍은 스탯은 유지) */
+export function setLevel(p, lv) {
+  const d = data(p);
+  lv = Math.max(1, Math.min(MAX_LV, Math.floor(Number(lv) || 1)));
+  const spent = Object.values(d.stat ?? {}).reduce((a, b) => a + b, 0);
+  d.lv = lv;
+  d.xp = 0;
+  d.pts = Math.max(0, (lv - 1) * 3 - spent);
+  save(p);
+  notify(p, `§6§l레벨 설정 §r§fLv.${lv} §7· 남은 스탯 포인트 ${d.pts}`);
+  p.playSound("random.levelup");
+}
+
 export function addGold(p, n) {
   const d = data(p);
   d.gold = Math.max(0, d.gold + Math.round(n));

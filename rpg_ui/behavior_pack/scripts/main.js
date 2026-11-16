@@ -1,6 +1,6 @@
 // Arcania RPG - 진입점
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
-import { data, save, forget, msg, notify, isAdmin } from "./player.js";
+import { data, save, forget, msg, notify, isAdmin, setLevel } from "./player.js";
 import { initCombat, resetSpeed } from "./combat.js";
 import { initSkillTriggers, skillJumpTick } from "./skills.js";
 import { dashTick } from "./dash.js";
@@ -107,6 +107,8 @@ world.afterEvents.playerInteractWithEntity?.subscribe(({ player: p, target }) =>
 //   rpg:admin             제작자 도구
 //   rpg:give_quest <id>   퀘스트 부여
 //   rpg:quest <텍스트>    퀘스트창에 임의 텍스트 표시 (\n 줄바꿈, 빈 값이면 원래대로)
+//   rpg:level <숫자>      레벨 직접 설정 (스탯 포인트 다시 계산)
+//   rpg:gold <숫자>       골드 직접 설정
 system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p }) => {
   if (p?.typeId !== "minecraft:player") return;
   switch (id) {
@@ -119,6 +121,13 @@ system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p 
       return;
     }
     case "rpg:quest": return void setQuestText(p, message.replaceAll("\\n", "\n"));
+    case "rpg:level": return void setLevel(p, message.trim());
+    case "rpg:gold": {
+      const d = data(p);
+      d.gold = Math.max(0, Math.floor(Number(message.trim()) || 0));
+      save(p);
+      return void notify(p, `§6골드 설정 §f${d.gold}G`);
+    }
   }
 });
 

@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V2.7.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V2.8.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,11 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V2.8 변경
+- 제작자 도구 > 플레이어 > **레벨·골드 직접 설정** (레벨 슬라이더 1~100, 골드 입력). 스탯 포인트는 레벨에 맞게 다시 계산(찍은 스탯 유지).
+- 명령어: `/scriptevent rpg:level 40`, `/scriptevent rpg:gold 5000` (실행한 플레이어에게 적용)
+- 플레이어 탭의 직업 표시를 승급 경로(예: 전사 → 검성)로 수정.
 
 ## V2.7 변경
 - **직업 전용 도구 20종** (`rpg:jt_<직업>`): 승급할 때마다 그 단계 도구를 받음. 잃어버리면 직업·스킬 창에서 다시 받기.
