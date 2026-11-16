@@ -568,33 +568,28 @@ function dragonDiveMain(ctx, hit) {
     const f = fwdOf(yw), rx = -Math.cos((yw * Math.PI) / 180), rz = -Math.sin((yw * Math.PI) / 180);
     return { x: p.location.x + f.x * 1.2 + rx * SIDE, y: p.location.y + dy, z: p.location.z + f.z * 1.2 + rz * SIDE };
   };
-  // 그림 목(왼쪽 끝) 뒤로 이어지는 물결 몸통: 그림과 같은 면(yaw·pitch)에서 헤엄치듯 꿈틀, 꼬리로 갈수록 가늘어짐
+  // 그림의 목 토막(왼쪽 24열)을 몸통 곡선을 따라 이어 붙여 용 몸이 뒤로 길게 이어지게 함
+  //   그림과 같은 면 위에서 S자로 꿈틀(물결이 꼬리 쪽으로 흐름), 꼬리로 갈수록 가늘어짐
   let tick0 = 0;
-  const tail = (at, pitch, grow) => {
-    const sc = 1.1 * grow, hd = { yaw: yawS, pitch };
-    const NECK_X = -180 * 0.048, NECK_Y = 24 * 0.048, R0 = 20 * 0.048; // 그림 좌표 → 블록 (scale 1 기준)
-    const L = 15, seg = 22, tt = tick0;
-    const spine = [];
-    for (let k = 0; k <= seg; k++) {
-      const sd = (k / seg) * L, env = Math.min(1, sd / 3);
-      const lx = NECK_X - sd + Math.sin((sd * 18 - tt * 26) * Math.PI / 180) * 0.4 * env;
-      const ly = NECK_Y + Math.sin((sd * 24 - tt * 30) * Math.PI / 180) * 1.1 * env - sd * 0.06;
-      const lz = Math.sin((sd * 17 - tt * 22) * Math.PI / 180) * 1.5 * env;
-      spine.push(headPt(at, hd, lx, ly, lz, sc));
+  const SEGS = 14, PX = 0.048, NECK_X = -180 * PX, NECK_Y = 24 * PX, STRIP = 24 * PX;
+  const tail = (at, pitch, grow, life) => {
+    const sc = 1.1 * grow, hd = { yaw: yawS, pitch }, tt = tick0;
+    let x = NECK_X, y = NECK_Y, dist = 0;
+    for (let k = 0; k < SEGS; k++) {
+      const taper = 1 - (k / SEGS) * 0.72, len = STRIP * taper * 0.8; // 토막 길이 = 그 굵기의 목 토막 너비 (살짝 겹침)
+      // 몸 곡선의 기울기: 뒤로 갈수록 크게 출렁이는 S자, 시간이 지나며 꼬리 쪽으로 흐름
+      const env = Math.min(1, dist / 2.5);
+      const slope = Math.sin(((dist * 26) - tt * 24) * Math.PI / 180) * 0.55 * env;
+      const nx = x - len * Math.cos(slope), ny = y + len * Math.sin(slope);
+      const cx = (x + nx) / 2, cy = (y + ny) / 2;
+      const ang = (Math.atan2(y - ny, x - nx) * 180) / Math.PI; // 토막의 +x(머리 쪽)가 앞 토막을 향하게
+      pt(dim, "cr_bigbody", headPt(at, hd, cx, cy, 0, sc), { yaw: yawS, pitch, a0: ang, scale: sc * taper, n: Math.round(360 * taper + 60), life });
+      x = nx; y = ny; dist += len;
     }
-    for (let k = 1; k <= seg; k++) {
-      const a = spine[k - 1], b = spine[k], q = k / seg;
-      const d = norm(sub(b, a)), u = norm(Math.abs(d.y) > 0.95 ? cross(d, { x: 1, y: 0, z: 0 }) : cross(d, { x: 0, y: 1, z: 0 }));
-      pt(dim, "cr_tube", b, { u, v: cross(u, d), r: R0 * sc * (1 - q * 0.82), n: Math.round(34 * (1 - q * 0.5)), life: 0.16 });
-      if (k % 4 === tt % 4) pt(dim, "cr_snow", b, { n: 2, r: R0 * sc * (1.2 - q) });
-      if (k % 6 === tt % 6) cluster(dim, b, { n: 4, r: 0.4, spd: 1.2, tone: 0.2 });
-    }
-    // 꼬리 끝 물보라
-    if (tt % 2 === 0) cluster(dim, spine[seg], { n: 8, r: 0.3, spd: 2.5, tone: 0.1 });
   };
   const draw = (at, pitch, grow, life = 0.2) => {
     pt(dim, "cr_bighead", at, { yaw: yawS, pitch, n: 3800, life, scale: 1.1 * grow });
-    tail(at, pitch, grow);
+    tail(at, pitch, grow, life);
     tick0++;
   };
   const land = () => {

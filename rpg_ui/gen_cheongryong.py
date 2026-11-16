@@ -449,6 +449,27 @@ def main():
         "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp({R2} * 0.9 + math.clamp({live}, 0, 1) * 0.15, 0, 1)",
                                                             "gradient": {"0.0": "#FFFFFFFF", "0.18": "#FFC4ECFF", "0.42": "#FF5AAFFF", "0.7": "#FF1F6BF0", "1.0": "#FF0E2FA8"}}},
     })
+    # 22) 큰 청룡 몸통 (④): 그림의 목 부분(왼쪽 NW 열)을 한 토막으로 잘라 몸통 곡선을 따라 이어 붙임
+    #   variable.a0 = 그림 면 안에서 토막의 기울기(도), scale = 굵기(꼬리로 갈수록 작게), yaw·pitch = 그림 면 방향
+    NW, BY0, BH, NCY = 24, 0, 56, 26
+    bx, by = f"math.floor({R1} * {NW})", f"math.floor({R2} * {BH})"
+    S2 = "(variable.scale * 0.048)"
+    al, pe = f"(({bx} - {NW / 2} + ({R1} * {NW} - {bx})) * {S2})", f"(({NCY} - {by} - ({R2} * {BH} - {by})) * {S2})"
+    ca, sa = "math.cos(variable.a0)", "math.sin(variable.a0)"
+    lx2, ly2, lz2 = f"({al} * {ca} - {pe} * {sa})", f"({al} * {sa} + {pe} * {ca})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
+    fx2, fy2 = f"({lx2} * {cp} - {ly2} * {sp})", f"({lx2} * {sp} + {ly2} * {cp})"
+    part("cr_bigbody", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"(-{fx2} * math.sin(variable.yaw) + {lz2} * math.cos(variable.yaw))", fy2,
+                                                     f"({fx2} * math.cos(variable.yaw) + {lz2} * math.sin(variable.yaw))"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"{S2} * (2.4 + {R4} * 1.2) * (0.9 + {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"({by} + {BY0}) * {CELL}"], "uv_size": [CELL, CELL]}},
+    }, tex="textures/particle/rpg_cr_dragonhead")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
         **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),
