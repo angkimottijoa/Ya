@@ -5,7 +5,7 @@
 // - 무기 분류(WCLASS)는 일반 공격력 설정(제작자 도구 > 무기)용으로 남겨 둔다.
 import { world, system, MolangVariableMap } from "@minecraft/server";
 import { getJSON, setJSON } from "./db.js";
-import { data, save, stat, notify, maxMp } from "./player.js";
+import { data, save, stat, notify, maxMp, isAdmin } from "./player.js";
 import { weaponInfo, inv } from "./itemdb.js";
 import * as J from "./jobs.js";
 import * as M from "./ms.js";
@@ -172,6 +172,14 @@ export function castWeaponSkill(p, id) {
   const d = data(p);
   const s = getSkill(id);
   if (!s) return false;
+  const god = skillMode(p);
+  if (god) {
+    if (!weaponOk(p, s)) { notify(p, `§7${s.name} §c- ${J.PATHS[s.path]?.tool?.name ?? "전용 도구"}를 들어야 사용 가능`); return false; }
+    if (s.next && MSR.canCast(p, s.next)) { anim(p, "smash"); MSR.cast({ p, scale: Math.max(0.2, power(p, s) / 25), size: 1 }, s.next); }
+    else runEffect(p, s, power(p, s));
+    notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
+    return true;
+  }
   if (!J.chain(d).includes(s.path)) {
     notify(p, `§7${s.name} §c- ${J.PATHS[s.path]?.name ?? "?"} 직업이 아닙니다 §f(메뉴 > 직업·스킬)`);
     return false;
@@ -244,9 +252,17 @@ export function buffMul(p) {
 }
 
 // ───────── 발동: ① 클릭 / ② 쉬프트+클릭 / ③ 쉬프트+점프 (직업 도구를 들고) ─────────
+/** 관리자 스킬 모드: 쿨다운·마나 없음, 모든 직업 스킬 사용 가능 (제작자 도구 > 플레이어) */
+export const skillMode = (p) => !!data(p).set?.adminSkill && isAdmin(p);
+
 /** 스킬 무기 발동 (직업 조건 없음) */
 function castWeaponSpecial(p, s) {
   const d = data(p);
+  if (skillMode(p)) {
+    s.run({ p, dmg: 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02), data: d });
+    notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
+    return true;
+  }
   const left = readyIn(p, s.id);
   if (left > 0) {
     notify(p, `§7${s.name} 재사용 대기 §f${Math.ceil(left)}초`);
@@ -276,7 +292,7 @@ export function castKey(p, key) {
   const path = heldPath(p);
   if (!path) return false;
   const d = data(p);
-  if (!J.chain(d).includes(path)) {
+  if (!skillMode(p) && !J.chain(d).includes(path)) {
     notify(p, `§c${J.PATHS[path]?.name ?? "?"} 전용 도구입니다 §7(메뉴 > 직업·스킬에서 승급)`);
     return false;
   }
@@ -291,14 +307,14 @@ export function castKey(p, key) {
 const jumpWas = new Map();
 const sneakWas = new Map();
 const sneakEdge = new Map(); // pid -> 마지막으로 쉬프트를 누른 틱
-/** 스킬 무기: 쉬프트를 짧게 두 번 누르면 ④ */
+/** 스킬 무기: 0.8초 안에 쉬프트를 두 번 누르면 ④ */
 function doubleSneakTick(p, sneak) {
   const was = sneakWas.get(p.id) ?? false;
   sneakWas.set(p.id, sneak);
   if (!sneak || was) return;
   const now = system.currentTick, last = sneakEdge.get(p.id) ?? -99;
   sneakEdge.set(p.id, now);
-  if (now - last <= 8) {
+  if (now - last <= 16) { // 0.8초 안에 두 번
     sneakEdge.set(p.id, -99);
     const ws = heldWeaponSkills(p);
     if (ws?.some((s) => s.key === 4)) castKey(p, 4);

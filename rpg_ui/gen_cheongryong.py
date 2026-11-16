@@ -240,6 +240,36 @@ def main():
             "size": [f"{S} * 0.62", f"{S} * 0.62"], "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW, "texture_height": IH, "uv": [px, py], "uv_size": [1, 1]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
+    # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음
+    #    cr_varc = 하늘색 물 띠(가운데 진하고 바깥 밝게), cr_varc_snow = 가장자리를 따라 ✱ 반짝이
+    ang = f"(variable.a0 + (variable.a1 - variable.a0) * {U})"
+    def varc(rad_expr):
+        return [f"(variable.u.x * math.cos({ang}) + variable.v.x * math.sin({ang})) * {rad_expr}",
+                f"(variable.u.y * math.cos({ang}) + variable.v.y * math.sin({ang})) * {rad_expr}",
+                f"(variable.u.z * math.cos({ang}) + variable.v.z * math.sin({ang})) * {rad_expr}"]
+    band = f"(variable.r + ({R2} - 0.5) * variable.thick)"
+    part("cr_varc", {
+        **steady("variable.n / math.max(0.04, variable.dur)", "math.max(0.04, variable.dur)", f"0.55 + {R4} * 0.4", 1200),
+        "minecraft:emitter_shape_point": {"offset": varc(band), "direction": [0, 1, 0]},
+        "minecraft:particle_initial_speed": f"{R1} * 0.4",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, f"{R4} > 0.8 ? -4 : 0", 0], "linear_drag_coefficient": 3},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.14 + {R3} * 0.08) * (1 - {AGE} * 0.7)"] * 2, "facing_camera_mode": "rotate_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(math.abs({R2} - 0.5) * 1.4 + {AGE} * 0.2, 0, 1)",
+                                                            "gradient": {"0.0": "#FF45C8FF", "0.35": "#FF7FE3FF", "0.7": "#FFC8FAFF", "1.0": "#FFFFFFFF"}}},
+    })
+    edge = f"(variable.r + ({R2} > 0.5 ? 1 : -1) * variable.thick * (0.55 + {R1} * 0.25))"
+    part("cr_varc_snow", {
+        **steady("variable.n / math.max(0.04, variable.dur)", "math.max(0.04, variable.dur)", f"0.6 + {R4} * 0.5", 800),
+        "minecraft:emitter_shape_point": {"offset": varc(edge), "direction": [0, 1, 0]},
+        "minecraft:particle_initial_speed": f"{R1} * 0.3",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, -0.5, 0], "linear_drag_coefficient": 2},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.13 + {R3} * 0.08) * (1 - {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"{R1} * 0.4", "gradient": {"0.0": "#FFFFFFFF", "1.0": "#FFB8F4FF"}}},
+    }, tex="textures/particle/rpg_cr_snow")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
         **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),

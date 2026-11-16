@@ -827,7 +827,7 @@ function playerTab(p, selId) {
   adminChrome(scr, p, "player");
   const d = data(t);
   scr.select(t.name, ICON(J.PATHS[J.currentPath(d)]?.icon ?? "profile"));
-  scr.body(`§7레벨 §r${d.lv}  §7경험치 §r${d.xp}\n§7골드 §r${d.gold}\n§7직업 §r${J.chain(d).map((id) => J.PATHS[id].name).join(" → ") || "모험가"}\n§7스탯 포인트 §r${d.pts}\n§7진행 퀘스트 §r${Object.keys(d.q.a).length}\n§7완료 퀘스트 §r${Object.keys(d.q.d).length}\n\n§7명령어로도 가능: §f/scriptevent rpg:level 40\n§f/scriptevent rpg:gold 5000`);
+  scr.body(`§7레벨 §r${d.lv}  §7경험치 §r${d.xp}\n§7골드 §r${d.gold}\n§7직업 §r${J.chain(d).map((id) => J.PATHS[id].name).join(" → ") || "모험가"}\n§7스탯 포인트 §r${d.pts}\n§7진행 퀘스트 §r${Object.keys(d.q.a).length}\n§7완료 퀘스트 §r${Object.keys(d.q.d).length}\n§7관리자 스킬 모드 ${d.set?.adminSkill ? "§d켜짐" : "§8꺼짐"}\n\n§7명령어로도 가능: §f/scriptevent rpg:level 40\n§f/scriptevent rpg:gold 5000`);
   const re = () => playerTab(p, t.id);
   scr.action("§e레벨·골드 직접 설정", async () => {
     const r = await new ModalFormData().title(`${t.name} - 레벨·골드 설정`)
@@ -839,6 +839,14 @@ function playerTab(p, selId) {
       if (Number(lv) !== d.lv) setLevel(t, lv);
       if (Number.isFinite(Number(gold))) { d.gold = Math.max(0, Math.floor(Number(gold))); save(t); }
     }
+    return re();
+  });
+  scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기 (쿨다운·마나 없음, 모든 스킬)", () => {
+    if (!isAdmin(t)) { msg(p, "§c관리자에게만 켤 수 있습니다."); return re(); }
+    d.set = d.set ?? {};
+    d.set.adminSkill = !d.set.adminSkill;
+    save(t);
+    msg(t, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐 §7(쿨다운·마나 없음, 모든 직업 도구 사용 가능)" : "§7관리자 스킬 모드 꺼짐");
     return re();
   });
   scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });

@@ -41,30 +41,55 @@ function hitter(ctx) {
   };
 }
 
-// ① 유수: 6틱 동안 미끄러지며 매 틱 몸을 감는 물살 획 2개 (위·아래 기울기 번갈아)
+// 큰 세로 초승달 획: 진행 방향(yaw)을 품은 세로 면을 roll 만큼 기울여, a0 → a1 각도로 긋는다
+function bigCrescent(dim, at, yaw, roll, r, o = {}) {
+  const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, rr = (roll * Math.PI) / 180;
+  const right = { x: -Math.cos(ry), y: 0, z: -Math.sin(ry) };
+  const u = f; // 0° = 앞쪽
+  const v = { x: right.x * Math.sin(rr), y: Math.cos(rr), z: right.z * Math.sin(rr) }; // 90° = 위(기울어짐)
+  const a0 = o.a0 ?? -25, a1 = o.a1 ?? 205, dur = o.dur ?? 0.16;
+  pt(dim, "cr_varc", at, { u, v, r, thick: o.thick ?? 0.7, a0, a1, dur, n: o.n ?? 520 });
+  pt(dim, "cr_varc_snow", at, { u, v, r, thick: o.thick ?? 0.7, a0, a1, dur, n: o.ns ?? 160 });
+  if (o.outer !== false) pt(dim, "cr_varc_snow", at, { u, v, r: r + 0.9, thick: 0.25, a0: a0 + 15, a1: a1 - 10, dur: dur * 1.2, n: 110 });
+}
+
+// ① 유수: 미끄러지며 거대한 세로 초승달 물살 4번 (좌우로 기울기 번갈아) → 마크 번개 한 방
 function flowingWater(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "dash");
+  M.potion(p, "resistance", 5, 3);
+  M.potion(p, "fire_resistance", 1, 6);
   M.sound(p, "bucket.empty_water", 1.2);
   M.leap(p, 12, 1);
-  for (let i = 0; i < 7; i++) {
-    later(i + 1, () => {
+  const rolls = [-38, 34, -20, 48];
+  rolls.forEach((roll, i) => {
+    later(1 + i * 3, () => {
       const yaw = yawOf(p), L = p.location;
-      const s = i % 2 ? 1 : -1;
-      pt(dim, "cr_arc", L, { yaw, a0: -110 * s, a1: 160 * s, r: 2.3 + (i % 3) * 0.3, thick: 0.55, h: 0.4 + (i % 3) * 0.35, tilt: 0.5 * s, dur: 0.12, n: 140 });
-      if (i % 2 === 0) pt(dim, "cr_arc", L, { yaw, a0: 150 * s, a1: -40 * s, r: 3.1, thick: 0.4, h: 0.15, tilt: 0, dur: 0.15, n: 110 });
-      cluster(dim, up(L, 0.3), { n: 10, r: 0.6, spd: 1.5, tone: 0.6 });
-      snow(dim, up(L, 1.2), 2, 1.5);
-      for (const e of M.around(dim, L, 3.2)) hit(e, 0.45);
-      if (i === 0) M.anim(p, "spin");
+      M.anim(p, i % 2 ? "slash" : "slash_down");
+      bigCrescent(dim, up(L, 0.4), yaw + (i % 2 ? 20 : -20), roll, 4.4 + (i % 2) * 0.5);
+      pt(dim, "cr_arc", L, { yaw, a0: -120 * (i % 2 ? 1 : -1), a1: 150 * (i % 2 ? 1 : -1), r: 2.6, thick: 0.5, h: 0.3, tilt: 0.3, dur: 0.12, n: 120 });
+      cluster(dim, up(L, 0.3), { n: 10, r: 0.6, spd: 1.5, tone: 0.5 });
+      const f = fwdOf(yaw);
+      for (const e of M.around(dim, { x: L.x + f.x * 2, y: L.y, z: L.z + f.z * 2 }, 4.5)) hit(e, 0.5);
+      M.sound(p, "item.trident.riptide_1", 1.2 + i * 0.1, 0.6);
     });
-  }
-  later(9, () => {
-    const f = fwdOf(yawOf(p)), L = p.location;
-    pt(dim, "cr_arc", L, { yaw: yawOf(p), a0: -80, a1: 80, r: 3.4, thick: 0.8, h: 1, tilt: 0.3, dur: 0.1, n: 200 });
-    for (let k = 1; k <= 3; k++) cluster(dim, { x: L.x + f.x * k, y: L.y + 1, z: L.z + f.z * k }, { n: 16, r: 0.4, spd: 2, tone: 0.4 });
-    for (const e of M.around(dim, { x: L.x + f.x * 2, y: L.y, z: L.z + f.z * 2 }, 3)) hit(e, 0.9);
+  });
+  // 마무리 큰 획 + 번개
+  later(14, () => {
+    const yaw = yawOf(p), L = p.location, f = fwdOf(yaw);
+    bigCrescent(dim, up(L, 0.4), yaw, 0, 5.4, { n: 700, ns: 220 });
+    for (const e of M.around(dim, { x: L.x + f.x * 3, y: L.y, z: L.z + f.z * 3 }, 4)) hit(e, 1);
     M.sound(p, "random.splash", 1.3);
+  });
+  later(20, () => {
+    const L = p.location, f = fwdOf(yawOf(p));
+    const front = { x: L.x + f.x * 5, y: L.y, z: L.z + f.z * 5 };
+    const t = M.around(dim, front, 6).sort((a, b) => Math.hypot(a.location.x - front.x, a.location.z - front.z) - Math.hypot(b.location.x - front.x, b.location.z - front.z))[0];
+    const at = t ? { ...t.location } : front;
+    try { dim.spawnEntity("minecraft:lightning_bolt", at); } catch {}
+    cluster(dim, up(at, 0.5), { n: 20, r: 0.6, spd: 3.5, tone: 0.2 });
+    snow(dim, up(at, 1.5), 6, 2);
+    if (t) hit(t, 1.8);
   });
 }
 
@@ -291,23 +316,29 @@ function dragonDiveMain(ctx, hit) {
     try { p.applyKnockback(f.x, f.z, 0.3, 1.25); } catch {}
     M.sound(p, "mob.enderdragon.flap", 1, 1);
   });
-  // 정점에서 머무르며 큰 머리 생성
-  later(17, () => M.potion(p, "slow_falling", 1, 0.6));
-  const headAt = (pitch) => {
-    const f = fwdOf(yawOf(p));
-    return { at: { x: p.location.x + f.x * 3, y: p.location.y + 1.4, z: p.location.z + f.z * 3 }, yaw: yawOf(p), pitch };
+  // 비상: 1.5초 동안 떠오르며, 눈앞을 가로질러 큰 청룡이 모습을 드러냄
+  //   (그림은 옆모습이라 내 시선과 수직인 면에 세워야 잘 보임: 머리 = 오른쪽, 몸통 = 왼쪽)
+  const HOVER = 30;
+  later(16, () => { M.potion(p, "levitation", 1, 1.2); M.potion(p, "slow_falling", 1, 2.2); });
+  const headAt = (pitch, k = 1) => {
+    const yw = yawOf(p), f = fwdOf(yw), rx = -Math.cos((yw * Math.PI) / 180), rz = -Math.sin((yw * Math.PI) / 180);
+    return { at: { x: p.location.x + f.x * 8 + rx * 3, y: p.location.y + 1.8, z: p.location.z + f.z * 8 + rz * 3 }, yaw: yw + 90, pitch, k };
   };
-  for (let t = 17; t <= 29; t++) {
-    later(t, () => {
-      const h = headAt(-15);
-      pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.2, scale: 1 });
-      if (t === 17) { M.sound(p, "mob.enderdragon.growl", 1.4, 1); snow(dim, h.at, 12, 3); }
-      cluster(dim, h.at, { n: 10, r: 1.5, spd: 1.5, tone: 0.3 });
+  for (let t = 0; t <= HOVER; t++) {
+    later(17 + t, () => {
+      const grow = Math.min(1, 0.55 + t / 10 * 0.45); // 처음 0.5초 동안 커지며 솟아오름
+      const h = headAt(8 * Math.sin(t / 5), grow);
+      h.at.y += (1 - grow) * -3;
+      pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.18, scale: 1.1 * grow });
+      if (t === 0) { M.sound(p, "mob.enderdragon.growl", 1.3, 1); snow(dim, h.at, 14, 4); }
+      if (t % 3 === 0) cluster(dim, h.at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
+      if (t % 6 === 0) snow(dim, h.at, 4, 4);
     });
   }
   // 함께 내리꽂기
-  later(30, () => {
+  later(17 + HOVER + 1, () => {
     M.anim(p, "smash");
+    try { p.removeEffect("levitation"); p.removeEffect("slow_falling"); } catch {}
     const f = fwdOf(yawOf(p));
     try { p.applyKnockback(f.x, f.z, 0.8, -2.6); } catch {}
   });
@@ -317,8 +348,8 @@ function dragonDiveMain(ctx, hit) {
     if (!p.isValid() || landed) return;
     let g = false;
     try { g = p.isOnGround; } catch {}
-    const h = headAt(-40);
-    pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.14, scale: 1 });
+    const h = headAt(-30);
+    pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.14, scale: 1.1 });
     if ((t > 2 && g) || t > 30) {
       landed = true;
       const G = { ...p.location };
@@ -339,7 +370,7 @@ function dragonDiveMain(ctx, hit) {
     }
     later(1, follow);
   };
-  later(31, follow);
+  later(17 + HOVER + 2, follow);
   void yaw0;
 }
 const norm = (v) => { const l = Math.hypot(v.x, v.y, v.z) || 1; return { x: v.x / l, y: v.y / l, z: v.z / l }; };
