@@ -69,9 +69,10 @@ export class Screen {
 
     const res = await f.show(player);
     if (res.canceled) {
-      // 채팅창 등 다른 화면이 열려 있으면 잠시 후 재시도
-      if (res.cancelationReason === "UserBusy" && tries < 10) {
-        await new Promise((r) => system.runTimeout(r, 10));
+      // 이전 화면이 닫히는 중이거나 다른 화면이 열려 있으면 곧바로 재시도 (2틱 = 0.1초)
+      // (예전엔 10틱을 기다려서 버튼을 누를 때마다 0.5초씩 딜레이가 생겼음)
+      if (res.cancelationReason === "UserBusy" && tries < 40) {
+        await new Promise((r) => system.runTimeout(r, 2));
         return this.show(player, tries + 1);
       }
       return;

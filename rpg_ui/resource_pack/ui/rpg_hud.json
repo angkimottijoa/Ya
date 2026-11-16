@@ -2,12 +2,13 @@
   "namespace": "rpg_hud",
 
   // ════════════════════════════════════════════════════════════════
-  //  Arcania HUD
-  //  - 스크립트가 title = "quest:<퀘스트창>", subtitle = "[CARD]<캐릭터 카드>" 를 보낸다.
-  //    (title 이 quest: 로 시작하면 화면 중앙 title/subtitle 은 숨김 → hud_screen.json)
-  //  - 데이터 컨트롤은 항상 보이는 루트에 둔다. 숨겨진 부모 안에 있으면 바인딩이 갱신되지 않음.
-  //  - 메뉴/스킬 버튼은 핫바 9번/8번 칸을 선택하는 버튼이다. 스크립트가 그 칸 선택을 감지해
-  //    메뉴를 열거나 스킬을 쓰고 원래 칸으로 되돌린다. (PC 에선 숫자키 9 / 8)
+  //  Arcania HUD (V1.2)
+  //  - 스크립트: title = "quest:<퀘스트창>", subtitle = "[CARD]<정보>" / "[BAR]<HP·MP·Lv>" 번갈아 전송
+  //  - 데이터 컨트롤은 항상 보이는 루트에 둔다 (숨겨진 부모 안에선 바인딩이 갱신되지 않음)
+  //  - [정보]/[퀘스트] 접기: 창을 토글 버튼의 "켜짐" 모양 안에 넣어서, 버튼을 누르면 창 자체가 접힌다
+  //    (다른 컨트롤이 토글 상태를 읽는 방식은 HUD 에서 동작하지 않음)
+  //  - [스킬]/[메뉴]: 핫바 8/9번 칸 선택 버튼 → 스크립트가 감지
+  //  - 바닐라 하트는 숨기고 그 자리에 HP / MP / Lv 바를 그린다 (hud_screen.json)
   // ════════════════════════════════════════════════════════════════
 
   "root": {
@@ -18,98 +19,145 @@
     "$card_prefix": "[CARD]",
     "$bar_prefix": "[BAR]",
     "controls": [
-      {
-        "rpg_quest_data": {
-          "type": "panel",
-          "size": [ 0, 0 ],
-          "property_bag": { "#preserved_text": "" },
-          "bindings": [
-            { "binding_name": "#hud_title_text_string" },
-            { "binding_name": "#hud_title_text_string", "binding_name_override": "#preserved_text", "binding_condition": "visibility_changed" },
-            {
-              "binding_type": "view",
-              "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $quest_prefix) = #hud_title_text_string))",
-              "target_property_name": "#visible"
-            }
-          ]
-        }
-      },
-      {
-        "rpg_card_data": {
-          "type": "panel",
-          "size": [ 0, 0 ],
-          "property_bag": { "#preserved_text": "" },
-          "bindings": [
-            { "binding_name": "#hud_subtitle_text_string" },
-            { "binding_name": "#hud_subtitle_text_string", "binding_name_override": "#preserved_text", "binding_condition": "visibility_changed" },
-            {
-              "binding_type": "view",
-              "source_property_name": "(not (#hud_subtitle_text_string = #preserved_text) and not ((#hud_subtitle_text_string - $card_prefix) = #hud_subtitle_text_string))",
-              "target_property_name": "#visible"
-            }
-          ]
-        }
-      },
-      {
-        "rpg_bar_data": {
-          "type": "panel",
-          "size": [ 0, 0 ],
-          "property_bag": { "#preserved_text": "" },
-          "bindings": [
-            { "binding_name": "#hud_subtitle_text_string" },
-            { "binding_name": "#hud_subtitle_text_string", "binding_name_override": "#preserved_text", "binding_condition": "visibility_changed" },
-            {
-              "binding_type": "view",
-              "source_property_name": "(not (#hud_subtitle_text_string = #preserved_text) and not ((#hud_subtitle_text_string - $bar_prefix) = #hud_subtitle_text_string))",
-              "target_property_name": "#visible"
-            }
-          ]
-        }
-      },
+      { "rpg_quest_data@rpg_hud.data_control": { "$src": "#hud_title_text_string", "$pre": "quest:" } },
+      { "rpg_card_data@rpg_hud.data_control": { "$src": "#hud_subtitle_text_string", "$pre": "[CARD]" } },
+      { "rpg_bar_data@rpg_hud.data_control": { "$src": "#hud_subtitle_text_string", "$pre": "[BAR]" } },
       { "rpg_status@rpg_hud.status_bar": {} },
       {
         "rpg_right": {
-          "type": "stack_panel",
-          "orientation": "vertical",
+          "type": "panel",
           "anchor_from": "top_right",
           "anchor_to": "top_right",
           "offset": [ -4, 4 ],
-          "size": [ 132, "100%c" ],
+          "size": [ 132, 24 ],
+          "controls": [ { "menu_bar@rpg_hud.menu_bar": {} } ]
+        }
+      }
+    ]
+  },
+
+  // 접두어가 붙은 문자열이 새로 오면 그 값을 #preserved_text 에 보존
+  "data_control": {
+    "type": "panel",
+    "size": [ 0, 0 ],
+    "$src|default": "#hud_title_text_string",
+    "$pre|default": "quest:",
+    "property_bag": { "#preserved_text": "" },
+    "bindings": [
+      { "binding_name": "$src", "binding_name_override": "#src" },
+      { "binding_name": "$src", "binding_name_override": "#preserved_text", "binding_condition": "visibility_changed" },
+      {
+        "binding_type": "view",
+        "source_property_name": "(not (#src = #preserved_text) and not ((#src - $pre) = #src))",
+        "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  // ───────── 메뉴바: [정보][퀘스트] 토글 · [스킬][메뉴] ─────────
+  "menu_bar": {
+    "type": "image",
+    "texture": "textures/ui/rpg/bar",
+    "size": [ "100%", 24 ],
+    "controls": [
+      {
+        "info_toggle@rpg_hud.panel_toggle": {
+          "offset": [ 4, 0 ],
+          "toggle_name": "rpg_info",
+          "$tg_icon": "textures/ui/rpg/icons/profile",
+          "$open_content": "rpg_hud.card_popup"
+        }
+      },
+      {
+        "quest_toggle@rpg_hud.panel_toggle": {
+          "offset": [ 24, 0 ],
+          "toggle_name": "rpg_questwin",
+          "$tg_icon": "textures/ui/rpg/icons/quest",
+          "$open_content": "rpg_hud.quest_popup"
+        }
+      },
+      {
+        "slot_grid": {
+          "type": "grid",
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [ -3, 0 ],
+          "size": [ 333, 18 ],
+          "grid_dimensions": [ 9, 1 ],
+          "collection_name": "hotbar_items",
+          "layer": 4,
           "controls": [
-            { "menu_bar@rpg_hud.menu_bar": {} },
-            { "gap": { "type": "panel", "size": [ "100%", 2 ] } },
-            {
-              "card_slot": {
-                "type": "panel",
-                "size": [ "100%", "100%c" ],
-                "bindings": [
-                  { "binding_type": "view", "source_control_name": "rpg_info_toggle", "source_property_name": "#toggle_state", "target_property_name": "#visible" }
-                ],
-                "controls": [ { "rpg_card@rpg_hud.card": {} } ]
-              }
-            },
-            { "gap2": { "type": "panel", "size": [ "100%", 2 ] } },
-            {
-              "quest_slot": {
-                "type": "panel",
-                "size": [ "100%", "100%c" ],
-                "bindings": [
-                  { "binding_type": "view", "source_control_name": "rpg_quest_toggle", "source_property_name": "#toggle_state", "target_property_name": "#visible" }
-                ],
-                "controls": [ { "quest_window@rpg_hud.quest_window": {} } ]
-              }
-            }
+            { "skill_btn@rpg_hud.slot_button": { "grid_position": [ 7, 0 ], "collection_index": 7, "$label": "§l스킬", "$icon": "textures/ui/rpg/icons/skill" } },
+            { "menu_btn@rpg_hud.slot_button": { "grid_position": [ 8, 0 ], "collection_index": 8, "$label": "§l메뉴", "$icon": "textures/ui/rpg/icons/settings" } }
           ]
         }
       }
     ]
   },
 
-  // ───────── 캐릭터 카드 (좌측 상단) ─────────
-  "card": {
+  // 토글 버튼. 켜짐(checked) 모양 안에 창($open_content)이 함께 들어 있다.
+  "toggle_face": {
+    "type": "image",
+    "$btn_tex|default": "textures/ui/rpg/button_default",
+    "$tg_icon|default": "textures/ui/rpg/icons/profile",
+    "texture": "$btn_tex",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      { "icon": { "type": "image", "texture": "$tg_icon", "size": [ 10, 10 ], "layer": 2 } }
+    ]
+  },
+
+  "toggle_open": {
+    "type": "panel",
+    "size": [ "100%", "100%" ],
+    "$btn_tex|default": "textures/ui/rpg/button_hover",
+    "controls": [
+      { "face@rpg_hud.toggle_face": {} },
+      { "content@$open_content": {} }
+    ]
+  },
+
+  "panel_toggle": {
+    "type": "toggle",
+    "size": [ 18, 18 ],
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "layer": 4,
+    "$open_content|default": "rpg_hud.card_popup",
+    "toggle_default_state": true,
+    "radio_toggle_group": false,
+    "focus_enabled": false,
+    "sound_name": "random.click",
+    "sound_volume": 0.6,
+    "checked_control": "checked",
+    "unchecked_control": "unchecked",
+    "checked_hover_control": "checked_hover",
+    "unchecked_hover_control": "unchecked_hover",
+    "checked_locked_control": "checked",
+    "unchecked_locked_control": "unchecked",
+    "checked_locked_hover_control": "checked_hover",
+    "unchecked_locked_hover_control": "unchecked_hover",
+    "button_mappings": [
+      { "from_button_id": "button.menu_select", "to_button_id": "button.menu_select", "mapping_type": "pressed" },
+      { "from_button_id": "button.menu_ok", "to_button_id": "button.menu_ok", "mapping_type": "focused" }
+    ],
+    "controls": [
+      { "checked@rpg_hud.toggle_open": {} },
+      { "checked_hover@rpg_hud.toggle_open": {} },
+      { "unchecked@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_pressed" } },
+      { "unchecked_hover@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_default" } }
+    ]
+  },
+
+  // ───────── 정보 카드 (메뉴바 왼쪽 옆) ─────────
+  "card_popup": {
     "type": "image",
     "texture": "textures/ui/rpg/panel",
-    "size": [ "100%", "100%cm + 7px" ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_right",
+    "offset": [ -8, -3 ],
+    "size": [ "100%c + 10px", "100%c + 7px" ],
+    "layer": 1,
     "controls": [
       {
         "text": {
@@ -144,177 +192,15 @@
     ]
   },
 
-
-  // ───────── 정보 토글 ─────────
-  "toggle_face": {
-    "type": "image",
-    "$btn_tex|default": "textures/ui/rpg/button_default",
-    "$tg_icon|default": "textures/ui/rpg/icons/profile",
-    "texture": "$btn_tex",
-    "size": [ "100%", "100%" ],
-    "controls": [
-      { "icon": { "type": "image", "texture": "$tg_icon", "size": [ 10, 10 ], "layer": 2 } }
-    ]
-  },
-
-  "info_toggle": {
-    "type": "toggle",
-    "$tg_icon|default": "textures/ui/rpg/icons/profile",
-    "size": [ 18, 18 ],
-    "layer": 4,
-    "toggle_name": "rpg_info",
-    "toggle_default_state": true,
-    "radio_toggle_group": false,
-    "focus_enabled": false,
-    "sound_name": "random.click",
-    "sound_volume": 0.6,
-    "property_bag": { "#toggle_state": true },
-    "checked_control": "checked",
-    "unchecked_control": "unchecked",
-    "checked_hover_control": "checked_hover",
-    "unchecked_hover_control": "unchecked_hover",
-    "checked_locked_control": "checked",
-    "unchecked_locked_control": "unchecked",
-    "checked_locked_hover_control": "checked_hover",
-    "unchecked_locked_hover_control": "unchecked_hover",
-    "button_mappings": [
-      { "from_button_id": "button.menu_select", "to_button_id": "button.menu_select", "mapping_type": "pressed" },
-      { "from_button_id": "button.menu_ok", "to_button_id": "button.menu_ok", "mapping_type": "focused" }
-    ],
-    "controls": [
-      { "checked@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_hover" } },
-      { "checked_hover@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_hover" } },
-      { "unchecked@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_pressed" } },
-      { "unchecked_hover@rpg_hud.toggle_face": { "$btn_tex": "textures/ui/rpg/button_default" } }
-    ]
-  },
-
-  // ───────── 하단 상태바 (핫바 위: HP / MP / 레벨·EXP / 능력치) ─────────
-  "status_bar": {
-    "type": "image",
-    "texture": "textures/ui/rpg/status_bg",
-    "anchor_from": "bottom_middle",
-    "anchor_to": "bottom_middle",
-    "offset": [ 0, -47 ],
-    "size": [ "100%c + 14px", "100%c + 4px" ],
-    "controls": [
-      {
-        "text": {
-          "type": "label",
-          "layer": 3,
-          "color": [ 1.0, 1.0, 1.0 ],
-          "shadow": true,
-          "localize": false,
-          "text_alignment": "center",
-          "text": "#text",
-          "bindings": [
-            {
-              "binding_type": "view",
-              "source_control_name": "rpg_bar_data",
-              "source_property_name": "(#preserved_text - $bar_prefix)",
-              "target_property_name": "#text"
-            }
-          ]
-        }
-      }
-    ],
-    "bindings": [
-      {
-        "binding_type": "view",
-        "source_control_name": "rpg_bar_data",
-        "source_property_name": "(not ((#preserved_text - $bar_prefix) = ''))",
-        "target_property_name": "#visible"
-      }
-    ]
-  },
-
-  // ───────── 메뉴바 ─────────
-  "menu_bar": {
-    "type": "image",
-    "texture": "textures/ui/rpg/bar",
-    "size": [ "100%", 24 ],
-    "controls": [
-      // 정보 카드 열기/닫기 (클라이언트 토글 – 스크립트 불필요)
-      { "rpg_info_toggle@rpg_hud.info_toggle": { "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 4, 0 ] } },
-      { "rpg_quest_toggle@rpg_hud.info_toggle": { "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 24, 0 ], "toggle_name": "rpg_questwin", "$tg_icon": "textures/ui/rpg/icons/quest" } },
-      // 핫바 슬롯 선택 버튼 (9칸 그리드의 8번/7번 위치 = 핫바 9번/8번 칸)
-      {
-        "slot_grid": {
-          "type": "grid",
-          "anchor_from": "right_middle",
-          "anchor_to": "right_middle",
-          "offset": [ -3, 0 ],
-          "size": [ 333, 18 ],
-          "grid_dimensions": [ 9, 1 ],
-          "collection_name": "hotbar_items",
-          "layer": 4,
-          "controls": [
-            { "skill_btn@rpg_hud.slot_button": { "grid_position": [ 7, 0 ], "collection_index": 7, "$label": "§l스킬", "$icon": "textures/ui/rpg/icons/skill" } },
-            { "menu_btn@rpg_hud.slot_button": { "grid_position": [ 8, 0 ], "collection_index": 8, "$label": "§l메뉴", "$icon": "textures/ui/rpg/icons/settings" } }
-          ]
-        }
-      }
-    ]
-  },
-
-  "slot_face": {
-    "type": "image",
-    "$btn_tex|default": "textures/ui/rpg/button_default",
-    "texture": "$btn_tex",
-    "size": [ "100%", "100%" ],
-    "controls": [
-      { "icon": { "type": "image", "texture": "$icon", "size": [ 10, 10 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 3, 0 ], "layer": 2 } },
-      {
-        "label": {
-          "type": "label",
-          "text": "$label",
-          "anchor_from": "left_middle",
-          "anchor_to": "left_middle",
-          "offset": [ 15, 1 ],
-          "layer": 2,
-          "color": [ 0.97, 0.87, 0.58 ],
-          "shadow": true,
-          "localize": false
-        }
-      }
-    ]
-  },
-
-  "slot_button": {
-    "type": "button",
-    "size": [ 35, 18 ],
-    "layer": 2,
-    "$label|default": "메뉴",
-    "$icon|default": "textures/ui/rpg/icons/settings",
-    "default_control": "default",
-    "hover_control": "hover",
-    "pressed_control": "pressed",
-    "focus_enabled": false,
-    "sound_name": "random.click",
-    "sound_volume": 0.6,
-    "button_mappings": [
-      {
-        "from_button_id": "button.menu_select",
-        "to_button_id": "button.hotbar_select",
-        "mapping_type": "pressed",
-        "button_up_right_of_first_refusal": true
-      }
-    ],
-    "bindings": [
-      { "binding_collection_name": "hotbar_items", "binding_type": "collection_details" }
-    ],
-    "controls": [
-      { "default@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_default" } },
-      { "hover@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_hover" } },
-      { "pressed@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_pressed" } }
-    ]
-  },
-
-  // ───────── 퀘스트창 ─────────
-  "quest_window": {
+  // ───────── 퀘스트창 (메뉴바 아래, 폭 132) ─────────
+  "quest_popup": {
     "type": "image",
     "texture": "textures/ui/rpg/panel",
-    "size": [ "100%", "100%c + 6px" ],
+    "anchor_from": "bottom_left",
+    "anchor_to": "top_left",
+    "offset": [ -24, 5 ],
+    "size": [ 132, "100%c + 6px" ],
+    "layer": 1,
     "controls": [
       {
         "content": {
@@ -381,6 +267,82 @@
         "source_control_name": "rpg_quest_data",
         "source_property_name": "(not ((#preserved_text - $quest_prefix) = ''))",
         "target_property_name": "#visible"
+      }
+    ]
+  },
+
+  // ───────── 핫바 슬롯 버튼 ([스킬]/[메뉴]) ─────────
+  "slot_face": {
+    "type": "image",
+    "$btn_tex|default": "textures/ui/rpg/button_default",
+    "texture": "$btn_tex",
+    "size": [ "100%", "100%" ],
+    "controls": [
+      { "icon": { "type": "image", "texture": "$icon", "size": [ 10, 10 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 3, 0 ], "layer": 2 } },
+      {
+        "label": {
+          "type": "label",
+          "text": "$label",
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [ 15, 1 ],
+          "layer": 2,
+          "color": [ 0.97, 0.87, 0.58 ],
+          "shadow": true,
+          "localize": false
+        }
+      }
+    ]
+  },
+
+  "slot_button": {
+    "type": "button",
+    "size": [ 35, 18 ],
+    "layer": 2,
+    "$label|default": "메뉴",
+    "$icon|default": "textures/ui/rpg/icons/settings",
+    "default_control": "default",
+    "hover_control": "hover",
+    "pressed_control": "pressed",
+    "focus_enabled": false,
+    "sound_name": "random.click",
+    "sound_volume": 0.6,
+    "button_mappings": [
+      {
+        "from_button_id": "button.menu_select",
+        "to_button_id": "button.hotbar_select",
+        "mapping_type": "pressed",
+        "button_up_right_of_first_refusal": true
+      }
+    ],
+    "bindings": [
+      { "binding_collection_name": "hotbar_items", "binding_type": "collection_details" }
+    ],
+    "controls": [
+      { "default@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_default" } },
+      { "hover@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_hover" } },
+      { "pressed@rpg_hud.slot_face": { "$btn_tex": "textures/ui/rpg/button_pressed" } }
+    ]
+  },
+
+  // ───────── 체력바 자리: HP / MP / Lv (바닐라 하트 대신) ─────────
+  "status_bar": {
+    "type": "label",
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_left",
+    "offset": [ -91, -30 ],
+    "layer": 3,
+    "font_scale_factor": 0.8,
+    "color": [ 1.0, 1.0, 1.0 ],
+    "shadow": true,
+    "localize": false,
+    "text": "#text",
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "rpg_bar_data",
+        "source_property_name": "(#preserved_text - $bar_prefix)",
+        "target_property_name": "#text"
       }
     ]
   }

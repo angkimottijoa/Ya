@@ -56,9 +56,17 @@ export function statusBar(p) {
   const need = xpNeed(d.lv);
   const pct = d.lv >= MAX_LV ? 100 : Math.floor((d.xp / need) * 100);
   const s = combatStats(p);
+  const armor = (() => {
+    try {
+      return Math.round(p.getComponent("minecraft:equippable") ? combatStats(p).def : 0);
+    } catch {
+      return 0;
+    }
+  })();
   return "[BAR]" +
-    `§c§lHP ${bar(hp, hpMax, 26, "§c")} §r§f§l${hp}§r§7/${hpMax}     §9§lMP ${bar(mp, mpMax, 26, "§9")} §r§f§l${mp}§r§7/${mpMax}\n` +
-    `§e§lLv.${d.lv} ${bar(pct, 100, 26, "§a")} §r§f${pct}%     §7공격 §f+${s.atk}%  §7치명 §f${s.crit}%  §7이속 §f+${s.spd}%  §7방어 §f${s.def}%`;
+    `§c§lHP ${bar(hp, hpMax, 22, "§c")} §r§f§l${hp}§r§7/${hpMax}${armor ? `  §7방어 §f${armor}%` : ""}\n` +
+    `§9§lMP ${bar(mp, mpMax, 22, "§9")} §r§f§l${mp}§r§7/${mpMax}\n` +
+    `§e§lLv.${d.lv} ${bar(pct, 100, 18, "§a")} §r§f${pct}%`;
 }
 
 export function questText(p) {

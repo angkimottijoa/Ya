@@ -41,5 +41,15 @@
   // 알림(액션바)을 하단 상태바 위로 올림
   "hud_actionbar_text": {
     "offset": [ 0, "50%-92px" ]
+  },
+
+  // 바닐라 하트/갑옷 칸 숨김 → 그 자리에 Arcania HP / MP / Lv 바 (rpg_hud.status_bar)
+  "heart_renderer": {
+    "visible": false,
+    "bindings": []
+  },
+  "armor_renderer": {
+    "visible": false,
+    "bindings": []
   }
 }
