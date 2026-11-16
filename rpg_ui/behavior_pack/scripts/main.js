@@ -1,8 +1,8 @@
 // Arcania RPG - 진입점
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { data, save, forget, msg, notify, isAdmin } from "./player.js";
-import { initCombat, castSkill, resetSpeed } from "./combat.js";
-import { initSkillTriggers, castWeaponSkill, loadout, currentSkillInfo } from "./skills.js";
+import { initCombat, resetSpeed } from "./combat.js";
+import { initSkillTriggers } from "./skills.js";
 import { registerNpcEntity } from "./npcdb.js";
 import { navTick } from "./waypoints.js";
 import * as Q from "./quests.js";
@@ -12,10 +12,9 @@ import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
-// 핫바: 1~7번 아이템, 8번 메뉴(쉬프트 = 옆 창 접기), 9번 스킬(쉬프트 = 스킬 2)
-const MENU_SLOT = 7; // 핫바 8번 칸 = [메뉴]
-const SKILL_SLOT = 8; // 핫바 9번 칸 = [스킬] (쉬프트 = 스킬 2)
-const RESERVED = [MENU_SLOT, SKILL_SLOT];
+// 핫바: 1~8번 아이템, 9번 메뉴(쉬프트 = 옆 창 접기)
+// 스킬: 쉬프트+공격 = 스킬 1, 쉬프트+공중 공격 = 스킬 2
+const MENU_SLOT = 8; // 핫바 9번 칸 = [메뉴]
 const lastUse = new Map();
 const lastSlot = new Map();
 
@@ -43,60 +42,22 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
-  // 예전 스킬창 아이템 정리
-  const inv = p.getComponent("minecraft:inventory").container;
-  for (let i = 0; i < inv.size; i++) if (inv.getItem(i)?.typeId === "rpg:skillbook") inv.setItem(i, undefined);
-  updateSkillSlot(p);
-}
-
-/** 8번 칸 = 스킬 버튼: 들고 있는 무기 분류의 스킬 아이콘 + 이름(스킬1 / 스킬2) */
-const lastSkillKey = new Map();
-function updateSkillSlot(p) {
+  // 예전 버전의 스킬 버튼/스킬창 아이템 정리
   const c = p.getComponent("minecraft:inventory").container;
-  const cur = c.getItem(SKILL_SLOT);
-  const { w } = loadout(p);
-  const { skill, sub } = currentSkillInfo(p);
-  const swap = data(p).set.skillSwap === true;
-  const a = swap ? sub : skill, b = swap ? skill : sub;
-  // 스킬이 없으면(무기 아님) 빈 스킬 칸
-  const id = a || b ? `rpg:skill_${w}` : "rpg:skill_none";
-  const name = a || b ? `§b§l스킬 1§r§f ${a?.name ?? "-"}  §7| §d⇧ 스킬 2§r§f ${b?.name ?? "-"}` : "§7스킬 없음 §8(무기를 들면 생김)";
-  const key = `${id}|${name}`;
-  if (cur?.typeId === id && lastSkillKey.get(p.id) === key) return;
-  for (let i = 0; i < c.size; i++) {
-    const it = c.getItem(i);
-    if (i !== SKILL_SLOT && it?.typeId.startsWith("rpg:skill") && it.typeId !== "rpg:skillbook") c.setItem(i, undefined);
-  }
-  const it = new ItemStack(id, 1);
-  it.lockMode = ItemLockMode.slot;
-  it.keepOnDeath = true;
-  it.nameTag = name;
-  if (cur && !cur.typeId.startsWith("rpg:skill")) {
-    const rest = c.addItem(cur);
-    if (rest) p.dimension.spawnItem(rest, p.location);
-  }
-  c.setItem(SKILL_SLOT, it);
-  lastSkillKey.set(p.id, key);
+  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId.startsWith("rpg:skill")) c.setItem(i, undefined);
 }
 
-// HUD [메뉴]/[스킬] 버튼 = 핫바 9번/8번 칸 선택. 선택되면 바로 원래 칸으로 되돌리고 실행.
-// (PC 에선 숫자키 9 / 8)
+// [메뉴] 버튼 = 핫바 9번 칸 선택 → 바로 원래 칸으로 되돌리고 메뉴 / 쉬프트면 옆 창 접기 (PC: 숫자키 9)
 system.runInterval(() => {
   for (const p of world.getAllPlayers()) {
     const cur = p.selectedSlotIndex;
     const prev = lastSlot.get(p.id) ?? 0;
-    if (RESERVED.includes(cur) && data(p).set.slots !== false) {
-      const back = RESERVED.includes(prev) ? 0 : prev;
+    if (cur === MENU_SLOT && data(p).set.slots !== false) {
+      const back = prev === MENU_SLOT ? 0 : prev;
       p.selectedSlotIndex = back;
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
-      if (cur === SKILL_SLOT) {
-        // 스킬 버튼 = 스킬 1 / 쉬프트+스킬 버튼 = 스킬 2 (설정에서 바꾸기 가능)
-        const swap = data(p).set.skillSwap === true;
-        castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
-        continue;
-      }
-      if (cur === MENU_SLOT && p.isSneaking) {
+      if (p.isSneaking) {
         // 쉬프트+[메뉴] = 옆 창(퀘스트/정보) 접기 순환: 모두 펼침 → 정보 접힘 → 모두 접힘
         const st = data(p).set;
         if (st.card && st.quest) st.card = false;
@@ -111,23 +72,42 @@ system.runInterval(() => {
         if (p.isValid()) openHome(p);
       }, 6);
     } else {
-      if (cur !== prev) updateSkillSlot(p);
       lastSlot.set(p.id, cur);
     }
-    // 쉬프트를 누르면 어떤 스킬이 나갈지 알려줌 (설정에서 끌 수 있음)
-    const sneak = p.isSneaking;
-    if (sneak !== lastSneak.get(p.id)) {
-      lastSneak.set(p.id, sneak);
-      const d = data(p);
-      if (sneak && d.set.skillHint !== false && loadout(p).w !== "fist") {
-        const { skill, sub } = currentSkillInfo(p);
-        const s2 = d.set.skillSwap ? skill : sub;
-        if (s2) notify(p, `§d⇧ 스킬 2 §f${s2.name} §7· 스킬 버튼(8번 칸)`);
-      }
-    }
+    dashTick(p);
   }
 }, 1);
-const lastSneak = new Map();
+
+// ───────── 대시: Lv.10 이상, 공중에서 점프 한 번 더 (설정에서 끄기 가능) ─────────
+const air = new Map(); // pid -> { wasJump, used, ticks, cdUntil }
+function dashTick(p) {
+  const d = data(p);
+  if (d.lv < 10 || d.set.dash === false) return;
+  let onGround = true, jumping = false;
+  try {
+    onGround = p.isOnGround;
+    jumping = p.isJumping;
+  } catch {
+    return;
+  }
+  const st = air.get(p.id) ?? { wasJump: false, used: false, ticks: 0, cdUntil: 0 };
+  if (onGround) {
+    st.used = false;
+    st.ticks = 0;
+  } else st.ticks++;
+  // 공중에서 점프 버튼을 '새로' 누른 순간
+  if (!onGround && jumping && !st.wasJump && !st.used && st.ticks > 3 && system.currentTick >= st.cdUntil) {
+    st.used = true;
+    st.cdUntil = system.currentTick + 20;
+    const v = p.getViewDirection();
+    const len = Math.hypot(v.x, v.z) || 1;
+    try { p.applyKnockback(v.x / len, v.z / len, 1.7, 0.42); } catch {}
+    try { p.dimension.spawnParticle("minecraft:knockback_roar_particle", p.location); } catch {}
+    p.playSound("mob.phantom.flap", { volume: 0.6, pitch: 1.4 });
+  }
+  st.wasJump = jumping;
+  air.set(p.id, st);
+}
 
 // 메뉴북: 사용 → 메뉴 / 웅크리고 사용 → 직업 스킬
 // 제작자 도구: 사용 → 제작자 메뉴
@@ -135,10 +115,6 @@ world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
   if (itemStack.typeId === "rpg:menu") {
     if (throttled(p)) return;
     system.run(() => openHome(p));
-  } else if (itemStack.typeId === "rpg:skillbook") {
-    if (!throttled(p)) system.run(() => openSkills(p));
-  } else if (itemStack.typeId.startsWith("rpg:skill")) {
-    if (!throttled(p)) castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
   } else if (itemStack.typeId === "rpg:quest_tool") {
     if (throttled(p)) return;
     system.run(() => openAdmin(p));

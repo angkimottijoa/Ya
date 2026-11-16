@@ -790,11 +790,9 @@ def vanilla_overrides():
         d.line([(19, 1), (19, 20)], fill=(70, 70, 100, 255))
         d.rectangle([2, 2, 17, 19], outline=(40, 44, 66, 255))
         save(hb, VAN / f"hotbar_{i}.png")
-    # 8번 칸 = 스킬 버튼(파란 테), 9번 칸 = 메뉴 버튼(금 테) — 핫바 칸 자체가 터치 버튼
-    # 핫바 버튼 칸: 8번 = 메뉴(금), 9번 = 스킬(파랑)
+    # 핫바 버튼 칸: 9번 = 메뉴(금 테) — 핫바 칸 자체가 터치 버튼 (V2.6: 스킬 버튼 칸 없음)
     for idx, (fill, edge, hi, glow) in {
-        7: ((58, 42, 16, 245), P["gold"], P["gold_light"], P["gold_dark"]),
-        8: ((22, 34, 70, 245), (100, 165, 255, 255), (185, 220, 255, 255), (60, 110, 200, 255)),
+        8: ((58, 42, 16, 245), P["gold"], P["gold_light"], P["gold_dark"]),
     }.items():
         hb = Image.new("RGBA", (20, 22), (0, 0, 0, 0))
         d = ImageDraw.Draw(hb)

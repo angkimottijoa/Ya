@@ -6,9 +6,10 @@ import { data, save, addXp, addGold, msg, isAdmin } from "./player.js";
 import { CLASSES } from "./classes.js";
 import * as Q from "./quests.js";
 import * as SK from "./skills.js";
+import * as J from "./jobs.js";
 import * as WP from "./waypoints.js";
 import { ItemStack } from "@minecraft/server";
-import { shopList, saveShop } from "./shop.js";
+import { shopList, saveShop, canBuy, canSell, sellPrice } from "./shop.js";
 import { getJSON, setJSON, clone } from "./db.js";
 import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride } from "./itemdb.js";
 import { openHome, questDetailBody } from "./menu.js";
@@ -694,6 +695,30 @@ async function editChoice(p, e, dlg, nodeId, i, back) {
   return back();
 }
 
+// ───────── 상품 편집 공통 (가격 / 수량 / 구매·판매 허용 / 판매가) ─────────
+const shopDesc = (it) => `§7가격 §f${it.price}G §7/ ${it.n}개\n§7구매 ${canBuy(it) ? "§a가능" : "§c불가"} §7· 판매 ${canSell(it) ? "§a가능" : "§c불가"}` +
+  (canSell(it) ? `\n§7판매가 §f${sellPrice(it)}G/개 ${it.sp != null ? "§7(직접 지정)" : "§7(자동: 가격의 30%)"}` : "");
+
+async function editShopItem(p, it, title = "상품 편집") {
+  const r = await new ModalFormData().title(title)
+    .textField("구매 가격 (묶음당)", "", String(it.price ?? 0))
+    .textField("묶음 수량", "", String(it.n ?? 1))
+    .toggle("구매 가능 (구매 탭에 표시)", canBuy(it))
+    .toggle("판매 가능 (판매 탭에 표시)", canSell(it))
+    .textField("개당 판매가 (비우면 구매가의 30%)", "자동", it.sp != null ? String(it.sp) : "")
+    .show(p);
+  if (r.canceled) return false;
+  const v = r.formValues;
+  it.price = Math.max(0, num(v[0], it.price ?? 0));
+  it.n = Math.max(1, num(v[1], it.n ?? 1));
+  if (v[2]) delete it.buy; else it.buy = false;
+  if (v[3]) delete it.sell; else it.sell = false;
+  const sp = String(v[4]).trim();
+  if (sp && Number.isFinite(Number(sp))) it.sp = Math.max(1, Math.floor(Number(sp)));
+  else delete it.sp;
+  return true;
+}
+
 function npcShop(p, e, back, sel = 0) {
   const own = npcShopList(e);
   const re = (i) => npcShop(p, e, back, i);
@@ -703,20 +728,19 @@ function npcShop(p, e, back, sel = 0) {
   const it = own[sel];
   scr.select(it ? rt(itemName(it.id), ` ×${it.n}`) : "상점 설정", it ? iconOf(it.id) : ICON("shop"));
   scr.body(`§7상점 기능 §f${npcHasShop(e) ? "켜짐" : "꺼짐"}\n§7상품 §f${own.length ? `전용 상품 ${own.length}개` : "없음 → 공용 상점 목록 사용"}` +
-    (it ? `\n\n§7선택: §f${it.id}\n§7가격 §f${it.price}G §7/ ${it.n}개` : ""));
+    (it ? `\n\n§7선택: §f${it.id}\n${shopDesc(it)}` : ""));
   const save = () => setJSON(e, "rpg:shop_list", own);
   scr.action(npcHasShop(e) ? "상점 끄기" : "상점 켜기", () => { e.setDynamicProperty("rpg:shop", !npcHasShop(e)); e.setDynamicProperty("rpg:role", undefined); return re(sel); });
   scr.action("손에 든 아이템 등록", async () => {
     const held = inv(p).getItem(p.selectedSlotIndex);
     if (!held) { msg(p, "§c손에 아이템을 들어 주세요."); return re(sel); }
-    const r = await new ModalFormData().title(`상품 등록 - ${held.typeId}`).textField("가격", "100", "100").textField("묶음 수량", "", String(held.amount)).show(p);
-    if (!r.canceled) { own.push({ id: held.typeId, price: Math.max(0, num(r.formValues[0], 100)), n: Math.max(1, num(r.formValues[1], 1)) }); save(); }
+    const it = { id: held.typeId, price: 100, n: held.amount };
+    if (await editShopItem(p, it, `상품 등록 - ${held.typeId}`)) { own.push(it); save(); }
     return re(own.length - 1);
   });
   if (it) {
-    scr.action("가격/수량 편집", async () => {
-      const r = await new ModalFormData().title("상품 편집").textField("가격", "", String(it.price)).textField("수량", "", String(it.n)).show(p);
-      if (!r.canceled) { it.price = Math.max(0, num(r.formValues[0], it.price)); it.n = Math.max(1, num(r.formValues[1], it.n)); save(); }
+    scr.action("가격·구매/판매 옵션 편집", async () => {
+      if (await editShopItem(p, it)) save();
       return re(sel);
     });
     scr.action("§c상품 삭제", () => { own.splice(sel, 1); save(); return re(0); });
@@ -729,17 +753,18 @@ function npcShop(p, e, back, sel = 0) {
 function shopTab(p, sel = 0) {
   const list = shopList();
   const scr = new Screen("G", "제작자 도구 / 상점");
-  list.slice(0, 30).forEach((e, i) => scr.item(`${e.price}G`, iconOf(e.id), () => shopTab(p, i), { on: i === sel, rarity: 1 }));
+  list.slice(0, 30).forEach((e, i) => scr.item(canBuy(e) ? `${e.price}G` : "§7판매만", iconOf(e.id), () => shopTab(p, i), { on: i === sel, rarity: 1 }));
   adminChrome(scr, p, "shop");
   const e = list[sel];
   if (e) {
     scr.select(rt(itemName(e.id), ` ×${e.n}`), iconOf(e.id));
-    scr.body(`§7ID §r${e.id}\n§7수량 §r${e.n}\n§7가격 §r${e.price}G\n\n§7판매가는 개당 가격의 30%`);
-    scr.action("가격/수량 편집", async () => {
-      const r = await new ModalFormData().title("상품 편집").textField("가격", "", String(e.price)).textField("수량", "", String(e.n)).show(p);
-      if (!r.canceled) { e.price = Math.max(0, num(r.formValues[0], e.price)); e.n = Math.max(1, num(r.formValues[1], e.n)); saveShop(); }
+    scr.body(`§7ID §r${e.id}\n${shopDesc(e)}\n\n§7구매/판매는 상품마다 따로 켜고 끌 수 있습니다.\n§7(예: 전리품은 판매만, 귀한 물건은 구매만)`);
+    scr.action("가격·구매/판매 옵션 편집", async () => {
+      if (await editShopItem(p, e)) saveShop();
       return shopTab(p, sel);
     });
+    scr.action(canBuy(e) ? "구매 막기" : "구매 허용", () => { if (canBuy(e)) e.buy = false; else delete e.buy; saveShop(); return shopTab(p, sel); });
+    scr.action(canSell(e) ? "판매 막기" : "판매 허용", () => { if (canSell(e)) e.sell = false; else delete e.sell; saveShop(); return shopTab(p, sel); });
     if (sel > 0) scr.action("앞으로 이동", () => { list.splice(sel - 1, 0, list.splice(sel, 1)[0]); saveShop(); return shopTab(p, sel - 1); });
     scr.action("§c삭제", () => { list.splice(sel, 1); saveShop(); return shopTab(p, Math.max(0, sel - 1)); });
   } else {
@@ -749,8 +774,8 @@ function shopTab(p, sel = 0) {
   scr.action("손에 든 아이템 등록", async () => {
     const held = inv(p).getItem(p.selectedSlotIndex);
     if (!held) { msg(p, "§c손에 아이템을 들어 주세요."); return shopTab(p, sel); }
-    const r = await new ModalFormData().title(`상품 등록 - ${held.typeId}`).textField("가격", "100", "100").textField("묶음 수량", "", String(held.amount)).show(p);
-    if (!r.canceled) { list.push({ id: held.typeId, price: Math.max(0, num(r.formValues[0], 100)), n: Math.max(1, num(r.formValues[1], 1)) }); saveShop(); }
+    const it = { id: held.typeId, price: 100, n: held.amount };
+    if (await editShopItem(p, it, `상품 등록 - ${held.typeId}`)) { list.push(it); saveShop(); }
     return shopTab(p, list.length - 1);
   });
   scr.reopen = () => shopTab(p, sel);
@@ -1144,17 +1169,17 @@ function weaponTab(p, selId, page = 0) {
     scr.select(rt(itemName(sel)), iconOf(sel));
     scr.body(
       `§7ID §f${sel}\n§7분류 §f${cls ? SK.WCLASS[cls].name : "-"} ${SK.weaponClassOf(new ItemStack(sel, 1)) === cls ? "§7(자동)" : "§e(지정)"}\n` +
-      `§7스킬 §f${cfg.skills?.length ? cfg.skills.map((s) => SK.getSkill(s)?.name).join(", ") : `분류 기본 (${cls ? SK.skillsOf(cls).map((s) => s.name).join(", ") : "-"})`}\n` +
+      `§7이 무기를 쓰는 직업 §f${Object.values(J.PATHS).filter((t) => t.weapons.includes(cls)).map((t) => t.name).join(", ") || "-"}\n` +
       `§7공격력 §f${cfg.atk ?? "자동"}  §7스킬 배율 §f${cfg.mul ?? 100}%\n\n` +
       "§7새 애드온 무기는 손에 들면 자동 등록됩니다.\n분류가 맞지 않거나 전용 스킬을 주려면 '설정'을 누르세요.",
     );
-    scr.action("설정 (분류 · 전용 스킬 · 공격력)", () => editWeapon(p, sel, () => weaponTab(p, sel, page)));
-    scr.action("스킬 편집기 (켜기/끄기 · 새 스킬)", () => skillEditor(p, SK.knownWeapons()[sel] ?? "sword"));
+    scr.action("설정 (분류 · 공격력 · 배율)", () => editWeapon(p, sel, () => weaponTab(p, sel, page)));
+    scr.action("직업 스킬 편집기", () => skillEditor(p));
     if (SK.weaponCfg()[sel]) scr.action("§c설정 초기화", () => { SK.setWeaponCfg(sel, null); SK.setWeaponClass(sel, ""); return weaponTab(p, sel, page); });
   } else {
     scr.select("무기·스킬", ICON("class"));
     scr.body("§7등록된 무기가 없습니다.\n무기를 손에 들고 다시 열어 보세요.");
-    scr.action("스킬 편집기 (켜기/끄기 · 새 스킬)", () => skillEditor(p));
+    scr.action("직업 스킬 편집기", () => skillEditor(p));
   }
   if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => weaponTab(p, undefined, (page + 1) % pages));
   scr.reopen = () => weaponTab(p, selId, page);
@@ -1165,78 +1190,82 @@ async function editWeapon(p, id, back) {
   const cfg = SK.weaponCfg()[id] ?? {};
   const keys = Object.keys(SK.WCLASS);
   const cur = SK.knownWeapons()[id] ?? "sword";
-  const f = new ModalFormData()
+  const r = await new ModalFormData()
     .title(`무기 설정 - ${id}`)
-    .dropdown("무기 분류 (스킬 버튼 아이콘 · 기본 스킬 목록)", keys.map((k) => SK.WCLASS[k].name), Math.max(0, keys.indexOf(cur)))
+    .dropdown("무기 분류 (어느 직업 스킬을 쓸 수 있는지 결정)", keys.map((k) => SK.WCLASS[k].name), Math.max(0, keys.indexOf(cur)))
     .textField("기본 공격력 (비우면 자동)", "예) 9", cfg.atk ? String(cfg.atk) : "")
     .slider("스킬 위력 배율 (%)", 50, 300, 10, cfg.mul ?? 100)
-    .toggle("§e전용 스킬 목록 사용 (아래에서 선택)", !!cfg.skills?.length);
-  for (const s of SK.allSkillsRaw()) f.toggle(`${SK.WCLASS[s.w].name} · ${s.name} §7(Lv.${s.lv})`, !!cfg.skills?.includes(s.id));
-  const r = await f.show(p);
+    .show(p);
   if (!r.canceled) {
-    const [ci, atk, mul, useOwn, ...picks] = r.formValues;
+    const [ci, atk, mul] = r.formValues;
     SK.setWeaponClass(id, keys[ci]);
-    const skills = useOwn ? SK.allSkillsRaw().filter((_, i) => picks[i]).map((s) => s.id) : null;
-    SK.setWeaponCfg(id, { skills: skills?.length ? skills : null, atk: String(atk).trim() ? num(atk, null) : null, mul });
+    SK.setWeaponCfg(id, { atk: String(atk).trim() ? num(atk, null) : null, mul });
   }
   return back();
 }
 
-// ═════════ 스킬 편집기 (켜기/끄기 · 수치 변경 · 새 스킬) ═════════
+// ═════════ 직업 스킬 편집기 (켜기/끄기 · 수치 변경 · 새 스킬) ═════════
 const KINDS = [{ id: "melee", name: "근접 (힘)" }, { id: "ranged", name: "원거리 (민첩)" }, { id: "magic", name: "마법 (지능)" }, { id: "heal", name: "회복" }, { id: "buff", name: "버프" }];
+const BASES = ["warrior", "archer", "mage", "cleric"];
+const PATH_IDS = Object.keys(J.PATHS).filter((k) => k !== "novice");
 
-function skillEditor(p, w = "sword", selId) {
-  const list = SK.allSkillsRaw().filter((s) => s.w === w);
+function skillEditor(p, base = "warrior", selId) {
+  const list = J.allJobSkills().filter((s) => J.PATHS[s.path]?.base === base).sort((a, b) => J.PATHS[a.path].tier - J.PATHS[b.path].tier || a.lv - b.lv);
   const sel = list.find((s) => s.id === selId) ?? list[0];
-  const scr = new Screen("L", `제작자 도구 / 스킬 편집 · ${SK.WCLASS[w].name}`);
-  scr.item("§a+ 새 스킬 만들기", ICON("plus"), () => editSkill(p, null, w));
-  for (const s of list.slice(0, 6)) {
-    scr.item(`${s.enabled === false ? "§8[꺼짐] " : "§f"}${s.name}${s.custom ? " §d[제작]" : ""}\n§7Lv.${s.lv} · MP ${s.mp} · ${s.cd}초 · 위력 ${Math.round(s.pow * 100)}%`, ICON(SK.WCLASS[s.w].icon), () => skillEditor(p, w, s.id), { on: s === sel });
+  const scr = new Screen("L", `제작자 도구 / 직업 스킬 · ${J.PATHS[base].name}`);
+  scr.item("§a+ 새 스킬 만들기", ICON("plus"), () => editSkill(p, null, base));
+  const PAGE = 6;
+  const start = Math.max(0, Math.min(list.indexOf(sel) - 2, list.length - PAGE));
+  for (const s of list.slice(start, start + PAGE)) {
+    const t = J.PATHS[s.path];
+    scr.item(`${s.enabled === false ? "§8[꺼짐] " : "§f"}${J.TIER_NAMES[t.tier]} ${t.name} · ${s.name}${s.custom ? " §d[제작]" : ""}\n§7Lv.${s.lv} · MP ${s.mp} · ${s.cd}초 · ${Math.round(s.pow * (s.kind === "buff" ? 1 : 100))}${s.kind === "buff" ? "%↑" : "%"}`, ICON(t.icon), () => skillEditor(p, base, s.id), { on: s === sel });
   }
   scr.tab("뒤로", ICON("back"), () => weaponTab(p));
-  for (const [id, c] of Object.entries(SK.WCLASS)) scr.tab(c.name, ICON(c.icon), () => skillEditor(p, id), id === w);
-  scr.chip(ICON("admin"), "스킬 편집");
+  for (const b of BASES) scr.tab(J.PATHS[b].name, ICON(J.PATHS[b].icon), () => skillEditor(p, b), b === base);
+  scr.chip(ICON("admin"), "직업 스킬 편집");
   if (sel) {
-    scr.select(sel.name, ICON(SK.WCLASS[sel.w].icon));
-    scr.body(`§7ID §f${sel.id}\n§7상태 ${sel.enabled === false ? "§c꺼짐 (아무도 못 씀)" : "§a켜짐"}\n§7무기 §f${SK.WCLASS[sel.w].name}\n§7효과 §f${SK.FX.find((f) => f.id === sel.fx)?.name ?? sel.fx}\n§7계수 §f${KINDS.find((k) => k.id === sel.kind)?.name}\n§7레벨 §f${sel.lv}  §7마나 §f${sel.mp}  §7대기 §f${sel.cd}초\n§7위력 §f${Math.round(sel.pow * 100)}%\n\n§f${sel.desc || ""}`);
-    scr.action(sel.enabled === false ? "§a켜기" : "§c끄기", () => { SK.saveSkillDef(sel.id, { enabled: sel.enabled === false }); return skillEditor(p, w, sel.id); });
-    scr.action("편집", () => editSkill(p, sel.id, w));
-    if (sel.custom) scr.action("§c삭제", () => confirm(p, `'${sel.name}' 스킬을 삭제할까요?`, () => { SK.deleteSkillDef(sel.id); return skillEditor(p, w); }, () => skillEditor(p, w, sel.id)));
-    else if (SK.skillDb()[sel.id]) scr.action("기본값으로 되돌리기", () => { SK.deleteSkillDef(sel.id); return skillEditor(p, w, sel.id); });
+    const t = J.PATHS[sel.path];
+    scr.select(sel.name, ICON(t.icon));
+    scr.body(`§7ID §f${sel.id}\n§7상태 ${sel.enabled === false ? "§c꺼짐" : "§a켜짐"}\n§7직업 §f${J.TIER_NAMES[t.tier]} ${t.name}\n§7사용 무기 §f${t.weapons.map((w) => SK.WCLASS[w].name).join(", ")}\n§7효과 §f${SK.FX.find((f) => f.id === sel.fx)?.name ?? sel.fx}\n§7계수 §f${KINDS.find((k) => k.id === sel.kind)?.name}\n§7레벨 §f${sel.lv}  §7마나 §f${sel.mp}  §7대기 §f${sel.cd}초\n\n§f${sel.desc || ""}`);
+    scr.action(sel.enabled === false ? "§a켜기" : "§c끄기", () => { J.saveJobSkill(sel.id, { enabled: sel.enabled === false }); return skillEditor(p, base, sel.id); });
+    scr.action("편집", () => editSkill(p, sel.id, base));
+    if (sel.custom) scr.action("§c삭제", () => confirm(p, `'${sel.name}' 스킬을 삭제할까요?`, () => { J.deleteJobSkill(sel.id); return skillEditor(p, base); }, () => skillEditor(p, base, sel.id)));
+    else if (J.jobSkillDb()[sel.id]) scr.action("기본값으로 되돌리기", () => { J.deleteJobSkill(sel.id); return skillEditor(p, base, sel.id); });
   } else {
-    scr.select(SK.WCLASS[w].name, ICON(SK.WCLASS[w].icon));
+    scr.select(J.PATHS[base].name, ICON(J.PATHS[base].icon));
     scr.body("§7스킬이 없습니다.");
   }
-  scr.reopen = () => skillEditor(p, w, selId);
+  scr.reopen = () => skillEditor(p, base, selId);
   return scr.show(p);
 }
 
-async function editSkill(p, id, w) {
-  const cur = id ? SK.getSkill(id) : { name: "", desc: "", w, lv: 1, mp: 15, cd: 8, pow: 1.5, kind: "melee", fx: "sword_spin" };
-  const wkeys = Object.keys(SK.WCLASS);
+async function editSkill(p, id, base) {
+  const cur = id ? J.getJobSkill(id) : { name: "", desc: "", path: base, lv: 1, mp: 15, cd: 8, pow: 1.5, kind: "melee", fx: "sword_spin" };
   const r = await new ModalFormData()
-    .title(id ? `스킬 편집 - ${cur.name}` : "새 스킬")
+    .title(id ? `스킬 편집 - ${cur.name}` : "새 직업 스킬")
     .textField("이름", "예) 폭풍 베기", cur.name)
     .textField("설명", "", cur.desc ?? "")
-    .dropdown("무기 분류 (이 무기를 들어야 사용)", wkeys.map((k) => SK.WCLASS[k].name), Math.max(0, wkeys.indexOf(cur.w)))
-    .dropdown("효과 (기존 스킬 동작 재사용)", SK.FX.map((f) => f.name), Math.max(0, SK.FX.findIndex((f) => f.id === cur.fx)))
+    .dropdown("직업 단계 (그 단계 무기를 들어야 사용)", PATH_IDS.map((k) => `${J.TIER_NAMES[J.PATHS[k].tier]} ${J.PATHS[k].name}`), Math.max(0, PATH_IDS.indexOf(cur.path)))
+    .dropdown("효과", SK.FX.map((f) => f.name), Math.max(0, SK.FX.findIndex((f) => f.id === cur.fx)))
     .dropdown("위력 계수", KINDS.map((k) => k.name), Math.max(0, KINDS.findIndex((k) => k.id === cur.kind)))
     .textField("필요 레벨", "", String(cur.lv))
     .textField("마나", "", String(cur.mp))
     .textField("재사용 대기 (초)", "", String(cur.cd))
-    .textField("위력 (%)", "150", String(Math.round(cur.pow * 100)))
+    .textField("위력 (%, 버프는 공격력 증가 %)", "150", String(cur.kind === "buff" ? cur.pow : Math.round(cur.pow * 100)))
     .show(p);
-  if (r.canceled) return skillEditor(p, w, id);
-  const [name, desc, wi, fi, ki, lv, mp, cd, pow] = r.formValues;
-  if (!String(name).trim()) return skillEditor(p, w, id);
-  const nid = id ?? `custom_${Date.now().toString(36)}`;
-  SK.saveSkillDef(nid, {
-    name: String(name).trim(), desc: String(desc), w: wkeys[wi], fx: SK.FX[fi].id, kind: KINDS[ki].id,
-    lv: Math.max(1, num(lv, 1)), mp: Math.max(0, num(mp, 10)), cd: Math.max(1, num(cd, 8)), pow: Math.max(0.1, num(pow, 100) / 100),
+  if (r.canceled) return skillEditor(p, base, id);
+  const [name, desc, pi, fi, ki, lv, mp, cd, pow] = r.formValues;
+  if (!String(name).trim()) return skillEditor(p, base, id);
+  const nid = id ?? `jc_${Date.now().toString(36)}`;
+  const kind = KINDS[ki].id;
+  J.saveJobSkill(nid, {
+    name: String(name).trim(), desc: String(desc), path: PATH_IDS[pi], fx: SK.FX[fi].id, kind,
+    lv: Math.max(1, num(lv, 1)), mp: Math.max(0, num(mp, 10)), cd: Math.max(1, num(cd, 8)),
+    pow: kind === "buff" ? Math.max(1, num(pow, 30)) : Math.max(0.1, num(pow, 100) / 100),
     ...(id ? {} : { custom: true, enabled: true }),
   });
   msg(p, `§a스킬 저장: §f${name}`);
-  return skillEditor(p, wkeys[wi], nid);
+  return skillEditor(p, J.PATHS[PATH_IDS[pi]].base, nid);
 }
 
 // ═════════ 퀘스트 고급 옵션 ═════════

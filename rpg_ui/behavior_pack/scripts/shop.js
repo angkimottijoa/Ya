@@ -15,6 +15,11 @@ const DEFAULT_SHOP = [
   { id: "minecraft:shield", n: 1, price: 90 },
   { id: "minecraft:diamond", n: 1, price: 400 },
   { id: "minecraft:experience_bottle", n: 4, price: 80 },
+  // 판매 전용 (사냥 전리품)
+  { id: "minecraft:rotten_flesh", n: 1, price: 0, buy: false, sell: true, sp: 2 },
+  { id: "minecraft:bone", n: 1, price: 0, buy: false, sell: true, sp: 3 },
+  { id: "minecraft:string", n: 1, price: 0, buy: false, sell: true, sp: 3 },
+  { id: "minecraft:gunpowder", n: 1, price: 0, buy: false, sell: true, sp: 6 },
 ];
 
 let shop = null;
@@ -25,4 +30,7 @@ export function shopList() {
 export function saveShop() {
   setJSON(world, "rpg:shop", shop);
 }
-export const sellPrice = (e) => Math.max(1, Math.floor((e.price / e.n) * 0.3));
+/** 상품 옵션: buy(구매 가능, 기본 true) / sell(판매 가능, 기본 true) / sp(개당 판매가, 없으면 구매가의 30%) */
+export const canBuy = (e) => e.buy !== false;
+export const canSell = (e) => e.sell !== false;
+export const sellPrice = (e) => Math.max(1, e.sp ?? Math.floor((e.price / e.n) * 0.3));

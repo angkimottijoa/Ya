@@ -2,6 +2,7 @@
 import { world, system } from "@minecraft/server";
 import { getJSON, setJSON, clone } from "./db.js";
 import { CLASSES } from "./classes.js";
+import { pathBonus } from "./jobs.js";
 
 const DEFAULT = {
   lv: 1, xp: 0, gold: 0, cls: "novice", pts: 0,
@@ -44,7 +45,7 @@ export const xpNeed = (lv) => Math.floor(30 * Math.pow(lv, 1.5)) + 20;
 export function stat(p, k) {
   const d = data(p);
   const c = CLASSES[d.cls] ?? CLASSES.novice;
-  return (d.stat[k] ?? 0) + (c.base[k] ?? 0) + Math.floor((d.lv - 1) * (c.grow[k] ?? 0));
+  return (d.stat[k] ?? 0) + (c.base[k] ?? 0) + Math.floor((d.lv - 1) * (c.grow[k] ?? 0)) + pathBonus(d, k);
 }
 
 /** 최대 마나: 지능과 레벨에 비례 */

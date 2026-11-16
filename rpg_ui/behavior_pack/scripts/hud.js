@@ -8,6 +8,7 @@ import { getQuest, objLine, priority, navTarget, navText, qtype } from "./quests
 import { partyOf, memberIds } from "./party.js";
 import { combatStats } from "./combat.js";
 import { currentSkillInfo } from "./skills.js";
+import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
 import { rt } from "./ui.js";
 import { manualTarget } from "./waypoints.js";
@@ -22,7 +23,8 @@ function bar(cur, max, len, on, off = "§8") {
 export function card(p) {
   const d = data(p);
   if (!d.set.card) return "[CARD]";
-  const c = CLASSES[d.cls] ?? CLASSES.novice;
+  const t = J.PATHS[J.currentPath(d)] ?? J.PATHS.novice;
+  const c = { name: t.name, color: t.color ?? "§f" };
   const { skill, left, sub, left2 } = currentSkillInfo(p);
   const sk = (s, l, key) => (s ? (l > 0 ? `§7${key} ${s.name} §f${Math.ceil(l)}s` : `§b${key} §l${s.name}`) : "");
   const unread = unreadCount(p);
@@ -30,7 +32,7 @@ export function card(p) {
   const lines = [
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
-    [sk(skill, left, "스킬"), sk(sub, left2, "⇧")].filter(Boolean).join("§r  "),
+    [sk(skill, left, "1"), sk(sub, left2, "2")].filter(Boolean).join("§r  "),
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,
   ];
