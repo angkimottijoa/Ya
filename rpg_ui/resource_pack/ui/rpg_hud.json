@@ -298,45 +298,5 @@
       }
     ],
     "text_alignment": "center"
-  },
-  "slot_window": {
-    "type": "panel",
-    "$win_size|default": [
-      24,
-      24
-    ],
-    "$grid_off|default": [
-      0,
-      0
-    ],
-    "$grid_h|default": 216,
-    "size": "$win_size",
-    "clips_children": true,
-    "controls": [
-      {
-        "grid": {
-          "type": "grid",
-          "anchor_from": "top_left",
-          "anchor_to": "top_left",
-          "offset": "$grid_off",
-          "size": [
-            "100%",
-            "$grid_h"
-          ],
-          "grid_dimensions": [
-            1,
-            9
-          ],
-          "grid_item_template": "rpg_hud.hotbar_cell_v",
-          "collection_name": "hotbar_items"
-        }
-      }
-    ]
-  },
-  "hotbar_cell_v@hud.gui_hotbar_grid_item_pocket": {
-    "size": [
-      "100%",
-      "11.111%"
-    ]
   }
 }
