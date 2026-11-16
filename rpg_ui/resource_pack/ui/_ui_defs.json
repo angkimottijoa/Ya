@@ -1,5 +1,6 @@
 {
   "ui_defs": [
-    "ui/rpg_hud.json"
+    "ui/rpg_hud.json",
+    "ui/rpg_form.json"
   ]
 }

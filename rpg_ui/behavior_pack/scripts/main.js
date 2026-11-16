@@ -1,83 +1,109 @@
-import { world, system } from "@minecraft/server";
-import { ActionFormData, ModalFormData } from "@minecraft/server-ui";
+// Arcania RPG - 진입점
+import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
+import { data, save, forget, msg, isAdmin } from "./player.js";
+import { initCombat, castSkill } from "./combat.js";
+import * as Q from "./quests.js";
+import * as HUD from "./hud.js";
+import { openHome, openNpc, openQuests } from "./menu.js";
+import { openAdmin, editNpc } from "./admin.js";
+import { setQuestText } from "./api.js";
 
-// HUD 퀘스트창은 "quest:" 로 시작하는 title 을 받아 표시한다 (resource_pack/ui/rpg_hud.json).
-const QUEST_PREFIX = "quest:";
+const MENU_SLOT = 8; // 핫바 9번 칸
+const lastUse = new Map();
 
-// 데모용 퀘스트. 실제 게임에선 여기 대신 본인 퀘스트 시스템에서 setQuest() 를 호출하면 된다.
-const DEFAULT_QUEST = "§e[메인] 마을의 위기\n§7- 촌장과 대화하기\n§7- 고블린 처치 §f(0/5)";
-
-function getQuest(player) {
-  return player.getDynamicProperty("rpg:quest") ?? DEFAULT_QUEST;
+function throttled(p) {
+  const t = system.currentTick;
+  if (t - (lastUse.get(p.id) ?? -99) < 6) return true;
+  lastUse.set(p.id, t);
+  return false;
 }
 
-function isQuestVisible(player) {
-  return player.getDynamicProperty("rpg:quest_visible") ?? true;
-}
-
-/** 퀘스트창 내용을 HUD 로 보낸다. 숨김 상태면 빈 값을 보내 창을 감춘다. */
-function pushQuest(player) {
-  const body = isQuestVisible(player) ? getQuest(player) : "";
-  player.onScreenDisplay.setTitle(QUEST_PREFIX + body, {
-    fadeInDuration: 0,
-    stayDuration: 1,
-    fadeOutDuration: 0,
-  });
-}
-
-/** 외부(다른 스크립트)에서 퀘스트 갱신할 때 사용 */
-export function setQuest(player, text) {
-  player.setDynamicProperty("rpg:quest", text);
-  pushQuest(player);
-}
-
-async function openSettings(player) {
-  const form = new ModalFormData()
-    .title("§l설정")
-    .toggle("퀘스트창 표시", isQuestVisible(player));
-  const res = await form.show(player);
-  if (res.canceled) return;
-  player.setDynamicProperty("rpg:quest_visible", res.formValues[0]);
-  pushQuest(player);
-}
-
-async function openMenu(player) {
-  const form = new ActionFormData()
-    .title("§l§6ARCANIA 메뉴")
-    .body("원하는 항목을 선택하세요.")
-    .button("§l퀘스트 확인")
-    .button("§l설정")
-    .button("§l닫기");
-  const res = await form.show(player);
-  if (res.canceled) return;
-  switch (res.selection) {
-    case 0: {
-      const q = new ActionFormData()
-        .title("§l퀘스트")
-        .body(getQuest(player))
-        .button("돌아가기");
-      await q.show(player);
-      return openMenu(player);
-    }
-    case 1:
-      return openSettings(player);
+/** 메뉴북을 핫바 9번 칸에 고정 지급 */
+function ensureMenuItem(p) {
+  const c = p.getComponent("minecraft:inventory").container;
+  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId === "rpg:menu") return;
+  const it = new ItemStack("rpg:menu", 1);
+  it.lockMode = ItemLockMode.slot;
+  it.keepOnDeath = true;
+  const old = c.getItem(MENU_SLOT);
+  c.setItem(MENU_SLOT, it);
+  if (old) {
+    const rest = c.addItem(old);
+    if (rest) p.dimension.spawnItem(rest, p.location);
   }
 }
 
-// 메뉴 열기 ①: "메뉴 설정" 아이템(rpg:menu) 사용
-world.afterEvents.itemUse.subscribe(({ itemStack, source }) => {
-  if (itemStack.typeId === "rpg:menu") system.run(() => openMenu(source));
+// 메뉴북: 사용 → 메뉴 / 웅크리고 사용 → 직업 스킬
+// 제작자 도구: 사용 → 제작자 메뉴
+world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
+  if (itemStack.typeId === "rpg:menu") {
+    if (throttled(p)) return;
+    if (p.isSneaking) castSkill(p);
+    else system.run(() => openHome(p));
+  } else if (itemStack.typeId === "rpg:quest_tool") {
+    if (throttled(p)) return;
+    system.run(() => openAdmin(p));
+  }
 });
 
-// 메뉴 열기 ②: /scriptevent rpg:menu  (커맨드블록/NPC 버튼에서 호출 가능)
-// 퀘스트 갱신:   /scriptevent rpg:quest <내용>   (\n 은 줄바꿈)
-system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity }) => {
-  if (!sourceEntity || sourceEntity.typeId !== "minecraft:player") return;
-  if (id === "rpg:menu") openMenu(sourceEntity);
-  if (id === "rpg:quest") setQuest(sourceEntity, message.replaceAll("\\n", "\n"));
+// NPC 상호작용 (제작자 도구를 들고 누르면 편집)
+world.afterEvents.playerInteractWithEntity?.subscribe(({ player: p, target }) => {
+  if (target.typeId !== "rpg:npc" || throttled(p)) return;
+  const held = p.getComponent("minecraft:inventory").container.getItem(p.selectedSlotIndex);
+  if (held?.typeId === "rpg:quest_tool" && isAdmin(p)) system.run(() => editNpc(p, target));
+  else system.run(() => openNpc(p, target));
 });
 
-// 접속/리스폰 시 퀘스트창 복원
-world.afterEvents.playerSpawn.subscribe(({ player }) => {
-  system.runTimeout(() => pushQuest(player), 20);
+// /scriptevent 명령 (커맨드 블록 / 다른 애드온 연동용)
+//   rpg:menu              메뉴 열기
+//   rpg:quests            퀘스트 화면
+//   rpg:admin             제작자 도구
+//   rpg:give_quest <id>   퀘스트 부여
+//   rpg:quest <텍스트>    퀘스트창에 임의 텍스트 표시 (\n 줄바꿈, 빈 값이면 원래대로)
+system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p }) => {
+  if (p?.typeId !== "minecraft:player") return;
+  switch (id) {
+    case "rpg:menu": return void openHome(p);
+    case "rpg:quests": return void openQuests(p);
+    case "rpg:admin": return void openAdmin(p);
+    case "rpg:give_quest": {
+      const ok = Q.accept(p, message.trim());
+      if (!ok) msg(p, `§c퀘스트를 줄 수 없습니다: ${message}`);
+      return;
+    }
+    case "rpg:quest": return void setQuestText(p, message.replaceAll("\\n", "\n"));
+  }
 });
+
+world.afterEvents.playerSpawn.subscribe(({ player: p, initialSpawn }) => {
+  HUD.resetHud(p);
+  system.runTimeout(() => {
+    if (!p.isValid()) return;
+    ensureMenuItem(p);
+    const d = data(p);
+    if (initialSpawn && !d.joined) {
+      d.joined = true;
+      save(p);
+      p.onScreenDisplay.setTitle("§6§lA R C A N I A", { subtitle: "§f9번 칸의 메뉴북을 사용해 보세요", fadeInDuration: 10, stayDuration: 80, fadeOutDuration: 20 });
+    }
+  }, 20);
+});
+
+world.afterEvents.playerLeave.subscribe(({ playerId }) => forget(playerId));
+
+initCombat();
+
+// 1초마다: HUD / 퀘스트 판정 / 메뉴북 확인
+let n = 0;
+system.runInterval(() => {
+  n++;
+  for (const p of world.getAllPlayers()) {
+    try {
+      Q.tick(p);
+      HUD.update(p);
+      if (n % 5 === 0) ensureMenuItem(p);
+    } catch (e) {
+      console.warn(`[Arcania] ${e}`);
+    }
+  }
+}, 20);

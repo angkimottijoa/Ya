@@ -1,0 +1,85 @@
+<!doctype html><meta charset="utf-8"><title>Arcania Bag Preview</title>
+<!-- rpg_form.json 과 같은 수치(GUI 단위 ×4)로 그린 배낭 화면 시안 -->
+<style>
+:root{--u:4px}
+*{box-sizing:border-box}
+body{margin:0;width:1708px;height:960px;position:relative;overflow:hidden;font-family:'Noto Sans KR',sans-serif;image-rendering:pixelated;
+ background:radial-gradient(circle at 40% 60%,#c9b98a,#6f8fa8 45%,#3d5266)}
+.dim{position:absolute;inset:0;background:rgba(10,12,22,.78)}
+.ns{border-style:solid;border-image-repeat:stretch;image-rendering:pixelated}
+.rail{position:absolute;left:0;top:0;width:136px;height:100%;border-width:16px;border-image:url(resource_pack/textures/ui/rpg/rail.png) 4 fill}
+.tab{position:absolute;left:20px;width:96px;height:96px;border-width:32px;border-image:url(resource_pack/textures/ui/rpg/tab_default.png) 8 fill;display:flex;align-items:center;justify-content:center}
+.tab.on{width:120px;border-image-source:url(resource_pack/textures/ui/rpg/tab_on.png)}
+.tab img{width:56px;height:56px;position:absolute;left:4px;top:4px}
+.tab.on img{left:4px}
+.main{position:absolute;left:160px;top:0;right:24px;bottom:0}
+.top{position:absolute;left:0;right:0;top:0;height:104px;display:flex;align-items:center;justify-content:space-between}
+.crumb{color:#f5de99;font-size:34px;font-weight:700;text-shadow:4px 4px #000;margin-left:8px}
+.right{display:flex;gap:16px;align-items:center}
+.chip{height:64px;border-width:20px;border-image:url(resource_pack/textures/ui/rpg/chip.png) 5 fill;display:flex;align-items:center;gap:12px;color:#f2eee0;font-size:30px;padding:0 6px}
+.chip img{width:44px;height:44px}
+.close{width:80px;height:80px;border-width:24px;border-image:url(resource_pack/textures/ui/rpg/close_default.png) 6 fill;display:flex;align-items:center;justify-content:center}
+.close img{width:48px;height:48px;position:absolute;filter:brightness(.35)}
+.body{position:absolute;left:0;right:0;top:112px;bottom:24px}
+.grid{position:absolute;left:0;top:0;display:grid;grid-template-columns:repeat(6,112px);grid-auto-rows:128px}
+.cell{width:104px;height:120px;position:relative;background-size:100% 100%}
+.cell img{position:absolute;left:16px;top:6px;width:72px;height:72px}
+.cell span{position:absolute;bottom:0;left:0;right:0;text-align:center;color:#40455a;font-size:24px;line-height:32px}
+.cell.on::after{content:"";position:absolute;inset:0;background:url(resource_pack/textures/ui/rpg/cell_on.png);background-size:100% 100%}
+.detail{position:absolute;right:0;top:0;width:568px;height:100%;display:flex;flex-direction:column}
+.head{height:248px;border-width:16px;border-image:url(resource_pack/textures/ui/rpg/card_head.png) 4 fill;position:relative}
+.title{position:absolute;left:-16px;right:-16px;top:-16px;height:60px;border-width:12px;border-image:url(resource_pack/textures/ui/rpg/card_title.png) 3 fill;color:#fff;font-size:34px;font-weight:700;padding-left:8px;line-height:34px;text-shadow:4px 4px #000}
+.big{position:absolute;right:8px;bottom:-4px;width:160px;height:160px}
+.card{flex:1;background:#ece5d8;color:#40455a;font-size:30px;padding:16px 22px;line-height:1.35}
+.card .k{color:#8d8a80;font-size:26px}
+.card .atk{font-size:56px;font-weight:800;color:#1c1f2c;line-height:1}
+.star{color:#d6ac52}
+.acts{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.act{height:72px;border-width:24px;border-image:url(resource_pack/textures/ui/rpg/action_default.png) 6 fill;display:flex;align-items:center;justify-content:center;color:#40455a;font-size:30px;position:relative}
+.act img{position:absolute;left:-8px;width:40px;height:40px}
+</style>
+<div class="dim"></div>
+<div class="rail ns">
+  <div class="tab ns" style="top:24px"><img src="resource_pack/textures/ui/rpg/icons/back.png"></div>
+  <div class="tab ns on" style="top:136px"><img src="resource_pack/textures/ui/rpg/icons/all.png"></div>
+  <div class="tab ns" style="top:248px"><img src="resource_pack/textures/ui/rpg/icons/class.png"></div>
+  <div class="tab ns" style="top:360px"><img src="resource_pack/textures/ui/rpg/icons/armor.png"></div>
+  <div class="tab ns" style="top:472px"><img src="resource_pack/textures/ui/rpg/icons/food.png"></div>
+  <div class="tab ns" style="top:584px"><img src="resource_pack/textures/ui/rpg/icons/material.png"></div>
+  <div class="tab ns" style="top:696px"><img src="resource_pack/textures/ui/rpg/icons/misc.png"></div>
+</div>
+<div class="main">
+  <div class="top">
+    <div class="crumb">배낭 / 전체</div>
+    <div class="right">
+      <div class="chip ns"><img src="resource_pack/textures/ui/rpg/icons/level.png">Lv.12</div>
+      <div class="chip ns"><img src="resource_pack/textures/ui/rpg/icons/gold.png">1,240</div>
+      <div class="chip ns"><img src="resource_pack/textures/ui/rpg/icons/bag.png">14/41</div>
+      <div class="close ns"><img src="resource_pack/textures/ui/rpg/icons/close.png"></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="grid" id="g"></div>
+    <div class="detail">
+      <div class="head ns"><div class="title ns">다이아몬드 검</div><img class="big" src="resource_pack/textures/ui/rpg/icons/class.png"></div>
+      <div class="card">
+        <div class="k">한손검</div>
+        <div class="k" style="margin-top:12px">기초 공격력</div>
+        <div class="atk">7</div>
+        <div><span class="star">★★★★★</span> <span class="k">×1</span></div>
+        <div class="k">내구도 <span style="color:#40455a">1520/1561</span></div>
+        <div style="color:#7a3fa0;margin-top:8px">날카로움 III<br>내구성 II</div>
+      </div>
+      <div class="acts">
+        <div class="act ns"><img src="resource_pack/textures/ui/rpg/action_dot.png">손에 들기</div>
+        <div class="act ns"><img src="resource_pack/textures/ui/rpg/action_dot.png">버리기</div>
+        <div class="act ns"><img src="resource_pack/textures/ui/rpg/action_dot.png">정렬: 희귀도</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const items=[[5,"class","★★★",1],[4,"armor","★★★"],[3,"archer","★★★"],[3,"armor","장착"],[3,"gold","32"],[2,"food","12"],[2,"material","24"],[2,"mage","★★"],[1,"food","64"],[1,"material","40"],[1,"misc","7"],[1,"food","5"],[1,"material","64"],[1,"misc","3"]];
+const g=document.getElementById('g');
+for(const [r,ic,l,on] of items){const d=document.createElement('div');d.className='cell'+(on?' on':'');d.style.backgroundImage=`url(resource_pack/textures/ui/rpg/cell_r${r}.png)`;d.innerHTML=`<img src="resource_pack/textures/ui/rpg/icons/${ic}.png"><span>${l}</span>`;g.appendChild(d)}
+</script>

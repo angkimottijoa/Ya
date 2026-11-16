@@ -1,0 +1,23 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:client_entity": {
+    "description": {
+      "identifier": "rpg:npc",
+      "materials": { "default": "entity_alphatest" },
+      "textures": {
+        "steve": "textures/entity/steve",
+        "alex": "textures/entity/alex"
+      },
+      "geometry": {
+        "wide": "geometry.humanoid.custom",
+        "slim": "geometry.humanoid.customSlim"
+      },
+      "animations": {
+        "look_at_target": "animation.humanoid.look_at_target.default"
+      },
+      "scripts": { "animate": [ "look_at_target" ] },
+      "render_controllers": [ "controller.render.rpg_npc" ],
+      "spawn_egg": { "base_color": "#181c2e", "overlay_color": "#d6ac52" }
+    }
+  }
+}

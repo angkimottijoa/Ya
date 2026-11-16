@@ -1,0 +1,17 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "rpg:quest_tool",
+      "menu_category": { "category": "equipment" }
+    },
+    "components": {
+      "minecraft:icon": "rpg_quest_tool",
+      "minecraft:display_name": { "value": "§d제작자 도구 §7(퀘스트/NPC/상점 편집)" },
+      "minecraft:max_stack_size": 1,
+      "minecraft:glint": true,
+      "minecraft:hand_equipped": true,
+      "minecraft:use_modifiers": { "use_duration": 0.05, "movement_modifier": 1.0 }
+    }
+  }
+}

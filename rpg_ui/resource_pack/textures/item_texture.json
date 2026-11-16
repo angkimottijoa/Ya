@@ -1,0 +1,8 @@
+{
+  "resource_pack_name": "arcania",
+  "texture_name": "atlas.items",
+  "texture_data": {
+    "rpg_menu": { "textures": "textures/items/rpg/menu" },
+    "rpg_quest_tool": { "textures": "textures/items/rpg/quest_tool" }
+  }
+}

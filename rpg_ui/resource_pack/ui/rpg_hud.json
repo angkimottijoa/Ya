@@ -2,12 +2,6 @@
   "namespace": "rpg_hud",
 
   // ─────────────────────────────────────────────
-  //  공통 값
-  // ─────────────────────────────────────────────
-  "$panel_width": 150,
-  "$quest_prefix": "quest:",
-
-  // ─────────────────────────────────────────────
   //  루트: 화면 우측 상단에 메뉴바 + 그 아래 퀘스트창
   // ─────────────────────────────────────────────
   "root": {
@@ -16,12 +10,74 @@
     "anchor_from": "top_right",
     "anchor_to": "top_right",
     "offset": [ -4, 4 ],
-    "size": [ "$panel_width", "100%c" ],
+    "size": [ 150, "100%c" ],
     "layer": 20,
+    "$quest_prefix": "quest:",
     "controls": [
       { "menu_bar@rpg_hud.menu_bar": {} },
       { "gap": { "type": "panel", "size": [ "100%", 3 ] } },
       { "quest_window@rpg_hud.quest_window": {} }
+    ]
+  },
+
+
+  // ─────────────────────────────────────────────
+  //  캐릭터 카드 (좌측 상단): "[CARD]" 로 시작하는 액션바를 보존해 표시
+  // ─────────────────────────────────────────────
+  "card_root": {
+    "type": "image",
+    "texture": "textures/ui/rpg/panel",
+    "anchor_from": "top_left",
+    "anchor_to": "top_left",
+    "offset": [ 4, 4 ],
+    "size": [ "100%c + 12px", "100%c + 8px" ],
+    "layer": 20,
+    "$card_prefix": "[CARD]",
+    "controls": [
+      {
+        "card_data": {
+          "type": "panel",
+          "size": [ 0, 0 ],
+          "property_bag": { "#preserved_text": "" },
+          "bindings": [
+            { "binding_name": "#hud_actionbar_text_string" },
+            { "binding_name": "#hud_actionbar_text_string", "binding_name_override": "#preserved_text", "binding_condition": "visibility_changed" },
+            {
+              "binding_type": "view",
+              "source_property_name": "(not (#hud_actionbar_text_string = #preserved_text) and not ((#hud_actionbar_text_string - $card_prefix) = #hud_actionbar_text_string))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "text": {
+          "type": "label",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [ 6, 4 ],
+          "color": [ 0.95, 0.93, 0.88 ],
+          "shadow": true,
+          "localize": false,
+          "text": "#text",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "card_data",
+              "source_property_name": "(#preserved_text - $card_prefix)",
+              "target_property_name": "#text"
+            }
+          ]
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "card_data",
+        "source_property_name": "(not ((#preserved_text - $card_prefix) = ''))",
+        "target_property_name": "#visible"
+      }
     ]
   },
 
@@ -39,7 +95,7 @@
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
           "offset": [ 7, 0 ],
-          "text": "§l§6A R C A N I A",
+          "text": "§lA R C A N I A",
           "color": [ 0.94, 0.84, 0.55 ],
           "shadow": true,
           "font_type": "smooth",
@@ -66,7 +122,7 @@
       {
         "icon": {
           "type": "image",
-          "texture": "textures/ui/rpg/icon_menu",
+          "texture": "textures/ui/rpg/icons/settings",
           "size": [ 10, 10 ],
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
@@ -155,7 +211,7 @@
       {
         "icon": {
           "type": "image",
-          "texture": "textures/ui/rpg/icon_quest",
+          "texture": "textures/ui/rpg/icons/quest",
           "size": [ 10, 10 ],
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",

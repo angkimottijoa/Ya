@@ -1,20 +1,21 @@
 {
   "namespace": "hud",
 
-  // 기본 HUD 에 RPG 메뉴바 + 퀘스트창 추가
+  // 기본 HUD 에 RPG 메뉴바 + 퀘스트창 + 캐릭터 카드 추가
   "root_panel": {
     "modifications": [
       {
         "array_name": "controls",
         "operation": "insert_back",
         "value": [
-          { "rpg_hud@rpg_hud.root": {} }
+          { "rpg_hud@rpg_hud.root": {} },
+          { "rpg_card@rpg_hud.card_root": {} }
         ]
       }
     ]
   },
 
-  // "quest:" 로 시작하는 title 은 화면 중앙에 띄우지 않고 퀘스트창으로만 보낸다
+  // "quest:" 로 시작하는 title 은 화면 중앙에 띄우지 않는다 (퀘스트창 전용)
   "hud_title_text": {
     "modifications": [
       {
@@ -36,5 +37,10 @@
         }
       }
     ]
+  },
+
+  // "[CARD]" 로 시작하는 액션바는 화면 중앙에 띄우지 않는다 (캐릭터 카드 전용)
+  "hud_actionbar_text": {
+    "visible": "(($actionbar_text - '[CARD]') = $actionbar_text)"
   }
 }

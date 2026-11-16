@@ -1,0 +1,14 @@
+{
+  "format_version": "1.8.0",
+  "render_controllers": {
+    "controller.render.rpg_npc": {
+      "arrays": {
+        "textures": { "Array.skins": [ "Texture.steve", "Texture.alex" ] },
+        "geometries": { "Array.geos": [ "Geometry.wide", "Geometry.slim" ] }
+      },
+      "geometry": "Array.geos[q.property('rpg:skin')]",
+      "materials": [ { "*": "Material.default" } ],
+      "textures": [ "Array.skins[q.property('rpg:skin')]" ]
+    }
+  }
+}
