@@ -12,11 +12,10 @@ import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
-// V2.0 모바일 핫바 분리: 1~6번 아이템(오른쪽 세로), 7번 메뉴·8번 스킬창(오른쪽 위), 9번 스킬(오른쪽 아래)
-const MENU_SLOT = 6; // 핫바 7번 칸 = [메뉴]
-const SKILL_SLOT = 8; // 핫바 9번 칸 = 오른쪽 아래 [스킬] (쉬프트 = 스킬 2)
-const SKILLWIN_SLOT = 7; // 핫바 8번 칸 = [스킬창]
-const RESERVED = [MENU_SLOT, SKILLWIN_SLOT, SKILL_SLOT];
+// 핫바: 1~7번 아이템, 8번 메뉴(쉬프트 = 옆 창 접기), 9번 스킬(쉬프트 = 스킬 2)
+const MENU_SLOT = 7; // 핫바 8번 칸 = [메뉴]
+const SKILL_SLOT = 8; // 핫바 9번 칸 = [스킬] (쉬프트 = 스킬 2)
+const RESERVED = [MENU_SLOT, SKILL_SLOT];
 const lastUse = new Map();
 const lastSlot = new Map();
 
@@ -44,7 +43,9 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
-  ensureSlotItem(p, "rpg:skillbook", SKILLWIN_SLOT);
+  // 예전 스킬창 아이템 정리
+  const inv = p.getComponent("minecraft:inventory").container;
+  for (let i = 0; i < inv.size; i++) if (inv.getItem(i)?.typeId === "rpg:skillbook") inv.setItem(i, undefined);
   updateSkillSlot(p);
 }
 
@@ -103,13 +104,6 @@ system.runInterval(() => {
         else st.card = st.quest = true;
         save(p);
         notify(p, `§7HUD 창: §f${st.quest ? (st.card ? "모두 펼침" : "정보 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
-        continue;
-      }
-      if (cur === SKILLWIN_SLOT) {
-        // 8번 칸 = 스킬창
-        system.runTimeout(() => {
-          if (p.isValid()) openSkills(p);
-        }, 6);
         continue;
       }
       // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)
