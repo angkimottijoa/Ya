@@ -70,7 +70,7 @@ export function openHome(p) {
     `§7진행 중 퀘스트 §r${active}개\n`,
     `§7파티 §r${pt ? pt.name : "없음"}\n`,
     d.pts ? `\n§2미사용 스탯 포인트 ${d.pts}!\n§7내 정보에서 분배하세요.` : "",
-    `\n\n§e§l조작§r\n§6핫바 9번 §f메뉴  §7· 쉬프트: 옆 창 접기/펼치기\n§e쉬프트+공격 §f스킬 1\n§d쉬프트+점프 중 공격 §f스킬 2\n§b공중에서 점프 한 번 더 §f대시 §7(Lv.10, 아무것도 안 들어도 됨)\n§7스킬 장착·승급 §f메뉴 > 직업·스킬`,
+    `\n\n§e§l조작§r\n§6핫바 9번 §f메뉴  §7· 쉬프트: 옆 창 접기/펼치기\n§e직업 도구를 들고 §f① 클릭 ② 쉬프트+클릭 ③ 쉬프트+점프\n§b공중에서 점프 한 번 더 §f대시 §7(Lv.10, 재사용 80초)\n§7승급·도구 받기 §f메뉴 > 직업·스킬`,
   ));
   scr.action("퀘스트 게시판", () => openQuests(p, "all"));
   scr.action("길찾기", () => openNav(p));
@@ -368,7 +368,17 @@ export function openQuests(p, cat = "active", sel, page = 0) {
 }
 
 // ═════════ 직업·스킬 (승급 단계별 탭 / 직업 정보 / 승급 / 스킬 장착) ═════════
-const wName = (ws) => ws.map((w) => SK.WCLASS[w]?.name ?? w).join(" · ") || "-";
+const tName = (t) => t.tool?.name ?? "-";
+const keyLine = (path) => [1, 2, 3].map((k) => { const s = J.skillAt(path, k); return `§e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]} §f${s ? `${s.name} §7(Lv.${s.lv})` : "-"}`; }).join("\n");
+
+/** 직업 전용 도구 지급 (이미 가지고 있으면 생략) */
+export function giveTool(p, path) {
+  const id = J.toolId(path);
+  if (!J.PATHS[path]?.tool || countItem(p, id) > 0) return false;
+  giveItem(p, id, 1);
+  notify(p, `§a전용 도구 획득: §f${J.PATHS[path].tool.name}`);
+  return true;
+}
 
 /** 다음 승급 후보 [{ id, ok, why }] */
 function nextAdvances(p) {
@@ -390,6 +400,9 @@ function doAdvance(p, id) {
   if (t.tier === 3) d.adv3 = id;
   if (t.cost) d.gold -= t.cost;
   save(p);
+  giveTool(p, id);
+  d.toolGiven = { ...(d.toolGiven ?? {}), [id]: true };
+  save(p);
   p.playSound("random.levelup");
   try { p.dimension.spawnParticle("minecraft:totem_particle", p.location); } catch {}
   notify(p, `${t.color ?? "§f"}§l${J.TIER_NAMES[t.tier]} 승급! §r§f${t.name}`);
@@ -400,9 +413,6 @@ export function openSkills(p, tab, sel) {
   const chainIds = J.chain(d);
   const curTier = chainIds.length;
   tab = tab ?? (curTier ? `t${curTier}` : "info");
-  const swapTxt = ["스킬 1", "스킬 2"];
-  const eq1 = SK.equippedJob(p, "main");
-  const eq2 = SK.equippedJob(p, "sub");
 
   // 레일: 메뉴 / 직업 정보 / 1차 / 2차 / 3차
   const railOf = (scr) => {
@@ -422,12 +432,12 @@ export function openSkills(p, tab, sel) {
       sel = sel ?? "warrior";
       for (const id of J.PATHS.novice.next) {
         const t = J.PATHS[id];
-        scr.item(`${t.color}§l${t.name}§r\n§7무기: ${wName(t.weapons)}`, ICON(t.icon), () => openSkills(p, "info", id), { on: id === sel });
+        scr.item(`${t.color}§l${t.name}§r\n§7도구: ${tName(t)}`, ICON(t.icon), () => openSkills(p, "info", id), { on: id === sel });
       }
       railOf(scr);
       const t = J.PATHS[sel];
       scr.select(`${t.color}${t.name}`, ICON(t.icon));
-      scr.body(rt(`§f${t.desc}\n\n§e§l사용 무기§r\n§f${wName(t.weapons)}\n\n§e§l1차 스킬§r\n`, J.skillsOfPath(sel).map((s) => `§f${s.name} §7(Lv.${s.lv}) ${s.desc}\n`), "\n§72차 승급: Lv.20 · 3차 승급: Lv.40"));
+      scr.body(rt(`§f${t.desc}\n\n§e§l전용 도구§r\n§f${tName(t)}\n\n§e§l1차 스킬§r\n`, J.skillsOfPath(sel).map((s) => `§f${s.name} §7(Lv.${s.lv}) ${s.desc}\n`), "\n§72차 승급: Lv.20 · 3차 승급: Lv.40"));
       scr.action(`§a${t.name}(으)로 시작`, () => { doAdvance(p, sel); return openSkills(p); });
       scr.reopen = () => openSkills(p, "info", sel);
       return scr.show(p);
@@ -435,23 +445,25 @@ export function openSkills(p, tab, sel) {
     // 승급 경로
     chainIds.forEach((id) => {
       const t = J.PATHS[id];
-      scr.item(`${t.color}§l${J.TIER_NAMES[t.tier]} ${t.name}§r\n§7무기: ${wName(t.weapons)}`, ICON(t.icon), () => openSkills(p, `t${t.tier}`));
+      scr.item(`${t.color}§l${J.TIER_NAMES[t.tier]} ${t.name}§r\n§7도구: ${tName(t)}`, ICON(t.icon), () => openSkills(p, `t${t.tier}`));
     });
     const nexts = nextAdvances(p);
-    for (const n of nexts) scr.item(`§8${J.TIER_NAMES[n.t.tier]} ${n.t.name} §7(${n.ok ? "§a승급 가능" : n.why}§7)\n§7무기: ${wName(n.t.weapons)}`, ICON(n.t.icon), () => openSkills(p, "adv", n.id));
+    for (const n of nexts) scr.item(`§8${J.TIER_NAMES[n.t.tier]} ${n.t.name} §7(${n.ok ? "§a승급 가능" : n.why}§7)\n§7도구: ${tName(n.t)}`, ICON(n.t.icon), () => openSkills(p, "adv", n.id));
     railOf(scr);
     const t = J.PATHS[cur];
     scr.select(`${t.color ?? "§f"}${t.name}`, ICON(t.icon), true);
     const bon = ["str", "dex", "int", "vit"].map((k) => [k, J.pathBonus(d, k)]).filter(([, v]) => v);
     scr.body(rt(
       `${t.color ?? "§f"}§l${J.TIER_NAMES[t.tier]} ${t.name}§r  §7Lv.${d.lv}\n§f${t.desc}\n\n`,
-      `§e§l사용 무기§r\n§f${wName(t.weapons)}\n\n`,
-      `§e§l장착 스킬§r\n§e스킬 1 §f${eq1?.name ?? "-"}  §7(쉬프트+공격)\n§d스킬 2 §f${eq2?.name ?? "-"}  §7(쉬프트+공중 공격)\n\n`,
+      `§e§l전용 도구§r\n§f${tName(t)}\n\n`,
+      `§e§l스킬 (${tName(t)}을(를) 들고)§r\n${keyLine(cur)}\n\n`,
       bon.length ? `§e§l승급 보너스§r\n§f${bon.map(([k, v]) => `${STATS.find((s) => s.id === k).name} +${v}`).join(", ")}\n\n` : "",
-      d.lv >= 10 ? `§e§l대시§r §f공중에서 점프 한 번 더 ${d.set.dash === false ? "§c(꺼짐)" : "§a(켜짐)"}\n` : "§7대시: Lv.10에 해금 (공중 점프)\n",
+      d.lv >= 10 ? `§e§l대시§r §f공중에서 점프 한 번 더 §7(재사용 80초) ${d.set.dash === false ? "§c(꺼짐)" : "§a(켜짐)"}\n` : "§7대시: Lv.10에 해금 (공중 점프)\n",
       nexts.length ? `\n§e§l다음 승급§r\n${nexts.map((n) => `§f${n.t.name} §7- ${n.ok ? "§a가능" : n.why}`).join("\n")}` : "\n§6최종 단계에 도달했습니다",
     ));
     if (nexts.some((n) => n.ok)) scr.action("§a승급하기", () => openSkills(p, "adv", nexts.find((n) => n.ok).id));
+    const missing = chainIds.filter((id) => countItem(p, J.toolId(id)) === 0);
+    if (missing.length) scr.action(`전용 도구 다시 받기 (${missing.length}개)`, () => { for (const id of missing) giveTool(p, id); return openSkills(p, "info"); });
     scr.action("능력치 분배", () => openProfile(p));
     if (d.lv >= 10) scr.action(d.set.dash === false ? "대시 켜기" : "대시 끄기", () => { d.set.dash = d.set.dash === false; save(p); return openSkills(p, "info"); });
     scr.action(`§c직업 변경 (${CLASS_CHANGE_COST}G · 승급 초기화)`, () => openSkills(p, "change"));
@@ -464,13 +476,13 @@ export function openSkills(p, tab, sel) {
     const nexts = nextAdvances(p);
     sel = sel ?? nexts[0]?.id;
     const scr = new Screen("L", "직업·스킬 / 승급");
-    for (const n of nexts) scr.item(`${n.t.color}§l${n.t.name}§r ${n.ok ? "§a(가능)" : `§7(${n.why})`}\n§7무기: ${wName(n.t.weapons)}`, ICON(n.t.icon), () => openSkills(p, "adv", n.id), { on: n.id === sel });
+    for (const n of nexts) scr.item(`${n.t.color}§l${n.t.name}§r ${n.ok ? "§a(가능)" : `§7(${n.why})`}\n§7도구: ${tName(n.t)}`, ICON(n.t.icon), () => openSkills(p, "adv", n.id), { on: n.id === sel });
     railOf(scr);
     const n = nexts.find((x) => x.id === sel);
     if (n) {
       scr.select(`${n.t.color}${n.t.name}`, ICON(n.t.icon));
       scr.body(rt(
-        `§f${n.t.desc}\n\n§e§l조건§r\n§fLv.${n.t.lv} · ${n.t.cost ?? 0}G\n\n§e§l사용 무기§r\n§f${wName(n.t.weapons)}\n\n`,
+        `§f${n.t.desc}\n\n§e§l조건§r\n§fLv.${n.t.lv} · ${n.t.cost ?? 0}G\n\n§e§l전용 도구§r\n§f${tName(n.t)}\n\n`,
         `§e§l스킬§r\n`, J.skillsOfPath(sel).map((s) => `§f${s.name} §7(Lv.${s.lv}) ${s.desc}\n`),
         n.t.bonus ? `\n§e§l능력치 보너스§r\n§f${Object.entries(n.t.bonus).map(([k, v]) => `${STATS.find((s) => s.id === k).name} +${v}`).join(", ")}` : "",
       ));
@@ -489,20 +501,20 @@ export function openSkills(p, tab, sel) {
     const scr = new Screen("L", "직업·스킬 / 직업 변경");
     for (const id of J.PATHS.novice.next) {
       const t = J.PATHS[id];
-      scr.item(`${t.color}§l${t.name}§r${d.cls === id ? " §7[현재]" : ""}\n§7무기: ${wName(t.weapons)}`, ICON(t.icon), () => openSkills(p, "change", id), { on: id === sel });
+      scr.item(`${t.color}§l${t.name}§r${d.cls === id ? " §7[현재]" : ""}\n§7도구: ${tName(t)}`, ICON(t.icon), () => openSkills(p, "change", id), { on: id === sel });
     }
     railOf(scr);
     const t = J.PATHS[sel];
     scr.select(`${t.color}${t.name}`, ICON(t.icon));
-    scr.body(`§f${t.desc}\n\n§c직업을 바꾸면 2차·3차 승급과 스킬 장착이 초기화됩니다.\n§7비용 ${CLASS_CHANGE_COST}G`);
+    scr.body(`§f${t.desc}\n\n§c직업을 바꾸면 2차·3차 승급이 초기화됩니다.\n§7새 직업의 전용 도구(${tName(t)})를 받습니다.\n§7비용 ${CLASS_CHANGE_COST}G`);
     if (sel !== d.cls) scr.action(`§c${t.name}(으)로 변경 (${CLASS_CHANGE_COST}G)`, () => {
       if (d.gold < CLASS_CHANGE_COST) { msg(p, "§c골드가 부족합니다."); return openSkills(p, "change", sel); }
       d.gold -= CLASS_CHANGE_COST;
       d.cls = sel;
       delete d.adv2;
       delete d.adv3;
-      d.jsk = {};
       save(p);
+      giveTool(p, sel);
       notify(p, `${t.color}§l${t.name}§r§f 의 길을 걷기 시작했다`);
       return openSkills(p, "info");
     });
@@ -521,25 +533,23 @@ export function openSkills(p, tab, sel) {
   for (const s of list) {
     const has = myPath && d.lv >= s.lv;
     const left = SK.readyIn(p, s.id);
-    scr.item(`${has ? "§f" : "§7"}${s.name}${eq1?.id === s.id ? ` §e[${swapTxt[0]}]` : ""}${eq2?.id === s.id ? ` §d[${swapTxt[1]}]` : ""}\n§7${!myPath ? `${J.PATHS[s.path].name} 승급 시` : has ? `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}` : `Lv.${s.lv} 필요`}`, ICON(J.PATHS[s.path].icon), () => openSkills(p, tab, s.id), { on: s.id === sel });
+    const k = s.key ?? 1;
+    scr.item(`${has ? "§f" : "§7"}${J.KEY_ICONS[k]} ${s.name}\n§7${!myPath ? `${J.PATHS[s.path].name} 승급 시` : has ? `${J.KEY_NAMES[k]} · MP ${s.mp} · ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}` : `Lv.${s.lv} 필요`}`, ICON(J.PATHS[s.path].icon), () => openSkills(p, tab, s.id), { on: s.id === sel });
   }
   railOf(scr);
   const s = J.getJobSkill(sel);
   if (s) {
     const t = J.PATHS[s.path];
     const has = myPath && d.lv >= s.lv;
+    const k = s.key ?? 1;
     scr.select(s.name, ICON(t.icon));
     scr.body(rt(
-      `${t.color}§l${J.TIER_NAMES[t.tier]} ${t.name}§r  ${has ? (eq1?.id === s.id ? "§e[스킬 1 장착]" : eq2?.id === s.id ? "§d[스킬 2 장착]" : "§a[사용 가능]") : `§c[${myPath ? `Lv.${s.lv} 필요` : "승급 필요"}]`}\n\n`,
+      `${t.color}§l${J.TIER_NAMES[t.tier]} ${t.name}§r  ${has ? "§a[사용 가능]" : `§c[${myPath ? `Lv.${s.lv} 필요` : "승급 필요"}]`}\n\n`,
       `§f${s.desc}\n\n`,
-      `§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n§7사용 무기 §f${wName(t.weapons)}\n\n`,
-      `§e§l조작§r\n§e스킬 1§f: 쉬프트 + 공격\n§d스킬 2§f: 쉬프트 + 점프 중 공격\n§7(활·쇠뇌는 쉬프트 + 발사)`,
+      `§7발동 §e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]}\n§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n§7전용 도구 §f${tName(t)}\n\n`,
+      `§e§l조작 (${tName(t)}을(를) 들고)§r\n§e① 클릭§f(모바일: 길게 누르기)\n§e② 쉬프트 + 클릭\n§e③ 쉬프트 + 점프`,
     ));
-    if (has && eq1?.id !== s.id) scr.action("§e스킬 1에 장착", () => { SK.equipJob(p, s.id, "main"); return openSkills(p, tab, s.id); });
-    if (has && eq2?.id !== s.id) scr.action("§d스킬 2에 장착", () => { SK.equipJob(p, s.id, "sub"); return openSkills(p, tab, s.id); });
-    if (eq1?.id === s.id) scr.action("스킬 1 해제", () => { SK.unequipJob(p, "main"); return openSkills(p, tab, s.id); });
-    if (eq2?.id === s.id) scr.action("스킬 2 해제", () => { SK.unequipJob(p, "sub"); return openSkills(p, tab, s.id); });
-    if (has) scr.action("지금 사용", () => { SK.castWeaponSkill(p, s.id); });
+    if (myPath && countItem(p, J.toolId(myPath)) === 0) scr.action(`전용 도구 받기 (${tName(J.PATHS[myPath])})`, () => { giveTool(p, myPath); return openSkills(p, tab, s.id); });
   } else {
     scr.select(J.TIER_NAMES[tier], ICON("close"));
     scr.body(tier > curTier + 1 ? `§7${J.TIER_NAMES[tier - 1]} 승급을 먼저 하세요.` : curTier === 0 ? "§7직업 정보에서 직업을 먼저 고르세요." : "§7스킬이 없습니다.");
@@ -735,14 +745,13 @@ export async function openSettings(p) {
     .toggle("캐릭터 카드 표시 (HUD 왼쪽)", d.set.card)
     .toggle("파티 초대 받기", d.set.invite)
     .toggle("메뉴 버튼 사용 (핫바 9번 칸)", d.set.slots !== false)
-    .toggle("쉬프트+공격으로 직업 스킬 발동", d.set.shiftAttack !== false)
-    .toggle("대시 (Lv.10 이상, 공중에서 점프 한 번 더)", d.set.dash !== false)
+    .toggle("대시 (Lv.10 이상, 공중에서 점프 한 번 더 · 재사용 80초)", d.set.dash !== false)
     .toggle("하단 HP/MP/Lv 바", d.set.status !== false)
     .toggle("길 안내 표시 (화살표)", d.set.nav !== false)
     .toggle("길 안내 파티클", d.set.navFx !== false)
     .show(p);
   if (!r.canceled) {
-    [d.set.quest, d.set.card, d.set.invite, d.set.slots, d.set.shiftAttack, d.set.dash, d.set.status, d.set.nav, d.set.navFx] = r.formValues;
+    [d.set.quest, d.set.card, d.set.invite, d.set.slots, d.set.dash, d.set.status, d.set.nav, d.set.navFx] = r.formValues;
     save(p);
   }
   return openHome(p);

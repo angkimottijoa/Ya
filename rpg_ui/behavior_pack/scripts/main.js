@@ -2,18 +2,20 @@
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { data, save, forget, msg, notify, isAdmin } from "./player.js";
 import { initCombat, resetSpeed } from "./combat.js";
-import { initSkillTriggers } from "./skills.js";
+import { initSkillTriggers, skillJumpTick } from "./skills.js";
+import { dashTick } from "./dash.js";
 import { registerNpcEntity } from "./npcdb.js";
 import { navTick } from "./waypoints.js";
 import * as Q from "./quests.js";
 import * as HUD from "./hud.js";
-import { openHome, openQuests, openSkills } from "./menu.js";
+import { openHome, openQuests, openSkills, giveTool } from "./menu.js";
+import * as J from "./jobs.js";
 import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
 // 핫바: 1~8번 아이템, 9번 메뉴(쉬프트 = 옆 창 접기)
-// 스킬: 쉬프트+공격 = 스킬 1, 쉬프트+공중 공격 = 스킬 2
+// 스킬: 직업 도구를 들고 ① 클릭 / ② 쉬프트+클릭 / ③ 쉬프트+점프 (skills.js)
 const MENU_SLOT = 8; // 핫바 9번 칸 = [메뉴]
 const lastUse = new Map();
 const lastSlot = new Map();
@@ -75,39 +77,9 @@ system.runInterval(() => {
       lastSlot.set(p.id, cur);
     }
     dashTick(p);
+    skillJumpTick(p);
   }
 }, 1);
-
-// ───────── 대시: Lv.10 이상, 공중에서 점프 한 번 더 (설정에서 끄기 가능) ─────────
-const air = new Map(); // pid -> { wasJump, used, ticks, cdUntil }
-function dashTick(p) {
-  const d = data(p);
-  if (d.lv < 10 || d.set.dash === false) return;
-  let onGround = true, jumping = false;
-  try {
-    onGround = p.isOnGround;
-    jumping = p.isJumping;
-  } catch {
-    return;
-  }
-  const st = air.get(p.id) ?? { wasJump: false, used: false, ticks: 0, cdUntil: 0 };
-  if (onGround) {
-    st.used = false;
-    st.ticks = 0;
-  } else st.ticks++;
-  // 공중에서 점프 버튼을 '새로' 누른 순간
-  if (!onGround && jumping && !st.wasJump && !st.used && st.ticks > 3 && system.currentTick >= st.cdUntil) {
-    st.used = true;
-    st.cdUntil = system.currentTick + 20;
-    const v = p.getViewDirection();
-    const len = Math.hypot(v.x, v.z) || 1;
-    try { p.applyKnockback(v.x / len, v.z / len, 1.7, 0.42); } catch {}
-    try { p.dimension.spawnParticle("minecraft:knockback_roar_particle", p.location); } catch {}
-    p.playSound("mob.phantom.flap", { volume: 0.6, pitch: 1.4 });
-  }
-  st.wasJump = jumping;
-  air.set(p.id, st);
-}
 
 // 메뉴북: 사용 → 메뉴 / 웅크리고 사용 → 직업 스킬
 // 제작자 도구: 사용 → 제작자 메뉴
@@ -157,6 +129,13 @@ world.afterEvents.playerSpawn.subscribe(({ player: p, initialSpawn }) => {
     if (!p.isValid()) return;
     ensureMenuItem(p);
     const d = data(p);
+    // V2.7: 이미 직업이 있는 플레이어에게 전용 도구를 한 번 지급
+    d.toolGiven = d.toolGiven ?? {};
+    for (const id of J.chain(d)) if (!d.toolGiven[id]) {
+      giveTool(p, id);
+      d.toolGiven[id] = true;
+      save(p);
+    }
     if (initialSpawn && !d.joined) {
       d.joined = true;
       save(p);

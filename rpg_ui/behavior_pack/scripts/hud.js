@@ -8,6 +8,7 @@ import { getQuest, objLine, priority, navTarget, navText, qtype } from "./quests
 import { partyOf, memberIds } from "./party.js";
 import { combatStats } from "./combat.js";
 import { currentSkillInfo } from "./skills.js";
+import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
 import { rt } from "./ui.js";
@@ -25,17 +26,19 @@ export function card(p) {
   if (!d.set.card) return "[CARD]";
   const t = J.PATHS[J.currentPath(d)] ?? J.PATHS.novice;
   const c = { name: t.name, color: t.color ?? "§f" };
-  const { skill, left, sub, left2 } = currentSkillInfo(p);
-  const sk = (s, l, key) => (s ? (l > 0 ? `§7${key} ${s.name} §f${Math.ceil(l)}s` : `§b${key} §l${s.name}`) : "");
+  const info = currentSkillInfo(p);
+  const sk = ({ key, s, left, ok }) => (!s ? "" : !ok ? `§8${J.KEY_ICONS[key]}Lv${s.lv}` : left > 0 ? `§7${J.KEY_ICONS[key]}§f${Math.ceil(left)}s` : `${info.holding ? "§b" : "§3"}${J.KEY_ICONS[key]}${s.name}`);
+  const dash = dashLeft(p);
   const unread = unreadCount(p);
   const s = combatStats(p);
   const lines = [
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
-    [sk(skill, left, "1"), sk(sub, left2, "2")].filter(Boolean).join("§r  "),
+    info.list.some((x) => x.s) ? info.list.map(sk).filter(Boolean).join("§r ") + (info.holding ? "" : " §8(도구)") : "",
+    d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,
-  ];
+  ].filter((x) => x !== "");
   const party = partyOf(p.id);
   if (party) {
     lines.push(`§d§l${party.name}`);

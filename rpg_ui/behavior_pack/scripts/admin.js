@@ -1218,7 +1218,7 @@ function skillEditor(p, base = "warrior", selId) {
   const start = Math.max(0, Math.min(list.indexOf(sel) - 2, list.length - PAGE));
   for (const s of list.slice(start, start + PAGE)) {
     const t = J.PATHS[s.path];
-    scr.item(`${s.enabled === false ? "§8[꺼짐] " : "§f"}${J.TIER_NAMES[t.tier]} ${t.name} · ${s.name}${s.custom ? " §d[제작]" : ""}\n§7Lv.${s.lv} · MP ${s.mp} · ${s.cd}초 · ${Math.round(s.pow * (s.kind === "buff" ? 1 : 100))}${s.kind === "buff" ? "%↑" : "%"}`, ICON(t.icon), () => skillEditor(p, base, s.id), { on: s === sel });
+    scr.item(`${s.enabled === false ? "§8[꺼짐] " : "§f"}${J.TIER_NAMES[t.tier]} ${t.name} · ${J.KEY_ICONS[s.key ?? 1]} ${s.name}${s.custom ? " §d[제작]" : ""}\n§7Lv.${s.lv} · MP ${s.mp} · ${s.cd}초 · ${Math.round(s.pow * (s.kind === "buff" ? 1 : 100))}${s.kind === "buff" ? "%↑" : "%"}`, ICON(t.icon), () => skillEditor(p, base, s.id), { on: s === sel });
   }
   scr.tab("뒤로", ICON("back"), () => weaponTab(p));
   for (const b of BASES) scr.tab(J.PATHS[b].name, ICON(J.PATHS[b].icon), () => skillEditor(p, b), b === base);
@@ -1226,7 +1226,7 @@ function skillEditor(p, base = "warrior", selId) {
   if (sel) {
     const t = J.PATHS[sel.path];
     scr.select(sel.name, ICON(t.icon));
-    scr.body(`§7ID §f${sel.id}\n§7상태 ${sel.enabled === false ? "§c꺼짐" : "§a켜짐"}\n§7직업 §f${J.TIER_NAMES[t.tier]} ${t.name}\n§7사용 무기 §f${t.weapons.map((w) => SK.WCLASS[w].name).join(", ")}\n§7효과 §f${SK.FX.find((f) => f.id === sel.fx)?.name ?? sel.fx}\n§7계수 §f${KINDS.find((k) => k.id === sel.kind)?.name}\n§7레벨 §f${sel.lv}  §7마나 §f${sel.mp}  §7대기 §f${sel.cd}초\n\n§f${sel.desc || ""}`);
+    scr.body(`§7ID §f${sel.id}\n§7상태 ${sel.enabled === false ? "§c꺼짐" : "§a켜짐"}\n§7직업 §f${J.TIER_NAMES[t.tier]} ${t.name}\n§7전용 도구 §f${t.tool?.name ?? "-"}  §7발동 §e${J.KEY_ICONS[sel.key ?? 1]} ${J.KEY_NAMES[sel.key ?? 1]}\n§7효과 §f${SK.FX.find((f) => f.id === sel.fx)?.name ?? sel.fx}\n§7계수 §f${KINDS.find((k) => k.id === sel.kind)?.name}\n§7레벨 §f${sel.lv}  §7마나 §f${sel.mp}  §7대기 §f${sel.cd}초\n\n§f${sel.desc || ""}`);
     scr.action(sel.enabled === false ? "§a켜기" : "§c끄기", () => { J.saveJobSkill(sel.id, { enabled: sel.enabled === false }); return skillEditor(p, base, sel.id); });
     scr.action("편집", () => editSkill(p, sel.id, base));
     if (sel.custom) scr.action("§c삭제", () => confirm(p, `'${sel.name}' 스킬을 삭제할까요?`, () => { J.deleteJobSkill(sel.id); return skillEditor(p, base); }, () => skillEditor(p, base, sel.id)));
@@ -1240,26 +1240,27 @@ function skillEditor(p, base = "warrior", selId) {
 }
 
 async function editSkill(p, id, base) {
-  const cur = id ? J.getJobSkill(id) : { name: "", desc: "", path: base, lv: 1, mp: 15, cd: 8, pow: 1.5, kind: "melee", fx: "sword_spin" };
+  const cur = id ? J.getJobSkill(id) : { name: "", desc: "", path: base, key: 1, lv: 1, mp: 15, cd: 8, pow: 1.5, kind: "melee", fx: "sword_spin" };
   const r = await new ModalFormData()
     .title(id ? `스킬 편집 - ${cur.name}` : "새 직업 스킬")
     .textField("이름", "예) 폭풍 베기", cur.name)
     .textField("설명", "", cur.desc ?? "")
-    .dropdown("직업 단계 (그 단계 무기를 들어야 사용)", PATH_IDS.map((k) => `${J.TIER_NAMES[J.PATHS[k].tier]} ${J.PATHS[k].name}`), Math.max(0, PATH_IDS.indexOf(cur.path)))
+    .dropdown("직업 단계 (그 단계 전용 도구를 들어야 사용)", PATH_IDS.map((k) => `${J.TIER_NAMES[J.PATHS[k].tier]} ${J.PATHS[k].name}`), Math.max(0, PATH_IDS.indexOf(cur.path)))
     .dropdown("효과", SK.FX.map((f) => f.name), Math.max(0, SK.FX.findIndex((f) => f.id === cur.fx)))
     .dropdown("위력 계수", KINDS.map((k) => k.name), Math.max(0, KINDS.findIndex((k) => k.id === cur.kind)))
     .textField("필요 레벨", "", String(cur.lv))
     .textField("마나", "", String(cur.mp))
     .textField("재사용 대기 (초)", "", String(cur.cd))
     .textField("위력 (%, 버프는 공격력 증가 %)", "150", String(cur.kind === "buff" ? cur.pow : Math.round(cur.pow * 100)))
+    .dropdown("발동 (같은 단계·같은 발동이면 제작 스킬이 기본 스킬 대신 쓰임)", J.KEY_NAMES.slice(1).map((k, i) => `${J.KEY_ICONS[i + 1]} ${k}`), (cur.key ?? 1) - 1)
     .show(p);
   if (r.canceled) return skillEditor(p, base, id);
-  const [name, desc, pi, fi, ki, lv, mp, cd, pow] = r.formValues;
+  const [name, desc, pi, fi, ki, lv, mp, cd, pow, key] = r.formValues;
   if (!String(name).trim()) return skillEditor(p, base, id);
   const nid = id ?? `jc_${Date.now().toString(36)}`;
   const kind = KINDS[ki].id;
   J.saveJobSkill(nid, {
-    name: String(name).trim(), desc: String(desc), path: PATH_IDS[pi], fx: SK.FX[fi].id, kind,
+    name: String(name).trim(), desc: String(desc), path: PATH_IDS[pi], fx: SK.FX[fi].id, kind, key: (Number(key) || 0) + 1,
     lv: Math.max(1, num(lv, 1)), mp: Math.max(0, num(mp, 10)), cd: Math.max(1, num(cd, 8)),
     pow: kind === "buff" ? Math.max(1, num(pow, 30)) : Math.max(0.1, num(pow, 100) / 100),
     ...(id ? {} : { custom: true, enabled: true }),

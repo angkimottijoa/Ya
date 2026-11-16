@@ -40,6 +40,66 @@
     },
     "rpg_skillbook": {
       "textures": "textures/items/rpg/skillbook"
+    },
+    "rpg_jt_warrior": {
+      "textures": "textures/items/rpg/jt_warrior"
+    },
+    "rpg_jt_swordmaster": {
+      "textures": "textures/items/rpg/jt_swordmaster"
+    },
+    "rpg_jt_sword_emperor": {
+      "textures": "textures/items/rpg/jt_sword_emperor"
+    },
+    "rpg_jt_berserker": {
+      "textures": "textures/items/rpg/jt_berserker"
+    },
+    "rpg_jt_destroyer": {
+      "textures": "textures/items/rpg/jt_destroyer"
+    },
+    "rpg_jt_archer": {
+      "textures": "textures/items/rpg/jt_archer"
+    },
+    "rpg_jt_sniper": {
+      "textures": "textures/items/rpg/jt_sniper"
+    },
+    "rpg_jt_hawkeye": {
+      "textures": "textures/items/rpg/jt_hawkeye"
+    },
+    "rpg_jt_hunter": {
+      "textures": "textures/items/rpg/jt_hunter"
+    },
+    "rpg_jt_beastlord": {
+      "textures": "textures/items/rpg/jt_beastlord"
+    },
+    "rpg_jt_mage": {
+      "textures": "textures/items/rpg/jt_mage"
+    },
+    "rpg_jt_elementalist": {
+      "textures": "textures/items/rpg/jt_elementalist"
+    },
+    "rpg_jt_archmage": {
+      "textures": "textures/items/rpg/jt_archmage"
+    },
+    "rpg_jt_stormcaller": {
+      "textures": "textures/items/rpg/jt_stormcaller"
+    },
+    "rpg_jt_stormlord": {
+      "textures": "textures/items/rpg/jt_stormlord"
+    },
+    "rpg_jt_cleric": {
+      "textures": "textures/items/rpg/jt_cleric"
+    },
+    "rpg_jt_priest": {
+      "textures": "textures/items/rpg/jt_priest"
+    },
+    "rpg_jt_archbishop": {
+      "textures": "textures/items/rpg/jt_archbishop"
+    },
+    "rpg_jt_paladin": {
+      "textures": "textures/items/rpg/jt_paladin"
+    },
+    "rpg_jt_crusader": {
+      "textures": "textures/items/rpg/jt_crusader"
     }
   }
 }
