@@ -51,5 +51,13 @@
   "armor_renderer": {
     "visible": false,
     "bindings": []
+  },
+
+  // [V2.0 테스트] 모바일 핫바를 화면 위쪽으로 70px 올림.
+  // 올라간 핫바를 눌렀을 때 반응하면 → 터치가 JSON 위치를 따라감 → 핫바 칸을 원하는 곳에 나눠 배치 가능.
+  // 원래 아래 자리(빈 곳)를 눌러야 반응하면 → 터치는 엔진이 고정 → 핫바 위치 변경 불가.
+  "hotbar_panel_pocket": {
+    "use_anchored_offset": false,
+    "offset": [ 0, -70 ]
   }
 }
