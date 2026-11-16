@@ -14,6 +14,8 @@ import {
 import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
 import * as SK from "./skills.js";
+import * as WP from "./waypoints.js";
+import { npcRegistry } from "./npcdb.js";
 import { castSkill } from "./combat.js";
 
 // ───────── 공통 크롬(레일 + 재화 칩) ─────────
@@ -25,6 +27,7 @@ const SECTIONS = [
   { id: "chat", name: "채팅", icon: "chat", open: (p) => openChat(p) },
   { id: "quest", name: "퀘스트", icon: "quest", open: (p) => openQuests(p) },
   { id: "skill", name: "스킬", icon: "skill", open: (p) => openSkills(p) },
+  { id: "nav", name: "길찾기", icon: "nav", open: (p) => openNav(p) },
   { id: "bag", name: "배낭", icon: "bag", open: (p) => openBag(p) },
   { id: "shop", name: "상점", icon: "shop", open: (p) => openShop(p) },
   { id: "settings", name: "설정", icon: "settings", open: (p) => openSettings(p) },
@@ -38,7 +41,7 @@ function chips(scr, p) {
 
 function chrome(scr, p, current) {
   // 레일은 화면 높이에 맞게 설정을 뺀 섹션만 (설정은 홈 타일에서)
-  for (const s of SECTIONS) if (s.id !== "settings" || current === "settings") scr.tab(s.name, ICON(s.icon), () => s.open(p), s.id === current);
+  for (const s of SECTIONS) if (!["settings", "class"].includes(s.id) || current === s.id) scr.tab(s.name, ICON(s.icon), () => s.open(p), s.id === current);
   if (isAdmin(p)) scr.tab("제작자 도구", ICON("admin"), () => openAdmin(p), current === "admin");
   chips(scr, p);
   return scr;
@@ -388,13 +391,14 @@ export function openSkills(p, w, sel) {
   w = w ?? SK.heldClass(p);
   const list = SK.skillsOf(w);
   const eq = SK.equipped(p, w);
+  const eq2 = SK.equipped(p, w, "sub");
   sel = sel ?? eq?.id ?? list[0]?.id;
   const wc = SK.WCLASS[w];
   const scr = new Screen("L", `스킬 / ${wc.name}`);
   for (const s of list) {
     const lock = d.lv < s.lv;
     const left = SK.readyIn(p, s.id);
-    scr.item(`${lock ? "§7" : "§f"}${s.name}${eq?.id === s.id ? " §e[장착]" : ""}\n§7${lock ? `Lv.${s.lv} 필요` : `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}`}`, ICON(wc.icon), () => openSkills(p, w, s.id), { on: s.id === sel });
+    scr.item(`${lock ? "§7" : "§f"}${s.name}${eq?.id === s.id ? " §e[기본]" : ""}${eq2?.id === s.id ? " §d[쉬프트]" : ""}\n§7${lock ? `Lv.${s.lv} 필요` : `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}`}`, ICON(wc.icon), () => openSkills(p, w, s.id), { on: s.id === sel });
   }
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const [id, c] of Object.entries(SK.WCLASS)) scr.tab(c.name, ICON(c.icon), () => openSkills(p, id), id === w);
@@ -405,15 +409,16 @@ export function openSkills(p, w, sel) {
   if (s) {
     scr.select(s.name, ICON(wc.icon));
     scr.body(rt(
-      `§b§l${wc.name} 스킬§r  ${d.lv >= s.lv ? (eq?.id === s.id ? "§e[장착 중]" : "§a[사용 가능]") : `§c[Lv.${s.lv} 필요]`}\n\n`,
+      `§b§l${wc.name} 스킬§r  ${d.lv >= s.lv ? (eq?.id === s.id ? "§e[기본 스킬]" : eq2?.id === s.id ? "§d[쉬프트 스킬]" : "§a[사용 가능]") : `§c[Lv.${s.lv} 필요]`}\n\n`,
       `§f${s.desc}\n\n`,
       `§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n`,
       `§7계수 §f${s.kind === "magic" ? "지능" : s.kind === "ranged" ? "민첩" : s.kind === "melee" ? "힘" : "체력/지능"}\n\n`,
-      `§e§l발동 방법§r\n§f${w === "bow" || w === "crossbow" ? "웅크린 채 활/쇠뇌 발사" : w === "staff" ? "웅크린 채 지팡이 사용 또는 공격" : "웅크린 채 적 공격"}\n§7또는 아래 '지금 사용'\n\n`,
+      `§e§l발동 방법§r\n§e기본 스킬§f: 쉬프트+${w === "bow" || w === "crossbow" ? "발사" : "공격"} 또는 HUD [스킬]\n§d쉬프트 스킬§f: 쉬프트 누른 채 HUD [스킬]\n§7(PC: 숫자키 8 / 쉬프트+8)\n\n`,
       `§e§l이 분류 무기 §r§7(자동 등록 ${weapons.length}개)\n§f`,
       weapons.length ? weapons.slice(0, 8).map((id) => id.replace("minecraft:", "")).join(", ") : "§7아직 없음 – 들기만 하면 자동 등록",
     ));
-    if (d.lv >= s.lv && eq?.id !== s.id) scr.action("장착", () => { SK.equip(p, s.id); return openSkills(p, w, s.id); });
+    if (d.lv >= s.lv && eq?.id !== s.id) scr.action("§e기본 스킬로 장착", () => { SK.equip(p, s.id, "main"); return openSkills(p, w, s.id); });
+    if (d.lv >= s.lv && eq2?.id !== s.id) scr.action("§d쉬프트 스킬로 장착", () => { SK.equip(p, s.id, "sub"); return openSkills(p, w, s.id); });
     if (d.lv >= s.lv) scr.action("지금 사용", () => { SK.castWeaponSkill(p, s.id); });
   } else {
     scr.select(wc.name, ICON(wc.icon));
@@ -687,5 +692,65 @@ function openRooms(p, sel) {
     return openChat(p, `room:${name}`);
   });
   scr.action("돌아가기", () => openChat(p));
+  return scr.show(p);
+}
+
+// ═════════ 길찾기 (장소 / NPC / 퀘스트 목표) ═════════
+const NAV_FILTERS = [{ id: "all", name: "전체" }, { id: "wp", name: "장소" }, { id: "npc", name: "NPC" }, { id: "quest", name: "퀘스트 목표" }];
+
+function navEntries(p) {
+  const out = [];
+  for (const [id, w] of Object.entries(WP.waypoints())) {
+    out.push({ kind: "wp", id, name: w.name, sub: w.cat, desc: w.desc, t: { x: w.x + 0.5, y: w.y, z: w.z + 0.5, dim: w.dim, label: w.name }, icon: "nav" });
+  }
+  for (const [id, r] of Object.entries(npcRegistry())) {
+    if (r.x === undefined) continue;
+    out.push({ kind: "npc", id, name: r.name, sub: r.kind === "combat" ? "전투 NPC" : "NPC", t: { x: r.x + 0.5, y: r.y, z: r.z + 0.5, dim: r.dim, label: r.name }, icon: "npc" });
+  }
+  for (const qid of Q.priority(p)) {
+    const q = Q.getQuest(qid);
+    const t = Q.navTarget(p, q);
+    if (t) out.push({ kind: "quest", id: qid, name: t.label, sub: `퀘스트 · ${q.title}`, t, icon: "quest" });
+  }
+  return out;
+}
+
+export function openNav(p, filter = "all", selKey) {
+  const d = data(p);
+  let list = navEntries(p).filter((x) => filter === "all" || x.kind === filter);
+  list.sort((a, b) => WP.distTo(p, a.t) - WP.distTo(p, b.t));
+  const shown = list.slice(0, 7);
+  const sel = list.find((x) => `${x.kind}:${x.id}` === selKey) ?? shown[0];
+  const scr = new Screen("L", `길찾기 / ${NAV_FILTERS.find((f) => f.id === filter).name}`);
+  for (const x of shown) {
+    const dist = WP.distTo(p, x.t);
+    const active = d.navTo && d.navTo.kind === x.kind && d.navTo.id === x.id;
+    scr.item(`${active ? "§d▶ " : "§f"}${x.name}\n§7${x.sub ?? ""} · ${dist === Infinity ? "다른 차원" : `${Math.round(dist)}m`}`, ICON(x.icon), () => openNav(p, filter, `${x.kind}:${x.id}`), { on: x === sel });
+  }
+  chrome(scr, p, "nav");
+  if (sel) {
+    scr.select(sel.name, ICON(sel.icon));
+    scr.body(rt(
+      `§d§l${sel.sub ?? ""}§r\n`,
+      sel.desc ? `§f${sel.desc}\n` : "",
+      `\n§7방향  ${Q.navText(p, sel.t)}\n§7좌표 §f${Math.floor(sel.t.x)}, ${Math.floor(sel.t.y)}, ${Math.floor(sel.t.z)}\n`,
+      d.navTo ? `\n§7현재 안내 중: §f${WP.manualTarget(p)?.label ?? "-"}` : "",
+    ));
+    if (sel.kind === "quest") {
+      scr.action("이 퀘스트를 최우선으로 (HUD 길 안내)", () => { Q.movePriority(p, sel.id, "top"); WP.stopNav(p); return openNav(p, filter, `${sel.kind}:${sel.id}`); });
+    } else {
+      scr.action("§d길 안내 시작", () => { WP.startNav(p, sel.kind, sel.id); });
+    }
+    if (isAdmin(p)) scr.action("§7(관리자) 순간이동", () => { p.teleport({ x: sel.t.x, y: sel.t.y, z: sel.t.z }); });
+  } else {
+    scr.select("길찾기", ICON("nav"));
+    scr.body("§7등록된 장소가 없습니다.\n\n제작자 도구 > 길찾기에서 장소를 등록하세요.");
+  }
+  if (d.navTo) scr.action("§c길 안내 종료", () => { WP.stopNav(p); return openNav(p, filter, selKey); });
+  scr.action(`분류: ${NAV_FILTERS.find((f) => f.id === filter).name}`, () => {
+    const i = NAV_FILTERS.findIndex((f) => f.id === filter);
+    return openNav(p, NAV_FILTERS[(i + 1) % NAV_FILTERS.length].id);
+  });
+  scr.reopen = () => openNav(p, filter, selKey);
   return scr.show(p);
 }

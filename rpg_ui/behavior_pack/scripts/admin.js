@@ -6,6 +6,8 @@ import { data, save, addXp, addGold, msg, isAdmin } from "./player.js";
 import { CLASSES } from "./classes.js";
 import * as Q from "./quests.js";
 import * as SK from "./skills.js";
+import * as WP from "./waypoints.js";
+import { ItemStack } from "@minecraft/server";
 import { shopList, saveShop } from "./shop.js";
 import { getJSON, setJSON, clone } from "./db.js";
 import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride } from "./itemdb.js";
@@ -17,6 +19,9 @@ const QT = Object.entries(Q.QTYPES);
 
 const TABS = [
   { id: "quest", name: "퀘스트", icon: "quest" },
+  { id: "catalog", name: "퀘스트 일람", icon: "all" },
+  { id: "helper", name: "제작 도움", icon: "skill" },
+  { id: "wp", name: "길찾기", icon: "nav" },
   { id: "npc", name: "NPC", icon: "npc" },
   { id: "shop", name: "상점", icon: "shop" },
   { id: "player", name: "플레이어", icon: "profile" },
@@ -39,7 +44,7 @@ export function openAdmin(p, tab = "quest", sel, page = 0) {
     msg(p, "§c제작자 권한이 없습니다. §7(/tag @s add rpg_admin)");
     return;
   }
-  return { quest: questTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
+  return { quest: questTab, catalog: catalogTab, helper: helperTab, wp: wpTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
 }
 
 // ═════════ 퀘스트 ═════════
@@ -203,6 +208,18 @@ async function addObjective(p, q, back) {
     if (r.canceled) return back();
     o = { t: "collect", id: ns(String(r.formValues[0]).trim()), n: Math.max(1, num(r.formValues[1], 1)), label: String(r.formValues[2]) || undefined };
   } else if (type === "visit") {
+    const wps = Object.entries(WP.waypoints());
+    if (wps.length) {
+      const pick = await new ModalFormData().title("방문 목표").dropdown("장소", ["현재 위치 / 직접 입력", ...wps.map(([, w]) => `${w.name} (${w.cat})`)], 0).show(p);
+      if (pick.canceled) return back();
+      if (pick.formValues[0]) {
+        const [wid, w] = wps[pick.formValues[0] - 1];
+        q.obj.push({ t: "visit", wp: wid, name: w.name, x: w.x, y: w.y, z: w.z, r: 5, dim: w.dim });
+        Q.saveQuest(q);
+        msg(p, `목표 추가: §e${w.name}§r 방문`);
+        return back();
+      }
+    }
     const r = await new ModalFormData()
       .title("방문 목표 (현재 위치 자동 입력)")
       .textField("장소 이름", "예) 마을 광장", "")
@@ -727,4 +744,283 @@ function dataTab(p) {
   scr.select("데이터 관리", ICON("settings"));
   scr.body(`§7퀘스트 ${Q.allQuests().length}개\n§7NPC 등록 ${Object.keys(npcRegistry()).length}개\n§7상점 상품 ${shopList().length}개\n\n§7다른 월드로 퀘스트를 옮길 때 내보내기 → 가져오기를 사용하세요.`);
   return scr.show(p);
+}
+
+// ═════════ 길찾기 (장소 등록) ═════════
+function wpTab(p, selId) {
+  const all = Object.entries(WP.waypoints()).map(([id, w]) => ({ id, ...w }))
+    .sort((a, b) => WP.distTo(p, a) - WP.distTo(p, b));
+  const sel = all.find((w) => w.id === selId) ?? all[0];
+  const scr = new Screen("L", "제작자 도구 / 길찾기");
+  scr.item("§a+ 현재 위치를 장소로 등록", ICON("plus"), () => editWp(p, null));
+  for (const w of all.slice(0, 6)) {
+    const d = WP.distTo(p, w);
+    scr.item(`§f${w.name}\n§7${w.cat} · ${d === Infinity ? "다른 차원" : `${Math.round(d)}m`}`, ICON("nav"), () => wpTab(p, w.id), { on: w === sel });
+  }
+  adminChrome(scr, p, "wp");
+  if (sel) {
+    scr.select(sel.name, ICON("nav"));
+    const usedBy = Q.allQuests().filter((q) => q.obj.some((o) => o.t === "visit" && o.wp === sel.id));
+    scr.body(`§7ID §f${sel.id}\n§7분류 §f${sel.cat}\n§7좌표 §f${sel.x}, ${sel.y}, ${sel.z}\n§7차원 §f${sel.dim.replace("minecraft:", "")}\n\n§7설명\n§f${sel.desc || "-"}\n\n§7방문 목표로 쓰는 퀘스트 §f${usedBy.length}개${usedBy.map((q) => `\n §7- §f${q.title}`).join("")}`);
+    scr.action("편집", () => editWp(p, sel.id));
+    scr.action("내 위치로 옮기기", () => {
+      const l = p.location;
+      WP.saveWaypoint(sel.id, { ...WP.waypoints()[sel.id], x: Math.floor(l.x), y: Math.floor(l.y), z: Math.floor(l.z), dim: p.dimension.id });
+      return wpTab(p, sel.id);
+    });
+    scr.action("이동", () => { p.teleport({ x: sel.x + 0.5, y: sel.y, z: sel.z + 0.5 }); return wpTab(p, sel.id); });
+    scr.action("§c삭제", () => confirm(p, `'${sel.name}' 장소를 삭제할까요?`, () => { WP.deleteWaypoint(sel.id); return wpTab(p); }, () => wpTab(p, sel.id)));
+  } else {
+    scr.select("길찾기", ICON("nav"));
+    scr.body("§7등록된 장소가 없습니다.\n\n장소를 등록하면\n- 플레이어 메뉴 > 길찾기에 표시\n- 퀘스트 '방문' 목표에서 바로 선택\n- HUD 화살표/파티클 길 안내");
+  }
+  scr.reopen = () => wpTab(p, selId);
+  return scr.show(p);
+}
+
+async function editWp(p, id) {
+  const cur = id ? WP.waypoints()[id] : null;
+  const l = p.location;
+  const r = await new ModalFormData()
+    .title(cur ? `장소 편집 - ${cur.name}` : "새 장소 (현재 위치)")
+    .textField("이름", "예) 시작의 마을 광장", cur?.name ?? "")
+    .dropdown("분류", WP.WP_CATS, Math.max(0, WP.WP_CATS.indexOf(cur?.cat ?? "기타")))
+    .textField("설명 (선택)", "", cur?.desc ?? "")
+    .show(p);
+  if (r.canceled || !String(r.formValues[0]).trim()) return wpTab(p, id);
+  const nid = id ?? WP.newWaypointId();
+  WP.saveWaypoint(nid, {
+    name: String(r.formValues[0]).trim(), cat: WP.WP_CATS[r.formValues[1]], desc: String(r.formValues[2]),
+    x: cur?.x ?? Math.floor(l.x), y: cur?.y ?? Math.floor(l.y), z: cur?.z ?? Math.floor(l.z), dim: cur?.dim ?? p.dimension.id,
+  });
+  return wpTab(p, nid);
+}
+
+// ═════════ 퀘스트 일람 (통계 · 검증 · 연결 구조) ═════════
+const CAT_FILTERS = [{ id: "all", name: "전체" }, { id: "warn", name: "문제 있음" }, ...Object.entries(Q.QTYPES).map(([id, t]) => ({ id, name: t.name }))];
+
+export function validateQuest(q) {
+  const out = [];
+  const reg = npcRegistry();
+  if (!q.obj.length) out.push("목표가 없음");
+  if (q.giver !== "board" && !reg[q.giver]) out.push(`의뢰 NPC '${q.giver}' 없음`);
+  if (q.turnIn === "giver" && q.giver === "board") out.push("게시판 퀘스트인데 '의뢰자에게 보고'");
+  if (q.prereq && !Q.getQuest(q.prereq)) out.push(`선행 퀘스트 '${q.prereq}' 없음`);
+  for (const o of q.obj) {
+    if (o.t === "talk" && !reg[o.npc]) out.push(`대화 대상 NPC '${o.npc}' 없음`);
+    if (o.t === "collect") {
+      try { new ItemStack(o.id, 1); } catch { out.push(`아이템 '${o.id}' 없음`); }
+    }
+    if (o.t === "visit" && o.wp && !WP.waypoints()[o.wp]) out.push("방문 장소가 삭제됨");
+  }
+  if (!q.rw.xp && !q.rw.gold && !(q.rw.items ?? []).length) out.push("보상이 없음");
+  if (!q.enabled) out.push("비활성화됨");
+  return out;
+}
+
+/** 선행 퀘스트 순서로 정렬 (체인 깊이 포함) */
+function chainOrder() {
+  const all = Q.allQuests();
+  const depth = (q, seen = new Set()) => {
+    if (!q.prereq || seen.has(q.id)) return 0;
+    seen.add(q.id);
+    const pq = Q.getQuest(q.prereq);
+    return pq ? depth(pq, seen) + 1 : 0;
+  };
+  const root = (q, seen = new Set()) => {
+    const pq = q.prereq && !seen.has(q.id) && Q.getQuest(q.prereq);
+    seen.add(q.id);
+    return pq ? root(pq, seen) : q.id;
+  };
+  return all.map((q) => ({ q, d: depth(q), r: root(q) })).sort((a, b) => a.r.localeCompare(b.r) || a.d - b.d);
+}
+
+function catalogTab(p, selId, view = { f: "all", page: 0 }) {
+  if (!view || typeof view !== "object") view = { f: "all", page: 0 };
+  const stats = Q.questStats();
+  let list = chainOrder().map((x) => ({ ...x, warn: validateQuest(x.q) }));
+  if (view.f === "warn") list = list.filter((x) => x.warn.length);
+  else if (view.f !== "all") list = list.filter((x) => (x.q.type ?? "sub") === view.f);
+  const PAGE = 6;
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  const page = Math.min(view.page, pages - 1);
+  const shown = list.slice(page * PAGE, page * PAGE + PAGE);
+  const sel = list.find((x) => x.q.id === selId) ?? shown[0];
+  const re = (id, v = view) => catalogTab(p, id, v);
+  const scr = new Screen("L", `제작자 도구 / 퀘스트 일람 · ${CAT_FILTERS.find((f) => f.id === view.f).name}`);
+  for (const x of shown) {
+    const t = Q.qtype(x.q);
+    const st = stats[x.q.id] ?? { acc: 0, done: 0 };
+    scr.item(`${"  ".repeat(Math.min(3, x.d))}${x.d ? "§7└ " : ""}${x.warn.length ? "§c⚠ " : ""}${t.color}[${t.name}] §f${x.q.title}\n§7수락 ${st.acc} · 완료 ${st.done} · ${x.q.giver === "board" ? "게시판" : x.q.giverName ?? x.q.giver}`, ICON(t.icon), () => re(x.q.id), { on: x === sel });
+  }
+  adminChrome(scr, p, "catalog");
+  scr.chip(ICON("quest"), `${Q.allQuests().length}개`);
+  if (sel) {
+    const q = sel.q;
+    const st = stats[q.id] ?? { acc: 0, done: 0, quit: 0 };
+    const next = Q.allQuests().filter((x) => x.prereq === q.id);
+    scr.select(q.title, ICON(Q.qtype(q).icon));
+    scr.body(rt(
+      `§7ID §f${q.id}\n§7통계 §f수락 ${st.acc} · 완료 ${st.done} · 포기 ${st.quit ?? 0}${st.acc ? ` §7(완료율 ${Math.round((st.done / st.acc) * 100)}%)` : ""}\n`,
+      `§7선행 §f${q.prereq ? Q.getQuest(q.prereq)?.title ?? q.prereq : "없음"}\n§7후속 §f${next.map((x) => x.title).join(", ") || "없음"}\n\n`,
+      sel.warn.length ? `§c§l검증 문제§r\n${sel.warn.map((w) => `§c- ${w}`).join("\n")}\n\n` : "§a§l검증 통과§r\n\n",
+      questDetailBody(p, q),
+    ));
+    scr.action("편집하러 가기", () => questTab(p, q.id));
+    if (q.prereq && Q.getQuest(q.prereq)) scr.action("◀ 선행 퀘스트 보기", () => re(q.prereq));
+    if (next[0]) scr.action("▶ 후속 퀘스트 보기", () => re(next[0].id));
+  } else {
+    scr.select("퀘스트 일람", ICON("quest"));
+    scr.body("§7조건에 맞는 퀘스트가 없습니다.");
+  }
+  scr.action(`필터: ${CAT_FILTERS.find((f) => f.id === view.f).name}`, () => {
+    const i = CAT_FILTERS.findIndex((f) => f.id === view.f);
+    return re(undefined, { f: CAT_FILTERS[(i + 1) % CAT_FILTERS.length].id, page: 0 });
+  });
+  if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => re(undefined, { ...view, page: (page + 1) % pages }));
+  scr.reopen = () => re(selId);
+  return scr.show(p);
+}
+
+// ═════════ 퀘스트 제작 도움 (템플릿 · 연속 퀘스트 · 일괄 편집 · 보상 추천) ═════════
+/** 추천 보상: 레벨과 목표 수/양 기반 */
+export function suggestReward(lv, objs) {
+  const work = objs.reduce((n, o) => n + (o.t === "kill" || o.t === "collect" ? Math.min(o.n, 64) / 4 + 1 : 2), 0);
+  return { xp: Math.round((20 + lv * 15) * Math.max(1, work) / 2), gold: Math.round((10 + lv * 6) * Math.max(1, work) / 2) };
+}
+
+const TEMPLATES = [
+  { id: "hunt", name: "사냥 의뢰", desc: "몹 N마리 처치 → (선택) 의뢰 NPC에게 보고" },
+  { id: "gather", name: "수집 의뢰", desc: "아이템 N개 모아서 제출" },
+  { id: "errand", name: "심부름", desc: "NPC A와 대화 → 장소 방문 → NPC B와 대화" },
+  { id: "daily", name: "일일 사냥", desc: "매일 초기화되는 몬스터 토벌" },
+  { id: "chain", name: "연속 퀘스트 (3단계)", desc: "대화 → 처치 → 보고, 선행 퀘스트 자동 연결" },
+];
+
+function helperTab(p) {
+  const scr = new Screen("L", "제작자 도구 / 제작 도움");
+  for (const t of TEMPLATES) scr.item(`§f${t.name}\n§7${t.desc}`, ICON("quest"), () => fromTemplate(p, t.id));
+  adminChrome(scr, p, "helper");
+  scr.select("퀘스트 제작 도움", ICON("skill"));
+  scr.body(
+    "§e§l템플릿§r\n§f빈칸만 채우면 퀘스트가 완성됩니다.\n§7- 바라보는 몹 / 손에 든 아이템 / 현재 위치 자동 입력\n§7- 레벨에 맞는 보상 자동 추천\n\n" +
+    "§e§l다른 도구§r\n§f- 퀘스트 연결: 선행 관계 한 번에 지정\n- 일괄 편집: 여러 퀘스트 종류/지역/활성 변경\n- 퀘스트 일람: 검증·통계·연결 구조",
+  );
+  scr.action("퀘스트 연결 (선행 지정)", () => linkQuests(p));
+  scr.action("일괄 편집", () => bulkEdit(p));
+  scr.action("퀘스트 일람 열기", () => catalogTab(p));
+  return scr.show(p);
+}
+
+async function fromTemplate(p, tid) {
+  const look = p.getEntitiesFromViewDirection({ maxDistance: 16 })[0]?.entity;
+  const held = inv(p).getItem(p.selectedSlotIndex);
+  const givers = giverOptions();
+  const reg = Object.entries(npcRegistry());
+  const wps = Object.entries(WP.waypoints());
+  const back = () => helperTab(p);
+  const f = new ModalFormData().title(`템플릿 - ${TEMPLATES.find((t) => t.id === tid).name}`).textField("제목", "", "").textField("설명", "", "");
+  if (tid === "hunt" || tid === "daily" || tid === "chain") {
+    f.textField("처치 대상 몹 ID (* = 아무 몬스터)", "", tid === "daily" ? "*" : look && look.typeId !== "minecraft:player" ? look.typeId : "minecraft:zombie").textField("수량", "", tid === "daily" ? "20" : "10");
+  }
+  if (tid === "gather") f.textField("아이템 ID", "", held?.typeId ?? "minecraft:wheat").textField("수량", "", String(held?.amount ?? 16));
+  if (tid === "errand") {
+    if (reg.length < 1) { msg(p, "§c등록된 NPC가 필요합니다."); return back(); }
+    f.dropdown("처음 대화할 NPC", reg.map(([id, r]) => `${r.name} (${id})`), 0)
+      .dropdown("방문할 장소", ["현재 위치", ...wps.map(([, w]) => w.name)], 0)
+      .dropdown("마지막으로 대화할 NPC", reg.map(([id, r]) => `${r.name} (${id})`), Math.min(1, reg.length - 1));
+  }
+  f.dropdown("의뢰자", givers.map((g) => g.name), tid === "chain" && givers.length > 1 ? 1 : 0)
+    .textField("최소 레벨", "", "1")
+    .textField("지역 (선택)", "", "")
+    .toggle("보상 자동 추천", true);
+  const r = await f.show(p);
+  if (r.canceled) return back();
+  const v = r.formValues;
+  const title = String(v[0]).trim() || TEMPLATES.find((t) => t.id === tid).name;
+  const desc = String(v[1]);
+  let i = 2;
+  const mk = (extra) => Object.assign(Q.blankQuest(Q.newQuestId()), { title, desc }, extra);
+  const quests = [];
+  if (tid === "hunt" || tid === "daily" || tid === "chain") {
+    const target = ns(String(v[i++]).trim()), n = Math.max(1, num(v[i++], 10));
+    if (tid === "chain") {
+      quests.push(mk({ title: `${title} (1/3)`, obj: [] }), mk({ title: `${title} (2/3)`, obj: [{ t: "kill", id: target, n }] }), mk({ title: `${title} (3/3)`, obj: [] }));
+    } else quests.push(mk({ type: tid === "daily" ? "daily" : "sub", obj: [{ t: "kill", id: target, n }] }));
+  } else if (tid === "gather") {
+    quests.push(mk({ obj: [{ t: "collect", id: ns(String(v[i++]).trim()), n: Math.max(1, num(v[i++], 1)) }] }));
+  } else if (tid === "errand") {
+    const a = reg[v[i++]], wi = v[i++], b = reg[v[i++]];
+    const l = p.location;
+    const visit = wi ? { t: "visit", wp: wps[wi - 1][0], name: wps[wi - 1][1].name, x: wps[wi - 1][1].x, y: wps[wi - 1][1].y, z: wps[wi - 1][1].z, r: 5, dim: wps[wi - 1][1].dim }
+      : { t: "visit", name: "목적지", x: Math.floor(l.x), y: Math.floor(l.y), z: Math.floor(l.z), r: 5, dim: p.dimension.id };
+    quests.push(mk({ obj: [{ t: "talk", npc: a[0], npcName: a[1].name }, visit, { t: "talk", npc: b[0], npcName: b[1].name }] }));
+  }
+  const gi = v[i++], minLv = Math.max(1, num(v[i++], 1)), region = String(v[i++]).trim(), auto = v[i++];
+  const giver = givers[gi];
+  quests.forEach((q, k) => {
+    q.id = Q.newQuestId(); // 하나씩 저장하므로 매번 새 ID
+    q.giver = giver.id;
+    q.giverName = giver.id === "board" ? undefined : npcRegistry()[giver.id]?.name;
+    q.turnIn = giver.id === "board" ? "auto" : "giver";
+    q.minLv = minLv;
+    q.region = region;
+    if (tid === "chain") {
+      q.type = "main";
+      if (k === 0 || k === 2) q.obj = giver.id === "board" ? [{ t: "visit", name: "의뢰 장소", x: Math.floor(p.location.x), y: Math.floor(p.location.y), z: Math.floor(p.location.z), r: 5, dim: p.dimension.id }] : [{ t: "talk", npc: giver.id, npcName: q.giverName }];
+      if (k > 0) q.prereq = quests[k - 1].id;
+    }
+    if (auto) q.rw = { ...suggestReward(minLv, q.obj), items: [] };
+    Q.saveQuest(q);
+  });
+  msg(p, `§a퀘스트 ${quests.length}개 생성: §f${quests.map((q) => q.title).join(", ")}`);
+  return catalogTab(p, quests[0].id);
+}
+
+async function linkQuests(p) {
+  const all = Q.allQuests();
+  if (all.length < 2) { msg(p, "§c퀘스트가 2개 이상 필요합니다."); return helperTab(p); }
+  const r = await new ModalFormData()
+    .title("퀘스트 연결")
+    .dropdown("먼저 깨야 하는 퀘스트 (선행)", ["(선행 없음으로 만들기)", ...all.map((q) => q.title)], 1)
+    .dropdown("그 다음 퀘스트", all.map((q) => q.title), 1)
+    .show(p);
+  if (!r.canceled) {
+    const after = all[r.formValues[1]];
+    after.prereq = r.formValues[0] ? all[r.formValues[0] - 1].id : "";
+    if (after.prereq === after.id) after.prereq = "";
+    Q.saveQuest(after);
+    msg(p, `§a연결됨: §f${after.prereq ? Q.getQuest(after.prereq).title : "없음"} → ${after.title}`);
+  }
+  return helperTab(p);
+}
+
+async function bulkEdit(p) {
+  const types = Object.entries(Q.QTYPES);
+  const givers = giverOptions();
+  const r = await new ModalFormData()
+    .title("일괄 편집")
+    .dropdown("대상: 의뢰자", ["모두", ...givers.map((g) => g.name)], 0)
+    .dropdown("대상: 종류", ["모두", ...types.map(([, t]) => t.name)], 0)
+    .dropdown("바꿀 종류", ["그대로", ...types.map(([, t]) => t.name)], 0)
+    .textField("바꿀 지역 (비우면 그대로)", "", "")
+    .dropdown("활성 상태", ["그대로", "모두 활성화", "모두 비활성화"], 0)
+    .textField("보상 배율 % (100 = 그대로)", "", "100")
+    .show(p);
+  if (r.canceled) return helperTab(p);
+  const [gi, ti, nt, region, en, mul] = r.formValues;
+  const m = Math.max(0, num(mul, 100)) / 100;
+  let n = 0;
+  for (const q of Q.allQuests()) {
+    if (gi && q.giver !== givers[gi - 1].id) continue;
+    if (ti && (q.type ?? "sub") !== types[ti - 1][0]) continue;
+    if (nt) q.type = types[nt - 1][0];
+    if (String(region).trim()) q.region = String(region).trim();
+    if (en) q.enabled = en === 1;
+    if (m !== 1) q.rw = { ...q.rw, xp: Math.round(q.rw.xp * m), gold: Math.round(q.rw.gold * m) };
+    Q.saveQuest(q);
+    n++;
+  }
+  msg(p, `§a퀘스트 ${n}개 수정됨`);
+  return helperTab(p);
 }

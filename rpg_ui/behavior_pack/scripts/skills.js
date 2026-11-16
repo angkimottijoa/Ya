@@ -111,20 +111,30 @@ export function heldClass(p) {
   return w ?? "fist";
 }
 
-// ───────── 장착 / 쿨다운 ─────────
-export function equipped(p, w) {
+// ───────── 장착 (무기 분류마다 기본 / 쉬프트 두 칸) / 쿨다운 ─────────
+//   기본 스킬: 웅크리고 공격, HUD [스킬] 버튼
+//   쉬프트 스킬: 웅크린 상태로 HUD [스킬] 버튼
+export function equipped(p, w, slot = "main") {
   const d = data(p);
-  const sel = d.skills?.[w];
-  const s = getSkill(sel);
+  const key = slot === "sub" ? "skills2" : "skills";
+  const s = getSkill(d[key]?.[w]);
   if (s && s.w === w && d.lv >= s.lv) return s;
-  return skillsOf(w).find((x) => d.lv >= x.lv) ?? skillsOf(w)[0];
+  const open = skillsOf(w).filter((x) => d.lv >= x.lv);
+  if (slot === "sub") {
+    const main = equipped(p, w, "main");
+    return open.find((x) => x.id !== main?.id) ?? null;
+  }
+  return open[0] ?? skillsOf(w)[0];
 }
 
-export function equip(p, id) {
+export function equip(p, id, slot = "main") {
   const s = getSkill(id);
   const d = data(p);
-  d.skills = d.skills ?? {};
-  d.skills[s.w] = id;
+  const key = slot === "sub" ? "skills2" : "skills";
+  const other = slot === "sub" ? "skills" : "skills2";
+  d[key] = d[key] ?? {};
+  d[key][s.w] = id;
+  if (d[other]?.[s.w] === id) delete d[other][s.w]; // 같은 스킬을 두 칸에 두지 않음
   save(p);
 }
 
@@ -135,8 +145,10 @@ export function readyIn(p, id) {
 
 /** HUD 표시용: 손에 든 무기의 장착 스킬 */
 export function currentSkillInfo(p) {
-  const s = equipped(p, heldClass(p));
-  return { skill: s, left: s ? readyIn(p, s.id) : 0 };
+  const w = heldClass(p);
+  const s = equipped(p, w);
+  const s2 = equipped(p, w, "sub");
+  return { skill: s, left: s ? readyIn(p, s.id) : 0, sub: s2, left2: s2 ? readyIn(p, s2.id) : 0 };
 }
 
 // ───────── 발동 ─────────
@@ -186,10 +198,13 @@ function power(p, s) {
   return base * s.pow * statMul * buff * cls;
 }
 
-export function castWeaponSkill(p, id) {
+export function castWeaponSkill(p, id, slot = "main") {
   const d = data(p);
-  const s = id ? getSkill(id) : equipped(p, heldClass(p));
-  if (!s) return false;
+  const s = id ? getSkill(id) : equipped(p, heldClass(p), slot);
+  if (!s) {
+    notify(p, "§7쉬프트 스킬이 비어 있습니다 §f(메뉴 > 스킬에서 장착)");
+    return false;
+  }
   if (d.lv < s.lv) {
     notify(p, `§7${s.name} §c- Lv.${s.lv} 필요`);
     return false;

@@ -26,8 +26,6 @@
       },
       "animations": {
         "look_at_target": "animation.humanoid.look_at_target.default",
-        "move": "animation.humanoid.move",
-        "attack": "animation.humanoid.attack.rotations",
         "talk": "animation.rpg_npc.talk",
         "wave": "animation.rpg_npc.wave",
         "cross_arms": "animation.rpg_npc.cross_arms",
@@ -40,21 +38,8 @@
         "dance": "animation.rpg_npc.dance"
       },
       "scripts": {
-        "pre_animation": [
-          "v.tcos0 = (math.cos(q.modified_distance_moved * 38.17) * q.modified_move_speed / v.gliding_speed_value) * 57.3;",
-          "v.attack_time = q.attack_time;"
-        ],
-        "initialize": [
-          "v.gliding_speed_value = 1.0;"
-        ],
         "animate": [
           "look_at_target",
-          {
-            "move": "q.modified_move_speed > 0.01"
-          },
-          {
-            "attack": "v.attack_time > 0"
-          },
           {
             "talk": "q.property('rpg:talk')"
           },

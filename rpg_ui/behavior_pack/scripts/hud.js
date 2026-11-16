@@ -10,6 +10,7 @@ import { combatStats } from "./combat.js";
 import { currentSkillInfo } from "./skills.js";
 import { unreadCount } from "./chat.js";
 import { rt } from "./ui.js";
+import { manualTarget } from "./waypoints.js";
 
 const sent = new Map(); // pid -> { q, card, bar, flip }
 
@@ -22,13 +23,14 @@ export function card(p) {
   const d = data(p);
   if (!d.set.card) return "[CARD]";
   const c = CLASSES[d.cls] ?? CLASSES.novice;
-  const { skill, left } = currentSkillInfo(p);
+  const { skill, left, sub, left2 } = currentSkillInfo(p);
+  const sk = (s, l, key) => (s ? (l > 0 ? `§7${key} ${s.name} §f${Math.ceil(l)}s` : `§b${key} §l${s.name}`) : "");
   const unread = unreadCount(p);
   const s = combatStats(p);
   const lines = [
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
-    skill ? (left > 0 ? `§7${skill.name} §f${Math.ceil(left)}s` : `§b§l${skill.name} 준비`) : "",
+    [sk(skill, left, "스킬"), sk(sub, left2, "⇧")].filter(Boolean).join("§r  "),
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,
   ];
@@ -74,10 +76,12 @@ export function questText(p) {
   if (!d.set.quest) return rt("quest:");
   if (d.customQuestText) return rt("quest:", d.customQuestText);
   const parts = [];
+  const man = d.set.nav !== false ? manualTarget(p) : null;
+  if (man) parts.push("§d§l[길찾기] §r", navText(p, man), "\n");
   const list = priority(p).filter((id) => !d.q.hide?.[id]).slice(0, 3);
   list.forEach((id, n) => {
     const q = getQuest(id);
-    if (n === 0 && d.set.nav !== false) {
+    if (n === 0 && d.set.nav !== false && !man) {
       const nav = navText(p, navTarget(p, q));
       if (nav) parts.push(nav, "\n");
     }
@@ -120,8 +124,7 @@ export function navParticles(p) {
   const d = data(p);
   if (d.set.nav === false || d.set.navFx === false) return;
   const id = priority(p).find((x) => !d.q.hide?.[x]);
-  if (!id) return;
-  const t = navTarget(p, getQuest(id));
+  const t = manualTarget(p) ?? (id ? navTarget(p, getQuest(id)) : null);
   if (!t || t.dim !== p.dimension.id) return;
   const dx = t.x - p.location.x, dy = t.y - p.location.y, dz = t.z - p.location.z;
   const dist = Math.hypot(dx, dy, dz);

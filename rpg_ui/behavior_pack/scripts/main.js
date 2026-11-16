@@ -2,8 +2,9 @@
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { data, save, forget, msg, notify, isAdmin } from "./player.js";
 import { initCombat, castSkill, resetSpeed } from "./combat.js";
-import { initSkillTriggers } from "./skills.js";
+import { initSkillTriggers, castWeaponSkill } from "./skills.js";
 import { registerNpcEntity } from "./npcdb.js";
+import { navTick } from "./waypoints.js";
 import * as Q from "./quests.js";
 import * as HUD from "./hud.js";
 import { openHome, openQuests, openSkills } from "./menu.js";
@@ -54,11 +55,14 @@ system.runInterval(() => {
       p.selectedSlotIndex = back;
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
+      if (cur === SKILL_SLOT) {
+        // HUD [스킬] = 기본 스킬 / 웅크린 채 [스킬] = 쉬프트 스킬
+        castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
+        continue;
+      }
       // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)
       system.runTimeout(() => {
-        if (!p.isValid()) return;
-        if (cur === MENU_SLOT) openHome(p);
-        else openSkills(p);
+        if (p.isValid()) openHome(p);
       }, 6);
     } else {
       lastSlot.set(p.id, cur);
@@ -74,7 +78,7 @@ world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
     if (p.isSneaking) castSkill(p);
     else system.run(() => openHome(p));
   } else if (itemStack.typeId === "rpg:skill") {
-    if (!throttled(p)) system.run(() => openSkills(p));
+    if (!throttled(p)) castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
   } else if (itemStack.typeId === "rpg:quest_tool") {
     if (throttled(p)) return;
     system.run(() => openAdmin(p));
@@ -148,6 +152,7 @@ system.runInterval(() => {
   for (const p of world.getAllPlayers()) {
     try {
       Q.tick(p);
+      navTick(p);
       HUD.navParticles(p);
       if (n % 5 === 0) ensureMenuItem(p);
     } catch (e) {

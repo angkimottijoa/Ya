@@ -103,6 +103,16 @@ function seedDemo() {
   for (const q of demo) saveQuest(q);
 }
 
+// ───────── 통계 (퀘스트 일람용) ─────────
+let stats = null;
+export const questStats = () => (stats ??= getJSON(world, "rpg:qstats", {}));
+function countStat(id, key) {
+  const s = questStats();
+  s[id] = s[id] ?? { acc: 0, done: 0, quit: 0 };
+  s[id][key]++;
+  setJSON(world, "rpg:qstats", s);
+}
+
 // ───────── 판정 ─────────
 export function objTarget(o) {
   if (o.label) return { text: o.label };
@@ -182,6 +192,7 @@ export function accept(p, id) {
   if (q.type === "main") d.q.track.unshift(id);
   else d.q.track.push(id);
   save(p);
+  countStat(id, "acc");
   p.playSound("random.pop", { pitch: 0.8 });
   notify(p, `§e§l퀘스트 수락 §r§f${q.title}`);
   checkAutoComplete(p, q);
@@ -190,6 +201,7 @@ export function accept(p, id) {
 
 export function abandon(p, id) {
   const d = data(p);
+  if (d.q.a[id]) countStat(id, "quit");
   delete d.q.a[id];
   d.q.track = d.q.track.filter((t) => t !== id);
   save(p);
@@ -278,6 +290,7 @@ export function turnIn(p, id) {
   delete d.q.a[id];
   d.q.d[id] = (d.q.d[id] ?? 0) + 1;
   if (q.type === "daily") (d.q.dd = d.q.dd ?? {})[id] = today();
+  countStat(id, "done");
   d.q.track = d.q.track.filter((t) => t !== id);
   save(p);
   addGold(p, q.rw.gold ?? 0);

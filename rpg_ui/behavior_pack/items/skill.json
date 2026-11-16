@@ -3,15 +3,22 @@
   "minecraft:item": {
     "description": {
       "identifier": "rpg:skill",
-      "menu_category": { "category": "items" }
+      "menu_category": {
+        "category": "items"
+      }
     },
     "components": {
       "minecraft:icon": "rpg_skill",
-      "minecraft:display_name": { "value": "§b직업 스킬 §7(사용 / HUD [스킬] 버튼)" },
+      "minecraft:display_name": {
+        "value": "§b스킬 버튼 칸 §7(HUD [스킬] 버튼용 · 쉬프트+[스킬] = 보조 스킬)"
+      },
       "minecraft:max_stack_size": 1,
       "minecraft:glint": true,
       "minecraft:allow_off_hand": false,
-      "minecraft:use_modifiers": { "use_duration": 0.05, "movement_modifier": 1.0 }
+      "minecraft:use_modifiers": {
+        "use_duration": 0.05,
+        "movement_modifier": 1.0
+      }
     }
   }
 }
