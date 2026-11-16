@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V3.1.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V3.2.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,13 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V3.2 변경 — 청룡의 검 강화
+- ③ 청룡 강림 재구성: 머리 위에 먹구름 → 청룡이 몸에서 솟아 구름 아래를 한 바퀴 → 길게 내려와 땅속으로 파고듦(물보라 고리) → 구름에서 번개 3번 (약 5초)
+- ④ 청룡 · 천룡추 (쉬프트 두 번): 돌진하며 검기 2발 → 솟구쳐 큰 청룡 그림 → 함께 내리꽂기 → 하늘에서 번개
+  - 큰 청룡은 사용자 그림(`art/cheongryong_ref.png`)을 `gen_dragonhead.py` 로 배경 제거·뒤집기·축소(200x101) →
+    파티클이 픽셀마다 그 색 그대로 점을 찍음 (투명 픽셀은 안 찍혀 색 영역이 그대로 유지)
+- 스킬 무기 발동 키 ④ "쉬프트 두 번" 추가 (8틱 안에 두 번)
 
 ## V3.1 변경 — 청룡의 검 (직업과 상관없는 스킬 검)
 - 아이템 `rpg:cheongryong_sword` (상점 30000G / 제작자 도구 > 플레이어 > 청룡의 검 지급 / `/give @s rpg:cheongryong_sword`)

@@ -289,6 +289,21 @@ export function castKey(p, key) {
 }
 
 const jumpWas = new Map();
+const sneakWas = new Map();
+const sneakEdge = new Map(); // pid -> 마지막으로 쉬프트를 누른 틱
+/** 스킬 무기: 쉬프트를 짧게 두 번 누르면 ④ */
+function doubleSneakTick(p, sneak) {
+  const was = sneakWas.get(p.id) ?? false;
+  sneakWas.set(p.id, sneak);
+  if (!sneak || was) return;
+  const now = system.currentTick, last = sneakEdge.get(p.id) ?? -99;
+  sneakEdge.set(p.id, now);
+  if (now - last <= 8) {
+    sneakEdge.set(p.id, -99);
+    const ws = heldWeaponSkills(p);
+    if (ws?.some((s) => s.key === 4)) castKey(p, 4);
+  }
+}
 /** 매 틱: 직업 도구를 들고 쉬프트 중 점프를 '새로' 누르면 ③ */
 export function skillJumpTick(p) {
   let jumping = false, sneak = false;
@@ -301,6 +316,7 @@ export function skillJumpTick(p) {
   const was = jumpWas.get(p.id) ?? false;
   jumpWas.set(p.id, jumping);
   if (jumping && !was && sneak && (heldPath(p) || heldWeaponSkills(p))) castKey(p, 3);
+  doubleSneakTick(p, sneak);
 }
 
 export function initSkillTriggers() {

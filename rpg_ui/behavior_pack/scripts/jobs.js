@@ -142,8 +142,8 @@ export function skillAt(path, key) {
   const l = allJobSkills().filter((s) => s.path === path && s.enabled !== false && (s.key ?? 1) === key);
   return l.find((s) => s.custom) ?? l[0] ?? null;
 }
-export const KEY_NAMES = ["", "클릭", "쉬프트+클릭", "쉬프트+점프"];
-export const KEY_ICONS = ["", "①", "②", "③"];
+export const KEY_NAMES = ["", "클릭", "쉬프트+클릭", "쉬프트+점프", "쉬프트 두 번"];
+export const KEY_ICONS = ["", "①", "②", "③", "④"];
 
 // ───────── 직업 전용 도구 ─────────
 export const toolId = (path) => `rpg:jt_${path}`;

@@ -77,21 +77,63 @@ HEAD = [
 ]
 
 
-def head_expr():
-    n = len(HEAD)
+# 큰 청룡 머리 (④ 스킬): 길이 약 6블록. 물 갈기는 들쭉날쭉한 가시, 아래턱을 크게 벌림.
+#  (선분 시작, 끝, 두께 w) — 두께 안을 무작위로 채워 덩어리감
+def _zig(pts, w, top=None, bottom=None):
+    # top/bottom: 갈기 가시 높이를 기준선 쪽으로 줄이는 비율
+    if top:
+        pts = [(x, 1.2 + (y - 1.2) * top if y > 1.2 else y) for x, y in pts]
+    if bottom:
+        pts = [(x, -0.3 + (y + 0.3) * bottom if y < -0.3 else y) for x, y in pts]
+    return [(pts[i], pts[i + 1], w) for i in range(len(pts) - 1)]
+HEAD2 = (
+    # 윗주둥이 윗선 + 코끝 혹
+    _zig([(0.0, 1.2), (1.2, 1.15), (2.4, 1.0), (3.6, 0.72), (4.6, 0.46), (5.2, 0.3), (5.45, 0.55), (5.05, 0.75), (4.5, 0.62)], 0.55)
+    # 윗턱 이빨 (지그재그)
+    + _zig([(5.2, 0.22), (4.8, -0.08), (4.6, 0.14), (4.3, -0.12), (4.1, 0.12), (3.75, -0.12), (3.5, 0.08), (3.1, -0.1), (2.7, 0.06), (2.1, 0.1)], 0.45)
+    # 크게 벌린 아래턱 바깥선
+    + _zig([(1.9, -0.25), (2.8, -0.95), (3.8, -1.6), (4.5, -2.05), (4.75, -1.85), (4.4, -1.6)], 0.45)
+    # 아래턱 안쪽 이빨
+    + _zig([(4.4, -1.6), (4.0, -1.25), (3.85, -1.45), (3.5, -1.05), (3.3, -1.2), (2.9, -0.8), (2.6, -0.85), (2.2, -0.45)], 0.35)
+    # 눈 (마름모) + 눈썹
+    + _zig([(2.15, 0.72), (2.6, 0.98), (3.05, 0.74), (2.6, 0.56), (2.15, 0.72)], 0.62)
+    + _zig([(1.7, 1.02), (2.5, 1.32), (3.3, 1.02)], 0.6)
+    # 볼 / 얼굴 안쪽 결
+    + _zig([(1.0, 0.65), (2.0, 0.45), (3.9, 0.36)], 0.5) + _zig([(0.8, 0.15), (1.9, 0.12), (3.0, 0.22)], 0.5)
+    # 물 갈기: 머리 위·뒤로 들쭉날쭉 (흰 물보라)
+    + _zig([(1.4, 1.2), (0.9, 2.1), (0.6, 1.35), (-0.1, 2.75), (-0.2, 1.5), (-1.0, 3.0), (-0.9, 1.6), (-1.9, 2.8), (-1.7, 1.45),
+            (-2.7, 2.35), (-2.4, 1.15), (-3.5, 1.75), (-3.0, 0.85), (-4.2, 1.1), (-3.6, 0.5)], 0.32, top=0.65)
+    # 턱 아래 갈기
+    + _zig([(1.8, -0.35), (1.1, -1.5), (0.8, -0.6), (0.0, -1.9), (-0.1, -0.7), (-1.0, -1.7), (-1.0, -0.4), (-2.0, -1.3), (-1.9, -0.2)], 0.3, bottom=0.65)
+    # 뒤로 흐르는 목 물결 + 수염
+    + _zig([(-3.6, 0.5), (-5.0, 0.25), (-6.6, 0.1)], 0.45) + _zig([(-1.9, -0.2), (-3.6, -0.55), (-5.6, -0.4)], 0.45)
+    + _zig([(5.0, 0.35), (5.7, -0.35), (5.5, -1.2), (5.0, -1.6)], 0.15)
+)
+
+
+def head_expr(H=None, fill=False):
+    H = H or HEAD
+    n = len(H)
     k = f"math.floor({R1} * {n})"
     f = f"({R1} * {n} - {k})"
     side = f"({R2} > 0.5 ? 1 : -1)"
 
     def sel(fn):
         e = "0"
-        for i in reversed(range(n)):
-            e = f"({k} < {i + 1} ? ({fn(HEAD[i])}) : {e})"
+        # 이분 탐색 형태로 중첩 (깊이 log n)
+        def rec(lo, hi):
+            if hi - lo == 1:
+                return f"({fn(H[lo])})"
+            mid = (lo + hi) // 2
+            return f"({k} < {mid} ? {rec(lo, mid)} : {rec(mid, hi)})"
+        e = rec(0, n)
         return e
     lx = sel(lambda s: f"{s[0][0]} + ({s[1][0]} - {s[0][0]}) * {f}")
     ly = sel(lambda s: f"{s[0][1]} + ({s[1][1]} - {s[0][1]}) * {f}")
     lz = sel(lambda s: f"{s[2]}")
     jit = f"({R4} - 0.5) * 0.12"
+    if fill:
+        side = f"({R2} * 2 - 1)"
     lx, ly, lz = f"(({lx}) * variable.scale + {jit})", f"(({ly}) * variable.scale + {jit})", f"(({lz}) * {side} * variable.scale)"
     # pitch 회전 (위아래 기울기) → yaw 회전. 로컬 x = 진행 방향
     cp, sp = "math.cos(variable.pitch)", "math.sin(variable.pitch)"
@@ -179,6 +221,37 @@ def main():
         "minecraft:particle_motion_dynamic": {},
         **dust_look("0.13", tone=f"{R3} * 0.35"),
     })
+    # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
+    IW, IH, CX, CY = 200, 101, 150, 42
+    px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
+    S = "(variable.scale * 0.055)"
+    lx, ly, lz = f"(({px} - {CX}) * {S})", f"(({CY} - {py}) * {S})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
+    cp, sp = "math.cos(variable.pitch)", "math.sin(variable.pitch)"
+    fx, fy = f"({lx} * {cp} - {ly} * {sp})", f"({lx} * {sp} + {ly} * {cp})"
+    part("cr_bighead", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"(-{fx} * math.sin(variable.yaw) + {lz} * math.cos(variable.yaw))", fy,
+                                                     f"({fx} * math.cos(variable.yaw) + {lz} * math.sin(variable.yaw))"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"{S} * 0.75", f"{S} * 0.75"], "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": IW, "texture_height": IH, "uv": [px, py], "uv_size": [1, 1]}},
+    }, tex="textures/particle/rpg_cr_dragonhead")
+    # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
+    part("cr_cloud", {
+        **steady("variable.r * 40", "variable.life", f"1.6 + {R4} * 1.2", 900),
+        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "offset": [0, f"({R3} - 0.5) * 1.4", 0],
+                                         "direction": [f"({R1} - 0.5)", f"({R2} - 0.5) * 0.4", f"({R3} - 0.5)"]},
+        "minecraft:particle_initial_speed": f"0.2 + {R1} * 0.4",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 0.6},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"(1.4 + {R3} * 1.6) * (0.6 + math.sin({AGE} * 180) * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.2 + {R1} * 0.14", f"0.22 + {R1} * 0.15", f"0.3 + {R1} * 0.16", f"math.sin({AGE} * 180) * 0.9"]},
+    }, material="particles_blend")
     item()
     print("cheongryong particles + item ok")
 
