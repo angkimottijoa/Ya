@@ -34,8 +34,8 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)",
-     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)"
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.095 : 0.14 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)",
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.095 : 0.14 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {

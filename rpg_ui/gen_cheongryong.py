@@ -503,7 +503,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.size * ({core} ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - {AGE} * 0.5) * (math.sin(variable.particle_age * 2600 + {R2} * 360) > -0.35 ? 1 : 0.5)"] * 2,
+            "size": [f"variable.size * ({core} ? 0.095 : 0.14 * (0.6 + variable.thick * 0.4)) * (1 - {AGE} * 0.5) * (math.sin(variable.particle_age * 2600 + {R2} * 360) > -0.35 ? 1 : 0.5)"] * 2,
             "facing_camera_mode": "lookat_xyz", "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
         # 흰 동그라미 + 연한 하늘색 (영혼 불꽃 같은 색)
         "minecraft:particle_appearance_tinting": {"color": [f"{core} ? 1 : 0.62 + {R4} * 0.18", f"{core} ? 1 : 0.9 + {R4} * 0.08", "1", "1"]},

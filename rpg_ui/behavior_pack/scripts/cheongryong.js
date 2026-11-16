@@ -150,13 +150,30 @@ function whirlpool(ctx) {
 function volt(dim, a, b, o = {}) {
   const d = sub(b, a), len = Math.hypot(d.x, d.y, d.z) || 0.01, u = { x: d.x / len, y: d.y / len, z: d.z / len };
   const v = norm(Math.abs(u.y) > 0.9 ? cross(u, { x: 1, y: 0, z: 0 }) : cross(u, { x: 0, y: 1, z: 0 })), w = cross(u, v);
-  const amp = o.amp ?? Math.min(2.4, 0.35 + len * 0.13), size = o.size ?? 1, life = o.life ?? 0.22;
-  pt(dim, "cr_volt", a, { u, v, w, r: len, amp, seed: Math.random() * 1000, n: Math.min(600, Math.round(len * 34 * size + 20)), life, size, thick: o.thick ?? 1 });
-  const nb = o.branch ?? Math.min(3, Math.floor(len / 3));
+  const amp = (o.amp ?? Math.min(3.4, 0.6 + len * 0.2)) * 1.35, size = (o.size ?? 1) * 1.2, life = (o.life ?? 0.22) * 1.25;
+  const depth = o.depth ?? 0;
+  // 큰 꺾임 꼭짓점은 스크립트가 정함 (곁가지를 정확히 꼭짓점에서 뻗게), 잔 꺾임은 파티클(cr_volt)이 그림
+  const N = Math.max(2, Math.min(7, Math.round(len / 1.6)));
+  const P = [a];
+  for (let k = 1; k < N; k++) {
+    const q = k / N, env = Math.sqrt(Math.sin(q * Math.PI)) * amp;
+    P.push(add(add(add(a, d, q), v, (Math.random() - 0.5) * env), w, (Math.random() - 0.5) * env));
+  }
+  P.push(b);
+  for (let k = 0; k < N; k++) {
+    const sd = sub(P[k + 1], P[k]), sl = Math.hypot(sd.x, sd.y, sd.z) || 0.01, su = { x: sd.x / sl, y: sd.y / sl, z: sd.z / sl };
+    const sv = norm(Math.abs(su.y) > 0.9 ? cross(su, { x: 1, y: 0, z: 0 }) : cross(su, { x: 0, y: 1, z: 0 }));
+    pt(dim, "cr_volt", P[k], { u: su, v: sv, w: cross(su, sv), r: sl, amp: Math.min(0.9, sl * 0.32), seed: Math.random() * 1000, n: Math.round(sl * 40 * size + 6), life, size, thick: o.thick ?? 1 });
+  }
+  // 곁가지: 꼭짓점에서 옆으로 크게 갈라짐 (곁가지의 곁가지도 한 번)
+  const nb = o.branch ?? (depth ? 1 : Math.min(5, 1 + Math.floor(len / 2)));
+  if (depth >= 2) return;
   for (let i = 0; i < nb; i++) {
-    const q = 0.2 + Math.random() * 0.6, st = add(a, d, q);
-    const side = add(add(v, w, Math.random() - 0.5), u, 0.6), bl = len * (0.18 + Math.random() * 0.22);
-    pt(dim, "cr_volt", st, { u: norm(side), v: w, w: v, r: bl, amp: amp * 0.5, seed: Math.random() * 1000, n: Math.round(bl * 28 * size + 8), life: life * 0.8, size: size * 0.7, thick: 0.8 });
+    const st = P[1 + Math.floor(Math.random() * (N - 1))] ?? a;
+    const sgn = Math.random() < 0.5 ? -1 : 1;
+    const dir = norm(add(add(v, w, (Math.random() - 0.5) * 1.4), u, (0.35 + Math.random() * 0.4) * sgn));
+    const bl = Math.max(0.8, len * (0.28 + Math.random() * 0.3));
+    volt(dim, st, add(st, { x: dir.x * sgn, y: dir.y * sgn, z: dir.z * sgn }, bl), { amp: amp / 1.35 * 0.55, size: (o.size ?? 1) * 0.72, life: (o.life ?? 0.22) * 0.85, thick: 0.8, depth: depth + 1, branch: depth ? 0 : 1 });
   }
 }
 function vfxBolt(dim, a, b, w = 0.45) { volt(dim, a, b, { size: 0.8 + w, branch: 2 }); }
@@ -566,11 +583,18 @@ function flashDash(ctx, hit, dist = 22) {
   });
   // 바닥을 기는 번개: 지나간 뒤에도 1초 동안 계속 튀며 잦아듦
   for (let w = 0; w < 7; w++) later(1 + w * 3, () => {
-    const k = w < 2 ? 5 : 3 - Math.floor(w / 3);
+    const k = w < 2 ? 7 : 4 - Math.floor(w / 3);
     for (let i = 0; i < k; i++) {
       const q0 = Math.random() * 0.8, q1 = Math.min(1, q0 + 0.12 + Math.random() * 0.3);
-      const s0 = add(at(q0), right, (Math.random() - 0.5) * 2.4), s1 = add(at(q1), right, (Math.random() - 0.5) * 3);
-      volt(dim, up(s0, 0.1 + Math.random() * 0.4), up(s1, 0.1 + Math.random() * 1.1), { amp: 0.8, size: w < 2 ? 1.15 : 0.85, life: 0.28, branch: 2 });
+      const s0 = add(at(q0), right, (Math.random() - 0.5) * 3), s1 = add(at(q1), right, (Math.random() - 0.5) * 7.5);
+      volt(dim, up(s0, 0.1 + Math.random() * 0.4), up(s1, 0.1 + Math.random() * 1.1), { amp: 1.1, size: w < 2 ? 1.2 : 0.9, life: 0.3, branch: 3 });
+    }
+  });
+  // 지나가는 순간 길 양옆으로 크게 뻗는 번개
+  for (let i = 1; i <= STEPS; i++) later(i, () => {
+    for (const sgn of [-1, 1]) {
+      const c = at((i - 0.5) / STEPS), tip = add(add(c, right, sgn * (3 + Math.random() * 3.5)), f, (Math.random() - 0.3) * 3);
+      volt(dim, up(c, 0.6 + Math.random() * 0.6), up(tip, Math.random() * 2.2), { amp: 1, size: 1.1, life: 0.3, branch: 3 });
     }
   });
   // 흙먼지 연기 줄 + 바닥 그을음 선
