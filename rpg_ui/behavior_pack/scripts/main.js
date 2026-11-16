@@ -13,7 +13,9 @@ import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
 
 const MENU_SLOT = 8; // 핫바 9번 칸 = HUD [메뉴] 버튼
-const SKILL_SLOT = 7; // 핫바 8번 칸 = HUD [스킬] 버튼
+const SKILL_SLOT = 7; // 핫바 8번 칸 = 점프 옆 [스킬] 버튼 (스킬 사용)
+const SKILLWIN_SLOT = 6; // 핫바 7번 칸 = 오른쪽 위 [스킬] 버튼 (스킬창)
+const RESERVED = [SKILLWIN_SLOT, SKILL_SLOT, MENU_SLOT];
 const lastUse = new Map();
 const lastSlot = new Map();
 
@@ -41,6 +43,7 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
+  ensureSlotItem(p, "rpg:skillbook", SKILLWIN_SLOT);
   updateSkillSlot(p);
 }
 
@@ -60,7 +63,7 @@ function updateSkillSlot(p) {
   if (cur?.typeId === id && lastSkillKey.get(p.id) === key) return;
   for (let i = 0; i < c.size; i++) {
     const it = c.getItem(i);
-    if (i !== SKILL_SLOT && it?.typeId.startsWith("rpg:skill")) c.setItem(i, undefined);
+    if (i !== SKILL_SLOT && it?.typeId.startsWith("rpg:skill") && it.typeId !== "rpg:skillbook") c.setItem(i, undefined);
   }
   const it = new ItemStack(id, 1);
   it.lockMode = ItemLockMode.slot;
@@ -80,8 +83,8 @@ system.runInterval(() => {
   for (const p of world.getAllPlayers()) {
     const cur = p.selectedSlotIndex;
     const prev = lastSlot.get(p.id) ?? 0;
-    if ((cur === MENU_SLOT || cur === SKILL_SLOT) && data(p).set.slots !== false) {
-      const back = prev === MENU_SLOT || prev === SKILL_SLOT ? 0 : prev;
+    if (RESERVED.includes(cur) && data(p).set.slots !== false) {
+      const back = RESERVED.includes(prev) ? 0 : prev;
       p.selectedSlotIndex = back;
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
@@ -89,6 +92,12 @@ system.runInterval(() => {
         // 스킬 버튼 = 스킬 1 / 쉬프트+스킬 버튼 = 스킬 2 (설정에서 바꾸기 가능)
         const swap = data(p).set.skillSwap === true;
         castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
+        continue;
+      }
+      if (cur === SKILLWIN_SLOT) {
+        system.runTimeout(() => {
+          if (p.isValid()) openSkills(p);
+        }, 6);
         continue;
       }
       if (p.isSneaking) {
@@ -130,6 +139,8 @@ world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
   if (itemStack.typeId === "rpg:menu") {
     if (throttled(p)) return;
     system.run(() => openHome(p));
+  } else if (itemStack.typeId === "rpg:skillbook") {
+    if (!throttled(p)) system.run(() => openSkills(p));
   } else if (itemStack.typeId.startsWith("rpg:skill")) {
     if (!throttled(p)) castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
   } else if (itemStack.typeId === "rpg:quest_tool") {

@@ -639,6 +639,13 @@ def rpg_textures():
     save(frame((16, 16), P["navy_dark"], P["gold_dark"], None, radius=1), RPG / "button_pressed.png", 4)
     save(Image.new("RGBA", (16, 1), P["gold_dark"]), RPG / "divider.png")
 
+    # 점프 버튼 옆 원형 스킬 버튼 (34x34)
+    sb = Image.new("RGBA", (34, 34), (0, 0, 0, 0))
+    d = ImageDraw.Draw(sb)
+    d.ellipse([0, 0, 33, 33], fill=(20, 30, 60, 190), outline=(120, 180, 255, 255))
+    d.ellipse([2, 2, 31, 31], outline=(60, 100, 170, 255))
+    save(sb, RPG / "skill_btn.png")
+
     # 하단 상태바 배경
     save(frame((16, 16), (10, 12, 22, 170), (90, 74, 40, 200), None, radius=2), RPG / "status_bg.png", 4)
 
@@ -784,7 +791,7 @@ def vanilla_overrides():
         d.rectangle([2, 2, 17, 19], outline=(40, 44, 66, 255))
         save(hb, VAN / f"hotbar_{i}.png")
     # 8번 칸 = 스킬 버튼(파란 테), 9번 칸 = 메뉴 버튼(금 테) — 핫바 칸 자체가 터치 버튼
-    for idx, (fill, edge, hi) in {7: ((28, 40, 80, 235), (90, 150, 240, 255), (170, 210, 255, 255)),
+    for idx, (fill, edge, hi) in {6: ((50, 30, 70, 235), (180, 120, 230, 255), (220, 190, 255, 255)), 7: ((28, 40, 80, 235), (90, 150, 240, 255), (170, 210, 255, 255)),
                                   8: ((60, 46, 20, 235), P["gold"], P["gold_light"])}.items():
         hb = Image.new("RGBA", (20, 22), (0, 0, 0, 0))
         d = ImageDraw.Draw(hb)
@@ -864,6 +871,11 @@ def item_icons():
     im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
     im.paste(none, (2, 2))
     save(im, ITEMS / "skill_none.png")
+    im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
+    im.paste(ascii_icon(book, big), (0, 0))
+    bolt = ascii_icon(["..b", ".bb", "bb.", ".b."], {"b": (190, 140, 255, 255)})
+    im.paste(bolt, (12, 11), bolt)
+    save(im, ITEMS / "skillbook.png")
 
 
 def particle_textures():

@@ -37,6 +37,9 @@
     },
     "rpg_skill_none": {
       "textures": "textures/items/rpg/skill_none"
+    },
+    "rpg_skillbook": {
+      "textures": "textures/items/rpg/skillbook"
     }
   }
 }

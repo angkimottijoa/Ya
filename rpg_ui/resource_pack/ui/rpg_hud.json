@@ -2,12 +2,12 @@
   "namespace": "rpg_hud",
 
   // ════════════════════════════════════════════════════════════════
-  //  Arcania HUD (V1.5)
+  //  Arcania HUD (V1.7)
   //  - 스크립트: title = "quest:<퀘스트창>", subtitle = "[CARD]<정보>" / "[BAR]<HP·MP·Lv>" 번갈아 전송
-  //  - 데이터 컨트롤은 항상 보이는 루트에 둔다 (숨겨진 부모 안에선 바인딩이 갱신되지 않음)
-  //  - 최신 모바일 마크는 HUD 터치를 엔진(레이아웃 사용자화)이 직접 처리해서 JSON UI 버튼이 눌리지 않는다.
-  //    그래서 [스킬]/[메뉴] 버튼은 핫바 8·9번 칸 자체를 버튼으로 쓴다 (textures/ui/hotbar_7, hotbar_8 버튼 모양).
-  //  - 접기: 쉬프트+[메뉴] (스크립트가 빈 문자열을 보내 창을 숨김)
+  //  - 터치 버튼: 클리핑 상자 안에 바닐라 핫바 칸 버튼(gui_hotbar_slot_button_prototype) 9개를 세로로 넣고
+  //    원하는 칸 하나만 상자 안에 보이게 한다 → 그 버튼을 누르면 해당 핫바 칸이 선택되고 스크립트가 감지.
+  //      [스킬창] = 7번 칸, 점프 옆 [스킬] = 8번 칸, [메뉴] = 9번 칸
+  //  - [정보]/[퀘스트]: 토글의 켜짐 모양 안에 창이 들어 있어 누르면 창이 접힘 (쉬프트+[메뉴]도 가능)
   // ════════════════════════════════════════════════════════════════
 
   "root": {
@@ -43,9 +43,8 @@
         "rpg_status@rpg_hud.status_bar": {}
       },
       {
-        "rpg_panels": {
-          "type": "stack_panel",
-          "orientation": "vertical",
+        "rpg_right": {
+          "type": "panel",
           "anchor_from": "top_right",
           "anchor_to": "top_right",
           "offset": [
@@ -53,26 +52,31 @@
             4
           ],
           "size": [
-            132,
-            "100%c"
+            150,
+            24
           ],
           "controls": [
             {
-              "quest_window@rpg_hud.quest_popup": {}
-            },
-            {
-              "gap": {
-                "type": "panel",
-                "size": [
-                  "100%",
-                  3
-                ]
-              }
-            },
-            {
-              "card@rpg_hud.card_popup": {}
+              "menu_bar@rpg_hud.menu_bar": {}
             }
           ]
+        }
+      },
+      {
+        "rpg_skill_cast@rpg_hud.hotbar_btn": {
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -92,
+            22
+          ],
+          "$btn_w": 34,
+          "$btn_h": 34,
+          "$grid_off": [
+            0,
+            -238
+          ],
+          "$face": "rpg_hud.skill_cast_face"
         }
       }
     ]
@@ -109,7 +113,7 @@
     "type": "image",
     "texture": "textures/ui/rpg/panel",
     "size": [
-      "100%",
+      "100%c + 10px",
       "100%c + 7px"
     ],
     "layer": 1,
@@ -151,13 +155,19 @@
         "source_property_name": "(not ((#preserved_text - $card_prefix) = ''))",
         "target_property_name": "#visible"
       }
+    ],
+    "anchor_from": "top_left",
+    "anchor_to": "top_right",
+    "offset": [
+      -8,
+      -3
     ]
   },
   "quest_popup": {
     "type": "image",
     "texture": "textures/ui/rpg/panel",
     "size": [
-      "100%",
+      150,
       "100%c + 6px"
     ],
     "layer": 1,
@@ -278,6 +288,12 @@
         "source_property_name": "(not ((#preserved_text - $quest_prefix) = ''))",
         "target_property_name": "#visible"
       }
+    ],
+    "anchor_from": "bottom_left",
+    "anchor_to": "top_left",
+    "offset": [
+      -28,
+      5
     ]
   },
   "status_bar": {
@@ -307,5 +323,332 @@
       }
     ],
     "text_alignment": "center"
+  },
+  "menu_bar": {
+    "type": "image",
+    "texture": "textures/ui/rpg/bar",
+    "size": [
+      "100%",
+      24
+    ],
+    "controls": [
+      {
+        "info_toggle@rpg_hud.panel_toggle": {
+          "offset": [
+            4,
+            0
+          ],
+          "toggle_name": "rpg_info",
+          "$tg_icon": "textures/ui/rpg/icons/profile",
+          "$open_content": "rpg_hud.card_popup"
+        }
+      },
+      {
+        "quest_toggle@rpg_hud.panel_toggle": {
+          "offset": [
+            24,
+            0
+          ],
+          "toggle_name": "rpg_questwin",
+          "$tg_icon": "textures/ui/rpg/icons/quest",
+          "$open_content": "rpg_hud.quest_popup"
+        }
+      },
+      {
+        "skillwin_btn@rpg_hud.hotbar_btn": {
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -45,
+            0
+          ],
+          "$btn_w": 40,
+          "$btn_h": 18,
+          "$grid_off": [
+            0,
+            -108
+          ],
+          "$face": "rpg_hud.bar_btn_face",
+          "$label": "§l스킬",
+          "$icon": "textures/ui/rpg/icons/skill"
+        }
+      },
+      {
+        "menu_btn@rpg_hud.hotbar_btn": {
+          "anchor_from": "right_middle",
+          "anchor_to": "right_middle",
+          "offset": [
+            -3,
+            0
+          ],
+          "$btn_w": 40,
+          "$btn_h": 18,
+          "$grid_off": [
+            0,
+            -144
+          ],
+          "$face": "rpg_hud.bar_btn_face",
+          "$label": "§l메뉴",
+          "$icon": "textures/ui/rpg/icons/settings"
+        }
+      }
+    ]
+  },
+  "toggle_face": {
+    "type": "image",
+    "$btn_tex|default": "textures/ui/rpg/button_default",
+    "$tg_icon|default": "textures/ui/rpg/icons/profile",
+    "texture": "$btn_tex",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "controls": [
+      {
+        "icon": {
+          "type": "image",
+          "texture": "$tg_icon",
+          "size": [
+            10,
+            10
+          ],
+          "layer": 2
+        }
+      }
+    ]
+  },
+  "toggle_open": {
+    "type": "panel",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "$btn_tex|default": "textures/ui/rpg/button_hover",
+    "controls": [
+      {
+        "face@rpg_hud.toggle_face": {}
+      },
+      {
+        "content@$open_content": {}
+      }
+    ]
+  },
+  "panel_toggle": {
+    "type": "toggle",
+    "size": [
+      18,
+      18
+    ],
+    "anchor_from": "left_middle",
+    "anchor_to": "left_middle",
+    "layer": 4,
+    "$open_content|default": "rpg_hud.card_popup",
+    "toggle_default_state": true,
+    "radio_toggle_group": false,
+    "focus_enabled": false,
+    "sound_name": "random.click",
+    "sound_volume": 0.6,
+    "checked_control": "checked",
+    "unchecked_control": "unchecked",
+    "checked_hover_control": "checked_hover",
+    "unchecked_hover_control": "unchecked_hover",
+    "checked_locked_control": "checked",
+    "unchecked_locked_control": "unchecked",
+    "checked_locked_hover_control": "checked_hover",
+    "unchecked_locked_hover_control": "unchecked_hover",
+    "button_mappings": [
+      {
+        "from_button_id": "button.menu_select",
+        "to_button_id": "button.menu_select",
+        "mapping_type": "pressed"
+      },
+      {
+        "from_button_id": "button.menu_ok",
+        "to_button_id": "button.menu_ok",
+        "mapping_type": "focused"
+      }
+    ],
+    "controls": [
+      {
+        "checked@rpg_hud.toggle_open": {}
+      },
+      {
+        "checked_hover@rpg_hud.toggle_open": {}
+      },
+      {
+        "unchecked@rpg_hud.toggle_face": {
+          "$btn_tex": "textures/ui/rpg/button_pressed"
+        }
+      },
+      {
+        "unchecked_hover@rpg_hud.toggle_face": {
+          "$btn_tex": "textures/ui/rpg/button_default"
+        }
+      }
+    ]
+  },
+  "hotbar_btn": {
+    "type": "panel",
+    "$btn_w|default": 40,
+    "$btn_h|default": 18,
+    "$grid_off|default": [
+      0,
+      0
+    ],
+    "$face|default": "rpg_hud.bar_btn_face",
+    "$label|default": "",
+    "$icon|default": "textures/ui/rpg/icons/skill",
+    "size": [
+      "$btn_w",
+      "$btn_h"
+    ],
+    "layer": 6,
+    "controls": [
+      {
+        "face@$face": {}
+      },
+      {
+        "clip": {
+          "type": "panel",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "clips_children": true,
+          "layer": 8,
+          "controls": [
+            {
+              "grid": {
+                "type": "grid",
+                "anchor_from": "top_left",
+                "anchor_to": "top_left",
+                "offset": "$grid_off",
+                "size": [
+                  "100%",
+                  "900%"
+                ],
+                "grid_dimensions": [
+                  1,
+                  9
+                ],
+                "grid_item_template": "rpg_hud.hit_cell",
+                "collection_name": "hotbar_items"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "hit_cell": {
+    "type": "panel",
+    "size": [
+      "100%",
+      "11.111%"
+    ],
+    "$hotbar_collection_name": "hotbar_items",
+    "controls": [
+      {
+        "btn@hud.gui_hotbar_slot_button_prototype": {
+          "size": [
+            "100%",
+            "100%"
+          ]
+        }
+      }
+    ]
+  },
+  "bar_btn_face": {
+    "type": "image",
+    "texture": "textures/ui/rpg/button_default",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "controls": [
+      {
+        "icon": {
+          "type": "image",
+          "texture": "$icon",
+          "size": [
+            10,
+            10
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            4,
+            0
+          ],
+          "layer": 2
+        }
+      },
+      {
+        "label": {
+          "type": "label",
+          "text": "$label",
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            16,
+            1
+          ],
+          "layer": 2,
+          "color": [
+            0.97,
+            0.87,
+            0.58
+          ],
+          "shadow": true,
+          "localize": false
+        }
+      }
+    ]
+  },
+  "skill_cast_face": {
+    "type": "image",
+    "texture": "textures/ui/rpg/skill_btn",
+    "size": [
+      "100%",
+      "100%"
+    ],
+    "controls": [
+      {
+        "icon": {
+          "type": "image",
+          "texture": "textures/ui/rpg/icons/skill",
+          "size": [
+            16,
+            16
+          ],
+          "offset": [
+            0,
+            -3
+          ],
+          "layer": 2
+        }
+      },
+      {
+        "label": {
+          "type": "label",
+          "text": "§l스킬",
+          "anchor_from": "bottom_middle",
+          "anchor_to": "bottom_middle",
+          "offset": [
+            0,
+            -3
+          ],
+          "font_scale_factor": 0.7,
+          "layer": 2,
+          "color": [
+            0.85,
+            0.93,
+            1.0
+          ],
+          "shadow": true,
+          "localize": false
+        }
+      }
+    ]
   }
 }
