@@ -67,7 +67,7 @@ export function openHome(p) {
     `§7진행 중 퀘스트 §r${active}개\n`,
     `§7파티 §r${pt ? pt.name : "없음"}\n`,
     d.pts ? `\n§2미사용 스탯 포인트 ${d.pts}!\n§7내 정보에서 분배하세요.` : "",
-    `\n\n§e§l조작§r\n§7HUD [메뉴] / 숫자키 9 §f메뉴\n§7HUD [스킬] / 숫자키 8 §f스킬 목록\n§7웅크린 채 공격 §f무기 스킬 발동`,
+    `\n\n§e§l조작§r\n§7HUD [메뉴] / 숫자키 9 §f메뉴\n§7쉬프트+[메뉴] §fHUD 창 접기/펼치기\n§7HUD [스킬] / 숫자키 8 §f기본 스킬\n§7쉬프트+[스킬] §f쉬프트 스킬\n§7쉬프트+공격 §f기본 스킬`,
   ));
   scr.action("퀘스트 게시판", () => openQuests(p, "all"));
   scr.reopen = () => openHome(p);

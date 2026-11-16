@@ -60,6 +60,16 @@ system.runInterval(() => {
         castWeaponSkill(p, undefined, p.isSneaking ? "sub" : "main");
         continue;
       }
+      if (p.isSneaking) {
+        // 쉬프트+[메뉴] = HUD 창 접기 순환: 모두 펼침 → 정보 접기 → 모두 접기
+        const s = data(p).set;
+        if (s.card && s.quest) s.card = false;
+        else if (s.quest) s.quest = false;
+        else s.card = s.quest = true;
+        save(p);
+        notify(p, `§7HUD: §f${s.quest ? (s.card ? "모두 펼침" : "정보 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
+        continue;
+      }
       // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)
       system.runTimeout(() => {
         if (p.isValid()) openHome(p);

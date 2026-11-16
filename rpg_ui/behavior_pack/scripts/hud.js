@@ -66,9 +66,9 @@ export function statusBar(p) {
     }
   })();
   return "[BAR]" +
-    `§c§lHP ${bar(hp, hpMax, 22, "§c")} §r§f§l${hp}§r§7/${hpMax}${armor ? `  §7방어 §f${armor}%` : ""}\n` +
-    `§9§lMP ${bar(mp, mpMax, 22, "§9")} §r§f§l${mp}§r§7/${mpMax}\n` +
-    `§e§lLv.${d.lv} ${bar(pct, 100, 18, "§a")} §r§f${pct}%`;
+    `§c§lHP ${bar(hp, hpMax, 70, "§c")} §r§f§l${hp}§r§7/${hpMax}\n` +
+    `§9§lMP ${bar(mp, mpMax, 70, "§9")} §r§f§l${mp}§r§7/${mpMax}\n` +
+    `§e§lLv.${d.lv} ${bar(pct, 100, 66, "§a")} §r§f§l${pct}%`;
 }
 
 export function questText(p) {
