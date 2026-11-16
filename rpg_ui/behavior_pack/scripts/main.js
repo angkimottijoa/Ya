@@ -14,8 +14,8 @@ import { setQuestText } from "./api.js";
 
 const MENU_SLOT = 8; // 핫바 9번 칸 = HUD [메뉴] 버튼
 const SKILL_SLOT = 7; // 핫바 8번 칸 = 점프 옆 [스킬] 버튼 (스킬 사용)
-const SKILLWIN_SLOT = 6; // 핫바 7번 칸 = 오른쪽 위 [스킬] 버튼 (스킬창)
-const RESERVED = [SKILLWIN_SLOT, SKILL_SLOT, MENU_SLOT];
+// 핫바 = 아이템 7칸(1~7번) + 버튼 2개(8번 스킬, 9번 메뉴)
+const RESERVED = [SKILL_SLOT, MENU_SLOT];
 const lastUse = new Map();
 const lastSlot = new Map();
 
@@ -43,7 +43,9 @@ function ensureSlotItem(p, id, slot) {
 }
 function ensureMenuItem(p) {
   ensureSlotItem(p, "rpg:menu", MENU_SLOT);
-  ensureSlotItem(p, "rpg:skillbook", SKILLWIN_SLOT);
+  // 예전 버전의 스킬창 아이템(7번 칸) 정리
+  const c = p.getComponent("minecraft:inventory").container;
+  for (let i = 0; i < c.size; i++) if (c.getItem(i)?.typeId === "rpg:skillbook") c.setItem(i, undefined);
   updateSkillSlot(p);
 }
 
@@ -94,20 +96,11 @@ system.runInterval(() => {
         castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
         continue;
       }
-      if (cur === SKILLWIN_SLOT) {
+      if (p.isSneaking) {
+        // 쉬프트+9번 칸 = 스킬창
         system.runTimeout(() => {
           if (p.isValid()) openSkills(p);
         }, 6);
-        continue;
-      }
-      if (p.isSneaking) {
-        // 쉬프트+[메뉴] = HUD 창 접기 순환: 모두 펼침 → 정보 접기 → 모두 접기
-        const s = data(p).set;
-        if (s.card && s.quest) s.card = false;
-        else if (s.quest) s.quest = false;
-        else s.card = s.quest = true;
-        save(p);
-        notify(p, `§7HUD: §f${s.quest ? (s.card ? "모두 펼침" : "정보 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
         continue;
       }
       // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)

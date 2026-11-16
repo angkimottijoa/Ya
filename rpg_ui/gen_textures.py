@@ -791,15 +791,21 @@ def vanilla_overrides():
         d.rectangle([2, 2, 17, 19], outline=(40, 44, 66, 255))
         save(hb, VAN / f"hotbar_{i}.png")
     # 8번 칸 = 스킬 버튼(파란 테), 9번 칸 = 메뉴 버튼(금 테) — 핫바 칸 자체가 터치 버튼
-    for idx, (fill, edge, hi) in {6: ((50, 30, 70, 235), (180, 120, 230, 255), (220, 190, 255, 255)), 7: ((28, 40, 80, 235), (90, 150, 240, 255), (170, 210, 255, 255)),
-                                  8: ((60, 46, 20, 235), P["gold"], P["gold_light"])}.items():
+    # 핫바 = 아이템 7칸 + 버튼 2개.
+    # 8번 칸(스킬)·9번 칸(메뉴)은 아이템 칸처럼 안 보이도록 왼쪽을 띄우고 둥근 버튼 모양으로 그린다.
+    for idx, (fill, edge, hi, glow) in {
+        7: ((22, 34, 70, 245), (100, 165, 255, 255), (185, 220, 255, 255), (60, 110, 200, 255)),
+        8: ((58, 42, 16, 245), P["gold"], P["gold_light"], P["gold_dark"]),
+    }.items():
         hb = Image.new("RGBA", (20, 22), (0, 0, 0, 0))
         d = ImageDraw.Draw(hb)
-        d.rectangle([0, 0, 19, 21], fill=fill)
-        d.rectangle([1, 1, 18, 20], outline=edge)
-        d.line([(2, 2), (17, 2)], fill=hi)
-        for (x, y) in [(1, 1), (18, 1), (1, 20), (18, 20)]:
-            d.point((x, y), fill=hi)
+        # 7번 칸과 사이를 띄움 (왼쪽 3px 비움) + 둥근 사각 버튼
+        d.rounded_rectangle([3, 1, 19, 20], radius=4, fill=fill, outline=edge)
+        d.rounded_rectangle([4, 2, 18, 19], radius=3, outline=glow)
+        d.line([(6, 3), (16, 3)], fill=hi)
+        if idx == 7:
+            # 8번 칸 왼쪽에 금색 구분선 (아이템 칸과 버튼 경계)
+            d.line([(0, 3), (0, 18)], fill=P["gold"])
         save(hb, VAN / f"hotbar_{idx}.png")
     cap = Image.new("RGBA", (1, 22), P["gold_dark"])
     save(cap, VAN / "hotbar_start_cap.png", [1, 1, 1, 1])
