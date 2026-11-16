@@ -95,8 +95,18 @@ system.runInterval(() => {
         castWeaponSkill(p, undefined, p.isSneaking !== swap ? "sub" : "main");
         continue;
       }
-      if (cur === SKILLWIN_SLOT || p.isSneaking) {
-        // 8번 칸 = 스킬창 (쉬프트+메뉴도 스킬창)
+      if (cur === MENU_SLOT && p.isSneaking) {
+        // 쉬프트+[메뉴] = 옆 창(퀘스트/정보) 접기 순환: 모두 펼침 → 정보 접힘 → 모두 접힘
+        const st = data(p).set;
+        if (st.card && st.quest) st.card = false;
+        else if (st.quest) st.quest = false;
+        else st.card = st.quest = true;
+        save(p);
+        notify(p, `§7HUD 창: §f${st.quest ? (st.card ? "모두 펼침" : "정보 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
+        continue;
+      }
+      if (cur === SKILLWIN_SLOT) {
+        // 8번 칸 = 스킬창
         system.runTimeout(() => {
           if (p.isValid()) openSkills(p);
         }, 6);
