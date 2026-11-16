@@ -7,6 +7,8 @@ import { CLASSES } from "./classes.js";
 import * as Q from "./quests.js";
 import * as SK from "./skills.js";
 import * as J from "./jobs.js";
+import * as SB from "./spellbook.js";
+import * as M from "./ms.js";
 import * as WP from "./waypoints.js";
 import { ItemStack } from "@minecraft/server";
 import { shopList, saveShop, canBuy, canSell, sellPrice } from "./shop.js";
@@ -749,6 +751,36 @@ function npcShop(p, e, back, sel = 0) {
   return scr.show(p);
 }
 
+// ═════════ 스펠 시험장: 엔진 스펠을 MP·쿨다운 없이 바로 시전 ═════════
+const PAL_IDS = Object.keys(M.PAL);
+function spellLab(p, sel, palIdx = 0, page = 0) {
+  const list = SB.SPELL_LIST;
+  const PER = 6, pages = Math.ceil(list.length / PER);
+  page = Math.max(0, Math.min(page, pages - 1));
+  const shown = list.slice(page * PER, page * PER + PER);
+  sel = list.find((x) => x.id === sel)?.id ?? shown[0].id;
+  const re = (s2 = sel, pi = palIdx, pg = page) => spellLab(p, s2, pi, pg);
+  const scr = new Screen("L", "제작자 도구 / 스펠 시험장");
+  for (const x of shown) scr.item(`§f${x.name.split(" (")[0]}\n§7${SB.SOURCES[x.id] ?? "새로 만든 스펠"}`, ICON("skill"), () => re(x.id), { on: x.id === sel });
+  adminChrome(scr, p, "weapon");
+  const sp = list.find((x) => x.id === sel);
+  const users = J.allJobSkills().filter((s) => s.fx === sel).map((s) => `${J.PATHS[s.path].name} ${J.KEY_ICONS[s.key ?? 1]} ${s.name}`);
+  scr.select(sp.name.split(" (")[0], ICON("skill"));
+  scr.body(rt(
+    `§f${sp.name}\n\n§7원본 §f${SB.SOURCES[sel] ?? "-"}\n§7색 §f${PAL_IDS[palIdx]}\n\n`,
+    `§7쓰는 직업 스킬\n§f${users.join("\n") || "-"}\n\n§7(피해 10 고정, 마나·쿨다운 없음)`,
+  ));
+  scr.action("§a시전", () => {
+    const ctx = { p, dim: p.dimension, dmg: 10, pal: M.PAL[PAL_IDS[palIdx]].map(M.hex), data: data(p), tick: 0, tier: 3, stat: () => 10, s: { pow: 1.5, name: sel } };
+    SB.cast(ctx, sel, {});
+  });
+  scr.action(`색 바꾸기 → ${PAL_IDS[(palIdx + 1) % PAL_IDS.length]}`, () => re(sel, (palIdx + 1) % PAL_IDS.length));
+  if (pages > 1) scr.action(`다음 쪽 (${page + 1}/${pages})`, () => re(undefined, palIdx, (page + 1) % pages));
+  scr.action("돌아가기", () => weaponTab(p));
+  scr.reopen = () => re();
+  return scr.show(p);
+}
+
 // ═════════ 상점 ═════════
 function shopTab(p, sel = 0) {
   const list = shopList();
@@ -1188,11 +1220,13 @@ function weaponTab(p, selId, page = 0) {
     );
     scr.action("설정 (분류 · 공격력 · 배율)", () => editWeapon(p, sel, () => weaponTab(p, sel, page)));
     scr.action("직업 스킬 편집기", () => skillEditor(p));
+    scr.action("§d스펠 시험장 (MagicSpells 이식)", () => spellLab(p));
     if (SK.weaponCfg()[sel]) scr.action("§c설정 초기화", () => { SK.setWeaponCfg(sel, null); SK.setWeaponClass(sel, ""); return weaponTab(p, sel, page); });
   } else {
     scr.select("무기·스킬", ICON("class"));
     scr.body("§7등록된 무기가 없습니다.\n무기를 손에 들고 다시 열어 보세요.");
     scr.action("직업 스킬 편집기", () => skillEditor(p));
+    scr.action("§d스펠 시험장 (MagicSpells 이식)", () => spellLab(p));
   }
   if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => weaponTab(p, undefined, (page + 1) % pages));
   scr.reopen = () => weaponTab(p, selId, page);
@@ -1266,14 +1300,15 @@ async function editSkill(p, id, base) {
     .textField("재사용 대기 (초)", "", String(cur.cd))
     .textField("위력 (%, 버프는 공격력 증가 %)", "150", String(cur.kind === "buff" ? cur.pow : Math.round(cur.pow * 100)))
     .dropdown("발동 (같은 단계·같은 발동이면 제작 스킬이 기본 스킬 대신 쓰임)", J.KEY_NAMES.slice(1).map((k, i) => `${J.KEY_ICONS[i + 1]} ${k}`), (cur.key ?? 1) - 1)
+    .dropdown("색 팔레트", ["직업 기본", ...PAL_IDS], cur.pal ? PAL_IDS.indexOf(cur.pal) + 1 : 0)
     .show(p);
   if (r.canceled) return skillEditor(p, base, id);
-  const [name, desc, pi, fi, ki, lv, mp, cd, pow, key] = r.formValues;
+  const [name, desc, pi, fi, ki, lv, mp, cd, pow, key, pli] = r.formValues;
   if (!String(name).trim()) return skillEditor(p, base, id);
   const nid = id ?? `jc_${Date.now().toString(36)}`;
   const kind = KINDS[ki].id;
   J.saveJobSkill(nid, {
-    name: String(name).trim(), desc: String(desc), path: PATH_IDS[pi], fx: SK.FX[fi].id, kind, key: (Number(key) || 0) + 1,
+    name: String(name).trim(), desc: String(desc), path: PATH_IDS[pi], fx: SK.FX[fi].id, kind, key: (Number(key) || 0) + 1, pal: pli ? PAL_IDS[pli - 1] : undefined,
     lv: Math.max(1, num(lv, 1)), mp: Math.max(0, num(mp, 10)), cd: Math.max(1, num(cd, 8)),
     pow: kind === "buff" ? Math.max(1, num(pow, 30)) : Math.max(0.1, num(pow, 100) / 100),
     ...(id ? {} : { custom: true, enabled: true }),

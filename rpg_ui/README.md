@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V2.8.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V2.9.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,13 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V2.9 변경 — 자바 MagicSpells 이식 + 스킬 재창조
+- `scripts/ms.js`: MagicSpells 스펠 클래스(Multi/Leap/AreaEffect/ParticleProjectile/Pain/Drain/Forcetoss/Stun/Shadowstep…)와
+  EffectLib 효과(Equation/Sphere/AnimatedBall/Helix/Star)를 옮긴 엔진. 파티클은 `rpg:ms_curve/ball/helix/star` (redstone 먼지 느낌).
+- `scripts/spellbook.js`: 분석한 문법으로 새로 만든 스펠 35종, 직업 스킬 60개 전부 교체.
+- 제작자 도구 > 무기·스킬 > 스펠 시험장, 스킬 편집기에 색 팔레트 선택.
+- 분석 문서: `docs/MAGICSPELLS_분석.md`
 
 ## V2.8 변경
 - 제작자 도구 > 플레이어 > **레벨·골드 직접 설정** (레벨 슬라이더 1~100, 골드 입력). 스탯 포인트는 레벨에 맞게 다시 계산(찍은 스탯 유지).

@@ -274,3 +274,93 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# V2.9 MagicSpells(EffectLib) 이식용 파티클 — "redstone 먼지" 느낌 (작고 불투명, 색 그대로)
+#   스크립트(ms.js)가 식의 계수를 MolangVariableMap 으로 넘기면 파티클이 그 식대로 점을 찍는다.
+# ═══════════════════════════════════════════════════════════════════════
+R1, R2, R3, R4 = (f"variable.particle_random_{i}" for i in (1, 2, 3, 4))
+
+
+def dust(size=0.07):
+    """레드스톤 먼지: 불투명, 색 그대로, 끝에서 작아지며 사라짐"""
+    sz = f"variable.size * {size} * (0.75 + {R3} * 0.5) * (1 - math.pow({AGE}, 3))"
+    return {
+        "minecraft:particle_appearance_billboard": {
+            "size": [sz, sz],
+            "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R4} * 3) + 1", 0], "uv_size": [1, 1]},
+        },
+        "minecraft:particle_appearance_tinting": {"color": ["variable.color.r", "variable.color.g", "variable.color.b", 1]},
+    }
+
+
+def ms_common(shape, n="variable.n"):
+    return {
+        "minecraft:emitter_rate_steady": {"spawn_rate": f"{n} / math.max(0.05, variable.dur)", "max_particles": n},
+        "minecraft:emitter_lifetime_once": {"active_time": "math.max(0.05, variable.dur)"},
+        "minecraft:emitter_shape_point": shape,
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+    }
+
+
+def ms_effects():
+    # t ∈ [0,1] : 그리기(draw)면 방출 시각 순서대로, 아니면 파티클마다 무작위 (한 번에 전체 모양)
+    T = f"(variable.draw > 0.5 ? math.clamp(variable.emitter_age / math.max(0.05, variable.dur), 0, 1) : {R1})"
+
+    def axis(k):
+        trig = f"(variable.s{k} > 0.5 ? math.sin(variable.w{k} * {T} + variable.p{k}) : math.cos(variable.w{k} * {T} + variable.p{k}))"
+        return f"((variable.a{k} + variable.g{k} * {T}) * {trig} + variable.b{k} * {T} + variable.c{k} + ({R2} - 0.5) * variable.jit)"
+
+    lx, ly, lz = axis("x"), axis("y"), axis("z")
+    # orient: 로컬 z = 바라보는 방향, 로컬 x = 오른쪽 (yaw 회전)
+    X = f"(variable.ori > 0.5 ? (-{lx} * math.cos(variable.yaw) - {lz} * math.sin(variable.yaw)) : {lx})"
+    Z = f"(variable.ori > 0.5 ? (-{lx} * math.sin(variable.yaw) + {lz} * math.cos(variable.yaw)) : {lz})"
+    # 1) EquationEffect: x/y/z = (a + g·t)·sin|cos(w·t + p) + b·t + c
+    effect("ms_curve", {
+        **ms_common({"offset": [X, ly, Z], "direction": [0, 1, 0]}),
+        "minecraft:particle_initial_speed": 0,
+        **motion(0, (0, "variable.rise", 0)),
+        **dust(),
+    }, material="particles_alpha")
+
+    # 2) Sphere / AnimatedBall / ModifiedEffect(radius = t·k): 타원체 껍질, grow 로 바깥으로 퍼짐
+    th = f"({R1} * 360)"
+    ph = f"(math.acos(1 - 2 * {R2}))"
+    dx, dy, dz = f"(math.sin({ph}) * math.cos({th}))", f"math.cos({ph})", f"(math.sin({ph}) * math.sin({th}))"
+    effect("ms_ball", {
+        **ms_common({"offset": [f"{dx} * variable.r * variable.fx", f"{dy} * variable.r * variable.fy + variable.oy", f"{dz} * variable.r * variable.fz"],
+                     "direction": [f"{dx} * variable.fx", f"{dy} * variable.fy", f"{dz} * variable.fz"]}),
+        "minecraft:particle_initial_speed": "variable.grow",
+        **motion(0, (0, "variable.rise", 0)),
+        **dust(),
+    }, material="particles_alpha")
+
+    # 3) HelixEffect / VortexEffect: strands 가닥, 회전(twist)하며 올라가거나(h) 퍼짐(flare)
+    k = f"math.floor({R2} * variable.strands)"
+    ang = f"({k} * 360 / variable.strands + {T} * variable.twist + variable.yaw)"
+    rad = f"(variable.r * (1 + variable.flare * {T}))"
+    effect("ms_helix", {
+        **ms_common({"offset": [f"{rad} * math.cos({ang})", f"variable.h * {T}", f"{rad} * math.sin({ang})"], "direction": [0, 1, 0]}),
+        "minecraft:particle_initial_speed": 0,
+        **motion(0, (0, "variable.rise", 0)),
+        **dust(),
+    }, material="particles_alpha")
+
+    # 4) StarEffect: 가시(spike)들이 안쪽 반지름에서 바깥으로 뻗음 (방향은 황금각으로 고르게)
+    k = f"math.floor({R2} * variable.spikes)"
+    az = f"({k} * 137.508)"
+    el = f"(math.mod({k} * 61.8, 160) - 80)"
+    d = f"(variable.inner + {R1} * variable.h)"
+    effect("ms_star", {
+        **ms_common({"offset": [f"math.cos({el}) * math.cos({az}) * {d}", f"math.sin({el}) * {d}", f"math.cos({el}) * math.sin({az}) * {d}"], "direction": [0, 1, 0]}),
+        "minecraft:particle_initial_speed": 0,
+        **motion(0),
+        **dust(),
+    }, material="particles_alpha")
+
+
+if __name__ == "__main__":
+    ms_effects()
+    print("ms particles ok")
