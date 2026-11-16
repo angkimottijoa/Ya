@@ -1,0 +1,74 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:cr_snowfall",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/rpg_cr_snow"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_steady": {
+    "spawn_rate": "variable.n",
+    "max_particles": 900
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": "variable.life"
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "2.2 + variable.particle_random_4 * 1.5"
+   },
+   "minecraft:emitter_shape_disc": {
+    "radius": "variable.r",
+    "plane_normal": "y",
+    "direction": [
+     "(variable.particle_random_1 - 0.5)",
+     -1,
+     "(variable.particle_random_3 - 0.5)"
+    ]
+   },
+   "minecraft:particle_initial_speed": "2.5 + variable.particle_random_2 * 2",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     "math.sin(variable.particle_age * 200 + variable.particle_random_1 * 360) * 2",
+     -1.2,
+     "math.cos(variable.particle_age * 170 + variable.particle_random_3 * 360) * 2"
+    ],
+    "linear_drag_coefficient": 0.5
+   },
+   "minecraft:particle_motion_collision": {
+    "collision_radius": 0.1,
+    "expire_on_contact": true
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "(0.22 + variable.particle_random_3 * 0.3) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.3)",
+     "(0.22 + variable.particle_random_3 * 0.3) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.3)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 1,
+     "texture_height": 1,
+     "uv": [
+      0,
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "variable.particle_random_1 * 0.5",
+     "gradient": {
+      "0.0": "#FFFFFFFF",
+      "1.0": "#FFA8E4FF"
+     }
+    }
+   }
+  }
+ }
+}

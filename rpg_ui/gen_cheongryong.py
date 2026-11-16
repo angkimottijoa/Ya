@@ -221,6 +221,15 @@ def main():
         "minecraft:particle_motion_dynamic": {},
         **dust_look("0.13", tone=f"{R3} * 0.35"),
     })
+    part("cr_headfill", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": head_expr(fill=True), "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        **dust_look("0.15", tone=f"0.55 + {R3} * 0.35"),
+    })
     # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
     IW, IH, CX, CY, CELL = 240, 121, 180, 50, 6
     px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
@@ -272,6 +281,136 @@ def main():
             "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"{R1} * 0.4", "gradient": {"0.0": "#FFFFFFFF", "1.0": "#FFB8F4FF"}}},
     }, tex="textures/particle/rpg_cr_snow")
+    # ───── V3.7: 실감나는 3D 청룡 (③ 강림) ─────
+    # 등(짙은 남색) → 옆구리(파랑, 비늘 줄무늬) → 배(밝은 하늘·흰색) 색 구분
+    BODY = {"0.0": "#FFF2FBFF", "0.12": "#FFC4EEFA", "0.3": "#FF7FD4F5", "0.5": "#FF3C9CEB", "0.7": "#FF2266D2", "0.86": "#FF143FA6", "1.0": "#FF0A2068"}
+    # 10) 비늘 몸통: 속이 빈 원통 껍질. 오래될수록 안쪽으로 오므라들어 꼬리로 갈수록 가늘어짐
+    an = f"({R1} * 360)"
+    radial = [f"(variable.u.{c} * math.cos({an}) + variable.v.{c} * math.sin({an}))" for c in "xyz"]
+    shell = f"(variable.r * (0.8 + {R2} * 0.2))"
+    belly = f"(math.sin({an}) < -0.4)"
+    scl = f"math.mod(math.floor({an} / 36) + variable.seg, 2)"
+    part("cr_body", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"{radial[i]} * {shell}" for i in range(3)],
+                                          "direction": [f"-{radial[i]}" for i in range(3)]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.88 + {R4} * 0.24)"},
+        "minecraft:particle_initial_speed": "variable.r * 0.55 / variable.life",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.13 + {R3} * 0.05) * (1 - {AGE} * 0.45)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {
+            "interpolant": f"math.clamp({belly} ? (0.04 + {R3} * 0.14) : (0.5 + math.sin({an}) * 0.32 + {scl} * 0.14 - math.pow(math.abs(math.cos({an})), 6) * 0.25 + {R3} * 0.06 + {AGE} * 0.1), 0, 1)",
+            "gradient": BODY}},
+    })
+    # 11) 선(가시·뿔·수염·발톱·갈기): 원점에서 u 방향으로 길이 r, v 쪽으로 h 만큼 휨, 끝으로 갈수록 가늘게
+    tt = R1
+    part("cr_line", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {tt} * variable.r + variable.v.{c} * math.sin({tt} * 180) * variable.h" for c in "xyz"],
+                                          "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R4} * 0.3)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * 0.11 * (1 - {tt} * variable.thick) * (1 - {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(variable.tone + {tt} * variable.spd + ({R2} - 0.5) * 0.12, 0, 1)", "gradient": BODY}},
+    })
+    # 12) 빛나는 눈 / 기운 (반투명 겹침)
+    part("cr_glow", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_sphere": {"radius": "variable.r", "direction": "outwards"},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.8 + {R3} * 0.4) * (1 - {AGE} * 0.6)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [7, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": "variable.tone", "gradient": {"0.0": "#FFFFFDE0", "0.5": "#FFFFE680", "1.0": "#9070C8FF"}}},
+    }, material="particles_blend")
+    # 13) 먹구름 비: 구름 아래 원판에서 빗줄기 (진행 방향으로 늘어진 선)
+    part("cr_rain", {
+        **steady("variable.n", "variable.life", f"0.9 + {R4} * 0.4", 1400),
+        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "direction": [0, -1, 0]},
+        "minecraft:particle_initial_speed": f"18 + {R1} * 6",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_motion_collision": {"collision_radius": 0.05, "expire_on_contact": True},
+        "minecraft:particle_appearance_billboard": {"size": [0.025, f"0.45 + {R2} * 0.3"], "facing_camera_mode": "lookat_direction",
+                                                    "uv": {"texture_width": 16, "texture_height": 16, "uv": [7, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.62 + {R3} * 0.15", f"0.78 + {R3} * 0.1", 1, 0.55]},
+    }, material="particles_blend")
+    # 14) 회오리 물살: 세 갈래 나선이 돌며 솟음 (h 높이, spin 회전 속도)
+    ha = f"({R2} * variable.h * 40 + variable.emitter_age * variable.spin + math.floor({R1} * 3) * 120)"
+    hr = f"(variable.r * (0.55 + {R2} * 0.45))"
+    part("cr_spiral", {
+        **steady("variable.n", "variable.life", f"0.35 + {R4} * 0.25", 1200),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ha}) * {hr}", f"{R2} * variable.h", f"math.sin({ha}) * {hr}"], "direction": [0, 1, 0]},
+        "minecraft:particle_initial_speed": f"0.5 + {R3}",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 1},
+        **dust_look("0.12", tone=f"{R2} * 0.4 + {R3} * 0.3"),
+    })
+    # 15) 충격파: 바닥에서 바깥으로 퍼지는 고리
+    part("cr_shock", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_disc": {"radius": 0.4, "plane_normal": "y", "direction": "outwards"},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"0.55 + {R2} * 0.3"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.92 + {R1} * 0.16)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, f"{R4} * 1.5", 0], "linear_drag_coefficient": 2.2},
+        **dust_look("0.16", tone=f"variable.tone + {R3} * 0.3"),
+    })
+    # 16) 물기둥: 위로 솟구쳤다 떨어지는 물
+    part("cr_column", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "direction": [f"({R1} - 0.5) * 0.35", 1, f"({R3} - 0.5) * 0.35"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"0.9 + {R2} * 0.7"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.45 + {R2} * 0.55)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, -14, 0], "linear_drag_coefficient": 0.6},
+        "minecraft:particle_motion_collision": {"collision_radius": 0.1, "expire_on_contact": True},
+        **dust_look("0.15", tone=f"{R2} * 0.6"),
+    })
+    # 17) 파란 가로 검기 (① 유수): cr_varc 과 같은 u·v 면, 굵은 파란 띠 (가운데 짙고 가장자리 밝음), 점이 크고 흩날림
+    part("cr_bslash", {
+        **steady("variable.n / math.max(0.04, variable.dur)", "math.max(0.04, variable.dur)", f"0.45 + {R4} * 0.45", 1600),
+        "minecraft:emitter_shape_point": {"offset": varc(f"(variable.r + ({R2} - 0.5) * variable.thick * (1 - math.pow(math.abs({U} * 2 - 1), 3) * 0.75))"), "direction": varc("1")},
+        "minecraft:particle_initial_speed": f"{R1} * 1.6",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, f"{R4} > 0.7 ? -5 : 0.3", 0], "linear_drag_coefficient": 3},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.19 + {R3} * 0.11) * (1 - {AGE} * 0.65)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(math.abs({R2} - 0.5) * 1.5 + {AGE} * 0.25 + ({R1} - 0.5) * 0.15, 0, 1)",
+                                                            "gradient": {"0.0": "#FF0F3FD8", "0.3": "#FF1F6BFF", "0.55": "#FF3C9CFF", "0.8": "#FF8FD6FF", "1.0": "#FFE6F8FF"}}},
+    })
+    # 18) 큰 ✱ 눈꽃 눈보라: 원판에서 천천히 흩날리며 내려옴
+    part("cr_snowfall", {
+        **steady("variable.n", "variable.life", f"2.2 + {R4} * 1.5", 900),
+        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "direction": [f"({R1} - 0.5)", -1, f"({R3} - 0.5)"]},
+        "minecraft:particle_initial_speed": f"2.5 + {R2} * 2",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [f"math.sin(variable.particle_age * 200 + {R1} * 360) * 2", -1.2, f"math.cos(variable.particle_age * 170 + {R3} * 360) * 2"], "linear_drag_coefficient": 0.5},
+        "minecraft:particle_motion_collision": {"collision_radius": 0.1, "expire_on_contact": True},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"(0.22 + {R3} * 0.3) * (1 - {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"{R1} * 0.5", "gradient": {"0.0": "#FFFFFFFF", "1.0": "#FFA8E4FF"}}},
+    }, tex="textures/particle/rpg_cr_snow")
+    # 19) 빛기둥: 바닥에서 하늘로 솟는 흰·하늘색 기둥 (가운데 진하고 바깥 흐림)
+    pr = f"(variable.r * math.pow({R2}, 1.6))"
+    part("cr_pillar", {
+        **steady("variable.n", "variable.life", f"0.35 + {R4} * 0.3", 1800),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({R1} * 360) * {pr}", f"{R3} * variable.h", f"math.sin({R1} * 360) * {pr}"], "direction": [0, 1, 0]},
+        "minecraft:particle_initial_speed": f"3 + {R4} * 4",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"(0.35 + (1 - {R2}) * 0.5) * (1 - {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [7, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.75 + (1 - {R2}) * 0.25", f"0.9 + (1 - {R2}) * 0.1", 1, f"(0.25 + (1 - {R2}) * 0.6) * (1 - {AGE})"]},
+    }, material="particles_blend")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
         **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),

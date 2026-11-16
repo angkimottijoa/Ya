@@ -15,7 +15,7 @@ const up = (l, y) => ({ x: l.x, y: l.y + y, z: l.z });
 const yawOf = (p) => p.getRotation().y;
 const fwdOf = (yaw) => ({ x: -Math.sin((yaw * Math.PI) / 180), y: 0, z: Math.cos((yaw * Math.PI) / 180) });
 
-const DEF = { n: 10, r: 0.12, spd: 1.2, tone: 0.5, size: 1, yaw: 0, a0: 0, a1: 180, thick: 0.5, h: 1, tilt: 0, dur: 0.15, dots: 36, spin: 0, life: 1, tiltx: 0, tiltz: 0, scale: 1, pitch: 0 };
+const DEF = { n: 10, r: 0.12, spd: 1.2, tone: 0.5, size: 1, yaw: 0, a0: 0, a1: 180, thick: 0.5, h: 1, tilt: 0, dur: 0.15, dots: 36, spin: 0, life: 1, tiltx: 0, tiltz: 0, scale: 1, pitch: 0, seg: 0 };
 function pt(dim, name, loc, o = {}) {
   try {
     const m = new MolangVariableMap();
@@ -53,7 +53,20 @@ function bigCrescent(dim, at, yaw, roll, r, o = {}) {
   if (o.outer !== false) pt(dim, "cr_varc_snow", at, { u, v, r: r + 0.9, thick: 0.25, a0: a0 + 15, a1: a1 - 10, dur: dur * 1.2, n: 110 });
 }
 
-// ① 유수: 미끄러지며 거대한 세로 초승달 물살 4번 (좌우로 기울기 번갈아) → 마크 번개 한 방
+/** 파란 가로 검기: 오른쪽 → 앞 → 왼쪽(dir=1) 또는 반대로 휘두름. tilt = 대각선 기울기(도) */
+function blueSlash(dim, at, yaw, tilt, r, dir, o = {}) {
+  const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, tr = (tilt * Math.PI) / 180;
+  const right = { x: -Math.cos(ry), y: 0, z: -Math.sin(ry) };
+  const u = { x: right.x * Math.cos(tr), y: Math.sin(tr), z: right.z * Math.cos(tr) }; // 0° = 오른쪽(기울어짐)
+  const v = f; // 90° = 정면
+  const [a0, a1] = dir > 0 ? [-30, 210] : [210, -30];
+  const dur = o.dur ?? 0.14, thick = o.thick ?? 1.5;
+  pt(dim, "cr_bslash", at, { u, v, r, thick, a0, a1, dur, n: o.n ?? 900, size: o.size ?? 1 });
+  pt(dim, "cr_bslash", at, { u, v, r: r - thick * 0.35, thick: thick * 0.45, a0, a1, dur: dur * 1.1, n: (o.n ?? 900) * 0.35, size: 0.8 });
+  pt(dim, "cr_varc_snow", at, { u, v, r: r + thick * 0.55, thick: 0.3, a0, a1, dur: dur * 1.15, n: 140 });
+}
+
+// ① 유수: 미끄러지며 굵은 파란 가로 검기를 좌우로 번갈아 4번 → 큰 마무리 → 마크 번개 한 방
 function flowingWater(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "dash");
@@ -61,14 +74,14 @@ function flowingWater(ctx) {
   M.potion(p, "fire_resistance", 1, 6);
   M.sound(p, "bucket.empty_water", 1.2);
   M.leap(p, 12, 1);
-  const rolls = [-38, 34, -20, 48];
-  rolls.forEach((roll, i) => {
+  const tilts = [-22, 18, -12, 26]; // 대각선 기울기를 번갈아
+  tilts.forEach((tilt, i) => {
     later(1 + i * 3, () => {
       const yaw = yawOf(p), L = p.location;
       M.anim(p, i % 2 ? "slash" : "slash_down");
-      bigCrescent(dim, up(L, 0.4), yaw + (i % 2 ? 20 : -20), roll, 4.4 + (i % 2) * 0.5);
-      pt(dim, "cr_arc", L, { yaw, a0: -120 * (i % 2 ? 1 : -1), a1: 150 * (i % 2 ? 1 : -1), r: 2.6, thick: 0.5, h: 0.3, tilt: 0.3, dur: 0.12, n: 120 });
-      cluster(dim, up(L, 0.3), { n: 10, r: 0.6, spd: 1.5, tone: 0.5 });
+      blueSlash(dim, up(L, 1.1), yaw, tilt, 3.6 + (i % 2) * 0.4, i % 2 ? -1 : 1);
+      cluster(dim, up(L, 0.9), { n: 12, r: 0.6, spd: 2, tone: 0.5 });
+      snow(dim, up(L, 1.4), 3, 2.5);
       const f = fwdOf(yaw);
       for (const e of M.around(dim, { x: L.x + f.x * 2, y: L.y, z: L.z + f.z * 2 }, 4.5)) hit(e, 0.5);
       M.sound(p, "item.trident.riptide_1", 1.2 + i * 0.1, 0.6);
@@ -77,7 +90,7 @@ function flowingWater(ctx) {
   // 마무리 큰 획 + 번개
   later(14, () => {
     const yaw = yawOf(p), L = p.location, f = fwdOf(yaw);
-    bigCrescent(dim, up(L, 0.4), yaw, 0, 5.4, { n: 700, ns: 220 });
+    blueSlash(dim, up(L, 1), yaw, 6, 5, 1, { thick: 2.1, n: 1300, size: 1.25, dur: 0.18 });
     for (const e of M.around(dim, { x: L.x + f.x * 3, y: L.y, z: L.z + f.z * 3 }, 4)) hit(e, 1);
     M.sound(p, "random.splash", 1.3);
   });
@@ -194,6 +207,108 @@ const headDir = (prev, cur) => {
   const d = { x: cur.x - prev.x, y: cur.y - prev.y, z: cur.z - prev.z };
   return { yaw: (Math.atan2(-d.x, d.z) * 180) / Math.PI, pitch: (Math.atan2(d.y, Math.hypot(d.x, d.z)) * 180) / Math.PI };
 };
+// ───────── 실감나는 3D 청룡 (③ 강림) ─────────
+const add = (a, b, k = 1) => ({ x: a.x + b.x * k, y: a.y + b.y * k, z: a.z + b.z * k });
+const sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+const mix = (...vs) => norm(vs.reduce((acc, [v, k]) => add(acc, v, k), { x: 0, y: 0, z: 0 }));
+/** 경로 위 tt 지점의 몸 좌표계: d = 진행, u = 옆, v = 등(위) */
+function frame(path, tt) {
+  const c = path(tt), d = norm(sub(path(tt + 0.35), path(tt - 0.35)));
+  const u = norm(Math.abs(d.y) > 0.95 ? cross(d, { x: 1, y: 0, z: 0 }) : cross(d, { x: 0, y: 1, z: 0 }));
+  return { c, d, u, v: cross(u, d) };
+}
+/** 머리 로컬 좌표 (앞 x, 위 y, 옆 z) → 월드 (cr_head 파티클과 같은 회전) */
+function headPt(c, hd, lx, ly, lz, sc) {
+  const Y = (hd.yaw * Math.PI) / 180, P = (hd.pitch * Math.PI) / 180, sy = Math.sin(Y), cy = Math.cos(Y), sp = Math.sin(P), cp = Math.cos(P);
+  const F = { x: -sy * cp, y: sp, z: cy * cp }, U = { x: sy * sp, y: cp, z: -cy * sp }, S = { x: cy, y: 0, z: sy };
+  return add(add(add(c, F, lx * sc), U, ly * sc), S, lz * sc);
+}
+/** a 에서 b 로 휜 선 (가시·뿔·수염·발톱) */
+function line(dim, a, b, o = {}) {
+  const d = sub(b, a), len = Math.hypot(d.x, d.y, d.z) || 0.01, u = { x: d.x / len, y: d.y / len, z: d.z / len };
+  pt(dim, "cr_line", a, { u, v: o.bend ?? { x: 0, y: 1, z: 0 }, r: len, h: o.h ?? 0, n: o.n ?? Math.ceil(len * 12), tone: o.tone ?? 0.5, spd: o.spd ?? 0, thick: o.thick ?? 0.6, life: o.life ?? 0.12, size: o.size ?? 1 });
+}
+const glow = (dim, at, o = {}) => pt(dim, "cr_glow", at, { n: o.n ?? 1, r: o.r ?? 0, size: o.size ?? 0.3, tone: o.tone ?? 0.2, life: o.life ?? 0.12 });
+function shake(dim, at, power, sec) {
+  try { for (const pl of dim.getPlayers({ location: at, maxDistance: 28 })) pl.runCommand(`camerashake add @s ${power} ${sec} positional`); } catch {}
+}
+/**
+ * 한 틱 분량의 청룡: 비늘 몸통 + 등가시 + 갈기 + 네 다리(발톱) + 수염 + 꼬리 지느러미 + 머리(윤곽·채움) + 빛나는 눈
+ *  path(t) 위를 지나는 용, ground 아래는 안 그림
+ */
+function drawDragon(dim, path, t, o) {
+  const { thick, life, ground, sc = 1.7 } = o;
+  const ok = (q) => q.y > ground;
+  const H = frame(path, t);
+  // 몸통: 곡선을 따라 5번, 비늘 줄무늬가 엇갈리게 seg 번호
+  let a = path(t - 1);
+  for (let k = 1; k <= 5; k++) {
+    const b = path(t - 1 + k / 5);
+    if (ok(b)) {
+      const dd = norm(sub(b, a)), uu = norm(Math.abs(dd.y) > 0.95 ? cross(dd, { x: 1, y: 0, z: 0 }) : cross(dd, { x: 0, y: 1, z: 0 }));
+      pt(dim, "cr_body", b, { u: uu, v: cross(uu, dd), r: thick, n: 46, life, seg: t * 5 + k });
+    }
+    a = b;
+  }
+  // 등가시: 톱니처럼 높낮이 번갈아, 몸통과 함께 남음
+  const B = frame(path, t - 1.4);
+  if (ok(B.c)) {
+    const base = add(B.c, B.v, thick * 0.8);
+    line(dim, base, add(add(base, B.v, (t % 2 ? 0.95 : 0.55) * thick), B.d, -0.55 * thick), { tone: 0.82, spd: -0.55, n: 14, life: life * 0.62, thick: 0.75 });
+  }
+  if (!ok(H.c)) return;
+  const hd = headDir(path(t - 1), path(t + 1));
+  // 머리: 채움(입체) + 윤곽선
+  pt(dim, "cr_headfill", H.c, { ...hd, n: 300, life: 0.1, scale: sc });
+  pt(dim, "cr_head", H.c, { ...hd, n: 300, life: 0.1, scale: sc });
+  // 빛나는 눈 + 머리 주변 기운
+  for (const s of [-1, 1]) glow(dim, headPt(H.c, hd, 1.02, 0.6, 0.44 * s, sc), { size: 0.32, tone: 0.1, n: 2 });
+  if (t % 2 === 0) glow(dim, headPt(H.c, hd, 0.6, 0.3, 0, sc), { size: 2.4, tone: 1, r: 0.6, n: 2, life: 0.15 });
+  // 수염: 코끝에서 뒤로 흐르며 물결침
+  for (const s of [-1, 1]) {
+    let q = headPt(H.c, hd, 2.25, 0.02, 0.25 * s, sc);
+    for (let k = 1; k <= 4; k++) {
+      const F = frame(path, t - k * 0.8);
+      const w = Math.sin(t * 0.45 + k * 0.9 + s) * 0.35 * (k / 4);
+      const nq = add(add(add(F.c, F.u, s * (0.7 + k * 0.24 + w)), F.v, -0.25 - k * 0.1 + Math.cos(t * 0.4 + k) * 0.25 * (k / 4)), F.d, 1.2);
+      if (ok(nq)) line(dim, q, nq, { tone: 0.08, spd: 0.15, n: 13, thick: 0.35, size: 0.8 });
+      q = nq;
+    }
+  }
+  // 갈기: 목 뒤로 흰 물결 갈기 (좌·중·우) — 2틱마다 (파티클 수 절약)
+  const LL = 0.16;
+  if (t % 2 === 0) for (let k = 0; k < 4; k++) {
+    const F = frame(path, t - 0.5 - k * 0.7);
+    if (!ok(F.c)) continue;
+    for (const s of [-1, 0, 1]) {
+      const base = add(add(F.c, F.v, thick * 0.65), F.u, s * thick * 0.45);
+      const dir = mix([F.v, 0.6], [F.d, -0.85], [F.u, s * 0.45]);
+      line(dim, base, add(base, dir, (1.35 - k * 0.22) * (s ? 0.85 : 1)), { bend: F.u, h: Math.sin(t * 0.6 + k + s) * 0.25, tone: 0.04, spd: 0.25, n: 12, thick: 0.7, life: LL });
+    }
+  }
+  // 네 다리: 앞다리(머리 뒤) / 뒷다리(몸 중간), 걷듯이 앞뒤로 휘저음, 흰 발톱 세 개
+  if (t % 2 === 1) for (const [lag, ph] of [[4.5, 0], [17, Math.PI]]) {
+    const F = frame(path, t - lag);
+    if (!ok(F.c)) continue;
+    for (const s of [-1, 1]) {
+      const sw = Math.sin(t * 0.4 + ph + (s > 0 ? 0 : Math.PI)) * 0.55;
+      const hip = add(add(F.c, F.u, s * thick * 0.72), F.v, -thick * 0.45);
+      const knee = add(hip, mix([F.v, -0.75], [F.u, s * 0.4], [F.d, 0.25 + sw]), 1.05 * thick);
+      const foot = add(knee, mix([F.v, -0.35], [F.d, 0.9 - sw * 0.5]), 0.75 * thick);
+      line(dim, hip, knee, { tone: 0.62, n: 14, thick: 0.35, size: 1.5, life: LL });
+      line(dim, knee, foot, { tone: 0.5, n: 10, thick: 0.4, size: 1.2, life: LL });
+      for (let k = -1; k <= 1; k++) line(dim, foot, add(foot, mix([F.d, 0.65], [F.v, -0.6], [F.u, k * 0.55]), 0.42 * thick), { bend: F.v, h: -0.08, tone: 0.0, n: 6, thick: 0.8, life: LL });
+    }
+  }
+  // 꼬리 끝 지느러미 (몸통이 사라지는 쪽)
+  if (t > 30 && t % 2 === 0) {
+    const F = frame(path, t - 30);
+    if (ok(F.c)) for (let k = -2; k <= 2; k++) {
+      const dir = mix([F.d, -1], [F.v, k * 0.32], [F.u, Math.sin(t * 0.5 + k) * 0.35]);
+      line(dim, F.c, add(F.c, dir, 1.7 - Math.abs(k) * 0.2), { bend: F.u, h: Math.sin(t * 0.5) * 0.3, tone: 0.1, spd: 0.2, n: 14, thick: 0.6, life: LL });
+    }
+  }
+}
 const ease = (s) => s * s * (3 - 2 * s);
 
 // ③ 청룡 강림: 거대한 먹구름 → 청룡이 구름 위에서 나타나 구름을 뚫고 내려와 아래를 한 바퀴
@@ -250,26 +365,63 @@ function dragon(ctx) {
   };
   const hidden = (t) => t > T2 - 3 && t <= T3 + 2; // 구름 위로 사라진 동안은 안 그림
   const T = T3 + TD;
+  // ── 분위기: 비, 구름 속 번개, 회오리 ──
+  pt(dim, "cr_rain", up(C, -2.5), { r: 13, n: 130, life: (T + 20) / 20 });
+  pt(dim, "cr_snowfall", up(C, -2), { r: 15, n: 70, life: (T + 30) / 20 });
+  for (let i = 0; i * 11 < T3 + 6; i++) {
+    later(3 + i * 11 + Math.floor(Math.random() * 5), () => {
+      const r1 = Math.random() * Math.PI * 2, r2 = r1 + 1.5 + Math.random() * 2;
+      const q1 = { x: C.x + Math.cos(r1) * (4 + Math.random() * 9), y: C.y + (Math.random() - 0.5) * 2, z: C.z + Math.sin(r1) * (4 + Math.random() * 9) };
+      const q2 = { x: C.x + Math.cos(r2) * (4 + Math.random() * 9), y: C.y + (Math.random() - 0.5) * 2, z: C.z + Math.sin(r2) * (4 + Math.random() * 9) };
+      vfxBolt(dim, q1, q2, 0.3);
+      flash(dim, q1, 5);
+      if (i % 2) M.sound(p, "ambient.weather.thunder", 0.6, 1.3);
+    });
+  }
+  later(TA, () => {
+    pt(dim, "cr_spiral", { x: C.x, y: o.y, z: C.z }, { r: 5.5, h: 13, n: 170, spin: 240, life: TB / 20 });
+    M.sound(p, "elytra.loop", 1, 0.6);
+  });
+  later(1, () => { glow(dim, top, { size: 6, tone: 0.9, r: 1, n: 4, life: 0.5 }); M.sound(p, "mob.enderdragon.growl", 1.3, 0.8); shake(dim, o, 0.25, 0.8); });
   let landed = false;
   for (let t = 1; t <= T; t++) {
     later(t, () => {
       const cur = path(t);
       const s = t / T;
-      const thick = 0.95 * Math.min(1, 0.35 + s * 3);
-      // 한 틱 사이도 실제 곡선을 따라 5번 나눠 그림 → 몸통이 각지지 않음
+      const thick = 1.05 * Math.min(1, 0.35 + s * 3);
       if (t === T2) { flash(dim, up(C, 3), 6); M.sound(p, "ambient.weather.thunder", 1, 1.2); } // 구름 속 번쩍
-      if (t === T3 + 1) M.sound(p, "mob.enderdragon.growl", 1.4, 0.9);
+      if (t === T3 + 1) { M.sound(p, "mob.enderdragon.growl", 1.4, 0.9); shake(dim, o, 0.35, 1); glow(dim, cur, { size: 7, tone: 0.9, r: 1, n: 4, life: 0.4 }); }
       if (hidden(t)) return;
-      if (cur.y > o.y - 0.5) bodyAlong(dim, path, t, thick, t > T3 ? 1.2 : 1.7, 5);
-      const hd = headDir(path(t - 1), path(t + 1)); // 앞뒤 차이로 방향 → 머리가 덜 흔들림
-      if (cur.y > o.y + 0.3) pt(dim, "cr_head", cur, { ...hd, n: 380, life: 0.1, scale: 1.7 });
+      drawDragon(dim, path, t, { thick, life: t > T3 ? 1.2 : 1.7, ground: o.y - 0.5 });
+      // 급강하: 몸을 스치는 바람 줄기
+      if (t > T3 && cur.y > o.y) {
+        const F = frame(path, t);
+        for (let k = 0; k < 3; k++) {
+          const a = Math.random() * Math.PI * 2, st = add(add(F.c, F.u, Math.cos(a) * 2.2), F.v, Math.sin(a) * 2.2);
+          line(dim, st, add(st, F.d, -3.5), { tone: 0.02, n: 10, thick: 0.9, size: 0.6, life: 0.1 });
+        }
+      }
       if (t % 3 === 0) snow(dim, cur, 3, 2);
       cluster(dim, cur, { n: 8, r: 0.5, spd: 1.8, tone: 0.5 });
       for (const e of M.around(dim, cur, 3)) hit(e, 0.5);
       if (t % 10 === 0) M.sound(p, "bucket.empty_water", 0.6 + s * 0.6, 0.7);
-      // 땅에 닿는 순간 물보라
+      // 땅에 닿는 순간: 충격파 · 물기둥 · 갈라짐 · 화면 흔들림
       if (!landed && t > T3 && cur.y <= o.y + 0.5) {
         landed = true;
+        const g1 = up(G, 0.15);
+        flash(dim, up(G, 1), 7);
+        pt(dim, "cr_shock", g1, { n: 240, spd: 17, tone: 0.15 });
+        later(3, () => pt(dim, "cr_shock", g1, { n: 170, spd: 10, tone: 0.45 }));
+        pt(dim, "cr_column", G, { r: 1.4, n: 280, spd: 17 });
+        pt(dim, "cr_pillar", G, { r: 1.6, h: 3, n: 220, life: 1.6 }); // 하늘로 솟는 빛기둥
+        snow(dim, up(G, 3), 30, 6);
+        later(4, () => pt(dim, "cr_column", G, { r: 2.6, n: 160, spd: 10 }));
+        for (let k = 0; k < 11; k++) {
+          const a = (k / 11) * Math.PI * 2 + Math.random() * 0.3, dir = { x: Math.cos(a), y: 0, z: Math.sin(a) };
+          const mid = add(g1, dir, 1.6 + Math.random() * 1.5);
+          line(dim, add(g1, dir, 0.6), mid, { tone: 0.97, n: 26, thick: 0.3, life: 3, size: 1.3 });
+          line(dim, mid, add(add(mid, dir, 1.5 + Math.random() * 2), { x: -dir.z, y: 0, z: dir.x }, (Math.random() - 0.5) * 1.4), { tone: 0.97, n: 22, thick: 0.6, life: 3, size: 1.1 });
+        }
         pt(dim, "cr_ring", G, { r: 4.5, h: 0.2, dots: 52, spin: 220, tone: 0.5, life: 1.3 });
         pt(dim, "cr_arc", G, { yaw: 0, a0: 0, a1: 360, r: 3.4, thick: 1, h: 0.3, dur: 0.25, n: 280 });
         for (let k = 0; k < 12; k++) {
@@ -277,6 +429,7 @@ function dragon(ctx) {
           cluster(dim, { x: G.x + Math.cos(a) * 2.2, y: G.y + 1 + Math.random(), z: G.z + Math.sin(a) * 2.2 }, { n: 20, r: 0.5, spd: 4.5, tone: k % 3 ? 0.4 : 0.8 });
         }
         for (const e of M.around(dim, G, 5)) { hit(e, 1.6); M.toss(G, e, 3, 5); }
+        shake(dim, G, 0.9, 1.1);
         M.sound(p, "random.splash", 0.7);
         M.sound(p, "random.explode", 1.2, 0.6);
       }
@@ -290,6 +443,9 @@ function dragon(ctx) {
       const at = e.isValid?.() === false ? null : { ...e.location };
       if (!at) return;
       try { dim.spawnEntity("minecraft:lightning_bolt", at); } catch {}
+      shake(dim, at, 0.4, 0.4);
+      pt(dim, "cr_pillar", at, { r: 0.8, h: 2, n: 120, life: 0.6 });
+      pt(dim, "cr_shock", up(at, 0.1), { n: 90, spd: 9, tone: 0.1 });
       cluster(dim, up(at, 0.5), { n: 18, r: 0.6, spd: 3.5, tone: 0.2 });
       snow(dim, up(at, 1.5), 5, 2);
       if (e.id) hit(e, 2);
