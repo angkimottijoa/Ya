@@ -1,0 +1,26 @@
+<!doctype html><meta charset="utf-8"><title>Arcania HUD Preview</title>
+<style>
+:root{--s:4}
+body{margin:0;background:linear-gradient(#6aa7e0,#9fd0f0 55%,#5c8a3c 55%,#4a7030);width:1708px;height:960px;position:relative;font-family:'Noto Sans KR',sans-serif;image-rendering:pixelated;overflow:hidden}
+.ns{border-style:solid;border-width:16px;border-image-slice:4 fill;border-image-repeat:stretch;box-sizing:border-box;image-rendering:pixelated}
+.root{position:absolute;top:16px;right:16px;width:600px}
+.bar{height:88px;border-image-source:url(resource_pack/textures/ui/rpg/bar.png);display:flex;align-items:center;justify-content:space-between}
+.title{color:#f0d68c;font-weight:800;letter-spacing:10px;font-size:30px;text-shadow:3px 3px #3a2a10;margin-left:12px}
+.btn{width:160px;height:64px;border-image-source:url(resource_pack/textures/ui/rpg/button_default.png);display:flex;align-items:center;gap:8px;color:#f0d68c;font-size:26px;font-weight:700;margin-right:-4px}
+.btn img{width:40px;height:40px}
+.panel{margin-top:12px;border-image-source:url(resource_pack/textures/ui/rpg/panel.png);padding:0}
+.head{height:52px;border-width:8px;border-image-source:url(resource_pack/textures/ui/rpg/header.png);border-image-slice:2 fill;display:flex;align-items:center;gap:12px;color:#ffc440;font-weight:800;font-size:28px}
+.head img{width:40px;height:40px}
+.body{padding:12px 8px 4px;color:#e6e6f2;font-size:26px;line-height:1.45;text-shadow:2px 2px #000}
+.y{color:#ffff55}.g{color:#aaa}
+.hotbar{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);width:728px;height:88px;background:#0008;border:4px solid #0009}
+</style>
+<div class="root">
+ <div class="bar ns"><span class="title">ARCANIA</span>
+  <div class="btn ns"><img src="resource_pack/textures/ui/rpg/icon_menu.png">메뉴</div></div>
+ <div class="panel ns">
+  <div class="head ns"><img src="resource_pack/textures/ui/rpg/icon_quest.png">퀘스트</div>
+  <div class="body"><span class="y">[메인] 마을의 위기</span><br><span class="g">- 촌장과 대화하기<br>- 고블린 처치 </span>(0/5)</div>
+ </div>
+</div>
+<div class="hotbar"></div>

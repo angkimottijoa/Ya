@@ -1,0 +1,40 @@
+{
+  "namespace": "hud",
+
+  // 기본 HUD 에 RPG 메뉴바 + 퀘스트창 추가
+  "root_panel": {
+    "modifications": [
+      {
+        "array_name": "controls",
+        "operation": "insert_back",
+        "value": [
+          { "rpg_hud@rpg_hud.root": {} }
+        ]
+      }
+    ]
+  },
+
+  // "quest:" 로 시작하는 title 은 화면 중앙에 띄우지 않고 퀘스트창으로만 보낸다
+  "hud_title_text": {
+    "modifications": [
+      {
+        "array_name": "bindings",
+        "operation": "insert_back",
+        "value": {
+          "binding_type": "global",
+          "binding_name": "#hud_title_text_string",
+          "binding_name_override": "#rpg_title_raw"
+        }
+      },
+      {
+        "array_name": "bindings",
+        "operation": "insert_back",
+        "value": {
+          "binding_type": "view",
+          "source_property_name": "((#rpg_title_raw - 'quest:') = #rpg_title_raw)",
+          "target_property_name": "#visible"
+        }
+      }
+    ]
+  }
+}

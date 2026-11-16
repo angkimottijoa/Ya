@@ -1,0 +1,24 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Arcania RPG UI (BP)",
+    "description": "메뉴 설정 폼 + 퀘스트창 갱신 스크립트",
+    "uuid": "b30c3da6-e088-486a-8bfb-89a22c7d48d2",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    {
+      "type": "script",
+      "language": "javascript",
+      "uuid": "dc813b9f-f3e6-475d-bef2-cfb28bdb497c",
+      "entry": "scripts/main.js",
+      "version": [1, 0, 0]
+    }
+  ],
+  "dependencies": [
+    { "uuid": "2dced61c-c268-4bce-aa75-5833232c5d9e", "version": [1, 0, 0] },
+    { "module_name": "@minecraft/server", "version": "1.16.0" },
+    { "module_name": "@minecraft/server-ui", "version": "1.3.0" }
+  ]
+}

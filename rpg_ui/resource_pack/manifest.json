@@ -1,0 +1,16 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Arcania RPG UI",
+    "description": "커스텀 RPG HUD: 메뉴바 + 퀘스트창",
+    "uuid": "2dced61c-c268-4bce-aa75-5833232c5d9e",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 21, 0]
+  },
+  "modules": [
+    { "type": "resources", "uuid": "d9ae8774-36d8-44cc-b96c-09951f34d1a1", "version": [1, 0, 0] }
+  ],
+  "dependencies": [
+    { "uuid": "b30c3da6-e088-486a-8bfb-89a22c7d48d2", "version": [1, 0, 0] }
+  ]
+}
