@@ -248,7 +248,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * (2.0 + {R4} * 0.9) * (0.85 + {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S} * (2.4 + {R4} * 1.2) * (0.9 + {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{px} * {CELL}", f"{py} * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음

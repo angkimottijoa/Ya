@@ -13,17 +13,21 @@ SRC = ROOT / "art" / "cheongryong_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_cr_dragonhead.png"
 TARGET_W = 240
 CELL = 8
-# 연기 파티클 같은 둥근 덩어리 (8x8): 숫자 = 밝기 (9 가운데 밝음 → 5 가장자리 어두움), . = 투명
-PUFF = [
-    "..6776..",
-    ".678876.",
-    "67899876",
-    "78999987",
-    "78999987",
-    "67899876",
-    ".678876.",
-    "..6776..",
-]
+# 연기 파티클처럼 듬성듬성한 픽셀 덩어리 (8x8) 4종: 가운데 빽빽, 바깥으로 갈수록 구멍·흩어진 점
+def _clumps():
+    import random
+    rnd = random.Random(7)
+    out = []
+    for _ in range(4):
+        m = []
+        for j in range(8):
+            for i in range(8):
+                d = ((i - 3.5) ** 2 + (j - 3.5) ** 2) ** 0.5
+                if rnd.random() < max(0.0, 1.05 - d * 0.24):
+                    m.append((i, j))
+        out.append(m)
+    return out
+CLUMPS = _clumps()
 
 
 def main():
@@ -65,17 +69,16 @@ def main():
                 sp[x, y] = (r, g, b, 255)
                 n += 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    # 픽셀 하나 = CELLxCELL 칸의 둥근 연기 덩어리 (가운데 밝고 가장자리 어두움) → 연기 파티클처럼 찍힘
+    # 픽셀 하나 = CELLxCELL 칸의 듬성듬성한 픽셀 덩어리 → 연기 파티클(먼지 뭉치)처럼 찍힘
     big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
     bp = big.load()
-    disc = [(i, j, int(ch) / 9) for j, row in enumerate(PUFF) for i, ch in enumerate(row) if ch != "."]
+
     for y in range(small.size[1]):
         for x in range(small.size[0]):
             col = sp[x, y]
             if col[3]:
-                for i, j, k in disc:
-                    k = 0.62 + (k - 0.6) * 0.95  # 가장자리는 어둡게 → 입체감 있는 연기 덩어리
-                    bp[x * CELL + i, y * CELL + j] = (min(255, int(col[0] * k)), min(255, int(col[1] * k)), min(255, int(col[2] * k)), 255)
+                for i, j in CLUMPS[(x * 7 + y * 13) % 4]:
+                    bp[x * CELL + i, y * CELL + j] = col
     big.save(OUT)
     bg = Image.new("RGBA", small.size, (70, 100, 150, 255))
     bg.alpha_composite(small)

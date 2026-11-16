@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V3.9.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V4.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V4.0 변경
+- 천룡추 청룡 그림: 점 하나하나를 연기·먼지 파티클처럼 듬성듬성한 픽셀 뭉치(4종)로 찍음
 
 ## V3.9 변경
 - 검기 전면 교체: 파티클 하나(cr_slash)로 그리는 파란 초승달. 휘두르는 순서·사라짐은 파티클 안 Molang 애니메이션, 날아가는 검기도 같은 파티클
