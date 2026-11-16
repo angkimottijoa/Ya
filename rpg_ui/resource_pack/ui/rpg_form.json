@@ -13,17 +13,23 @@
   //
   //  주의: 이미지 안의 글자/아이콘은 layer 를 명시해야 배경 위에 그려진다.
   // ════════════════════════════════════════════════════════════════
-  "namespace": "rpg_form",
 
-  // ───────── 공통 조각 ─────────
+  "namespace": "rpg_form",
   "marker_image": {
     "type": "image",
     "$marker|default": "[ON]",
     "$tex|default": "textures/ui/rpg/cell_on",
     "texture": "$tex",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "bindings": [
-      { "binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+      {
+        "binding_name": "#form_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
       {
         "binding_type": "view",
         "source_property_name": "(not ((#form_button_text - $marker) = #form_button_text))",
@@ -31,10 +37,13 @@
       }
     ]
   },
-
   "no_marker_image@rpg_form.marker_image": {
     "bindings": [
-      { "binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+      {
+        "binding_name": "#form_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
       {
         "binding_type": "view",
         "source_property_name": "((#form_button_text - $marker) = #form_button_text)",
@@ -42,14 +51,26 @@
       }
     ]
   },
-
   "btn_icon": {
     "type": "image",
-    "size": [ 16, 16 ],
+    "size": [
+      16,
+      16
+    ],
     "layer": 5,
     "bindings": [
-      { "binding_name": "#form_button_texture", "binding_name_override": "#texture", "binding_type": "collection", "binding_collection_name": "form_buttons" },
-      { "binding_name": "#form_button_texture_file_system", "binding_name_override": "#texture_file_system", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+      {
+        "binding_name": "#form_button_texture",
+        "binding_name_override": "#texture",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
+      {
+        "binding_name": "#form_button_texture_file_system",
+        "binding_name_override": "#texture_file_system",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
       {
         "binding_type": "view",
         "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
@@ -57,19 +78,25 @@
       }
     ]
   },
-
-  // 마커를 지운 버튼 글자 (스크립트가 앞에 §r 을 붙여 숫자로 시작하지 않게 함)
   "btn_label": {
     "type": "label",
     "text": "#display",
     "layer": 6,
     "color": "$lbl_color",
-    "$lbl_color|default": [ 0.96, 0.94, 0.9 ],
+    "$lbl_color|default": [
+      0.96,
+      0.94,
+      0.9
+    ],
     "shadow": "$lbl_shadow",
     "$lbl_shadow|default": true,
     "localize": false,
     "bindings": [
-      { "binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+      {
+        "binding_name": "#form_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
       {
         "binding_type": "view",
         "source_property_name": "((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]')",
@@ -77,12 +104,15 @@
       }
     ]
   },
-
   "only_marker": {
     "type": "panel",
     "$marker|default": "[I]",
     "bindings": [
-      { "binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+      {
+        "binding_name": "#form_button_text",
+        "binding_type": "collection",
+        "binding_collection_name": "form_buttons"
+      },
       {
         "binding_type": "view",
         "source_property_name": "(not ((#form_button_text - $marker) = #form_button_text))",
@@ -90,33 +120,33 @@
       }
     ]
   },
-
   "form_btn@common.button": {
     "$pressed_button_name": "button.form_button_click",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "focus_enabled": true,
     "sound_name": "random.click",
     "sound_volume": 0.6,
     "bindings": [
-      { "binding_type": "collection_details", "binding_collection_name": "form_buttons" }
+      {
+        "binding_type": "collection_details",
+        "binding_collection_name": "form_buttons"
+      }
     ]
   },
-
-  "collection_stack": {
-    "type": "stack_panel",
-    "orientation": "vertical",
-    "$entry|default": "@rpg_form.list_entry",
-    "factory": { "name": "buttons", "control_ids": { "button": "$entry" } },
-    "collection_name": "form_buttons",
-    "bindings": [ { "binding_name": "#form_button_contents", "binding_name_override": "#collection_length" } ]
-  },
-
   "mode_panel": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "$flag|default": "[RPG:G]",
     "bindings": [
-      { "binding_name": "#title_text" },
+      {
+        "binding_name": "#title_text"
+      },
       {
         "binding_type": "view",
         "source_property_name": "(not ((#title_text - $flag) = #title_text))",
@@ -124,32 +154,46 @@
       }
     ]
   },
-
-  // ════════════════════ 라우터 ════════════════════
   "router": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "controls": [
       {
         "vanilla@server_form.long_form": {
           "bindings": [
-            { "binding_name": "#title_text" },
-            { "binding_type": "view", "source_property_name": "((#title_text - '[RPG:') = #title_text)", "target_property_name": "#visible" }
+            {
+              "binding_name": "#title_text"
+            },
+            {
+              "binding_type": "view",
+              "source_property_name": "((#title_text - '[RPG:') = #title_text)",
+              "target_property_name": "#visible"
+            }
           ]
         }
       },
-      { "book@rpg_form.book_screen": {} },
-      { "dialog@rpg_form.dialog_screen": {} }
+      {
+        "book@rpg_form.book_screen": {}
+      },
+      {
+        "dialog@rpg_form.dialog_screen": {}
+      }
     ]
   },
-
-  // ════════════════════ 책(메뉴) 화면 ════════════════════
   "book_screen": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "layer": 2,
     "bindings": [
-      { "binding_name": "#title_text" },
+      {
+        "binding_name": "#title_text"
+      },
       {
         "binding_type": "view",
         "source_property_name": "((not ((#title_text - '[RPG:') = #title_text)) and ((#title_text - '[RPG:D]') = #title_text))",
@@ -157,25 +201,51 @@
       }
     ],
     "controls": [
-      { "dim": { "type": "image", "texture": "textures/ui/rpg/screen_bg", "size": [ "100%", "100%" ], "layer": 0 } },
-      { "rail@rpg_form.rail": {} },
+      {
+        "dim": {
+          "type": "image",
+          "texture": "textures/ui/rpg/screen_bg",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "layer": 0
+        }
+      },
+      {
+        "rail@rpg_form.rail": {}
+      },
       {
         "main": {
           "type": "panel",
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "offset": [ 40, 0 ],
-          "size": [ "100% - 46px", "100%" ],
+          "offset": [
+            40,
+            0
+          ],
+          "size": [
+            "100% - 46px",
+            "100%"
+          ],
           "layer": 1,
           "controls": [
-            { "top@rpg_form.top_bar": {} },
+            {
+              "top@rpg_form.top_bar": {}
+            },
             {
               "body": {
                 "type": "panel",
                 "anchor_from": "top_left",
                 "anchor_to": "top_left",
-                "offset": [ 0, 28 ],
-                "size": [ "100%", "100% - 33px" ],
+                "offset": [
+                  0,
+                  28
+                ],
+                "size": [
+                  "100%",
+                  "100% - 33px"
+                ],
                 "controls": [
                   {
                     "center": {
@@ -183,24 +253,38 @@
                       "texture": "textures/ui/rpg/content_bg",
                       "anchor_from": "top_left",
                       "anchor_to": "top_left",
-                      "size": [ "100% - 150px", "100%" ],
+                      "size": [
+                        "100% - 150px",
+                        "100%"
+                      ],
                       "controls": [
                         {
                           "inner": {
                             "type": "panel",
-                            "size": [ "100% - 8px", "100% - 8px" ],
+                            "size": [
+                              "100% - 8px",
+                              "100% - 8px"
+                            ],
                             "layer": 1,
                             "controls": [
-                              { "grid_mode@rpg_form.grid_mode": {} },
-                              { "tile_mode@rpg_form.tile_mode": {} },
-                              { "list_mode@rpg_form.list_mode": {} }
+                              {
+                                "grid_mode@rpg_form.grid_mode": {}
+                              },
+                              {
+                                "tile_mode@rpg_form.tile_mode": {}
+                              },
+                              {
+                                "list_mode@rpg_form.list_mode": {}
+                              }
                             ]
                           }
                         }
                       ]
                     }
                   },
-                  { "detail@rpg_form.detail_card": {} }
+                  {
+                    "detail@rpg_form.detail_card": {}
+                  }
                 ]
               }
             }
@@ -209,76 +293,154 @@
       }
     ]
   },
-
-  // ───────── 왼쪽 레일 ─────────
   "rail": {
     "type": "image",
     "texture": "textures/ui/rpg/rail",
     "anchor_from": "left_middle",
     "anchor_to": "left_middle",
-    "size": [ 34, "100%" ],
+    "size": [
+      34,
+      "100%"
+    ],
     "layer": 1,
     "controls": [
       {
-        "tabs@rpg_form.collection_stack": {
-          "$entry": "@rpg_form.rail_entry",
+        "tabs": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "factory": {
+            "name": "buttons",
+            "control_ids": {
+              "button": "@rpg_form.rail_entry"
+            }
+          },
+          "collection_name": "form_buttons",
+          "bindings": [
+            {
+              "binding_name": "#form_button_contents",
+              "binding_name_override": "#collection_length"
+            }
+          ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "offset": [ 5, 5 ],
-          "size": [ 34, "100%c" ],
+          "offset": [
+            5,
+            5
+          ],
+          "size": [
+            34,
+            "100%c"
+          ],
           "layer": 2
         }
       }
     ]
   },
-
   "rail_entry@rpg_form.only_marker": {
     "$marker": "[T]",
-    "size": [ 34, 27 ],
+    "size": [
+      34,
+      21
+    ],
     "controls": [
-      { "btn@rpg_form.rail_btn": { "size": [ 24, 24 ], "anchor_from": "left_middle", "anchor_to": "left_middle" } }
+      {
+        "btn@rpg_form.rail_btn": {
+          "size": [
+            19,
+            19
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle"
+        }
+      }
     ]
   },
-
   "rail_face": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "$bg|default": "textures/ui/rpg/tab_default",
     "controls": [
-      { "bg@rpg_form.no_marker_image": { "$marker": "[ON]", "$tex": "$bg", "layer": 1 } },
-      { "on@rpg_form.marker_image": { "$marker": "[ON]", "$tex": "textures/ui/rpg/tab_on", "size": [ 30, 24 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "layer": 1 } },
-      { "icon@rpg_form.btn_icon": { "size": [ 14, 14 ] } }
+      {
+        "bg@rpg_form.no_marker_image": {
+          "$marker": "[ON]",
+          "$tex": "$bg",
+          "layer": 1
+        }
+      },
+      {
+        "on@rpg_form.marker_image": {
+          "$marker": "[ON]",
+          "$tex": "textures/ui/rpg/tab_on",
+          "size": [
+            26,
+            19
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "layer": 1
+        }
+      },
+      {
+        "icon@rpg_form.btn_icon": {
+          "size": [
+            12,
+            12
+          ]
+        }
+      }
     ]
   },
-
   "rail_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.rail_face": {} },
-      { "hover@rpg_form.rail_face": { "$bg": "textures/ui/rpg/tab_hover" } },
-      { "pressed@rpg_form.rail_face": { "$bg": "textures/ui/rpg/tab_on" } }
+      {
+        "default@rpg_form.rail_face": {}
+      },
+      {
+        "hover@rpg_form.rail_face": {
+          "$bg": "textures/ui/rpg/tab_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.rail_face": {
+          "$bg": "textures/ui/rpg/tab_on"
+        }
+      }
     ]
   },
-
-  // ───────── 상단 바 ─────────
   "top_bar": {
     "type": "panel",
     "anchor_from": "top_left",
     "anchor_to": "top_left",
-    "size": [ "100%", 26 ],
+    "size": [
+      "100%",
+      26
+    ],
     "controls": [
       {
         "breadcrumb": {
           "type": "label",
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
-          "offset": [ 2, 1 ],
+          "offset": [
+            2,
+            1
+          ],
           "layer": 3,
-          "color": [ 0.97, 0.88, 0.6 ],
+          "color": [
+            0.97,
+            0.88,
+            0.6
+          ],
           "shadow": true,
           "localize": false,
           "text": "#crumb",
           "bindings": [
-            { "binding_name": "#title_text" },
+            {
+              "binding_name": "#title_text"
+            },
             {
               "binding_type": "view",
               "source_property_name": "(((#title_text - '[RPG:G]') - '[RPG:H]') - '[RPG:L]')",
@@ -293,33 +455,67 @@
           "orientation": "horizontal",
           "anchor_from": "right_middle",
           "anchor_to": "right_middle",
-          "size": [ "100%c", 20 ],
+          "size": [
+            "100%c",
+            20
+          ],
           "layer": 3,
           "controls": [
             {
-              "chips@rpg_form.collection_stack": {
-                "$entry": "@rpg_form.chip_entry",
+              "chips": {
+                "type": "stack_panel",
                 "orientation": "horizontal",
-                "size": [ "100%c", 20 ]
+                "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                    "button": "@rpg_form.chip_entry"
+                  }
+                },
+                "collection_name": "form_buttons",
+                "bindings": [
+                  {
+                    "binding_name": "#form_button_contents",
+                    "binding_name_override": "#collection_length"
+                  }
+                ],
+                "size": [
+                  "100%c",
+                  20
+                ]
               }
             },
-            { "gap": { "type": "panel", "size": [ 4, 20 ] } },
-            { "close@rpg_form.close_btn": {} }
+            {
+              "gap": {
+                "type": "panel",
+                "size": [
+                  4,
+                  20
+                ]
+              }
+            },
+            {
+              "close@rpg_form.close_btn": {}
+            }
           ]
         }
       }
     ]
   },
-
   "chip_entry@rpg_form.only_marker": {
     "$marker": "[C]",
-    "size": [ "100%c + 4px", 20 ],
+    "size": [
+      "100%c + 4px",
+      20
+    ],
     "controls": [
       {
         "chip": {
           "type": "image",
           "texture": "textures/ui/rpg/chip",
-          "size": [ "100%c + 10px", 16 ],
+          "size": [
+            "100%c + 10px",
+            16
+          ],
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
           "layer": 1,
@@ -328,12 +524,41 @@
               "row": {
                 "type": "stack_panel",
                 "orientation": "horizontal",
-                "size": [ "100%c", 12 ],
+                "size": [
+                  "100%c",
+                  12
+                ],
                 "layer": 2,
                 "controls": [
-                  { "icon@rpg_form.btn_icon": { "size": [ 11, 11 ] } },
-                  { "sp": { "type": "panel", "size": [ 3, 12 ] } },
-                  { "txt@rpg_form.btn_label": { "size": [ "default", 10 ], "offset": [ 0, 2 ] } }
+                  {
+                    "icon@rpg_form.btn_icon": {
+                      "size": [
+                        11,
+                        11
+                      ]
+                    }
+                  },
+                  {
+                    "sp": {
+                      "type": "panel",
+                      "size": [
+                        3,
+                        12
+                      ]
+                    }
+                  },
+                  {
+                    "txt@rpg_form.btn_label": {
+                      "size": [
+                        "default",
+                        10
+                      ],
+                      "offset": [
+                        0,
+                        2
+                      ]
+                    }
+                  }
                 ]
               }
             }
@@ -342,28 +567,55 @@
       }
     ]
   },
-
   "close_face": {
     "type": "image",
     "$bg|default": "textures/ui/rpg/close_default",
     "texture": "$bg",
-    "size": [ 20, 20 ],
+    "size": [
+      20,
+      20
+    ],
     "controls": [
-      { "x": { "type": "image", "texture": "textures/ui/rpg/icons/close", "size": [ 12, 12 ], "color": [ 0.2, 0.22, 0.3 ], "layer": 2 } }
+      {
+        "x": {
+          "type": "image",
+          "texture": "textures/ui/rpg/icons/close",
+          "size": [
+            12,
+            12
+          ],
+          "color": [
+            0.2,
+            0.22,
+            0.3
+          ],
+          "layer": 2
+        }
+      }
     ]
   },
-
   "close_btn@common.button": {
-    "size": [ 20, 20 ],
+    "size": [
+      20,
+      20
+    ],
     "$pressed_button_name": "button.menu_exit",
     "controls": [
-      { "default@rpg_form.close_face": {} },
-      { "hover@rpg_form.close_face": { "$bg": "textures/ui/rpg/close_hover" } },
-      { "pressed@rpg_form.close_face": { "$bg": "textures/ui/rpg/close_hover" } }
+      {
+        "default@rpg_form.close_face": {}
+      },
+      {
+        "hover@rpg_form.close_face": {
+          "$bg": "textures/ui/rpg/close_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.close_face": {
+          "$bg": "textures/ui/rpg/close_hover"
+        }
+      }
     ]
   },
-
-  // ════════════════════ 가운데: 그리드 (배낭/상점) ════════════════════
   "grid_mode@rpg_form.mode_panel": {
     "$flag": "[RPG:G]",
     "controls": [
@@ -372,58 +624,152 @@
           "type": "grid",
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "size": [ 168, 160 ],
-          "grid_dimensions": [ 6, 5 ],
+          "size": [
+            168,
+            160
+          ],
+          "grid_dimensions": [
+            6,
+            5
+          ],
           "grid_item_template": "rpg_form.grid_cell",
           "collection_name": "form_buttons"
         }
       }
     ]
   },
-
   "grid_cell@rpg_form.only_marker": {
     "$marker": "[I]",
-    "size": [ 28, 32 ],
-    "controls": [ { "btn@rpg_form.cell_btn": { "size": [ 26, 30 ] } } ]
+    "size": [
+      28,
+      32
+    ],
+    "controls": [
+      {
+        "btn@rpg_form.cell_btn": {
+          "size": [
+            26,
+            30
+          ]
+        }
+      }
+    ]
   },
-
   "cell_face": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "$hover|default": false,
     "controls": [
-      { "r1@rpg_form.marker_image": { "$marker": "[R1]", "$tex": "textures/ui/rpg/cell_r1", "layer": 1 } },
-      { "r2@rpg_form.marker_image": { "$marker": "[R2]", "$tex": "textures/ui/rpg/cell_r2", "layer": 1 } },
-      { "r3@rpg_form.marker_image": { "$marker": "[R3]", "$tex": "textures/ui/rpg/cell_r3", "layer": 1 } },
-      { "r4@rpg_form.marker_image": { "$marker": "[R4]", "$tex": "textures/ui/rpg/cell_r4", "layer": 1 } },
-      { "r5@rpg_form.marker_image": { "$marker": "[R5]", "$tex": "textures/ui/rpg/cell_r5", "layer": 1 } },
-      { "icon@rpg_form.btn_icon": { "size": [ 18, 18 ], "offset": [ 0, -4 ] } },
+      {
+        "r1@rpg_form.marker_image": {
+          "$marker": "[R1]",
+          "$tex": "textures/ui/rpg/cell_r1",
+          "layer": 1
+        }
+      },
+      {
+        "r2@rpg_form.marker_image": {
+          "$marker": "[R2]",
+          "$tex": "textures/ui/rpg/cell_r2",
+          "layer": 1
+        }
+      },
+      {
+        "r3@rpg_form.marker_image": {
+          "$marker": "[R3]",
+          "$tex": "textures/ui/rpg/cell_r3",
+          "layer": 1
+        }
+      },
+      {
+        "r4@rpg_form.marker_image": {
+          "$marker": "[R4]",
+          "$tex": "textures/ui/rpg/cell_r4",
+          "layer": 1
+        }
+      },
+      {
+        "r5@rpg_form.marker_image": {
+          "$marker": "[R5]",
+          "$tex": "textures/ui/rpg/cell_r5",
+          "layer": 1
+        }
+      },
+      {
+        "icon@rpg_form.btn_icon": {
+          "size": [
+            18,
+            18
+          ],
+          "offset": [
+            0,
+            -4
+          ]
+        }
+      },
       {
         "count@rpg_form.btn_label": {
           "anchor_from": "bottom_middle",
           "anchor_to": "bottom_middle",
-          "offset": [ 0, 0 ],
-          "size": [ "100%", 8 ],
+          "offset": [
+            0,
+            0
+          ],
+          "size": [
+            "100%",
+            8
+          ],
           "text_alignment": "center",
           "font_scale_factor": 0.85,
-          "$lbl_color": [ 0.18, 0.2, 0.28 ],
+          "$lbl_color": [
+            0.18,
+            0.2,
+            0.28
+          ],
           "$lbl_shadow": false
         }
       },
-      { "on@rpg_form.marker_image": { "$marker": "[ON]", "$tex": "textures/ui/rpg/cell_on", "layer": 8 } },
-      { "hover": { "type": "image", "texture": "textures/ui/rpg/cell_hover", "size": [ "100%", "100%" ], "visible": "$hover", "layer": 9 } }
+      {
+        "on@rpg_form.marker_image": {
+          "$marker": "[ON]",
+          "$tex": "textures/ui/rpg/cell_on",
+          "layer": 8
+        }
+      },
+      {
+        "hover": {
+          "type": "image",
+          "texture": "textures/ui/rpg/cell_hover",
+          "size": [
+            "100%",
+            "100%"
+          ],
+          "visible": "$hover",
+          "layer": 9
+        }
+      }
     ]
   },
-
   "cell_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.cell_face": {} },
-      { "hover@rpg_form.cell_face": { "$hover": true } },
-      { "pressed@rpg_form.cell_face": { "$hover": true } }
+      {
+        "default@rpg_form.cell_face": {}
+      },
+      {
+        "hover@rpg_form.cell_face": {
+          "$hover": true
+        }
+      },
+      {
+        "pressed@rpg_form.cell_face": {
+          "$hover": true
+        }
+      }
     ]
   },
-
-  // ════════════════════ 가운데: 타일 (홈) ════════════════════
   "tile_mode@rpg_form.mode_panel": {
     "$flag": "[RPG:H]",
     "controls": [
@@ -432,106 +778,264 @@
           "type": "grid",
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "size": [ 174, 150 ],
-          "grid_dimensions": [ 3, 3 ],
+          "size": [
+            224,
+            147
+          ],
+          "grid_dimensions": [
+            4,
+            3
+          ],
           "grid_item_template": "rpg_form.tile_cell",
           "collection_name": "form_buttons"
         }
       }
     ]
   },
-
   "tile_cell@rpg_form.only_marker": {
     "$marker": "[I]",
-    "size": [ 58, 50 ],
-    "controls": [ { "btn@rpg_form.tile_btn": { "size": [ 54, 46 ] } } ]
+    "size": [
+      56,
+      49
+    ],
+    "controls": [
+      {
+        "btn@rpg_form.tile_btn": {
+          "size": [
+            53,
+            45
+          ]
+        }
+      }
+    ]
   },
-
   "tile_face": {
     "type": "image",
     "$bg|default": "textures/ui/rpg/tile_default",
     "texture": "$bg",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "controls": [
-      { "icon@rpg_form.btn_icon": { "size": [ 20, 20 ], "anchor_from": "top_middle", "anchor_to": "top_middle", "offset": [ 0, 6 ] } },
+      {
+        "icon@rpg_form.btn_icon": {
+          "size": [
+            20,
+            20
+          ],
+          "anchor_from": "top_middle",
+          "anchor_to": "top_middle",
+          "offset": [
+            0,
+            6
+          ]
+        }
+      },
       {
         "label@rpg_form.btn_label": {
           "anchor_from": "bottom_middle",
           "anchor_to": "bottom_middle",
-          "offset": [ 0, -5 ],
-          "size": [ "100% - 4px", 10 ],
+          "offset": [
+            0,
+            -5
+          ],
+          "size": [
+            "100% - 4px",
+            10
+          ],
           "text_alignment": "center",
-          "$lbl_color": [ 0.98, 0.9, 0.64 ]
+          "$lbl_color": [
+            0.98,
+            0.9,
+            0.64
+          ]
         }
       }
     ]
   },
-
   "tile_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.tile_face": {} },
-      { "hover@rpg_form.tile_face": { "$bg": "textures/ui/rpg/tile_hover" } },
-      { "pressed@rpg_form.tile_face": { "$bg": "textures/ui/rpg/tile_pressed" } }
+      {
+        "default@rpg_form.tile_face": {}
+      },
+      {
+        "hover@rpg_form.tile_face": {
+          "$bg": "textures/ui/rpg/tile_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.tile_face": {
+          "$bg": "textures/ui/rpg/tile_pressed"
+        }
+      }
     ]
   },
-
-  // ════════════════════ 가운데: 리스트 ════════════════════
   "list_mode@rpg_form.mode_panel": {
     "$flag": "[RPG:L]",
     "controls": [
-      { "list@rpg_form.collection_stack": { "anchor_from": "top_left", "anchor_to": "top_left", "size": [ "100%", "100%c" ] } }
+      {
+        "list": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "factory": {
+            "name": "buttons",
+            "control_ids": {
+              "button": "@rpg_form.list_entry"
+            }
+          },
+          "collection_name": "form_buttons",
+          "bindings": [
+            {
+              "binding_name": "#form_button_contents",
+              "binding_name_override": "#collection_length"
+            }
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "size": [
+            "100%",
+            "100%c"
+          ]
+        }
+      }
     ]
   },
-
   "list_entry@rpg_form.only_marker": {
     "$marker": "[I]",
-    "size": [ "100%", 27 ],
-    "controls": [ { "btn@rpg_form.row_btn": { "size": [ "100%", 25 ], "anchor_from": "top_left", "anchor_to": "top_left" } } ]
+    "size": [
+      "100%",
+      27
+    ],
+    "controls": [
+      {
+        "btn@rpg_form.row_btn": {
+          "size": [
+            "100%",
+            25
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left"
+        }
+      }
+    ]
   },
-
   "row_face": {
     "type": "panel",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "$bg|default": "textures/ui/rpg/row_default",
     "controls": [
-      { "bg@rpg_form.no_marker_image": { "$marker": "[ON]", "$tex": "$bg", "layer": 1 } },
-      { "on@rpg_form.marker_image": { "$marker": "[ON]", "$tex": "textures/ui/rpg/row_on", "layer": 1 } },
-      { "icon@rpg_form.btn_icon": { "size": [ 16, 16 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 6, 0 ] } },
+      {
+        "bg@rpg_form.no_marker_image": {
+          "$marker": "[ON]",
+          "$tex": "$bg",
+          "layer": 1
+        }
+      },
+      {
+        "on@rpg_form.marker_image": {
+          "$marker": "[ON]",
+          "$tex": "textures/ui/rpg/row_on",
+          "layer": 1
+        }
+      },
+      {
+        "icon@rpg_form.btn_icon": {
+          "size": [
+            16,
+            16
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            6,
+            0
+          ]
+        }
+      },
       {
         "label@rpg_form.btn_label": {
           "anchor_from": "left_middle",
           "anchor_to": "left_middle",
-          "offset": [ 27, 0 ],
-          "size": [ "100% - 31px", "default" ],
-          "max_size": [ "100% - 31px", 22 ]
+          "offset": [
+            27,
+            0
+          ],
+          "size": [
+            "100% - 31px",
+            "default"
+          ],
+          "max_size": [
+            "100% - 31px",
+            22
+          ]
         }
       }
     ]
   },
-
   "row_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.row_face": {} },
-      { "hover@rpg_form.row_face": { "$bg": "textures/ui/rpg/row_hover" } },
-      { "pressed@rpg_form.row_face": { "$bg": "textures/ui/rpg/row_hover" } }
+      {
+        "default@rpg_form.row_face": {}
+      },
+      {
+        "hover@rpg_form.row_face": {
+          "$bg": "textures/ui/rpg/row_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.row_face": {
+          "$bg": "textures/ui/rpg/row_hover"
+        }
+      }
     ]
   },
-
-  // ════════════════════ 오른쪽: 상세 카드 ════════════════════
   "detail_card": {
     "type": "stack_panel",
     "orientation": "vertical",
     "anchor_from": "top_right",
     "anchor_to": "top_right",
-    "size": [ 145, "100%" ],
+    "size": [
+      145,
+      "100%"
+    ],
     "controls": [
       {
         "head": {
           "type": "image",
           "texture": "textures/ui/rpg/card_head",
-          "size": [ "100%", 66 ],
+          "size": [
+            "100%",
+            66
+          ],
           "controls": [
-            { "entries@rpg_form.collection_stack": { "$entry": "@rpg_form.head_entry", "size": [ "100%", "100%" ], "layer": 2 } }
+            {
+              "entries": {
+                "type": "stack_panel",
+                "orientation": "vertical",
+                "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                    "button": "@rpg_form.head_entry"
+                  }
+                },
+                "collection_name": "form_buttons",
+                "bindings": [
+                  {
+                    "binding_name": "#form_button_contents",
+                    "binding_name_override": "#collection_length"
+                  }
+                ],
+                "size": [
+                  "100%",
+                  "100%"
+                ],
+                "layer": 2
+              }
+            }
           ]
         }
       },
@@ -539,34 +1043,87 @@
         "body": {
           "type": "image",
           "texture": "textures/ui/rpg/card_body",
-          "size": [ "100%", "fill" ],
+          "size": [
+            "100%",
+            "fill"
+          ],
           "controls": [
             {
               "scroll@common.scrolling_panel": {
                 "anchor_from": "top_left",
                 "anchor_to": "top_left",
-                "offset": [ 0, 2 ],
-                "size": [ "100%", "100% - 4px" ],
+                "offset": [
+                  0,
+                  2
+                ],
+                "size": [
+                  "100%",
+                  "100% - 4px"
+                ],
                 "layer": 2,
                 "$show_background": false,
                 "$scrolling_content": "rpg_form.detail_text",
-                "$scroll_size": [ 4, "100% - 4px" ],
-                "$scrolling_pane_size": [ "100% - 4px", "100%" ],
-                "$scrolling_pane_offset": [ 0, 0 ],
-                "$scroll_bar_right_padding_size": [ 0, 0 ]
+                "$scroll_size": [
+                  4,
+                  "100% - 4px"
+                ],
+                "$scrolling_pane_size": [
+                  "100% - 4px",
+                  "100%"
+                ],
+                "$scrolling_pane_offset": [
+                  0,
+                  0
+                ],
+                "$scroll_bar_right_padding_size": [
+                  0,
+                  0
+                ]
               }
             }
           ]
         }
       },
-      { "gap": { "type": "panel", "size": [ "100%", 3 ] } },
-      { "actions@rpg_form.collection_stack": { "$entry": "@rpg_form.action_entry", "size": [ "100%", "100%c" ] } }
+      {
+        "gap": {
+          "type": "panel",
+          "size": [
+            "100%",
+            3
+          ]
+        }
+      },
+      {
+        "actions": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "factory": {
+            "name": "buttons",
+            "control_ids": {
+              "button": "@rpg_form.action_entry"
+            }
+          },
+          "collection_name": "form_buttons",
+          "bindings": [
+            {
+              "binding_name": "#form_button_contents",
+              "binding_name_override": "#collection_length"
+            }
+          ],
+          "size": [
+            "100%",
+            "100%c"
+          ]
+        }
+      }
     ]
   },
-
   "head_entry@rpg_form.only_marker": {
     "$marker": "[S]",
-    "size": [ "100%", 66 ],
+    "size": [
+      "100%",
+      66
+    ],
     "controls": [
       {
         "title": {
@@ -574,16 +1131,29 @@
           "texture": "textures/ui/rpg/card_title",
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "size": [ "100%", 17 ],
+          "size": [
+            "100%",
+            17
+          ],
           "layer": 1,
           "controls": [
             {
               "name@rpg_form.btn_label": {
                 "anchor_from": "left_middle",
                 "anchor_to": "left_middle",
-                "offset": [ 5, 1 ],
-                "size": [ "100% - 8px", 10 ],
-                "$lbl_color": [ 1.0, 1.0, 1.0 ],
+                "offset": [
+                  5,
+                  1
+                ],
+                "size": [
+                  "100% - 8px",
+                  10
+                ],
+                "$lbl_color": [
+                  1.0,
+                  1.0,
+                  1.0
+                ],
                 "layer": 4
               }
             }
@@ -592,14 +1162,34 @@
       },
       {
         "big_icon@rpg_form.btn_icon": {
-          "size": [ 42, 42 ],
+          "size": [
+            42,
+            42
+          ],
           "anchor_from": "bottom_right",
           "anchor_to": "bottom_right",
-          "offset": [ -6, -3 ],
+          "offset": [
+            -6,
+            -3
+          ],
           "bindings": [
-            { "binding_name": "#form_button_texture", "binding_name_override": "#texture", "binding_type": "collection", "binding_collection_name": "form_buttons" },
-            { "binding_name": "#form_button_texture_file_system", "binding_name_override": "#texture_file_system", "binding_type": "collection", "binding_collection_name": "form_buttons" },
-            { "binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons" },
+            {
+              "binding_name": "#form_button_texture",
+              "binding_name_override": "#texture",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
+            {
+              "binding_name": "#form_button_texture_file_system",
+              "binding_name_override": "#texture_file_system",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
+            {
+              "binding_name": "#form_button_text",
+              "binding_type": "collection",
+              "binding_collection_name": "form_buttons"
+            },
             {
               "binding_type": "view",
               "source_property_name": "((not ((#texture = '') or (#texture = 'loading'))) and ((#form_button_text - '[P]') = #form_button_text))",
@@ -608,21 +1198,31 @@
           ]
         }
       },
-      // [P] 마커: 내 캐릭터를 3D 로 표시 (스킨/갑옷 그대로)
       {
         "doll_panel@rpg_form.only_marker": {
           "$marker": "[P]",
-          "size": [ 46, 49 ],
+          "size": [
+            46,
+            49
+          ],
           "anchor_from": "bottom_right",
           "anchor_to": "bottom_right",
-          "offset": [ -4, 0 ],
+          "offset": [
+            -4,
+            0
+          ],
           "controls": [
             {
               "player_renderer": {
                 "type": "custom",
                 "renderer": "live_player_renderer",
-                "property_bag": { "#look_at_cursor": true },
-                "size": [ 30, 46 ],
+                "property_bag": {
+                  "#look_at_cursor": true
+                },
+                "size": [
+                  30,
+                  46
+                ],
                 "anchor_from": "bottom_middle",
                 "anchor_to": "bottom_middle",
                 "layer": 8
@@ -633,19 +1233,31 @@
       }
     ]
   },
-
   "detail_text": {
     "type": "panel",
-    "size": [ "100%", "100%c + 4px" ],
+    "size": [
+      "100%",
+      "100%c + 4px"
+    ],
     "controls": [
       {
         "text": {
           "type": "label",
           "anchor_from": "top_left",
           "anchor_to": "top_left",
-          "offset": [ 6, 3 ],
-          "size": [ "100% - 9px", "default" ],
-          "color": [ 0.95, 0.94, 0.9 ],
+          "offset": [
+            6,
+            3
+          ],
+          "size": [
+            "100% - 9px",
+            "default"
+          ],
+          "color": [
+            0.95,
+            0.94,
+            0.9
+          ],
           "shadow": true,
           "localize": false,
           "layer": 3,
@@ -654,35 +1266,80 @@
       }
     ]
   },
-
   "action_entry@rpg_form.only_marker": {
     "$marker": "[A]",
-    "size": [ "100%", 21 ],
-    "controls": [ { "btn@rpg_form.action_btn": { "size": [ "100%", 19 ], "anchor_from": "top_left", "anchor_to": "top_left" } } ]
+    "size": [
+      "100%",
+      21
+    ],
+    "controls": [
+      {
+        "btn@rpg_form.action_btn": {
+          "size": [
+            "100%",
+            19
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left"
+        }
+      }
+    ]
   },
-
   "action_face": {
     "type": "image",
     "$bg|default": "textures/ui/rpg/action_default",
     "texture": "$bg",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "controls": [
-      { "dot": { "type": "image", "texture": "textures/ui/rpg/action_dot", "size": [ 9, 9 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 5, 0 ], "layer": 3 } },
-      { "label@rpg_form.btn_label": { "anchor_from": "center", "anchor_to": "center", "offset": [ 5, 1 ] } }
+      {
+        "dot": {
+          "type": "image",
+          "texture": "textures/ui/rpg/action_dot",
+          "size": [
+            9,
+            9
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            5,
+            0
+          ],
+          "layer": 3
+        }
+      },
+      {
+        "label@rpg_form.btn_label": {
+          "anchor_from": "center",
+          "anchor_to": "center",
+          "offset": [
+            5,
+            1
+          ]
+        }
+      }
     ]
   },
-
   "action_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.action_face": {} },
-      { "hover@rpg_form.action_face": { "$bg": "textures/ui/rpg/action_hover" } },
-      { "pressed@rpg_form.action_face": { "$bg": "textures/ui/rpg/action_pressed" } }
+      {
+        "default@rpg_form.action_face": {}
+      },
+      {
+        "hover@rpg_form.action_face": {
+          "$bg": "textures/ui/rpg/action_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.action_face": {
+          "$bg": "textures/ui/rpg/action_pressed"
+        }
+      }
     ]
   },
-
-  // ════════════════════ NPC 대화창 [RPG:D] ════════════════════
-  //  화면은 어둡게 하지 않고(월드와 NPC 가 그대로 보임) 아래쪽에 이름+대사,
-  //  오른쪽 가운데에 선택지([I] 버튼)를 띄운다.
   "dialog_screen@rpg_form.mode_panel": {
     "$flag": "[RPG:D]",
     "layer": 2,
@@ -693,7 +1350,10 @@
           "texture": "textures/ui/rpg/dlg_bg",
           "anchor_from": "bottom_middle",
           "anchor_to": "bottom_middle",
-          "size": [ "100%", "35%" ],
+          "size": [
+            "100%",
+            "35%"
+          ],
           "layer": 1,
           "controls": [
             {
@@ -702,38 +1362,78 @@
                 "orientation": "vertical",
                 "anchor_from": "top_middle",
                 "anchor_to": "top_middle",
-                "offset": [ 0, 14 ],
-                "size": [ "70%", "100%c" ],
+                "offset": [
+                  0,
+                  14
+                ],
+                "size": [
+                  "70%",
+                  "100%c"
+                ],
                 "layer": 2,
                 "controls": [
                   {
                     "name": {
                       "type": "label",
-                      "size": [ "100%", 11 ],
+                      "size": [
+                        "100%",
+                        11
+                      ],
                       "text_alignment": "center",
-                      "color": [ 1.0, 0.8, 0.3 ],
+                      "color": [
+                        1.0,
+                        0.8,
+                        0.3
+                      ],
                       "shadow": true,
                       "localize": false,
                       "text": "#npc_name",
                       "bindings": [
-                        { "binding_name": "#title_text" },
-                        { "binding_type": "view", "source_property_name": "(#title_text - '[RPG:D]')", "target_property_name": "#npc_name" }
+                        {
+                          "binding_name": "#title_text"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "(#title_text - '[RPG:D]')",
+                          "target_property_name": "#npc_name"
+                        }
                       ]
                     }
                   },
                   {
                     "line_panel": {
                       "type": "panel",
-                      "size": [ "100%", 7 ],
-                      "controls": [ { "line": { "type": "image", "texture": "textures/ui/rpg/dlg_line", "size": [ "100%", 5 ] } } ]
+                      "size": [
+                        "100%",
+                        7
+                      ],
+                      "controls": [
+                        {
+                          "line": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/dlg_line",
+                            "size": [
+                              "100%",
+                              5
+                            ]
+                          }
+                        }
+                      ]
                     }
                   },
                   {
                     "text": {
                       "type": "label",
-                      "size": [ "100%", "default" ],
+                      "size": [
+                        "100%",
+                        "default"
+                      ],
                       "text_alignment": "center",
-                      "color": [ 1.0, 1.0, 1.0 ],
+                      "color": [
+                        1.0,
+                        1.0,
+                        1.0
+                      ],
                       "shadow": true,
                       "localize": false,
                       "text": "#form_text"
@@ -746,40 +1446,110 @@
         }
       },
       {
-        "choices@rpg_form.collection_stack": {
-          "$entry": "@rpg_form.choice_entry",
+        "choices": {
+          "type": "stack_panel",
+          "orientation": "vertical",
+          "factory": {
+            "name": "buttons",
+            "control_ids": {
+              "button": "@rpg_form.choice_entry"
+            }
+          },
+          "collection_name": "form_buttons",
+          "bindings": [
+            {
+              "binding_name": "#form_button_contents",
+              "binding_name_override": "#collection_length"
+            }
+          ],
           "anchor_from": "right_middle",
           "anchor_to": "right_middle",
-          "offset": [ -14, -12 ],
-          "size": [ "34%", "100%c" ],
+          "offset": [
+            -14,
+            -12
+          ],
+          "size": [
+            "34%",
+            "100%c"
+          ],
           "layer": 3
         }
       }
     ]
   },
-
   "choice_entry@rpg_form.only_marker": {
     "$marker": "[I]",
-    "size": [ "100%", 22 ],
-    "controls": [ { "btn@rpg_form.choice_btn": { "size": [ "100%", 19 ], "anchor_from": "top_left", "anchor_to": "top_left" } } ]
+    "size": [
+      "100%",
+      22
+    ],
+    "controls": [
+      {
+        "btn@rpg_form.choice_btn": {
+          "size": [
+            "100%",
+            19
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left"
+        }
+      }
+    ]
   },
-
   "choice_face": {
     "type": "image",
     "$bg|default": "textures/ui/rpg/choice_default",
     "texture": "$bg",
-    "size": [ "100%", "100%" ],
+    "size": [
+      "100%",
+      "100%"
+    ],
     "controls": [
-      { "icon@rpg_form.btn_icon": { "size": [ 11, 11 ], "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 6, 0 ] } },
-      { "label@rpg_form.btn_label": { "anchor_from": "left_middle", "anchor_to": "left_middle", "offset": [ 21, 1 ], "size": [ "100% - 24px", 10 ] } }
+      {
+        "icon@rpg_form.btn_icon": {
+          "size": [
+            11,
+            11
+          ],
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            6,
+            0
+          ]
+        }
+      },
+      {
+        "label@rpg_form.btn_label": {
+          "anchor_from": "left_middle",
+          "anchor_to": "left_middle",
+          "offset": [
+            21,
+            1
+          ],
+          "size": [
+            "100% - 24px",
+            10
+          ]
+        }
+      }
     ]
   },
-
   "choice_btn@rpg_form.form_btn": {
     "controls": [
-      { "default@rpg_form.choice_face": {} },
-      { "hover@rpg_form.choice_face": { "$bg": "textures/ui/rpg/choice_hover" } },
-      { "pressed@rpg_form.choice_face": { "$bg": "textures/ui/rpg/choice_pressed" } }
+      {
+        "default@rpg_form.choice_face": {}
+      },
+      {
+        "hover@rpg_form.choice_face": {
+          "$bg": "textures/ui/rpg/choice_hover"
+        }
+      },
+      {
+        "pressed@rpg_form.choice_face": {
+          "$bg": "textures/ui/rpg/choice_pressed"
+        }
+      }
     ]
   }
 }

@@ -2,7 +2,7 @@
 import { world, EquipmentSlot } from "@minecraft/server";
 import { ModalFormData } from "@minecraft/server-ui";
 import { Screen, rt } from "./ui.js";
-import { data, save, stat, xpNeed, addGold, msg, notify, isAdmin, byId, MAX_LV } from "./player.js";
+import { data, save, stat, xpNeed, addGold, msg, notify, isAdmin, byId, MAX_LV, maxMp } from "./player.js";
 import { CLASSES, STATS, CLASS_CHANGE_COST } from "./classes.js";
 import * as Q from "./quests.js";
 import * as P from "./party.js";
@@ -13,6 +13,8 @@ import {
 } from "./itemdb.js";
 import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
+import * as SK from "./skills.js";
+import { castSkill } from "./combat.js";
 
 // ───────── 공통 크롬(레일 + 재화 칩) ─────────
 const SECTIONS = [
@@ -22,6 +24,7 @@ const SECTIONS = [
   { id: "party", name: "파티", icon: "party", open: (p) => openParty(p) },
   { id: "chat", name: "채팅", icon: "chat", open: (p) => openChat(p) },
   { id: "quest", name: "퀘스트", icon: "quest", open: (p) => openQuests(p) },
+  { id: "skill", name: "스킬", icon: "skill", open: (p) => openSkills(p) },
   { id: "bag", name: "배낭", icon: "bag", open: (p) => openBag(p) },
   { id: "shop", name: "상점", icon: "shop", open: (p) => openShop(p) },
   { id: "settings", name: "설정", icon: "settings", open: (p) => openSettings(p) },
@@ -34,7 +37,8 @@ function chips(scr, p) {
 }
 
 function chrome(scr, p, current) {
-  for (const s of SECTIONS) scr.tab(s.name, ICON(s.icon), () => s.open(p), s.id === current);
+  // 레일은 화면 높이에 맞게 설정을 뺀 섹션만 (설정은 홈 타일에서)
+  for (const s of SECTIONS) if (s.id !== "settings" || current === "settings") scr.tab(s.name, ICON(s.icon), () => s.open(p), s.id === current);
   if (isAdmin(p)) scr.tab("제작자 도구", ICON("admin"), () => openAdmin(p), current === "admin");
   chips(scr, p);
   return scr;
@@ -60,9 +64,9 @@ export function openHome(p) {
     `§7진행 중 퀘스트 §r${active}개\n`,
     `§7파티 §r${pt ? pt.name : "없음"}\n`,
     d.pts ? `\n§2미사용 스탯 포인트 ${d.pts}!\n§7내 정보에서 분배하세요.` : "",
-    `\n\n§7스킬: §r${c.skill.name}\n§7(메뉴북을 웅크린 채 사용)`,
+    `\n\n§e§l조작§r\n§7HUD [메뉴] / 숫자키 9 §f메뉴\n§7HUD [스킬] / 숫자키 8 §f스킬 목록\n§7웅크린 채 공격 §f무기 스킬 발동`,
   ));
-  scr.action("퀘스트 게시판", () => openQuests(p));
+  scr.action("퀘스트 게시판", () => openQuests(p, "all"));
   scr.reopen = () => openHome(p);
   return scr.show(p);
 }
@@ -275,71 +279,148 @@ async function partySettings(p, pt) {
   return openParty(p);
 }
 
-// ═════════ 퀘스트 ═════════
-const STATE_TAG = { ready: "§2[완료 가능]", active: "§6[진행 중]", available: "§9[수락 가능]", locked: "§7[잠김]", done: "§7[완료]" };
+// ═════════ 퀘스트 (원신식: 분류 레일 / 목록 / 상세 + 길 안내·우선순위) ═════════
+const STATE_TAG = { ready: "§a[완료 가능]", active: "§6[진행 중]", available: "§b[수락 가능]", locked: "§7[잠김]", done: "§7[완료]" };
+const QCATS = [
+  { id: "active", name: "진행 중", icon: "nav" },
+  { id: "all", name: "전체", icon: "all" },
+  { id: "main", name: "메인", icon: "star" },
+  { id: "sub", name: "서브", icon: "quest" },
+  { id: "daily", name: "일일", icon: "daily" },
+  { id: "repeat", name: "반복", icon: "repeat" },
+  { id: "done", name: "완료", icon: "check" },
+];
 
 export function questDetailBody(p, q) {
   const st = Q.state(p, q);
-  const lines = [`${STATE_TAG[st]}§r\n`, q.desc ? `${q.desc}\n` : "", "\n§7목표\n"];
+  const t = Q.qtype(q);
+  const lines = [`${t.color}§l${t.name} 퀘스트§r  ${STATE_TAG[st]}\n`];
+  if (q.region) lines.push(`§7지역 §f${q.region}\n`);
+  if (q.giver !== "board") lines.push(`§7의뢰인 §f${q.giverName ?? q.giver}\n`);
+  if (q.desc) lines.push(`\n§f${q.desc}\n`);
+  lines.push("\n§e§l목표§r\n");
   q.obj.forEach((_, i) => lines.push(Q.objLine(p, q, i, st === "active" || st === "ready"), "\n"));
-  lines.push("\n§7보상\n");
+  if (st === "active" || st === "ready") {
+    const nav = Q.navText(p, Q.navTarget(p, q));
+    if (nav) lines.push(`\n§7길 안내  ${nav}\n`);
+    const pr = Q.priority(p).indexOf(q.id);
+    lines.push(`§7우선순위 §f${pr + 1}번${pr === 0 ? " §e(HUD 길 안내 대상)" : ""}${data(p).q.hide?.[q.id] ? " §7· HUD 숨김" : ""}\n`);
+  }
+  lines.push("\n§e§l보상§r\n");
   Q.rewardLines(q).forEach((l) => lines.push(l, "\n"));
   if (st === "locked") lines.push(`\n§c${Q.lockReason(p, q)}`);
-  if (q.giver !== "board") lines.push(`\n§7의뢰자: ${q.giverName ?? q.giver}`);
   return rt(lines);
 }
 
 function questActions(scr, p, q, back) {
   const st = Q.state(p, q);
-  const d = data(p);
-  if (st === "available" && (q.giver === "board" || back.npc === q.giver)) scr.action("수락", () => {
-    if (Q.accept(p, q.id) && back.npc) Q.onTalk(p, back.npc); // 의뢰한 NPC와의 대화 목표는 바로 달성
+  if (st === "available" && (q.giver === "board" || back.npc === q.giver)) scr.action("§a수락", () => {
+    if (Q.accept(p, q.id) && back.npc) Q.onTalk(p, back.npc);
     return back(q.id);
   });
-  if (st === "ready" && (q.turnIn === "auto" || back.npc === q.giver)) scr.action("완료 보고", () => { Q.turnIn(p, q.id); return back(); });
+  if (st === "ready" && (q.turnIn === "auto" || back.npc === q.giver)) scr.action("§a완료 보고", () => { Q.turnIn(p, q.id); return back(); });
   if (st === "active" || st === "ready") {
-    scr.action(d.q.track.includes(q.id) ? "HUD 추적 해제" : "HUD에 추적", () => { Q.toggleTrack(p, q.id); return back(q.id); });
+    const pr = Q.priority(p).indexOf(q.id);
+    if (pr !== 0) scr.action("★ 길 안내 (최우선)", () => { Q.movePriority(p, q.id, "top"); return back(q.id); });
+    if (pr > 0) scr.action("▲ 우선순위 올리기", () => { Q.movePriority(p, q.id, -1); return back(q.id); });
+    if (pr < Q.priority(p).length - 1) scr.action("▼ 우선순위 내리기", () => { Q.movePriority(p, q.id, 1); return back(q.id); });
+    scr.action(data(p).q.hide?.[q.id] ? "HUD에 표시" : "HUD에서 숨기기", () => { Q.toggleHidden(p, q.id); return back(q.id); });
     scr.action("§c포기", () => { Q.abandon(p, q.id); return back(); });
   }
 }
 
-export function openQuests(p, sel) {
+export function openQuests(p, cat = "active", sel, page = 0) {
+  const d = data(p);
+  const pri = Q.priority(p);
   const order = { ready: 0, active: 1, available: 2, locked: 3, done: 4 };
-  const list = Q.allQuests()
-    .filter((q) => q.enabled || data(p).q.a[q.id])
-    .filter((q) => q.giver === "board" || data(p).q.a[q.id])
-    .map((q) => ({ q, st: Q.state(p, q) }))
-    .filter((x) => x.st !== "done" && !(x.st === "locked" && x.q.prereq && !data(p).q.d[x.q.prereq]))
-    .sort((a, b) => order[a.st] - order[b.st])
-    .slice(0, 7);
-  sel = sel ?? list[0]?.q.id;
-  const scr = new Screen("L", "퀘스트");
-  for (const { q, st } of list) scr.item(`§l${q.title}§r\n${STATE_TAG[st]}`, ICON("quest"), () => openQuests(p, q.id), { on: q.id === sel });
-  chrome(scr, p, "quest");
+  const all = Q.allQuests().map((q) => ({ q, st: Q.state(p, q) }));
+  let list = all;
+  if (cat === "active") {
+    list = pri.map((id) => all.find((x) => x.q.id === id)).filter(Boolean);
+    if (!list.length) {
+      cat = "all";
+      list = all;
+    }
+  }
+  if (cat !== "active") {
+    list = list.filter((x) => x.q.enabled || d.q.a[x.q.id])
+      .filter((x) => x.q.giver === "board" || d.q.a[x.q.id] || x.st === "done")
+      .filter((x) => (cat === "done" ? x.st === "done" : x.st !== "done"))
+      .filter((x) => (["main", "sub", "daily", "repeat"].includes(cat) ? (x.q.type ?? "sub") === cat : true))
+      .filter((x) => !(x.st === "locked" && x.q.prereq && !d.q.d[x.q.prereq]))
+      .sort((a, b) => order[a.st] - order[b.st] || (a.q.type === "main" ? -1 : 0));
+  }
+  const PAGE = 6;
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  page = Math.min(page, pages - 1);
+  const shown = list.slice(page * PAGE, page * PAGE + PAGE);
+  sel = sel && list.find((x) => x.q.id === sel) ? sel : shown[0]?.q.id;
+  const catName = QCATS.find((c) => c.id === cat).name;
+  const scr = new Screen("L", `퀘스트 / ${catName}`);
+  for (const { q, st } of shown) {
+    const t = Q.qtype(q);
+    const pr = pri.indexOf(q.id);
+    const nav = st === "active" || st === "ready" ? Q.navTarget(p, q) : null;
+    const dist = nav && nav.dim === p.dimension.id ? ` · ${Math.round(Math.hypot(nav.x - p.location.x, nav.z - p.location.z))}m` : "";
+    scr.item(`${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] §f${q.title}\n${STATE_TAG[st]} §7${q.region || ""}${dist}`, ICON(t.icon), () => openQuests(p, cat, q.id, page), { on: q.id === sel });
+  }
+  scr.tab("메뉴", ICON("back"), () => openHome(p));
+  for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === cat);
+  chips(scr, p);
+  scr.chip(ICON("quest"), `${pri.length}/${Q.MAX_ACTIVE}`);
   const q = Q.getQuest(sel);
   if (q) {
-    scr.select(q.title, ICON("quest"));
+    scr.select(q.title, ICON(Q.qtype(q).icon));
     scr.body(questDetailBody(p, q));
-    const back = (id) => openQuests(p, id ?? sel);
-    questActions(scr, p, q, back);
+    questActions(scr, p, q, (id) => openQuests(p, cat, id ?? sel, page));
   } else {
-    scr.select("퀘스트 없음", ICON("quest"));
-    scr.body("§7지금 받을 수 있는 퀘스트가 없습니다.\n\nNPC에게 말을 걸어 보세요.");
+    scr.select(catName, ICON("quest"));
+    scr.body(cat === "done" ? "§7아직 완료한 퀘스트가 없습니다." : "§7이 분류에 퀘스트가 없습니다.\n\n게시판(전체)이나 NPC에게서 퀘스트를 받아 보세요.");
   }
-  scr.action("완료한 퀘스트", () => openDoneQuests(p));
-  scr.reopen = () => openQuests(p, sel);
+  if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => openQuests(p, cat, undefined, (page + 1) % pages));
+  scr.reopen = () => openQuests(p, cat, sel, page);
   return scr.show(p);
 }
 
-function openDoneQuests(p) {
+// ═════════ 스킬 (무기별) ═════════
+export function openSkills(p, w, sel) {
   const d = data(p);
-  const scr = new Screen("L", "퀘스트 / 완료 기록");
-  const done = Object.entries(d.q.d).map(([id, n]) => ({ q: Q.getQuest(id), n })).filter((x) => x.q).slice(0, 7);
-  for (const { q, n } of done) scr.item(`§l${q.title}§r\n§7완료 ${n}회`, ICON("quest"), () => openDoneQuests(p));
-  chrome(scr, p, "quest");
-  scr.select("완료 기록", ICON("star"));
-  scr.body(`§7총 완료한 퀘스트 §r${Object.keys(d.q.d).length}개`);
-  scr.action("돌아가기", () => openQuests(p));
+  w = w ?? SK.heldClass(p);
+  const list = SK.skillsOf(w);
+  const eq = SK.equipped(p, w);
+  sel = sel ?? eq?.id ?? list[0]?.id;
+  const wc = SK.WCLASS[w];
+  const scr = new Screen("L", `스킬 / ${wc.name}`);
+  for (const s of list) {
+    const lock = d.lv < s.lv;
+    const left = SK.readyIn(p, s.id);
+    scr.item(`${lock ? "§7" : "§f"}${s.name}${eq?.id === s.id ? " §e[장착]" : ""}\n§7${lock ? `Lv.${s.lv} 필요` : `MP ${s.mp} · 대기 ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}`}`, ICON(wc.icon), () => openSkills(p, w, s.id), { on: s.id === sel });
+  }
+  scr.tab("메뉴", ICON("back"), () => openHome(p));
+  for (const [id, c] of Object.entries(SK.WCLASS)) scr.tab(c.name, ICON(c.icon), () => openSkills(p, id), id === w);
+  chips(scr, p);
+  scr.chip(ICON("skill"), `MP ${Math.floor(d.mp ?? maxMp(p))}/${maxMp(p)}`);
+  const s = SK.getSkill(sel);
+  const weapons = Object.entries(SK.knownWeapons()).filter(([, c]) => c === w).map(([id]) => id);
+  if (s) {
+    scr.select(s.name, ICON(wc.icon));
+    scr.body(rt(
+      `§b§l${wc.name} 스킬§r  ${d.lv >= s.lv ? (eq?.id === s.id ? "§e[장착 중]" : "§a[사용 가능]") : `§c[Lv.${s.lv} 필요]`}\n\n`,
+      `§f${s.desc}\n\n`,
+      `§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n`,
+      `§7계수 §f${s.kind === "magic" ? "지능" : s.kind === "ranged" ? "민첩" : s.kind === "melee" ? "힘" : "체력/지능"}\n\n`,
+      `§e§l발동 방법§r\n§f${w === "bow" || w === "crossbow" ? "웅크린 채 활/쇠뇌 발사" : w === "staff" ? "웅크린 채 지팡이 사용 또는 공격" : "웅크린 채 적 공격"}\n§7또는 아래 '지금 사용'\n\n`,
+      `§e§l이 분류 무기 §r§7(자동 등록 ${weapons.length}개)\n§f`,
+      weapons.length ? weapons.slice(0, 8).map((id) => id.replace("minecraft:", "")).join(", ") : "§7아직 없음 – 들기만 하면 자동 등록",
+    ));
+    if (d.lv >= s.lv && eq?.id !== s.id) scr.action("장착", () => { SK.equip(p, s.id); return openSkills(p, w, s.id); });
+    if (d.lv >= s.lv) scr.action("지금 사용", () => { SK.castWeaponSkill(p, s.id); });
+  } else {
+    scr.select(wc.name, ICON(wc.icon));
+    scr.body("§7이 분류에는 스킬이 없습니다.");
+  }
+  scr.action(`직업 스킬: ${clsOf(p).skill.name}`, () => { castSkill(p); });
+  scr.reopen = () => openSkills(p, w, sel);
   return scr.show(p);
 }
 

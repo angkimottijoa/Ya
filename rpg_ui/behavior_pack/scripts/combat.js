@@ -1,9 +1,10 @@
 // 전투: 스탯 보너스(힘/민첩), 킬 보상, 파티 경험치 공유, 직업 스킬, 지속 스탯 효과
 import { world, system, EntityDamageCause } from "@minecraft/server";
-import { data, stat, addXp, addGold, msg, notify } from "./player.js";
+import { data, save, stat, addXp, addGold, msg, notify, maxMp } from "./player.js";
 import { CLASSES } from "./classes.js";
 import { nearbyMembers } from "./party.js";
 import * as Q from "./quests.js";
+import { skillHit as weaponSkillHit, buffMul } from "./skills.js";
 
 // 처치 보상 [경험치, 골드]
 const MOB_REWARD = {
@@ -22,6 +23,20 @@ const lastHit = new Map(); // victimId -> { pid, t }
 const skillHit = new Map(); // victimId -> tick (스킬 피해엔 스탯 보너스 중복 적용 X)
 const cooldown = new Map(); // pid -> ready tick
 
+// 직업 스킬 마나 소모량
+const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
+
+/** 스탯 → 전투 수치 (%). effect 없이 스크립트가 직접 적용 */
+export function combatStats(p) {
+  const str = stat(p, "str"), dex = stat(p, "dex"), vit = stat(p, "vit");
+  return {
+    atk: str * 2,
+    crit: Math.min(40, dex),
+    spd: Math.min(40, Math.round(dex * 0.4)),
+    def: Math.min(40, Math.round(vit * 0.8)),
+  };
+}
+
 export function skillReadyIn(p) {
   return Math.max(0, ((cooldown.get(p.id) ?? 0) - system.currentTick) / 20);
 }
@@ -36,15 +51,21 @@ function isMonster(e) {
 
 export function initCombat() {
   world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource, damage }) => {
+    if (hurtEntity.typeId === "minecraft:player") {
+      const hp = hurtEntity.getComponent("minecraft:health");
+      const red = combatStats(hurtEntity).def / 100;
+      if (hp && hp.currentValue > 0 && red > 0) hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + damage * red));
+    }
     const atk = damageSource.damagingEntity;
     if (atk?.typeId !== "minecraft:player" || hurtEntity.typeId === "rpg:npc") return;
     lastHit.set(hurtEntity.id, { pid: atk.id, t: system.currentTick });
     if (system.currentTick - (skillHit.get(hurtEntity.id) ?? -99) <= 1) return;
+    if (system.currentTick - (weaponSkillHit.get(hurtEntity.id) ?? -99) <= 1) return;
     const hp = hurtEntity.getComponent("minecraft:health");
     if (!hp || hp.currentValue <= 0) return;
     const str = stat(atk, "str");
     const dex = stat(atk, "dex");
-    let extra = damage * str * 0.02;
+    let extra = damage * (str * 0.02 + buffMul(atk) - 1);
     if (Math.random() < Math.min(0.4, dex * 0.01)) {
       extra += damage * 0.5;
       hurtEntity.dimension.spawnParticle("minecraft:critical_hit_emitter", { ...hurtEntity.location, y: hurtEntity.location.y + 1 });
@@ -84,13 +105,34 @@ export function initCombat() {
     }
   });
 
-  // 지속 스탯 효과 (체력/민첩)
+  // 지속 스탯: 이동속도는 이동 속성을 직접 변경, 최대 체력만 health_boost(입자 숨김) 사용, 마나 회복
   system.runInterval(() => {
     for (const p of world.getAllPlayers()) {
+      applySpeed(p);
       applyStatEffect(p, "health_boost", Math.floor(stat(p, "vit") / 4) - 1);
-      applyStatEffect(p, "speed", Math.floor(stat(p, "dex") / 12) - 1);
+      const d = data(p);
+      const max = maxMp(p);
+      const regen = 1 + stat(p, "int") * 0.1;
+      const cur = d.mp ?? max;
+      const next = Math.min(max, cur + regen);
+      if (next !== d.mp) d.mp = next;
     }
-  }, 100);
+  }, 20);
+}
+
+const BASE_SPEED = 0.1;
+const appliedSpeed = new Map();
+function applySpeed(p) {
+  const target = BASE_SPEED * (1 + combatStats(p).spd / 100);
+  if (Math.abs((appliedSpeed.get(p.id) ?? -1) - target) < 1e-6) return;
+  try {
+    p.getComponent("minecraft:movement").setCurrentValue(target);
+    appliedSpeed.set(p.id, target);
+    if (p.getEffect("speed")?.duration > 1000000) p.removeEffect("speed"); // 구버전 effect 제거
+  } catch {}
+}
+export function resetSpeed(p) {
+  appliedSpeed.delete(p.id);
 }
 
 function applyStatEffect(p, effect, amp) {
@@ -123,6 +165,14 @@ export function castSkill(p) {
     return;
   }
   const int = stat(p, "int");
+  const cost = MP_COST[d.cls] ?? 10;
+  const mp = d.mp ?? maxMp(p);
+  if (mp < cost) {
+    notify(p, `§9마나가 부족합니다 §f(${Math.floor(mp)}/${cost})`);
+    p.playSound("note.bass");
+    return;
+  }
+  d.mp = mp - cost;
   const cd = c.skill.cd * (1 - Math.min(0.4, int * 0.01));
   cooldown.set(p.id, system.currentTick + Math.round(cd * 20));
   const dim = p.dimension;

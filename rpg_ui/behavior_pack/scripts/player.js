@@ -7,7 +7,8 @@ const DEFAULT = {
   lv: 1, xp: 0, gold: 0, cls: "novice", pts: 0,
   stat: { str: 0, dex: 0, int: 0, vit: 0 },
   q: { a: {}, d: {}, track: [] },
-  set: { quest: true, card: true, invite: true },
+  set: { quest: true, card: true, invite: true, status: true, nav: true, navFx: true, slots: true },
+  mp: null,
   bag: { sort: "rarity" },
   joined: false,
 };
@@ -41,6 +42,11 @@ export function stat(p, k) {
   const d = data(p);
   const c = CLASSES[d.cls] ?? CLASSES.novice;
   return (d.stat[k] ?? 0) + (c.base[k] ?? 0) + Math.floor((d.lv - 1) * (c.grow[k] ?? 0));
+}
+
+/** 최대 마나: 지능과 레벨에 비례 */
+export function maxMp(p) {
+  return 20 + stat(p, "int") * 3 + data(p).lv * 2;
 }
 
 export function addXp(p, amount, silent = false) {

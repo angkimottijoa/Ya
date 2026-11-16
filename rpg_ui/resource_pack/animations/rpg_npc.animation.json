@@ -1,0 +1,237 @@
+{
+  "format_version": "1.10.0",
+  "animations": {
+    "animation.rpg_npc.wave": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            "-165",
+            0,
+            "15 + math.sin(q.life_time * 400) * 25"
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.cross_arms": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            -55,
+            -35,
+            0
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            -55,
+            35,
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.sit": {
+      "loop": true,
+      "bones": {
+        "root": {
+          "position": [
+            0,
+            -10,
+            0
+          ]
+        },
+        "rightLeg": {
+          "rotation": [
+            -90,
+            10,
+            0
+          ]
+        },
+        "leftLeg": {
+          "rotation": [
+            -90,
+            -10,
+            0
+          ]
+        },
+        "rightArm": {
+          "rotation": [
+            -30,
+            0,
+            0
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            -30,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.point": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            -90,
+            -10,
+            0
+          ]
+        },
+        "head": {
+          "rotation": [
+            0,
+            -10,
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.think": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            -120,
+            -40,
+            0
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            -40,
+            30,
+            0
+          ]
+        },
+        "head": {
+          "rotation": [
+            "8 + math.sin(q.life_time*60)*3",
+            "math.sin(q.life_time*40)*10",
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.cheer": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            "-170 + math.sin(q.life_time*500)*15",
+            0,
+            10
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            "-170 + math.cos(q.life_time*500)*15",
+            0,
+            -10
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.guard": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            -50,
+            0,
+            0
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            -30,
+            20,
+            0
+          ]
+        },
+        "body": {
+          "rotation": [
+            5,
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.bow": {
+      "loop": true,
+      "bones": {
+        "waist": {
+          "rotation": [
+            "math.max(0, math.sin(q.life_time*120)) * 35",
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.dance": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            "-90 + math.sin(q.life_time*600)*60",
+            0,
+            0
+          ]
+        },
+        "leftArm": {
+          "rotation": [
+            "-90 - math.sin(q.life_time*600)*60",
+            0,
+            0
+          ]
+        },
+        "rightLeg": {
+          "rotation": [
+            "math.sin(q.life_time*600)*30",
+            0,
+            0
+          ]
+        },
+        "leftLeg": {
+          "rotation": [
+            "-math.sin(q.life_time*600)*30",
+            0,
+            0
+          ]
+        },
+        "root": {
+          "position": [
+            0,
+            "math.abs(math.sin(q.life_time*600))*1.5",
+            0
+          ]
+        }
+      }
+    },
+    "animation.rpg_npc.talk": {
+      "loop": true,
+      "bones": {
+        "rightArm": {
+          "rotation": [
+            "-25 + math.sin(q.life_time*300)*15",
+            0,
+            "5 + math.sin(q.life_time*200)*5"
+          ]
+        },
+        "head": {
+          "rotation": [
+            "math.sin(q.life_time*350)*4",
+            0,
+            0
+          ]
+        }
+      }
+    }
+  }
+}

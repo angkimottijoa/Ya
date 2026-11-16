@@ -5,6 +5,7 @@ import { data, save, addXp, addGold, msg, notify } from "./player.js";
 import { CLASSES } from "./classes.js";
 import { itemName, entityName, countItem, removeItem, giveItem } from "./itemdb.js";
 import { rt } from "./ui.js";
+import { npcLocation } from "./npcdb.js";
 
 export const OBJ_TYPES = [
   { id: "kill", name: "처치" },
@@ -13,7 +14,18 @@ export const OBJ_TYPES = [
   { id: "talk", name: "대화" },
 ];
 
-export const MAX_ACTIVE = 5;
+export const MAX_ACTIVE = 8;
+
+// 퀘스트 종류 (원신식 분류 + 색)
+export const QTYPES = {
+  main: { name: "메인", color: "§6", icon: "star" },
+  sub: { name: "서브", color: "§b", icon: "quest" },
+  daily: { name: "일일", color: "§a", icon: "daily" },
+  repeat: { name: "반복", color: "§d", icon: "repeat" },
+  event: { name: "이벤트", color: "§c", icon: "skill" },
+};
+export const qtype = (q) => QTYPES[q.type] ?? QTYPES.sub;
+const today = () => new Date().toISOString().slice(0, 10);
 
 // ───────── 정의 저장 ─────────
 let defs = null;
@@ -63,25 +75,26 @@ export function blankQuest(id) {
   return {
     id, title: "새 퀘스트", desc: "", giver: "board", minLv: 1, cls: "", prereq: "",
     repeat: false, enabled: true, turnIn: "auto", obj: [], rw: { xp: 50, gold: 20, items: [] },
+    type: "sub", region: "",
   };
 }
 
 function seedDemo() {
   const demo = [
     {
-      ...blankQuest("main_1"), title: "마을의 위기", giver: "board",
+      ...blankQuest("main_1"), title: "마을의 위기", giver: "board", type: "main", region: "시작의 마을",
       desc: "밤마다 마을을 습격하는 언데드를 처치해 달라는 의뢰가 게시판에 붙어 있다.",
       obj: [{ t: "kill", id: "minecraft:zombie", n: 5 }, { t: "kill", id: "minecraft:skeleton", n: 3 }],
       rw: { xp: 120, gold: 60, items: [{ id: "minecraft:iron_sword", n: 1 }] },
     },
     {
-      ...blankQuest("sub_bread"), title: "제빵사의 부탁", giver: "board",
+      ...blankQuest("sub_bread"), title: "제빵사의 부탁", giver: "board", type: "daily", region: "시작의 마을",
       desc: "밀이 부족하다며 제빵사가 도움을 청했다. 밀을 모아 오자.",
       obj: [{ t: "collect", id: "minecraft:wheat", n: 16 }],
       rw: { xp: 60, gold: 40, items: [{ id: "minecraft:bread", n: 8 }] }, repeat: true,
     },
     {
-      ...blankQuest("main_2"), title: "어둠 속의 거미", giver: "board", prereq: "main_1", minLv: 3,
+      ...blankQuest("main_2"), title: "어둠 속의 거미", giver: "board", prereq: "main_1", minLv: 3, type: "main", region: "검은 숲",
       desc: "숲 속 거미 떼가 늘고 있다. 거미를 처치하고 거미줄을 가져오자.",
       obj: [{ t: "kill", id: "minecraft:spider", n: 6 }, { t: "collect", id: "minecraft:string", n: 4 }],
       rw: { xp: 250, gold: 120, items: [] },
@@ -127,7 +140,9 @@ export function isComplete(p, q) {
 export function state(p, q) {
   const d = data(p);
   if (d.q.a[q.id]) return isComplete(p, q) ? "ready" : "active";
-  if (d.q.d[q.id] && !q.repeat) return "done";
+  if (q.type === "daily") {
+    if (d.q.dd?.[q.id] === today()) return "done";
+  } else if (d.q.d[q.id] && !q.repeat && q.type !== "repeat") return "done";
   if (!q.enabled) return "locked";
   if (d.lv < (q.minLv ?? 1)) return "locked";
   if (q.cls && q.cls !== d.cls) return "locked";
@@ -162,8 +177,10 @@ export function accept(p, id) {
     return false;
   }
   d.q.a[id] = { p: q.obj.map(() => 0) };
-  if (!d.q.track.includes(id)) d.q.track.unshift(id);
-  d.q.track = d.q.track.slice(0, 3);
+  // 우선순위 목록: 메인 퀘스트는 맨 위, 나머지는 뒤에
+  d.q.track = d.q.track.filter((t) => t !== id && d.q.a[t]);
+  if (q.type === "main") d.q.track.unshift(id);
+  else d.q.track.push(id);
   save(p);
   p.playSound("random.pop", { pitch: 0.8 });
   notify(p, `§e§l퀘스트 수락 §r§f${q.title}`);
@@ -178,11 +195,79 @@ export function abandon(p, id) {
   save(p);
 }
 
-export function toggleTrack(p, id) {
+/** 진행 중 퀘스트 우선순위 (맨 앞 = 길 안내 대상). 누락된 진행 퀘스트도 뒤에 붙임 */
+export function priority(p) {
   const d = data(p);
-  if (d.q.track.includes(id)) d.q.track = d.q.track.filter((t) => t !== id);
-  else d.q.track = [id, ...d.q.track].slice(0, 3);
+  const list = d.q.track.filter((t) => d.q.a[t] && getQuest(t));
+  for (const id of Object.keys(d.q.a)) if (!list.includes(id) && getQuest(id)) list.push(id);
+  d.q.track = list;
+  return list;
+}
+
+export function movePriority(p, id, delta) {
+  const list = priority(p);
+  const i = list.indexOf(id);
+  if (i < 0) return;
+  const j = delta === "top" ? 0 : Math.max(0, Math.min(list.length - 1, i + delta));
+  list.splice(i, 1);
+  list.splice(j, 0, id);
+  data(p).q.track = list;
   save(p);
+}
+
+export function toggleHidden(p, id) {
+  const d = data(p);
+  d.q.hide = d.q.hide ?? {};
+  if (d.q.hide[id]) delete d.q.hide[id];
+  else d.q.hide[id] = true;
+  save(p);
+}
+
+// ───────── 길 안내 ─────────
+/** 첫 번째로 남은 목표의 위치 { x, y, z, dim, label } (없으면 null) */
+export function navTarget(p, q) {
+  const st = data(p).q.a[q.id];
+  if (!st) return null;
+  for (let i = 0; i < q.obj.length; i++) {
+    const o = q.obj[i];
+    if (objProgress(p, q, i) >= objNeed(o)) continue;
+    if (o.t === "visit") return { x: o.x + 0.5, y: o.y, z: o.z + 0.5, dim: o.dim ?? "minecraft:overworld", label: o.name || "목적지" };
+    if (o.t === "talk") {
+      const l = npcLocation(o.npc);
+      if (l) return { ...l, label: l.name };
+    }
+    if (o.t === "kill") {
+      try {
+        const opt = { location: p.location, maxDistance: 64, closest: 1 };
+        const near = o.id === "*" ? p.dimension.getEntities({ ...opt, families: ["monster"] }) : p.dimension.getEntities({ ...opt, type: o.id });
+        if (near[0]) return { ...near[0].location, dim: p.dimension.id, label: o.label || "가장 가까운 대상" };
+      } catch {}
+    }
+  }
+  if (isComplete(p, q) && q.turnIn === "giver") {
+    const l = npcLocation(q.giver);
+    if (l) return { ...l, label: `${l.name}에게 보고` };
+  }
+  return null;
+}
+
+const ARROWS = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"];
+
+/** 길 안내 문구 "↗ 23m 촌장" (다른 차원이면 안내) */
+export function navText(p, t) {
+  if (!t) return "";
+  if (t.dim !== p.dimension.id) return `§7다른 차원 · ${t.label}`;
+  const dx = t.x - p.location.x;
+  const dz = t.z - p.location.z;
+  const dy = t.y - p.location.y;
+  const dist = Math.round(Math.hypot(dx, dy, dz));
+  if (dist <= 3) return `§a§l도착 §r§f${t.label}`;
+  const ang = (Math.atan2(-dx, dz) * 180) / Math.PI;
+  let rel = ang - p.getRotation().y;
+  rel = ((rel + 540) % 360) - 180;
+  const arrow = ARROWS[(Math.round(rel / 45) + 8) % 8];
+  const v = dy > 4 ? " ▲" : dy < -4 ? " ▼" : "";
+  return `§b§l${arrow} ${dist}m${v} §r§f${t.label}`;
 }
 
 export function turnIn(p, id) {
@@ -192,6 +277,7 @@ export function turnIn(p, id) {
   for (const o of q.obj) if (o.t === "collect") removeItem(p, o.id, o.n);
   delete d.q.a[id];
   d.q.d[id] = (d.q.d[id] ?? 0) + 1;
+  if (q.type === "daily") (d.q.dd = d.q.dd ?? {})[id] = today();
   d.q.track = d.q.track.filter((t) => t !== id);
   save(p);
   addGold(p, q.rw.gold ?? 0);

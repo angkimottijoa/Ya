@@ -1,10 +1,12 @@
 // Arcania RPG - 진입점
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { data, save, forget, msg, notify, isAdmin } from "./player.js";
-import { initCombat, castSkill } from "./combat.js";
+import { initCombat, castSkill, resetSpeed } from "./combat.js";
+import { initSkillTriggers } from "./skills.js";
+import { registerNpcEntity } from "./npcdb.js";
 import * as Q from "./quests.js";
 import * as HUD from "./hud.js";
-import { openHome, openQuests } from "./menu.js";
+import { openHome, openQuests, openSkills } from "./menu.js";
 import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
@@ -52,8 +54,12 @@ system.runInterval(() => {
       p.selectedSlotIndex = back;
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
-      if (cur === MENU_SLOT) openHome(p);
-      else castSkill(p);
+      // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)
+      system.runTimeout(() => {
+        if (!p.isValid()) return;
+        if (cur === MENU_SLOT) openHome(p);
+        else openSkills(p);
+      }, 6);
     } else {
       lastSlot.set(p.id, cur);
     }
@@ -68,7 +74,7 @@ world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
     if (p.isSneaking) castSkill(p);
     else system.run(() => openHome(p));
   } else if (itemStack.typeId === "rpg:skill") {
-    if (!throttled(p)) castSkill(p);
+    if (!throttled(p)) system.run(() => openSkills(p));
   } else if (itemStack.typeId === "rpg:quest_tool") {
     if (throttled(p)) return;
     system.run(() => openAdmin(p));
@@ -106,6 +112,7 @@ system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p 
 
 world.afterEvents.playerSpawn.subscribe(({ player: p, initialSpawn }) => {
   HUD.resetHud(p);
+  resetSpeed(p);
   system.runTimeout(() => {
     if (!p.isValid()) return;
     ensureMenuItem(p);
@@ -121,18 +128,52 @@ world.afterEvents.playerSpawn.subscribe(({ player: p, initialSpawn }) => {
 world.afterEvents.playerLeave.subscribe(({ playerId }) => forget(playerId));
 
 initCombat();
+initSkillTriggers();
 
-// 1초마다: HUD / 퀘스트 판정 / 메뉴북 확인
+// HUD: 4틱마다 (바뀐 것만 전송)
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    try {
+      HUD.update(p);
+    } catch (e) {
+      console.warn(`[Arcania] hud ${e}`);
+    }
+  }
+}, 4);
+
+// 1초마다: 퀘스트 판정 / 길 안내 파티클 / 고정 아이템
 let n = 0;
 system.runInterval(() => {
   n++;
   for (const p of world.getAllPlayers()) {
     try {
       Q.tick(p);
-      HUD.update(p);
+      HUD.navParticles(p);
       if (n % 5 === 0) ensureMenuItem(p);
     } catch (e) {
       console.warn(`[Arcania] ${e}`);
     }
   }
+  if (n % 5 === 0) npcMaintenance();
 }, 20);
+
+/** 5초마다: NPC 위치 등록(길 안내용), 구버전 NPC 변환, 전투 NPC 제자리 복귀 */
+function npcMaintenance() {
+  const dims = new Set(world.getAllPlayers().map((p) => p.dimension));
+  for (const dim of dims) {
+    for (const e of dim.getEntities({ type: "rpg:npc" })) {
+      try {
+        if (!e.getDynamicProperty("rpg:kind")) {
+          e.setDynamicProperty("rpg:kind", "civil");
+          e.triggerEvent("rpg:set_civilian");
+        }
+        if (!e.getDynamicProperty("rpg:anchor")) e.setDynamicProperty("rpg:anchor", e.location);
+        const a = e.getDynamicProperty("rpg:anchor");
+        if (e.getDynamicProperty("rpg:kind") === "combat" && Math.hypot(e.location.x - a.x, e.location.z - a.z) > 14) {
+          e.teleport(a);
+        }
+        registerNpcEntity(e);
+      } catch {}
+    }
+  }
+}

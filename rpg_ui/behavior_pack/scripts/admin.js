@@ -5,11 +5,15 @@ import { Screen, rt } from "./ui.js";
 import { data, save, addXp, addGold, msg, isAdmin } from "./player.js";
 import { CLASSES } from "./classes.js";
 import * as Q from "./quests.js";
+import * as SK from "./skills.js";
 import { shopList, saveShop } from "./shop.js";
 import { getJSON, setJSON, clone } from "./db.js";
 import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride } from "./itemdb.js";
 import { openHome, questDetailBody } from "./menu.js";
-import { openNpc, SKINS, npcId, npcGreet, npcHasShop, npcShopList, npcOpts } from "./npc.js";
+import { openNpc, SKINS, ANIMS, CAMS, COND_TYPES, npcId, npcHasShop, npcShopList, npcDialog, saveDialog } from "./npc.js";
+import { npcRegistry, registerNpcEntity, unregisterNpc } from "./npcdb.js";
+
+const QT = Object.entries(Q.QTYPES);
 
 const TABS = [
   { id: "quest", name: "퀘스트", icon: "quest" },
@@ -29,13 +33,6 @@ function adminChrome(scr, p, cur) {
 const ns = (id) => (id.includes(":") || id === "*" ? id : `minecraft:${id}`);
 const num = (v, d = 0) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
-// NPC 레지스트리 (퀘스트 의뢰자 선택용)
-export const npcRegistry = () => getJSON(world, "rpg:npcs", {});
-export function registerNpc(id, name) {
-  const reg = npcRegistry();
-  reg[id] = name;
-  setJSON(world, "rpg:npcs", reg);
-}
 
 export function openAdmin(p, tab = "quest", sel, page = 0) {
   if (!isAdmin(p)) {
@@ -63,7 +60,7 @@ function questTab(p, sel, page = 0) {
     scr.select(q.title, ICON("quest"));
     scr.body(rt(
       `§7ID §r${q.id}\n§7의뢰자 §r${q.giver === "board" ? "게시판" : q.giver}\n§7완료 방식 §r${q.turnIn === "auto" ? "메뉴에서 자동/보고" : "의뢰자에게 보고"}\n`,
-      `§7최소 레벨 §r${q.minLv}  §7직업 §r${q.cls ? CLASSES[q.cls].name : "제한 없음"}\n§7선행 §r${q.prereq || "없음"}  §7반복 §r${q.repeat ? "O" : "X"}\n\n`,
+      `§7종류 §r${Q.qtype(q).name}  §7지역 §r${q.region || "-"}\n§7최소 레벨 §r${q.minLv}  §7직업 §r${q.cls ? CLASSES[q.cls].name : "제한 없음"}\n§7선행 §r${q.prereq || "없음"}  §7반복 §r${q.repeat ? "O" : "X"}\n\n`,
       questDetailBody(p, q),
     ));
     const re = () => questTab(p, q.id, page);
@@ -117,7 +114,7 @@ async function confirm(p, text, yes, no) {
 
 function giverOptions() {
   const reg = npcRegistry();
-  return [{ id: "board", name: "게시판 (메뉴에서 수락)" }, ...Object.entries(reg).map(([id, name]) => ({ id, name: `NPC: ${name} (${id})` }))];
+  return [{ id: "board", name: "게시판 (메뉴에서 수락)" }, ...Object.entries(reg).map(([id, r]) => ({ id, name: `NPC: ${r.name} (${id})` }))];
 }
 
 async function createQuest(p) {
@@ -144,12 +141,16 @@ async function editBasic(p, q, back, isNew = false) {
     .dropdown("직업 제한", clsKeys.map((c) => (c ? CLASSES[c].name : "제한 없음")), Math.max(0, clsKeys.indexOf(q.cls)))
     .dropdown("선행 퀘스트", ["없음", ...others.map((x) => x.title)], Math.max(0, others.findIndex((x) => x.id === q.prereq) + 1))
     .toggle("반복 가능", q.repeat)
+    .dropdown("종류 (퀘스트 화면 분류)", QT.map(([, t]) => t.name), Math.max(0, QT.findIndex(([k]) => k === (q.type ?? "sub"))))
+    .textField("지역 이름 (선택)", "예) 시작의 마을", q.region ?? "")
     .show(p);
   if (r.canceled) {
     if (back) return back();
     return false;
   }
-  const [title, desc, id, gi, ti, lv, ci, pi, rep] = r.formValues;
+  const [title, desc, id, gi, ti, lv, ci, pi, rep, tyi, region] = r.formValues;
+  q.type = QT[tyi][0];
+  q.region = String(region).trim();
   q.title = String(title) || q.title;
   q.desc = String(desc);
   if (isNew) {
@@ -157,7 +158,7 @@ async function editBasic(p, q, back, isNew = false) {
     if (clean && !Q.getQuest(clean)) q.id = clean;
   }
   q.giver = givers[gi].id;
-  q.giverName = givers[gi].id === "board" ? undefined : npcRegistry()[q.giver];
+  q.giverName = givers[gi].id === "board" ? undefined : npcRegistry()[q.giver]?.name;
   q.turnIn = ti === 0 ? "auto" : "giver";
   if (q.giver === "board") q.turnIn = "auto";
   q.minLv = Math.max(1, Math.floor(num(lv, 1)));
@@ -214,7 +215,7 @@ async function addObjective(p, q, back) {
     const [name, x, y, z, rad] = r.formValues;
     o = { t: "visit", name: String(name) || undefined, x: num(x), y: num(y), z: num(z), r: rad, dim: p.dimension.id };
   } else {
-    const reg = Object.entries(npcRegistry());
+    const reg = Object.entries(npcRegistry()).map(([id, r]) => [id, r.name]);
     if (!reg.length) {
       msg(p, "§c등록된 NPC가 없습니다. 먼저 NPC 탭에서 소환하세요.");
       return back();
@@ -283,15 +284,16 @@ async function quickQuest(p) {
     .textField("골드 보상", "", "40")
     .dropdown("의뢰자", givers.map((g) => g.name), 0)
     .toggle("반복 가능", false)
+    .dropdown("종류", QT.map(([, t]) => t.name), 1)
     .show(p);
   if (r.canceled) return questTab(p);
-  const [title, desc, type, target, n, xp, gold, gi, rep] = r.formValues;
+  const [title, desc, type, target, n, xp, gold, gi, rep, tyi] = r.formValues;
   const q = Q.blankQuest(Q.newQuestId());
   Object.assign(q, {
     title: String(title) || "새 퀘스트", desc: String(desc), giver: givers[gi].id,
-    giverName: gi ? npcRegistry()[givers[gi].id] : undefined, turnIn: gi ? "giver" : "auto", repeat: rep,
+    giverName: gi ? npcRegistry()[givers[gi].id]?.name : undefined, turnIn: gi ? "giver" : "auto", repeat: rep,
     obj: [{ t: type ? "collect" : "kill", id: ns(String(target).trim()), n: Math.max(1, num(n, 1)) }],
-    rw: { xp: num(xp), gold: num(gold), items: [] },
+    rw: { xp: num(xp), gold: num(gold), items: [] }, type: QT[tyi][0],
   });
   Q.saveQuest(q);
   msg(p, `퀘스트 생성: §e${q.title}`);
@@ -299,46 +301,89 @@ async function quickQuest(p) {
 }
 
 // ═════════ NPC ═════════
-function nearbyNpcs(p) {
-  return p.dimension.getEntities({ type: "rpg:npc", location: p.location, maxDistance: 96 })
-    .sort((a, b) => dist(p, a) - dist(p, b));
-}
-const dist = (a, b) => Math.hypot(a.location.x - b.location.x, a.location.y - b.location.y, a.location.z - b.location.z);
+const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
 const skinOf = (e) => { try { return e.getProperty("rpg:skin") ?? 0; } catch { return 0; } };
+const animOf = (e) => { try { return e.getProperty("rpg:anim") ?? 0; } catch { return 0; } };
+const NPC_FILTERS = [
+  { id: "all", name: "전체" }, { id: "civil", name: "비전투" }, { id: "combat", name: "전투" },
+  { id: "quest", name: "퀘스트 NPC" }, { id: "shop", name: "상점 NPC" },
+];
+const NPC_SORTS = [{ id: "dist", name: "거리순" }, { id: "name", name: "이름순" }, { id: "quests", name: "의뢰 많은 순" }, { id: "id", name: "ID순" }];
 
-function npcTab(p, selId) {
-  const list = nearbyNpcs(p).slice(0, 6);
-  const sel = list.find((e) => e.id === selId) ?? list[0];
-  const scr = new Screen("L", "제작자 도구 / NPC");
-  scr.item("§l+ NPC 소환 (내 위치)", ICON("plus"), () => spawnNpc(p));
-  for (const e of list) {
-    scr.item(`§f${e.nameTag || "NPC"}\n§7${npcId(e)} · ${SKINS[skinOf(e)]} · ${Math.round(dist(p, e))}m`, ICON("npc"), () => npcTab(p, e.id), { on: e === sel });
+/** 등록된 NPC (먼 곳 포함) + 로드된 엔티티 */
+function npcEntries(p) {
+  const reg = npcRegistry();
+  const loaded = new Map();
+  for (const e of p.dimension.getEntities({ type: "rpg:npc" })) {
+    registerNpcEntity(e);
+    loaded.set(npcId(e), e);
+  }
+  const qcount = {};
+  for (const q of Q.allQuests()) if (q.giver !== "board") qcount[q.giver] = (qcount[q.giver] ?? 0) + 1;
+  return Object.entries(npcRegistry()).map(([id, r]) => {
+    const e = loaded.get(id);
+    const loc = e?.location ?? (r.x !== undefined ? { x: r.x, y: r.y, z: r.z } : null);
+    return {
+      id, name: r.name, kind: r.kind ?? "civil", e, quests: qcount[id] ?? 0,
+      shop: e ? npcHasShop(e) : !!r.shop, dim: r.dim,
+      dist: loc && (r.dim ?? p.dimension.id) === p.dimension.id ? dist(p.location, loc) : Infinity, loc,
+    };
+  });
+}
+
+function npcTab(p, selId, view) {
+  if (!view || typeof view !== "object") view = { f: "all", s: "dist", page: 0 };
+  let list = npcEntries(p);
+  list = list.filter((x) => view.f === "all" || (view.f === "quest" ? x.quests > 0 : view.f === "shop" ? x.shop : x.kind === view.f));
+  list.sort((a, b) => view.s === "name" ? a.name.localeCompare(b.name) : view.s === "quests" ? b.quests - a.quests : view.s === "id" ? a.id.localeCompare(b.id) : a.dist - b.dist);
+  const PAGE = 5;
+  const pages = Math.max(1, Math.ceil(list.length / PAGE));
+  const page = Math.min(view.page, pages - 1);
+  const shown = list.slice(page * PAGE, page * PAGE + PAGE);
+  const sel = list.find((x) => x.id === selId) ?? shown[0];
+  const re = (id, v = view) => npcTab(p, id, v);
+  const scr = new Screen("L", `제작자 도구 / NPC · ${NPC_FILTERS.find((f) => f.id === view.f).name}`);
+  scr.item("§a+ NPC 소환 (내 위치)", ICON("plus"), () => spawnNpc(p));
+  for (const x of shown) {
+    const tag = x.kind === "combat" ? "§c[전투]" : "§a[비전투]";
+    const where = x.dist === Infinity ? "§7다른 차원/미확인" : `§7${Math.round(x.dist)}m${x.e ? "" : " (멀리 있음)"}`;
+    scr.item(`${tag} §f${x.name}\n§7${x.id} · 퀘스트 ${x.quests}${x.shop ? " · 상점" : ""} · ${where}`, ICON(x.kind === "combat" ? "class" : "npc"), () => re(x.id), { on: x === sel });
   }
   adminChrome(scr, p, "npc");
   if (sel) {
-    scr.select(sel.nameTag || "NPC", ICON("npc"));
-    scr.body(npcSummary(sel));
-    scr.action("NPC 관리", () => editNpc(p, sel, () => npcTab(p, sel.id)));
-    scr.action("이 NPC에게 이동", () => { p.teleport(sel.location); return npcTab(p, sel.id); });
-    scr.action("내 앞으로 데려오기", () => { sel.teleport(p.location); return npcTab(p, sel.id); });
+    scr.select(sel.name, ICON("npc"));
+    scr.body(sel.e ? npcSummary(sel.e) : `§7NPC ID §f${sel.id}\n§7위치 §f${sel.loc ? `${sel.loc.x}, ${sel.loc.y}, ${sel.loc.z}` : "?"}\n\n§7멀리 있어 불러오지 않았습니다.\n'이동'으로 가까이 가면 관리할 수 있습니다.`);
+    if (sel.e) scr.action("NPC 관리", () => editNpc(p, sel.e, () => re(sel.id)));
+    if (sel.loc) scr.action("이 NPC에게 이동", () => { p.teleport({ x: sel.loc.x + 0.5, y: sel.loc.y, z: sel.loc.z + 1.5 }); return re(sel.id); });
+    if (!sel.e) scr.action("§c목록에서 삭제", () => { unregisterNpc(sel.id); return re(); });
   } else {
     scr.select("NPC", ICON("npc"));
-    scr.body("§796블록 안에 NPC가 없습니다.\n\n소환 후, §f제작자 도구를 들고 NPC를 누르면§7 바로 관리 화면이 열립니다.");
+    scr.body("§7조건에 맞는 NPC가 없습니다.");
   }
-  scr.reopen = () => npcTab(p, selId);
+  scr.action(`필터: ${NPC_FILTERS.find((f) => f.id === view.f).name}`, () => {
+    const i = NPC_FILTERS.findIndex((f) => f.id === view.f);
+    return re(undefined, { ...view, f: NPC_FILTERS[(i + 1) % NPC_FILTERS.length].id, page: 0 });
+  });
+  scr.action(`정렬: ${NPC_SORTS.find((s) => s.id === view.s).name}`, () => {
+    const i = NPC_SORTS.findIndex((s) => s.id === view.s);
+    return re(sel?.id, { ...view, s: NPC_SORTS[(i + 1) % NPC_SORTS.length].id });
+  });
+  if (pages > 1) scr.action(`다음 페이지 (${page + 1}/${pages})`, () => re(undefined, { ...view, page: (page + 1) % pages }));
+  scr.reopen = () => re(selId);
   return scr.show(p);
 }
 
 function npcSummary(e) {
   const id = npcId(e);
   const qs = Q.allQuests().filter((q) => q.giver === id);
-  const opts = npcOpts(e);
+  const dlg = npcDialog(e);
   const own = npcShopList(e);
-  return `§7NPC ID §f${id}\n§7외형 §f${SKINS[skinOf(e)]}\n` +
+  return `§7NPC ID §f${id}\n§7종류 §f${e.getDynamicProperty("rpg:kind") === "combat" ? "§c전투" : "§a비전투"}\n` +
+    `§7외형 §f${SKINS[skinOf(e)]}  §7동작 §f${ANIMS[animOf(e)]}\n§7카메라 §f${CAMS[Number(e.getDynamicProperty("rpg:cam") ?? 0)]}\n` +
     `§7위치 §f${Math.floor(e.location.x)}, ${Math.floor(e.location.y)}, ${Math.floor(e.location.z)}\n\n` +
-    `§7대사 (${npcGreet(e).split("|").length}페이지)\n§f${npcGreet(e).replace(/\|/g, "\n§7─ §f")}\n\n` +
-    `§7상점 §f${npcHasShop(e) ? (own.length ? `전용 상품 ${own.length}개` : "공용 상점") : "없음"}\n` +
-    `§7추가 선택지 §f${opts.length}개${opts.map((o) => `\n §7- §f${o.label}`).join("")}\n` +
+    `§7첫 대사\n§f${String(dlg.nodes.start.text).split("|")[0]}\n` +
+    `§7대화 노드 §f${Object.keys(dlg.nodes).length}개 · 선택지 ${Object.values(dlg.nodes).reduce((n, x) => n + (x.choices?.length ?? 0), 0)}개\n` +
+    `§7상점 §f${npcHasShop(e) ? (own.length ? `전용 ${own.length}개` : "공용") : "없음"}\n` +
     `§7의뢰 퀘스트 §f${qs.length}개${qs.map((q) => `\n §7- §f${q.title}`).join("")}`;
 }
 
@@ -348,39 +393,50 @@ async function spawnNpc(p) {
     .textField("이름", "예) 촌장", "촌장")
     .textField("NPC ID (퀘스트 연결용, 영문)", "chief", `npc_${Object.keys(npcRegistry()).length + 1}`)
     .dropdown("외형", SKINS, 0)
-    .textField("대사 (| 로 페이지 구분)", "안녕하신가.|요즘 마을이 흉흉하네.", "안녕하신가, 모험가.")
+    .dropdown("종류", ["비전투 (무적, 제자리)", "전투 (주변 몬스터 공격)"], 0)
+    .dropdown("기본 동작", ANIMS, 0)
+    .textField("첫 대사 (| 로 페이지 구분)", "안녕하신가.|요즘 마을이 흉흉하네.", "안녕하신가, 모험가.")
     .toggle("상점 기능", false)
     .show(p);
   if (r.canceled) return npcTab(p);
-  const [name, id, skin, greet, shop] = r.formValues;
+  const [name, id, skin, kind, anim, greet, shop] = r.formValues;
   const e = p.dimension.spawnEntity("rpg:npc", p.location);
   const nid = String(id).trim().replace(/[^\w-]/g, "_") || `npc_${Date.now() % 10000}`;
   e.nameTag = String(name) || "NPC";
   e.setDynamicProperty("rpg:npc_id", nid);
-  e.setDynamicProperty("rpg:greet", String(greet) || "안녕하신가, 모험가.");
+  e.setDynamicProperty("rpg:anchor", p.location);
+  saveDialog(e, { nodes: { start: { text: String(greet) || "안녕하신가.", choices: [] } } });
   e.setDynamicProperty("rpg:shop", !!shop);
-  try { e.setProperty("rpg:skin", skin); } catch {}
-  registerNpc(nid, e.nameTag);
+  setKind(e, kind ? "combat" : "civil");
+  try { e.setProperty("rpg:skin", skin); e.setProperty("rpg:anim", anim); } catch {}
+  registerNpcEntity(e);
   msg(p, `NPC §e${e.nameTag}§r (${nid}) 소환됨`);
-  return npcTab(p, e.id);
+  return npcTab(p, nid);
+}
+
+function setKind(e, kind) {
+  e.setDynamicProperty("rpg:kind", kind);
+  try { e.triggerEvent(kind === "combat" ? "rpg:set_combat" : "rpg:set_civilian"); } catch {}
 }
 
 /** NPC 관리 화면 (제작자 도구를 들고 NPC 를 눌러도 열림) */
 export function editNpc(p, e, back) {
   back = back ?? (() => {});
   const re = () => editNpc(p, e, back);
+  if (!e.isValid()) return back();
   const scr = new Screen("L", `NPC 관리 / ${e.nameTag || "NPC"}`);
-  scr.item("§f기본 정보\n§7이름 · ID · 외형", ICON("npc"), () => npcBasic(p, e, re));
-  scr.item("§f대사 편집\n§7| 로 페이지 구분", ICON("chat"), () => npcDialog(p, e, re));
-  scr.item("§f대화 선택지\n§7답변 / 명령어 실행", ICON("skill"), () => npcOptions(p, e, re));
+  scr.item("§f기본 정보\n§7이름 · ID · 외형 · 종류", ICON("npc"), () => npcBasic(p, e, re));
+  scr.item(`§f동작 / 애니메이션\n§7현재: ${ANIMS[animOf(e)]}`, ICON("skill"), () => npcAnim(p, e, re));
+  scr.item("§f세부 대화 (대화 트리)\n§7노드 · 선택지 · 조건 · 명령어", ICON("chat"), () => dlgEditor(p, e, re));
+  scr.item(`§f카메라 연출\n§7${CAMS[Number(e.getDynamicProperty("rpg:cam") ?? 0)]}`, ICON("nav"), () => npcCamera(p, e, re));
   scr.item(`§f상점 설정\n§7${npcHasShop(e) ? "켜짐" : "꺼짐"}`, ICON("shop"), () => npcShop(p, e, re));
   scr.item("§f대화 미리보기", ICON("quest"), () => openNpc(p, e));
   adminChrome(scr, p, "npc");
   scr.select(e.nameTag || "NPC", ICON("npc"));
   scr.body(npcSummary(e));
   scr.action("이 NPC에게 이동", () => { p.teleport(e.location); return re(); });
-  scr.action("내 앞으로 데려오기", () => { e.teleport(p.location); return re(); });
-  scr.action("§c제거", () => confirm(p, `${e.nameTag} NPC를 제거할까요?`, () => { e.remove(); return npcTab(p); }, re));
+  scr.action("내 위치로 옮기기 (기준점 변경)", () => { e.teleport(p.location); e.setDynamicProperty("rpg:anchor", p.location); registerNpcEntity(e); return re(); });
+  scr.action("§c제거", () => confirm(p, `${e.nameTag} NPC를 제거할까요?`, () => { unregisterNpc(npcId(e)); e.remove(); return npcTab(p); }, re));
   scr.action("돌아가기", back);
   return scr.show(p);
 }
@@ -390,63 +446,140 @@ async function npcBasic(p, e, back) {
     .title(`기본 정보 - ${e.nameTag}`)
     .textField("이름", "", e.nameTag)
     .textField("NPC ID", "", npcId(e))
-    .dropdown("외형 (사용자 스킨은 textures/entity/rpg_npc/custom_1~4.png 교체)", SKINS, skinOf(e))
+    .dropdown("외형 (사용자 스킨: textures/entity/rpg_npc/custom_1~4.png)", SKINS, skinOf(e))
+    .dropdown("종류", ["비전투 (무적, 제자리)", "전투 (주변 몬스터 공격, 기준점 14블록 안)"], e.getDynamicProperty("rpg:kind") === "combat" ? 1 : 0)
     .show(p);
   if (!r.canceled) {
-    const [name, id, skin] = r.formValues;
+    const [name, id, skin, kind] = r.formValues;
+    const oldId = npcId(e);
     e.nameTag = String(name) || e.nameTag;
     const nid = String(id).trim().replace(/[^\w-]/g, "_");
-    if (nid) e.setDynamicProperty("rpg:npc_id", nid);
-    try { e.setProperty("rpg:skin", skin); } catch {}
-    registerNpc(nid || npcId(e), e.nameTag);
-  }
-  return back();
-}
-
-async function npcDialog(p, e, back) {
-  const pages = npcGreet(e).split("|");
-  const f = new ModalFormData().title(`대사 편집 - ${e.nameTag}`);
-  for (let i = 0; i < 5; i++) f.textField(`${i + 1}페이지${i ? " (비우면 없음)" : ""}`, "", pages[i]?.trim() ?? "");
-  const r = await f.show(p);
-  if (!r.canceled) {
-    const text = r.formValues.map((v) => String(v).trim()).filter(Boolean).join("|");
-    e.setDynamicProperty("rpg:greet", text || "...");
-  }
-  return back();
-}
-
-function npcOptions(p, e, back, sel = 0) {
-  const opts = npcOpts(e);
-  const re = (i) => npcOptions(p, e, back, i);
-  const scr = new Screen("L", `NPC 관리 / ${e.nameTag} / 선택지`);
-  opts.forEach((o, i) => scr.item(`§f${o.label}\n§7${o.cmd ? `명령: ${o.cmd}` : (o.reply || "").slice(0, 20)}`, ICON("chat"), () => re(i), { on: i === sel }));
-  adminChrome(scr, p, "npc");
-  const o = opts[sel];
-  scr.select(o ? o.label : "선택지 없음", ICON("chat"));
-  scr.body(o ? `§7답변\n§f${o.reply || "(없음)"}\n\n§7명령어\n§f${o.cmd || "(없음)"}` : "§7대화창에 나올 선택지를 추가하세요.\n\n예) '마을 이야기' → 답변 출력\n예) '여관으로 보내줘' → /tp 명령 실행");
-  const save = (list) => setJSON(e, "rpg:opts", list);
-  const edit = async (i) => {
-    const cur = opts[i] ?? { label: "", reply: "", cmd: "" };
-    const r = await new ModalFormData()
-      .title(i < opts.length ? "선택지 편집" : "선택지 추가")
-      .textField("버튼 이름", "예) 마을 이야기", cur.label)
-      .textField("NPC 답변", "", cur.reply)
-      .textField("실행할 명령어 (선택, 플레이어 기준)", "예) tp @s 0 64 0", cur.cmd)
-      .show(p);
-    if (!r.canceled && String(r.formValues[0]).trim()) {
-      opts[i] = { label: String(r.formValues[0]).trim(), reply: String(r.formValues[1]), cmd: String(r.formValues[2]).trim() };
-      save(opts);
+    if (nid && nid !== oldId) {
+      e.setDynamicProperty("rpg:npc_id", nid);
+      unregisterNpc(oldId);
     }
-    return re(i);
-  };
-  scr.action("선택지 추가", () => edit(opts.length));
-  if (o) {
-    scr.action("편집", () => edit(sel));
-    if (sel > 0) scr.action("위로", () => { opts.splice(sel - 1, 0, opts.splice(sel, 1)[0]); save(opts); return re(sel - 1); });
-    scr.action("§c삭제", () => { opts.splice(sel, 1); save(opts); return re(0); });
+    try { e.setProperty("rpg:skin", skin); } catch {}
+    setKind(e, kind ? "combat" : "civil");
+    registerNpcEntity(e);
   }
+  return back();
+}
+
+async function npcAnim(p, e, back) {
+  const r = await new ModalFormData()
+    .title(`동작 - ${e.nameTag}`)
+    .dropdown("기본 동작 (계속 반복)", ANIMS, animOf(e))
+    .toggle("대화 중 손짓 제스처", e.getDynamicProperty("rpg:no_gesture") !== true)
+    .show(p);
+  if (!r.canceled) {
+    try { e.setProperty("rpg:anim", r.formValues[0]); } catch {}
+    e.setDynamicProperty("rpg:no_gesture", !r.formValues[1]);
+  }
+  return back();
+}
+
+async function npcCamera(p, e, back) {
+  const r = await new ModalFormData()
+    .title(`카메라 연출 - ${e.nameTag}`)
+    .dropdown("대화할 때 시점", CAMS, Number(e.getDynamicProperty("rpg:cam") ?? 0))
+    .slider("전환 시간 (x0.1초)", 0, 20, 1, Math.round(Number(e.getDynamicProperty("rpg:cam_ease") ?? 0.6) * 10))
+    .toggle("대화 중 HUD 숨기기", e.getDynamicProperty("rpg:hud_hide") === true)
+    .show(p);
+  if (!r.canceled) {
+    e.setDynamicProperty("rpg:cam", r.formValues[0]);
+    e.setDynamicProperty("rpg:cam_ease", r.formValues[1] / 10);
+    e.setDynamicProperty("rpg:hud_hide", r.formValues[2]);
+  }
+  return back();
+}
+
+// ───── 대화 트리 편집기 ─────
+function dlgEditor(p, e, back, sel = "start") {
+  const dlg = npcDialog(e);
+  const ids = Object.keys(dlg.nodes);
+  if (!dlg.nodes[sel]) sel = "start";
+  const node = dlg.nodes[sel];
+  const re = (s = sel) => dlgEditor(p, e, back, s);
+  const scr = new Screen("L", `NPC 관리 / ${e.nameTag} / 대화 트리`);
+  for (const id of ids.slice(0, 7)) {
+    const n = dlg.nodes[id];
+    scr.item(`${id === "start" ? "§e★ " : "§f"}${id}\n§7${String(n.text).split("|")[0].slice(0, 22)} · 선택지 ${n.choices?.length ?? 0}`, ICON("chat"), () => re(id), { on: id === sel });
+  }
+  adminChrome(scr, p, "npc");
+  scr.select(`노드: ${sel}`, ICON("chat"));
+  const cond = (c) => (c?.t ? ` §7[${COND_TYPES.find((t) => t.id === c.t)?.name} ${c.v}]` : "");
+  scr.body(
+    `§7대사 (${String(node.text).split("|").length}페이지)\n§f${String(node.text).replace(/\|/g, "\n§7── §f")}\n\n§e§l선택지§r\n` +
+    ((node.choices ?? []).map((c, i) => `§f${i + 1}. ${c.label} §7→ ${c.goto || "대화 종료"}${c.cmd ? ` §d/${c.cmd}` : ""}${cond(c.cond)}`).join("\n") || "§7없음") +
+    (sel === "start" ? "\n\n§7(시작 노드에는 퀘스트·상점 선택지가 자동으로 붙음)" : ""),
+  );
+  scr.action("대사 편집", async () => {
+    const pages = String(node.text).split("|");
+    const f = new ModalFormData().title(`대사 - ${sel}`);
+    for (let i = 0; i < 5; i++) f.textField(`${i + 1}페이지${i ? " (비우면 없음)" : ""}`, "", pages[i]?.trim() ?? "");
+    const r = await f.show(p);
+    if (!r.canceled) {
+      node.text = r.formValues.map((v) => String(v).trim()).filter(Boolean).join("|") || "...";
+      saveDialog(e, dlg);
+    }
+    return re();
+  });
+  scr.action("선택지 추가", () => editChoice(p, e, dlg, sel, (node.choices ?? []).length, re));
+  if (node.choices?.length) scr.action("선택지 편집/삭제", () => pickChoice(p, e, dlg, sel, re));
+  scr.action("새 노드 만들기", async () => {
+    const r = await new ModalFormData().title("새 대화 노드").textField("노드 ID (영문)", "예) story1", `node${ids.length}`).textField("대사 (| 로 페이지)", "", "").show(p);
+    if (r.canceled) return re();
+    const nid = String(r.formValues[0]).trim().replace(/[^\w-]/g, "_");
+    if (!nid || dlg.nodes[nid]) { msg(p, "§c쓸 수 없는 ID입니다."); return re(); }
+    dlg.nodes[nid] = { text: String(r.formValues[1]) || "...", choices: [] };
+    saveDialog(e, dlg);
+    return re(nid);
+  });
+  if (sel !== "start") scr.action("§c이 노드 삭제", () => {
+    delete dlg.nodes[sel];
+    for (const n of Object.values(dlg.nodes)) for (const c of n.choices ?? []) if (c.goto === sel) c.goto = "";
+    saveDialog(e, dlg);
+    return re("start");
+  });
   scr.action("돌아가기", back);
   return scr.show(p);
+}
+
+function pickChoice(p, e, dlg, nodeId, back) {
+  const node = dlg.nodes[nodeId];
+  const scr = new Screen("L", `대화 트리 / ${nodeId} / 선택지`);
+  node.choices.forEach((c, i) => scr.item(`§f${i + 1}. ${c.label}\n§7→ ${c.goto || "대화 종료"}`, ICON("chat"), () => editChoice(p, e, dlg, nodeId, i, back)));
+  adminChrome(scr, p, "npc");
+  scr.select("편집할 선택지", ICON("chat"));
+  scr.body("§7누르면 편집 화면이 열립니다.\n편집 화면에서 '삭제'를 켜면 지워집니다.");
+  scr.action("돌아가기", back);
+  return scr.show(p);
+}
+
+async function editChoice(p, e, dlg, nodeId, i, back) {
+  const node = dlg.nodes[nodeId];
+  node.choices = node.choices ?? [];
+  const cur = node.choices[i] ?? { label: "", goto: "", cmd: "", cond: null };
+  const targets = ["", ...Object.keys(dlg.nodes)];
+  const quests = Q.allQuests();
+  const r = await new ModalFormData()
+    .title(i < node.choices.length ? "선택지 편집" : "선택지 추가")
+    .textField("버튼 이름", "예) 마을 이야기 해줘", cur.label)
+    .dropdown("누르면 이동할 노드", targets.map((t) => (t ? t : "대화 종료")), Math.max(0, targets.indexOf(cur.goto ?? "")))
+    .textField("실행할 명령어 (선택, 플레이어 기준)", "예) give @s bread 3", cur.cmd ?? "")
+    .dropdown("표시 조건", COND_TYPES.map((c) => c.name), Math.max(0, COND_TYPES.findIndex((c) => c.id === (cur.cond?.t ?? ""))))
+    .textField("조건 값 (레벨 숫자 또는 퀘스트 ID)", quests[0]?.id ?? "", String(cur.cond?.v ?? ""))
+    .toggle("§c이 선택지 삭제", false)
+    .show(p);
+  if (!r.canceled) {
+    const [label, gi, cmd, ci, cv, del] = r.formValues;
+    if (del) node.choices.splice(i, 1);
+    else if (String(label).trim()) {
+      node.choices[i] = { label: String(label).trim(), goto: targets[gi], cmd: String(cmd).trim(), cond: ci ? { t: COND_TYPES[ci].id, v: String(cv).trim() } : null };
+    }
+    saveDialog(e, dlg);
+  }
+  return back();
 }
 
 function npcShop(p, e, back, sel = 0) {
@@ -572,6 +705,18 @@ function dataTab(p) {
       .textField("텍스처 경로 (비우면 자동)\n§7예) textures/items/my_sword", "textures/items/...", iconOverrides()[held.typeId] ?? iconOf(held.typeId))
       .show(p);
     if (!r.canceled) setIconOverride(held.typeId, String(r.formValues[0]).trim());
+    return dataTab(p);
+  });
+  scr.item("§l무기 분류 지정\n§7손에 든 무기의 스킬 분류 (자동 판별 덮어쓰기)", ICON("class"), async () => {
+    const held = inv(p).getItem(p.selectedSlotIndex);
+    if (!held) { msg(p, "§c무기를 손에 들어 주세요."); return dataTab(p); }
+    const keys = ["", ...Object.keys(SK.WCLASS)];
+    const cur = SK.weaponClassOf(held) ?? "";
+    const r = await new ModalFormData()
+      .title(`무기 분류 - ${held.typeId}`)
+      .dropdown(`현재 자동 판별: ${cur ? SK.WCLASS[cur].name : "무기 아님"}`, keys.map((k) => (k ? SK.WCLASS[k].name : "자동 판별")), Math.max(0, keys.indexOf(cur)))
+      .show(p);
+    if (!r.canceled) SK.setWeaponClass(held.typeId, keys[r.formValues[0]]);
     return dataTab(p);
   });
   scr.item("§l모든 퀘스트 삭제", ICON("close"), () => confirm(p, "§c모든 퀘스트 정의를 삭제할까요?\n되돌릴 수 없습니다.", () => {

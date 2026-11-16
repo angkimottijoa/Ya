@@ -25,11 +25,66 @@
         "slim": "geometry.humanoid.customSlim"
       },
       "animations": {
-        "look_at_target": "animation.humanoid.look_at_target.default"
+        "look_at_target": "animation.humanoid.look_at_target.default",
+        "move": "animation.humanoid.move",
+        "attack": "animation.humanoid.attack.rotations",
+        "talk": "animation.rpg_npc.talk",
+        "wave": "animation.rpg_npc.wave",
+        "cross_arms": "animation.rpg_npc.cross_arms",
+        "sit": "animation.rpg_npc.sit",
+        "point": "animation.rpg_npc.point",
+        "think": "animation.rpg_npc.think",
+        "cheer": "animation.rpg_npc.cheer",
+        "guard": "animation.rpg_npc.guard",
+        "bow": "animation.rpg_npc.bow",
+        "dance": "animation.rpg_npc.dance"
       },
       "scripts": {
+        "pre_animation": [
+          "v.tcos0 = (math.cos(q.modified_distance_moved * 38.17) * q.modified_move_speed / v.gliding_speed_value) * 57.3;",
+          "v.attack_time = q.attack_time;"
+        ],
+        "initialize": [
+          "v.gliding_speed_value = 1.0;"
+        ],
         "animate": [
-          "look_at_target"
+          "look_at_target",
+          {
+            "move": "q.modified_move_speed > 0.01"
+          },
+          {
+            "attack": "v.attack_time > 0"
+          },
+          {
+            "talk": "q.property('rpg:talk')"
+          },
+          {
+            "wave": "q.property('rpg:anim') == 1"
+          },
+          {
+            "cross_arms": "q.property('rpg:anim') == 2"
+          },
+          {
+            "sit": "q.property('rpg:anim') == 3"
+          },
+          {
+            "point": "q.property('rpg:anim') == 4"
+          },
+          {
+            "think": "q.property('rpg:anim') == 5"
+          },
+          {
+            "cheer": "q.property('rpg:anim') == 6"
+          },
+          {
+            "guard": "q.property('rpg:anim') == 7"
+          },
+          {
+            "bow": "q.property('rpg:anim') == 8"
+          },
+          {
+            "dance": "q.property('rpg:anim') == 9"
+          }
         ]
       },
       "render_controllers": [

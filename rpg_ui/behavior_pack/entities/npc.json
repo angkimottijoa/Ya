@@ -6,33 +6,194 @@
       "is_spawnable": true,
       "is_summonable": true,
       "properties": {
-        "rpg:skin": { "type": "int", "range": [ 0, 11 ], "default": 0, "client_sync": true }
+        "rpg:skin": {
+          "type": "int",
+          "range": [
+            0,
+            11
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "rpg:anim": {
+          "type": "int",
+          "range": [
+            0,
+            9
+          ],
+          "default": 0,
+          "client_sync": true
+        },
+        "rpg:talk": {
+          "type": "bool",
+          "default": false,
+          "client_sync": true
+        }
+      }
+    },
+    "component_groups": {
+      "rpg:civilian": {
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "cause": "all",
+              "deals_damage": "no"
+            }
+          ]
+        },
+        "minecraft:movement": {
+          "value": 0
+        }
+      },
+      "rpg:combat": {
+        "minecraft:health": {
+          "value": 40,
+          "max": 40
+        },
+        "minecraft:damage_sensor": {
+          "triggers": [
+            {
+              "on_damage": {
+                "filters": {
+                  "test": "is_family",
+                  "subject": "other",
+                  "value": "player"
+                }
+              },
+              "deals_damage": "no"
+            },
+            {
+              "cause": "fall",
+              "deals_damage": "no"
+            }
+          ]
+        },
+        "minecraft:movement": {
+          "value": 0.3
+        },
+        "minecraft:movement.basic": {},
+        "minecraft:jump.static": {},
+        "minecraft:navigation.walk": {
+          "can_path_over_doors": true,
+          "avoid_water": true,
+          "can_open_doors": true
+        },
+        "minecraft:attack": {
+          "damage": 6
+        },
+        "minecraft:behavior.melee_attack": {
+          "priority": 2,
+          "speed_multiplier": 1.2,
+          "track_target": true
+        },
+        "minecraft:behavior.hurt_by_target": {
+          "priority": 1
+        },
+        "minecraft:behavior.nearest_attackable_target": {
+          "priority": 2,
+          "must_see": true,
+          "reselect_targets": true,
+          "within_radius": 16,
+          "entity_types": [
+            {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "monster"
+              },
+              "max_dist": 16
+            }
+          ]
+        },
+        "minecraft:behavior.random_look_around": {
+          "priority": 9
+        }
       }
     },
     "components": {
-      "minecraft:type_family": { "family": [ "npc", "rpg_npc", "inanimate" ] },
-      "minecraft:health": { "value": 20, "max": 20 },
-      "minecraft:damage_sensor": { "triggers": [ { "cause": "all", "deals_damage": "no" } ] },
-      "minecraft:collision_box": { "width": 0.6, "height": 1.9 },
+      "minecraft:type_family": {
+        "family": [
+          "npc",
+          "rpg_npc",
+          "inanimate"
+        ]
+      },
+      "minecraft:health": {
+        "value": 20,
+        "max": 20
+      },
+      "minecraft:collision_box": {
+        "width": 0.6,
+        "height": 1.9
+      },
       "minecraft:physics": {},
-      "minecraft:pushable": { "is_pushable": false, "is_pushable_by_piston": false },
-      "minecraft:knockback_resistance": { "value": 1.0 },
-      "minecraft:nameable": { "always_show": true, "allow_name_tag_renaming": false },
+      "minecraft:pushable": {
+        "is_pushable": false,
+        "is_pushable_by_piston": false
+      },
+      "minecraft:knockback_resistance": {
+        "value": 1.0
+      },
+      "minecraft:nameable": {
+        "always_show": true,
+        "allow_name_tag_renaming": false
+      },
       "minecraft:persistent": {},
-      "minecraft:movement": { "value": 0 },
       "minecraft:fire_immune": true,
-      "minecraft:behavior.look_at_player": { "priority": 1, "look_distance": 8, "probability": 1.0 },
+      "minecraft:behavior.look_at_player": {
+        "priority": 7,
+        "look_distance": 8,
+        "probability": 1.0
+      },
       "minecraft:interact": {
         "interactions": [
           {
-            "on_interact": { "filters": { "test": "is_family", "subject": "other", "value": "player" }, "event": "rpg:talk" },
+            "on_interact": {
+              "filters": {
+                "test": "is_family",
+                "subject": "other",
+                "value": "player"
+              },
+              "event": "rpg:talk"
+            },
             "interact_text": "대화하기"
           }
         ]
       }
     },
     "events": {
-      "rpg:talk": {}
+      "minecraft:entity_spawned": {
+        "add": {
+          "component_groups": [
+            "rpg:civilian"
+          ]
+        }
+      },
+      "rpg:talk": {},
+      "rpg:set_combat": {
+        "add": {
+          "component_groups": [
+            "rpg:combat"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "rpg:civilian"
+          ]
+        }
+      },
+      "rpg:set_civilian": {
+        "add": {
+          "component_groups": [
+            "rpg:civilian"
+          ]
+        },
+        "remove": {
+          "component_groups": [
+            "rpg:combat"
+          ]
+        }
+      }
     }
   }
 }
