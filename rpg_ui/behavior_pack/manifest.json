@@ -1,13 +1,13 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Arcania RPG V3.0 (BP)",
+    "name": "Arcania RPG V3.1 (BP)",
     "description": "RPG 시스템: 레벨/직업/스킬/파티/퀘스트/상점/NPC/제작자 도구",
     "uuid": "b30c3da6-e088-486a-8bfb-89a22c7d48d2",
     "version": [
       4,
       3,
-      0
+      1
     ],
     "min_engine_version": [
       1,
@@ -24,7 +24,7 @@
       "version": [
         4,
         3,
-        0
+        1
       ]
     }
   ],
@@ -34,7 +34,7 @@
       "version": [
         4,
         3,
-        0
+        1
       ]
     },
     {

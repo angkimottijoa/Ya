@@ -100,6 +100,9 @@
     },
     "rpg_jt_crusader": {
       "textures": "textures/items/rpg/jt_crusader"
+    },
+    "rpg_cheongryong_sword": {
+      "textures": "textures/items/rpg/cheongryong_sword"
     }
   }
 }

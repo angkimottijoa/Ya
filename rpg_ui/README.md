@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V3.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V3.1.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,14 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V3.1 변경 — 청룡의 검 (직업과 상관없는 스킬 검)
+- 아이템 `rpg:cheongryong_sword` (상점 30000G / 제작자 도구 > 플레이어 > 청룡의 검 지급 / `/give @s rpg:cheongryong_sword`)
+- ① 청룡 · 유수: 앞으로 미끄러지며 몸을 감는 물살 곡선 획 7번
+- ② 청룡 · 와선: 여러 각도로 기운 점선 물결 고리 5개가 돌며 끌어당김 → 물보라 폭발
+- ③ 청룡 강림: 물로 된 청룡이 몸에서 솟아 S자로 크게 휘돌며 22블록 돌진, 끝에서 내리꽂힘
+- 파티클(`gen_cheongryong.py`): yu_skills 방식의 물빛 픽셀 먼지(흰 → 하늘 → 파랑 → 남색 그라데이션, 일부 흘러내림)
+  + 직접 그린 ✱ 눈꽃 텍스처. 용 머리는 옆모습 윤곽선(선분 26개: 턱·뿔·수염·갈기)을 점으로 찍어 진행 방향으로 회전.
 
 ## V3.0 변경 — 받은 매직스펠을 거의 그대로 이식 + 원소 VFX
 - `ms_convert.py`: `magicspells_src/` 의 자바 MagicSpells yml 12종을 그대로 읽어

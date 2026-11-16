@@ -13,7 +13,7 @@ import * as WP from "./waypoints.js";
 import { ItemStack } from "@minecraft/server";
 import { shopList, saveShop, canBuy, canSell, sellPrice } from "./shop.js";
 import { getJSON, setJSON, clone } from "./db.js";
-import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride } from "./itemdb.js";
+import { ICON, iconOf, itemName, inv, iconOverrides, setIconOverride, giveItem } from "./itemdb.js";
 import { openHome, questDetailBody } from "./menu.js";
 import { openNpc, SKINS, ANIMS, CAMS, npcId, npcHasShop, npcShopList, npcDialog, saveDialog, baseAnim, setBaseAnim } from "./npc.js";
 import * as R from "./rules.js";
@@ -841,6 +841,7 @@ function playerTab(p, selId) {
     }
     return re();
   });
+  scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });
   scr.action("골드 +1000", () => { addGold(t, 1000); return re(); });
   scr.action("레벨/스탯 초기화", () => confirm(p, `${t.name}의 레벨과 스탯을 초기화할까요?`, () => {

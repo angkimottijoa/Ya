@@ -11,6 +11,7 @@ import * as J from "./jobs.js";
 import * as M from "./ms.js";
 import * as SB from "./spellbook.js";
 import * as MSR from "./msrun.js";
+import { WEAPON_SKILLS } from "./cheongryong.js";
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
@@ -104,10 +105,14 @@ export function readyIn(p, id) {
 
 /** 손에 든 직업 도구의 단계 (없으면 null) */
 export const heldPath = (p) => J.pathOfTool(heldStack(p)?.typeId);
+/** 직업과 상관없는 스킬 무기 (청룡의 검 등) */
+export const heldWeaponSkills = (p) => WEAPON_SKILLS[heldStack(p)?.typeId] ?? null;
 
 /** HUD 표시용: 든 도구(없으면 현재 직업)의 ①②③ 스킬과 남은 쿨다운 */
 export function currentSkillInfo(p) {
   const d = data(p);
+  const ws = heldWeaponSkills(p);
+  if (ws) return { path: null, holding: true, list: ws.map((s) => ({ key: s.key, s, left: readyIn(p, s.id), ok: true })) };
   const held = heldPath(p);
   const path = held ?? J.currentPath(d);
   const list = [1, 2, 3].map((key) => {
@@ -239,7 +244,35 @@ export function buffMul(p) {
 }
 
 // ───────── 발동: ① 클릭 / ② 쉬프트+클릭 / ③ 쉬프트+점프 (직업 도구를 들고) ─────────
+/** 스킬 무기 발동 (직업 조건 없음) */
+function castWeaponSpecial(p, s) {
+  const d = data(p);
+  const left = readyIn(p, s.id);
+  if (left > 0) {
+    notify(p, `§7${s.name} 재사용 대기 §f${Math.ceil(left)}초`);
+    return false;
+  }
+  const mp = d.mp ?? maxMp(p);
+  if (mp < s.mp) {
+    notify(p, `§9마나 부족 §f(${Math.floor(mp)}/${s.mp})`);
+    p.playSound("note.bass");
+    return false;
+  }
+  d.mp = mp - s.mp;
+  const cdr = 1 - Math.min(0.4, stat(p, "int") * 0.01);
+  cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
+  const dmg = 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02);
+  s.run({ p, dmg, data: d });
+  notify(p, `§b§l${s.name}! §r§9-${s.mp} MP`);
+  return true;
+}
+
 export function castKey(p, key) {
+  const ws = heldWeaponSkills(p);
+  if (ws) {
+    const s = ws.find((x) => x.key === key);
+    return s ? castWeaponSpecial(p, s) : false;
+  }
   const path = heldPath(p);
   if (!path) return false;
   const d = data(p);
@@ -267,12 +300,12 @@ export function skillJumpTick(p) {
   }
   const was = jumpWas.get(p.id) ?? false;
   jumpWas.set(p.id, jumping);
-  if (jumping && !was && sneak && heldPath(p)) castKey(p, 3);
+  if (jumping && !was && sneak && (heldPath(p) || heldWeaponSkills(p))) castKey(p, 3);
 }
 
 export function initSkillTriggers() {
   world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
-    if (p?.typeId !== "minecraft:player" || !J.pathOfTool(itemStack?.typeId)) return;
+    if (p?.typeId !== "minecraft:player" || !(J.pathOfTool(itemStack?.typeId) || WEAPON_SKILLS[itemStack?.typeId])) return;
     castKey(p, p.isSneaking ? 2 : 1);
   });
 }
