@@ -22,6 +22,7 @@ function pt(dim, name, loc, o = {}) {
     for (const k of Object.keys(DEF)) m.setFloat(`variable.${k}`, o[k] ?? DEF[k]);
     m.setVector3("variable.u", o.u ?? { x: 1, y: 0, z: 0 });
     m.setVector3("variable.v", o.v ?? { x: 0, y: 1, z: 0 });
+    m.setVector3("variable.w", o.w ?? { x: 0, y: 1, z: 0 });
     dim.spawnParticle(`rpg:${name}`, loc, m);
   } catch {}
 }
@@ -53,20 +54,21 @@ function bigCrescent(dim, at, yaw, roll, r, o = {}) {
   if (o.outer !== false) pt(dim, "cr_varc_snow", at, { u, v, r: r + 0.9, thick: 0.25, a0: a0 + 15, a1: a1 - 10, dur: dur * 1.2, n: 110 });
 }
 
-/** 파란 가로 검기: 오른쪽 → 앞 → 왼쪽(dir=1) 또는 반대로 휘두름. tilt = 대각선 기울기(도) */
-function blueSlash(dim, at, yaw, tilt, r, dir, o = {}) {
-  const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, tr = (tilt * Math.PI) / 180;
+/**
+ * 검기 (V3.9): 파티클 하나(cr_slash)로 그리는 깔끔한 파란 초승달.
+ *  플레이어 앞을 지나는 반달 — tilt(도) 만큼 대각선으로 기울이고, dir=1 이면 오른쪽 → 왼쪽, -1 이면 왼쪽 → 오른쪽으로 휘두름.
+ *  휘두르는 순서·사라짐은 파티클 안의 Molang 애니메이션이 처리 (스크립트는 한 번만 호출)
+ *  spd > 0 이면 초승달 전체가 앞으로 날아감 (날아가는 검기)
+ */
+function slash(dim, at, yaw, o = {}) {
+  const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, tr = ((o.tilt ?? 0) * Math.PI) / 180;
   const right = { x: -Math.cos(ry), y: 0, z: -Math.sin(ry) };
-  const u = { x: right.x * Math.cos(tr), y: Math.sin(tr), z: right.z * Math.cos(tr) }; // 0° = 오른쪽(기울어짐)
-  const v = f; // 90° = 정면
-  const [a0, a1] = dir > 0 ? [-30, 210] : [210, -30];
-  const dur = o.dur ?? 0.14, thick = o.thick ?? 1.5;
-  pt(dim, "cr_bslash", at, { u, v, r, thick, a0, a1, dur, n: o.n ?? 900, size: o.size ?? 1 });
-  pt(dim, "cr_bslash", at, { u, v, r: r - thick * 0.35, thick: thick * 0.45, a0, a1, dur: dur * 1.1, n: (o.n ?? 900) * 0.35, size: 0.8 });
-  pt(dim, "cr_varc_snow", at, { u, v, r: r + thick * 0.55, thick: 0.3, a0, a1, dur: dur * 1.15, n: 140 });
+  const u = { x: right.x * Math.cos(tr), y: Math.sin(tr), z: right.z * Math.cos(tr) };
+  const [a0, a1] = (o.dir ?? 1) > 0 ? [-8, 188] : [188, -8];
+  pt(dim, "cr_slash", at, { u, v: f, w: f, a0, a1, r: o.r ?? 3.6, thick: o.thick ?? 1.2, n: o.n ?? 300, dur: o.dur ?? 0.12, life: o.life ?? 0.45, spd: o.spd ?? 0, size: o.size ?? 1 });
 }
 
-// ① 유수: 미끄러지며 굵은 파란 가로 검기를 좌우로 번갈아 4번 → 큰 마무리 → 마크 번개 한 방
+// ① 유수: 미끄러지며 파란 초승달 검기를 좌우로 번갈아 4번 → 큰 마무리 → 마크 번개 한 방
 function flowingWater(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "dash");
@@ -79,7 +81,7 @@ function flowingWater(ctx) {
     later(1 + i * 3, () => {
       const yaw = yawOf(p), L = p.location;
       M.anim(p, i % 2 ? "slash" : "slash_down");
-      blueSlash(dim, up(L, 1.1), yaw, tilt, 3.6 + (i % 2) * 0.4, i % 2 ? -1 : 1);
+      slash(dim, up(L, 1.1), yaw, { tilt, dir: i % 2 ? -1 : 1, r: 3.4 + (i % 2) * 0.4, thick: 1.15, n: 280 });
       cluster(dim, up(L, 0.9), { n: 12, r: 0.6, spd: 2, tone: 0.5 });
       snow(dim, up(L, 1.4), 3, 2.5);
       const f = fwdOf(yaw);
@@ -90,7 +92,7 @@ function flowingWater(ctx) {
   // 마무리 큰 획 + 번개
   later(14, () => {
     const yaw = yawOf(p), L = p.location, f = fwdOf(yaw);
-    blueSlash(dim, up(L, 1), yaw, 6, 5, 1, { thick: 2.1, n: 1300, size: 1.25, dur: 0.18 });
+    slash(dim, up(L, 1), yaw, { tilt: 8, dir: 1, r: 4.8, thick: 1.8, n: 480, dur: 0.16, life: 0.6, size: 1.3 });
     for (const e of M.around(dim, { x: L.x + f.x * 3, y: L.y, z: L.z + f.z * 3 }, 4)) hit(e, 1);
     M.sound(p, "random.splash", 1.3);
   });
@@ -502,8 +504,7 @@ function dragonDive(ctx) {
     later(t + 1, () => {
       M.anim(p, t ? "slash_down" : "slash");
       const L = p.location, yw = yawOf(p), f = fwdOf(yw);
-      pt(dim, "cr_arc", L, { yaw: yw, a0, a1, r: 4.2, thick: 1.1, h: 1.2, tilt, dur: 0.1, n: 360 });
-      pt(dim, "cr_arc", L, { yaw: yw, a0, a1, r: 3.6, thick: 0.6, h: 1.2, tilt, dur: 0.1, n: 220 });
+      slash(dim, up(L, 1.1), yw, { tilt: tilt > 0 ? 32 : -32, dir: t ? -1 : 1, r: 4.6, thick: 1.7, n: 440, dur: 0.12, life: 0.55, size: 1.25 });
       snow(dim, { x: L.x + f.x * 3, y: L.y + 1.4, z: L.z + f.z * 3 }, 6, 2.5);
       for (const e of M.around(dim, { x: L.x + f.x * 2.5, y: L.y, z: L.z + f.z * 2.5 }, 4.2)) hit(e, 0.9);
       M.sound(p, "item.trident.riptide_1", t ? 0.9 : 1.1, 0.9);
@@ -522,12 +523,12 @@ function dragonDiveMain(ctx, hit) {
     later(delay, () => {
       const o = { ...p.location }, f = fwdOf(yawOf(p)), yw = yawOf(p);
       M.anim(p, "slash");
+      slash(dim, up(o, 1.1), yw, { tilt: tilt > 0 ? 22 : -22, dir: tilt > 0 ? 1 : -1, r: 2.4, thick: 0.9, n: 240, dur: 0.06, life: 0.5, spd: 30 });
       for (let i = 0; i < 9; i++) {
         later(i, () => {
-          const c = { x: o.x + f.x * i * 1.8, y: o.y, z: o.z + f.z * i * 1.8 };
-          pt(dim, "cr_arc", c, { yaw: yw, a0: -70, a1: 70, r: 1.9, thick: 0.45, h: 1.1, tilt, dur: 0.06, n: 90 });
+          const c = { x: o.x + f.x * (2.4 + i * 1.5), y: o.y, z: o.z + f.z * (2.4 + i * 1.5) };
           if (i % 3 === 0) snow(dim, up(c, 1.2), 1, 1);
-          for (const e of M.around(dim, { x: c.x + f.x * 1.5, y: c.y, z: c.z + f.z * 1.5 }, 2)) hit(e, 0.6);
+          for (const e of M.around(dim, c, 2.2)) hit(e, 0.6);
         });
       }
       M.sound(p, "mob.blaze.hit", 1.6, 0.6);

@@ -248,7 +248,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * (2.6 + {R4} * 1.2) * (1 - {AGE} * {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S} * (2.0 + {R4} * 0.9) * (0.85 + {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{px} * {CELL}", f"{py} * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음
@@ -424,6 +424,31 @@ def main():
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": [f"0.72 + {R1} * 0.2", f"0.8 + {R1} * 0.15", f"0.9 + {R1} * 0.1", f"(0.55 - {AGE} * 0.5)"]},
     }, material="particles_blend")
+    # 21) 검기 (V3.9 새로 작성): 파티클 하나로 끝나는 깔끔한 초승달
+    #   - 한 번에 n개를 u·v 면 위 반달 모양에 뿌림 (가운데 두껍고 양 끝 뾰족)
+    #   - 각 점은 자기 각도 순서대로 늦게 나타남 (dur 동안 a0 → a1 로 휘두르는 애니메이션)
+    #   - 나타난 뒤 제자리에서 줄어들며 사라짐, w 방향으로 spd 만큼 날아감 (날아가는 검기)
+    q = R1  # 0 → 1 = 휘두르는 순서
+    th = f"(variable.a0 + (variable.a1 - variable.a0) * {q})"
+    mid = f"math.sin({q} * 180)"  # 가운데 1, 끝 0
+    rr = f"(variable.r - variable.thick * {R2} * (0.15 + {mid} * 0.85))"
+    delay = f"({q} * variable.dur)"
+    live = f"((variable.particle_age - {delay}) / variable.life)"
+    part("cr_slash", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * math.cos({th}) + variable.v.{c} * math.sin({th})) * {rr}" for c in "xyz"],
+                                          "direction": ["variable.w.x", "variable.w.y", "variable.w.z"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"{delay} + variable.life * (0.75 + {R4} * 0.25)"},
+        "minecraft:particle_initial_speed": "variable.spd",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.particle_age < {delay} ? 0 : variable.size * (0.1 + {mid} * 0.14) * (1 - math.clamp({live}, 0, 1))"] * 2,
+            "facing_camera_mode": "rotate_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 4) + 3", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp({R2} * 0.9 + math.clamp({live}, 0, 1) * 0.15, 0, 1)",
+                                                            "gradient": {"0.0": "#FFFFFFFF", "0.18": "#FFC4ECFF", "0.42": "#FF5AAFFF", "0.7": "#FF1F6BF0", "1.0": "#FF0E2FA8"}}},
+    })
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
         **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),

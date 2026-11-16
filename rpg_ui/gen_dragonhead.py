@@ -13,16 +13,16 @@ SRC = ROOT / "art" / "cheongryong_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_cr_dragonhead.png"
 TARGET_W = 240
 CELL = 8
-# ✱ 눈꽃 모양 (8x8): 예전 눈꽃 파티클과 같은 모양을 픽셀마다 찍음
-FLAKE = [
-    "X..X..X.",
-    ".X.X.X..",
-    "..XXX...",
-    "XXXXXXX.",
-    "..XXX...",
-    ".X.X.X..",
-    "X..X..X.",
-    "........",
+# 연기 파티클 같은 둥근 덩어리 (8x8): 숫자 = 밝기 (9 가운데 밝음 → 5 가장자리 어두움), . = 투명
+PUFF = [
+    "..6776..",
+    ".678876.",
+    "67899876",
+    "78999987",
+    "78999987",
+    "67899876",
+    ".678876.",
+    "..6776..",
 ]
 
 
@@ -65,16 +65,17 @@ def main():
                 sp[x, y] = (r, g, b, 255)
                 n += 1
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    # 픽셀 하나 = CELLxCELL 칸의 ✱ 눈꽃 (나머지 투명) → 그림이 눈꽃 파티클로 찍힘
+    # 픽셀 하나 = CELLxCELL 칸의 둥근 연기 덩어리 (가운데 밝고 가장자리 어두움) → 연기 파티클처럼 찍힘
     big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
     bp = big.load()
-    disc = [(i, j) for j, row in enumerate(FLAKE) for i, ch in enumerate(row) if ch == "X"]
+    disc = [(i, j, int(ch) / 9) for j, row in enumerate(PUFF) for i, ch in enumerate(row) if ch != "."]
     for y in range(small.size[1]):
         for x in range(small.size[0]):
             col = sp[x, y]
             if col[3]:
-                for i, j in disc:
-                    bp[x * CELL + i, y * CELL + j] = col
+                for i, j, k in disc:
+                    k = 0.62 + (k - 0.6) * 0.95  # 가장자리는 어둡게 → 입체감 있는 연기 덩어리
+                    bp[x * CELL + i, y * CELL + j] = (min(255, int(col[0] * k)), min(255, int(col[1] * k)), min(255, int(col[2] * k)), 255)
     big.save(OUT)
     bg = Image.new("RGBA", small.size, (70, 100, 150, 255))
     bg.alpha_composite(small)
