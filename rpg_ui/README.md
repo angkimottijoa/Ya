@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V4.4.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V4.5.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V4.5 변경
+- 번개 파티클 모양: 파란 테두리 빛무리 → 꽉 찬 흰 동그라미 점 + 연한 하늘색 동그라미 점 (영혼 불꽃 같은 색), 끝으로 갈수록 작아짐
 
 ## V4.4 변경
 - 새 번개 파티클 cr_volt: 큰 꺾임 + 잔 꺾임 두 층의 지그재그, 흰 심 + 하늘색 빛무리, 깜빡임, 곁가지. 청룡 스킬의 모든 번개 효과를 이걸로 교체

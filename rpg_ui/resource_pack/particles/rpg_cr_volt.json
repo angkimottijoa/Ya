@@ -4,8 +4,8 @@
   "description": {
    "identifier": "rpg:cr_volt",
    "basic_render_parameters": {
-    "material": "particles_blend",
-    "texture": "textures/particle/rpg_glow"
+    "material": "particles_alpha",
+    "texture": "textures/particle/rpg_cr_orb"
    }
   },
   "components": {
@@ -34,8 +34,8 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.35)",
-     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.35)"
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)",
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.5) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.5)"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
@@ -53,10 +53,10 @@
    },
    "minecraft:particle_appearance_tinting": {
     "color": [
-     "(variable.particle_random_3 < 0.5) ? 1 : 0.55",
-     "(variable.particle_random_3 < 0.5) ? 1 : 0.8",
+     "(variable.particle_random_3 < 0.5) ? 1 : 0.62 + variable.particle_random_4 * 0.18",
+     "(variable.particle_random_3 < 0.5) ? 1 : 0.9 + variable.particle_random_4 * 0.08",
      "1",
-     "(variable.particle_random_3 < 0.5) ? 1 : 0.42 * (1 - (variable.particle_age / variable.particle_lifetime))"
+     "1"
     ]
    }
   }

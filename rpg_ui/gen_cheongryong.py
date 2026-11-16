@@ -32,6 +32,15 @@ def textures():
     for x, y in [(6, 3), (9, 3), (6, 12), (9, 12), (3, 6), (3, 9), (12, 6), (12, 9)]:
         im.putpixel((x, y), W)
     im.save(TEX / "rpg_cr_snow.png")
+    # 동그란 흰 점 (8x8, 번개용): 꽉 찬 원, 테두리 픽셀만 살짝 어둡게
+    orb = Image.new("RGBA", (8, 8), (0, 0, 0, 0))
+    for y in range(8):
+        for x in range(8):
+            d = ((x - 3.5) ** 2 + (y - 3.5) ** 2) ** 0.5
+            if d <= 3.6:
+                v = 255 if d < 2.6 else 222
+                orb.putpixel((x, y), (v, v, v, 255))
+    orb.save(TEX / "rpg_cr_orb.png")
 
 
 def part(name, comps, tex="textures/particle/particles", material="particles_alpha"):
@@ -471,7 +480,7 @@ def main():
             "size": [f"{S2} * (2.4 + {R4} * 1.2) * ({AGE} < 0.25 ? 1 : 1 - ({AGE} - 0.25) * 0.9)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"({by} + {BY0}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
-    # 23) 번개 (V4.4): 꺾인 선(꼭짓점 N개, seed 해시로 매번 다른 모양)을 따라 흰 심 + 하늘색 빛무리, 깜빡임
+    # 23) 번개 (V4.5): 꺾인 선(꼭짓점 N개, seed 해시로 매번 다른 모양)을 따라 흰 동그라미 점 + 연한 하늘색 점, 깜빡임
     #   u = 진행 방향, v·w = 옆으로 꺾이는 두 축, r = 길이, amp = 꺾임 폭, thick = 빛무리 비율
     NV = 9
     kk = f"math.floor({R1} * {NV})"
@@ -494,10 +503,11 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.size * ({core} ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + {R2} * 360) > -0.35 ? 1 : 0.35)"] * 2,
+            "size": [f"variable.size * ({core} ? 0.07 : 0.1 * (0.6 + variable.thick * 0.4)) * (1 - {AGE} * 0.5) * (math.sin(variable.particle_age * 2600 + {R2} * 360) > -0.35 ? 1 : 0.5)"] * 2,
             "facing_camera_mode": "lookat_xyz", "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
-        "minecraft:particle_appearance_tinting": {"color": [f"{core} ? 1 : 0.55", f"{core} ? 1 : 0.8", "1", f"{core} ? 1 : 0.42 * (1 - {AGE})"]},
-    }, tex="textures/particle/rpg_glow", material="particles_blend")
+        # 흰 동그라미 + 연한 하늘색 (영혼 불꽃 같은 색)
+        "minecraft:particle_appearance_tinting": {"color": [f"{core} ? 1 : 0.62 + {R4} * 0.18", f"{core} ? 1 : 0.9 + {R4} * 0.08", "1", "1"]},
+    }, tex="textures/particle/rpg_cr_orb")
     # 24) 흙먼지 연기 (돌진 자국): 바닥에서 크게 피어오르는 흰·누런 연기
     part("cr_dust", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
