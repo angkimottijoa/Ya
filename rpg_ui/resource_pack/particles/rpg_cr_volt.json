@@ -1,0 +1,64 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:cr_volt",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_glow"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "variable.u.x * variable.particle_random_1 * variable.r + variable.v.x * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + variable.w.x * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + ((variable.particle_random_2 - 0.5) * 0.05)",
+     "variable.u.y * variable.particle_random_1 * variable.r + variable.v.y * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + variable.w.y * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + ((variable.particle_random_2 - 0.5) * 0.05)",
+     "variable.u.z * variable.particle_random_1 * variable.r + variable.v.z * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 37.719 + 12.9898) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 113.15700000000001 + 38.9694) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + variable.w.z * (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9)) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 9) + 1) * 78.233 + variable.seed * 75.438 + 25.9796) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 9 - math.floor(variable.particle_random_1 * 9)) + (((math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31)) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (1 - (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) + (math.mod(math.abs(math.sin((math.floor(variable.particle_random_1 * 31) + 1) * 78.233 + variable.seed * 150.876 + 51.9592) * 43758.5453), 1) - 0.5) * (variable.particle_random_1 * 31 - math.floor(variable.particle_random_1 * 31))) * 0.28)) * variable.amp * math.sqrt(math.max(0, math.sin(variable.particle_random_1 * 180)))) + ((variable.particle_random_2 - 0.5) * 0.05)"
+    ],
+    "direction": [
+     0,
+     1,
+     0
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life * (0.6 + variable.particle_random_4 * 0.4)"
+   },
+   "minecraft:particle_initial_speed": 0,
+   "minecraft:particle_motion_dynamic": {},
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.35)",
+     "variable.size * ((variable.particle_random_3 < 0.5) ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + variable.particle_random_2 * 360) > -0.35 ? 1 : 0.35)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 1,
+     "texture_height": 1,
+     "uv": [
+      0,
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": [
+     "(variable.particle_random_3 < 0.5) ? 1 : 0.55",
+     "(variable.particle_random_3 < 0.5) ? 1 : 0.8",
+     "1",
+     "(variable.particle_random_3 < 0.5) ? 1 : 0.42 * (1 - (variable.particle_age / variable.particle_lifetime))"
+    ]
+   }
+  }
+ }
+}

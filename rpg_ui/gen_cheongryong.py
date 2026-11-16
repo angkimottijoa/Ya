@@ -471,6 +471,46 @@ def main():
             "size": [f"{S2} * (2.4 + {R4} * 1.2) * ({AGE} < 0.25 ? 1 : 1 - ({AGE} - 0.25) * 0.9)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"({by} + {BY0}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
+    # 23) 번개 (V4.4): 꺾인 선(꼭짓점 N개, seed 해시로 매번 다른 모양)을 따라 흰 심 + 하늘색 빛무리, 깜빡임
+    #   u = 진행 방향, v·w = 옆으로 꺾이는 두 축, r = 길이, amp = 꺾임 폭, thick = 빛무리 비율
+    NV = 9
+    kk = f"math.floor({R1} * {NV})"
+    ff = f"({R1} * {NV} - {kk})"
+    def hsh(k, salt):
+        return f"(math.mod(math.abs(math.sin(({k}) * 78.233 + variable.seed * {salt * 37.719} + {salt * 12.9898}) * 43758.5453), 1) - 0.5)"
+    env = f"math.sqrt(math.max(0, math.sin({R1} * 180)))"
+    k2 = f"math.floor({R1} * 31)"
+    f2 = f"({R1} * 31 - {k2})"
+    fine = lambda salt: f"(({hsh(k2, salt)} * (1 - {f2}) + {hsh(k2 + ' + 1', salt)} * {f2}) * 0.28)"  # 잘게 꺾이는 두 번째 층
+    o1 = f"(({hsh(kk, 1)} * (1 - {ff}) + {hsh(kk + ' + 1', 1)} * {ff} + {fine(3)}) * variable.amp * {env})"
+    o2 = f"(({hsh(kk, 2)} * (1 - {ff}) + {hsh(kk + ' + 1', 2)} * {ff} + {fine(4)}) * variable.amp * {env})"
+    jit = f"(({R2} - 0.5) * 0.05)"
+    core = f"({R3} < 0.5)"
+    part("cr_volt", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r + variable.v.{c} * {o1} + variable.w.{c} * {o2} + {jit}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * ({core} ? 0.055 : 0.2 * variable.thick) * (math.sin(variable.particle_age * 2600 + {R2} * 360) > -0.35 ? 1 : 0.35)"] * 2,
+            "facing_camera_mode": "lookat_xyz", "uv": {"texture_width": 1, "texture_height": 1, "uv": [0, 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"{core} ? 1 : 0.55", f"{core} ? 1 : 0.8", "1", f"{core} ? 1 : 0.42 * (1 - {AGE})"]},
+    }, tex="textures/particle/rpg_glow", material="particles_blend")
+    # 24) 흙먼지 연기 (돌진 자국): 바닥에서 크게 피어오르는 흰·누런 연기
+    part("cr_dust", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_sphere": {"radius": "variable.r", "direction": [f"({R1} - 0.5)", f"0.4 + {R2} * 0.6", f"({R3} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.5)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.4 + {R2} * 0.6)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.35, 0], "linear_drag_coefficient": 2.2},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.7 + {R3} * 0.6) * (0.5 + {AGE} * 1.1)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.86 + {R1} * 0.12", f"0.84 + {R1} * 0.1", f"0.8 + {R1} * 0.12", f"(0.62 - {AGE} * 0.6)"]},
+    }, material="particles_blend")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
         **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),

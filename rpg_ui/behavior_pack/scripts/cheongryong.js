@@ -15,7 +15,7 @@ const up = (l, y) => ({ x: l.x, y: l.y + y, z: l.z });
 const yawOf = (p) => p.getRotation().y;
 const fwdOf = (yaw) => ({ x: -Math.sin((yaw * Math.PI) / 180), y: 0, z: Math.cos((yaw * Math.PI) / 180) });
 
-const DEF = { n: 10, r: 0.12, spd: 1.2, tone: 0.5, size: 1, yaw: 0, a0: 0, a1: 180, thick: 0.5, h: 1, tilt: 0, dur: 0.15, dots: 36, spin: 0, life: 1, tiltx: 0, tiltz: 0, scale: 1, pitch: 0, seg: 0 };
+const DEF = { n: 10, r: 0.12, spd: 1.2, tone: 0.5, size: 1, yaw: 0, a0: 0, a1: 180, thick: 0.5, h: 1, tilt: 0, dur: 0.15, dots: 36, spin: 0, life: 1, tiltx: 0, tiltz: 0, scale: 1, pitch: 0, seg: 0, seed: 0, amp: 0.6 };
 function pt(dim, name, loc, o = {}) {
   try {
     const m = new MolangVariableMap();
@@ -64,7 +64,7 @@ function slash(dim, at, yaw, o = {}) {
   const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, tr = ((o.tilt ?? 0) * Math.PI) / 180;
   const right = { x: -Math.cos(ry), y: 0, z: -Math.sin(ry) };
   const u = { x: right.x * Math.cos(tr), y: Math.sin(tr), z: right.z * Math.cos(tr) };
-  const [a0, a1] = (o.dir ?? 1) > 0 ? [-8, 188] : [188, -8];
+  const [a0, a1] = o.full ? ((o.dir ?? 1) > 0 ? [0, 370] : [370, 0]) : (o.dir ?? 1) > 0 ? [-8, 188] : [188, -8];
   pt(dim, "cr_slash", at, { u, v: f, w: f, a0, a1, r: o.r ?? 3.6, thick: o.thick ?? 1.2, n: o.n ?? 300, dur: o.dur ?? 0.12, life: o.life ?? 0.45, spd: o.spd ?? 0, size: o.size ?? 1 });
 }
 
@@ -143,22 +143,23 @@ function whirlpool(ctx) {
 }
 
 // ───────── 번개 / 구름 / 몸통 도구 ─────────
-function vfxBolt(dim, a, b, w = 0.45) {
-  const d = { x: b.x - a.x, y: b.y - a.y, z: b.z - a.z }, len = Math.hypot(d.x, d.y, d.z) || 1;
-  const dir = { x: d.x / len, y: d.y / len, z: d.z / len };
-  const perp = norm({ x: -dir.z || 1, y: 0, z: dir.x });
-  const seed = Math.random() * 360;
-  for (const [c, ww] of [[{ red: 0.62, green: 0.82, blue: 1, alpha: 1 }, w], [{ red: 1, green: 1, blue: 1, alpha: 1 }, w * 0.35]]) {
-    try {
-      const m = new MolangVariableMap();
-      m.setColorRGBA("variable.color", c);
-      for (const [k, v] of [["len", len], ["w", ww], ["dur", 0.06], ["seed", seed], ["amp", 1.4], ["size", 1], ["life", 0.4]]) m.setFloat(`variable.${k}`, v);
-      m.setVector3("variable.dir", dir);
-      m.setVector3("variable.perp", perp);
-      dim.spawnParticle("rpg:vfx_bolt", a, m);
-    } catch {}
+/**
+ * 진짜 같은 번개 (cr_volt): a → b 꺾인 선, 흰 심 + 빛무리, 깜빡임. 곁가지 몇 개를 덧붙임
+ *  o.amp 꺾임 폭, o.branch 곁가지 수, o.life, o.size
+ */
+function volt(dim, a, b, o = {}) {
+  const d = sub(b, a), len = Math.hypot(d.x, d.y, d.z) || 0.01, u = { x: d.x / len, y: d.y / len, z: d.z / len };
+  const v = norm(Math.abs(u.y) > 0.9 ? cross(u, { x: 1, y: 0, z: 0 }) : cross(u, { x: 0, y: 1, z: 0 })), w = cross(u, v);
+  const amp = o.amp ?? Math.min(2.4, 0.35 + len * 0.13), size = o.size ?? 1, life = o.life ?? 0.22;
+  pt(dim, "cr_volt", a, { u, v, w, r: len, amp, seed: Math.random() * 1000, n: Math.min(600, Math.round(len * 34 * size + 20)), life, size, thick: o.thick ?? 1 });
+  const nb = o.branch ?? Math.min(3, Math.floor(len / 3));
+  for (let i = 0; i < nb; i++) {
+    const q = 0.2 + Math.random() * 0.6, st = add(a, d, q);
+    const side = add(add(v, w, Math.random() - 0.5), u, 0.6), bl = len * (0.18 + Math.random() * 0.22);
+    pt(dim, "cr_volt", st, { u: norm(side), v: w, w: v, r: bl, amp: amp * 0.5, seed: Math.random() * 1000, n: Math.round(bl * 28 * size + 8), life: life * 0.8, size: size * 0.7, thick: 0.8 });
   }
 }
+function vfxBolt(dim, a, b, w = 0.45) { volt(dim, a, b, { size: 0.8 + w, branch: 2 }); }
 function flash(dim, loc, size = 2) {
   try {
     const m = new MolangVariableMap();
@@ -495,27 +496,106 @@ function bind(ctx, c, r, dur) {
   });
 }
 
-// ④ 청룡 · 천룡추 (쉬프트 두 번): 돌진하며 검기 → 솟구쳐 큰 청룡 머리 → 함께 내리꽂기 → 번개
-function dragonDive(ctx) {
-  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  M.invuln(p, 5);
-  // 본 스킬 전: 크게 두 번 긋기
-  for (const [t, tilt, a0, a1] of [[0, 0.9, -110, 110], [7, -0.9, 110, -110]]) {
-    later(t + 1, () => {
-      M.anim(p, t ? "slash_down" : "slash");
-      const L = p.location, yw = yawOf(p), f = fwdOf(yw);
-      slash(dim, up(L, 1.1), yw, { tilt: tilt > 0 ? 32 : -32, dir: t ? -1 : 1, r: 4.6, thick: 1.7, n: 440, dur: 0.12, life: 0.55, size: 1.25 });
-      snow(dim, { x: L.x + f.x * 3, y: L.y + 1.4, z: L.z + f.z * 3 }, 6, 2.5);
-      for (const e of M.around(dim, { x: L.x + f.x * 2.5, y: L.y, z: L.z + f.z * 2.5 }, 4.2)) hit(e, 0.9);
-      M.sound(p, "item.trident.riptide_1", t ? 0.9 : 1.1, 0.9);
+// ④ 청룡 · 천룡추 (쉬프트 두 번)
+//   번개 기운을 두르고 → 일직선 번개 돌진(뇌섬) → 큰 대각 베기 두 번 → 한 바퀴 베기 → 올려 베기
+//   → 날아가는 검기 · 솟구침 · 옆에 나란히 나타난 청룡과 함께 내리꽂기 → 번개
+/** 몸에 두르는 번개: 몸 주변에 짧게 튀는 전기 */
+function bodyVolts(dim, at, k = 3, r = 1.1) {
+  for (let i = 0; i < k; i++) {
+    const a = Math.random() * Math.PI * 2, h = 0.2 + Math.random() * 1.6;
+    const s0 = { x: at.x + Math.cos(a) * r * 0.5, y: at.y + h, z: at.z + Math.sin(a) * r * 0.5 };
+    const s1 = { x: at.x + Math.cos(a + 0.9) * r * 1.2, y: at.y + h + (Math.random() - 0.5) * 1.2, z: at.z + Math.sin(a + 0.9) * r * 1.2 };
+    volt(dim, s0, s1, { amp: 0.35, size: 0.7, life: 0.12, branch: 0 });
+  }
+}
+/** 뇌섬: 번개처럼 일직선으로 순간 돌진 (막히면 그 앞에서 멈춤), 지나간 줄의 적을 벰 */
+function flashDash(ctx, hit, dist = 13) {
+  const { p } = ctx, dim = p.dimension;
+  const yw = yawOf(p), rot = p.getRotation(), f = fwdOf(yw), o = { ...p.location };
+  let reach = 0;
+  for (let d = 0.5; d <= dist; d += 0.5) {
+    const q = { x: o.x + f.x * d, y: o.y, z: o.z + f.z * d };
+    let ok = true;
+    for (const dy of [0.2, 1.4]) {
+      try { const bl = dim.getBlock({ x: Math.floor(q.x), y: Math.floor(q.y + dy), z: Math.floor(q.z) }); if (bl && !bl.isAir && !bl.isLiquid && bl.isSolid !== false) ok = false; } catch {}
+    }
+    if (!ok) break;
+    reach = d;
+  }
+  const end = { x: o.x + f.x * reach, y: o.y, z: o.z + f.z * reach };
+  const right = { x: -Math.cos((yw * Math.PI) / 180), y: 0, z: -Math.sin((yw * Math.PI) / 180) };
+  M.anim(p, "dash");
+  M.sound(p, "ambient.weather.lightning.impact", 1.4, 1.6);
+  M.sound(p, "item.trident.thunder", 1, 1.4);
+  // 3틱에 걸쳐 순간이동 (잔상처럼 빠르게)
+  for (let i = 1; i <= 3; i++) later(i, () => {
+    const q = add(o, sub(end, o), i / 3);
+    try { p.teleport(q, { rotation: rot, keepVelocity: false }); } catch {}
+    bodyVolts(dim, q, 2, 1.2);
+  });
+  // 지나간 줄: 바닥을 기는 번개 여러 줄 + 흙먼지 + 빛줄기 한 줄
+  const L = Math.max(1, reach);
+  later(1, () => volt(dim, up(o, 1.1), up(end, 1.1), { amp: 0.08, size: 1.4, life: 0.35, branch: 0, thick: 1.6 })); // 일직선 섬광
+  for (let i = 0; i < 9; i++) later(1 + Math.floor(i / 3), () => {
+    const q0 = Math.random() * 0.7, q1 = Math.min(1, q0 + 0.25 + Math.random() * 0.35);
+    const s0 = add(add(o, sub(end, o), q0), right, (Math.random() - 0.5) * 2.2), s1 = add(add(o, sub(end, o), q1), right, (Math.random() - 0.5) * 2.6);
+    volt(dim, up(s0, 0.15 + Math.random() * 0.5), up(s1, 0.15 + Math.random() * 0.9), { amp: 0.9, size: 1.1, life: 0.3, branch: 2 });
+  });
+  for (let k = 0; k <= L; k += 1.2) {
+    const c = add(o, f, k);
+    later(1 + Math.floor((k / L) * 3), () => {
+      pt(dim, "cr_dust", up(c, 0.3), { n: 5, r: 0.6, spd: 2.5, size: 1.4, life: 1.6 });
+      if (Math.random() < 0.4) cluster(dim, up(c, 0.4), { n: 6, r: 0.4, spd: 2, tone: 0.1 });
     });
   }
-  later(14, () => dragonDiveMain(ctx, hit));
+  // 도착점: 흙먼지 크게 + 번개 튐 + 적 베기
+  later(4, () => {
+    pt(dim, "cr_dust", up(end, 0.4), { n: 22, r: 1.2, spd: 4, size: 1.8, life: 1.8 });
+    flash(dim, up(end, 1), 3);
+    for (let i = 0; i < 4; i++) { const a = Math.random() * 6.28; volt(dim, up(end, 0.3), { x: end.x + Math.cos(a) * 3, y: end.y + Math.random() * 1.5, z: end.z + Math.sin(a) * 3 }, { amp: 0.7, size: 0.9, life: 0.25 }); }
+  });
+  for (let i = 1; i <= 4; i++) later(i, () => {
+    for (const e of M.around(dim, add(o, sub(end, o), Math.min(1, i / 3)), 2.6)) hit(e, 1.3);
+  });
+  return 4;
+}
+function dragonDive(ctx) {
+  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
+  M.invuln(p, 7);
+  // 0~5: 칼을 쥐고 번개 기운을 두름
+  M.anim(p, "raise");
+  M.sound(p, "random.fizz", 1, 1.8);
+  for (let t = 0; t < 6; t++) later(t + 1, () => { bodyVolts(dim, p.location, 3, 1); if (t % 2 === 0) cluster(dim, up(p.location, 0.2), { n: 6, r: 0.8, spd: 1, tone: 0.1 }); });
+  // 6: 뇌섬 (일직선 번개 돌진)
+  later(6, () => flashDash(ctx, hit, 13));
+  // 큰 대각 베기 두 번 (길게 남음), 한 바퀴 베기, 올려 베기
+  const cuts = [
+    [12, () => ({ tilt: 32, dir: 1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash", 0.9],
+    [19, () => ({ tilt: -32, dir: -1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash_down", 0.9],
+    [26, () => ({ full: true, dir: 1, r: 4.4, thick: 1.5, n: 760, dur: 0.3, life: 1.0, size: 1.2 }), "slash", 1.1],
+    [34, () => ({ tilt: 90, dir: -1, r: 4.2, thick: 1.6, n: 460, dur: 0.18, life: 0.9, size: 1.25 }), "raise", 1],
+  ];
+  for (const [t, opt, anim, mul] of cuts) {
+    later(t, () => {
+      M.anim(p, anim);
+      const L = p.location, yw = yawOf(p), f = fwdOf(yw), o = opt();
+      slash(dim, up(L, o.full ? 0.9 : 1.1), yw, o);
+      if (o.full) { // 한 바퀴: 주변 전부 + 바깥으로 퍼지는 물보라
+        pt(dim, "cr_shock", up(L, 0.9), { n: 120, spd: 9, tone: 0.2 });
+        for (const e of M.around(dim, L, 5.2)) { hit(e, mul); M.toss(L, e, 1.5, 3); }
+        M.sound(p, "item.trident.riptide_2", 1, 1.2);
+      } else {
+        snow(dim, { x: L.x + f.x * 3, y: L.y + 1.4, z: L.z + f.z * 3 }, 6, 2.5);
+        for (const e of M.around(dim, { x: L.x + f.x * 2.5, y: L.y, z: L.z + f.z * 2.5 }, 4.4)) hit(e, mul);
+        if (o.tilt === 90) for (const e of M.around(dim, { x: L.x + f.x * 2.5, y: L.y, z: L.z + f.z * 2.5 }, 4)) M.toss(L, e, 0.5, 7); // 올려 베기: 띄움
+      }
+      M.sound(p, "item.trident.riptide_1", o.full ? 0.8 : 1.1, 0.9);
+    });
+  }
+  later(39, () => dragonDiveMain(ctx, hit));
 }
 function dragonDiveMain(ctx, hit) {
   const { p } = ctx, dim = p.dimension;
-  M.anim(p, "dash");
-  M.leap(p, 14, 0.3);
   M.sound(p, "item.trident.riptide_1", 1.2);
   // 검기 2발: 앞으로 날아가는 초승달 물살
   const yaw0 = yawOf(p);
@@ -666,6 +746,6 @@ export const WEAPON_SKILLS = {
     { id: "w_cr_1", key: 1, name: "청룡 · 유수", short: "유수", lv: 1, mp: 12, cd: 4, pow: 1, run: flowingWater, desc: "앞으로 미끄러지며 몸을 감는 물살을 그린다." },
     { id: "w_cr_2", key: 2, name: "청룡 · 와선", short: "와선", lv: 1, mp: 25, cd: 14, pow: 1, run: whirlpool, desc: "기울어진 점선 물결 고리가 돌며 적을 끌어당긴다." },
     { id: "w_cr_3", key: 3, name: "청룡 강림", short: "강림", lv: 1, mp: 45, cd: 30, pow: 1, run: dragon, desc: "거대한 먹구름 위에서 나타난 청룡이 아래를 한 바퀴 돌고 솟구쳤다가 내리꽂힌 뒤, 주변을 구속하고 번개가 쏟아진다." },
-    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "크게 두 번 긋고 돌진하며 검기 → 솟구쳐 공중에서 2초간 자유롭게 이동, 옆에 나란히 나타난 눈꽃 청룡과 함께 아래로 내리꽂고 번개." },
+    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "번개를 두르고 일직선으로 번개 돌진(뇌섬) → 대각 베기 두 번 · 한 바퀴 베기 · 올려 베기 → 날아가는 검기 → 솟구쳐 공중 이동, 옆에 나타난 청룡과 함께 내리꽂고 번개." },
   ],
 };
