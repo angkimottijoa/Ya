@@ -11,7 +11,7 @@ from PIL import Image
 ROOT = Path(__file__).parent
 SRC = ROOT / "art" / "cheongryong_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_cr_dragonhead.png"
-TARGET_W = 320
+TARGET_W = 240
 
 
 def main():

@@ -181,6 +181,15 @@ function body(dim, prev, cur, thick, life = 1.3, steps = 3) {
     pt(dim, "cr_tube", { x: prev.x + (cur.x - prev.x) * q, y: prev.y + (cur.y - prev.y) * q, z: prev.z + (cur.z - prev.z) * q }, { u, v, r: thick, n: 36, life });
   }
 }
+/** 몸통: 경로 함수의 (t-1 → t) 구간을 실제 곡선대로 steps 번 나눠 단면 */
+function bodyAlong(dim, path, t, thick, life = 1.3, steps = 5) {
+  let a = path(t - 1);
+  for (let k = 1; k <= steps; k++) {
+    const b = path(t - 1 + k / steps);
+    body(dim, a, b, thick, life, 1);
+    a = b;
+  }
+}
 const headDir = (prev, cur) => {
   const d = { x: cur.x - prev.x, y: cur.y - prev.y, z: cur.z - prev.z };
   return { yaw: (Math.atan2(-d.x, d.z) * 180) / Math.PI, pitch: (Math.atan2(d.y, Math.hypot(d.x, d.z)) * 180) / Math.PI };
@@ -205,35 +214,42 @@ function dragon(ctx) {
   later(8, () => pt(dim, "cr_cloud", up(C, 2.5), { r: 11, life: 7 }));
   for (let i = 0; i < 4; i++) later(i * 25, () => M.sound(p, "ambient.weather.thunder", 0.5 + i * 0.05, 0.7));
   const a0 = Math.atan2(o.z - C.z, o.x - C.x) + Math.PI; // 플레이어 반대쪽 구름 위에서 등장
-  const ring = (ang, s) => ({ x: C.x + Math.cos(ang) * R, y: C.y - 3 + Math.sin(s * Math.PI * 4) * 0.8, z: C.z + Math.sin(ang) * R });
-  const TA = 26, TB = 52, TC = 44;
-  const top = { x: C.x + Math.cos(a0) * R * 0.5, y: C.y + 8, z: C.z + Math.sin(a0) * R * 0.5 };
-  const bez = (A, K, B, s) => { const m = 1 - s; return { x: m * m * A.x + 2 * m * s * K.x + s * s * B.x, y: m * m * A.y + 2 * m * s * K.y + s * s * B.y, z: m * m * A.z + 2 * m * s * K.z + s * s * B.z }; };
-  const ringStart = ring(a0, 0);
+  const ring = (ang, s) => ({ x: C.x + Math.cos(ang) * R, y: C.y - 3 - Math.sin(s * Math.PI * 4) * 0.8, z: C.z + Math.sin(ang) * R });
+  const TA = 28, TB = 54, TC = 42;
+  // 3차 베지어 (접선이 이어지게 조절점을 둠)
+  const bez3 = (A, B, C2, D, s) => {
+    const m = 1 - s, a = m * m * m, b = 3 * m * m * s, c = 3 * m * s * s, d = s * s * s;
+    return { x: a * A.x + b * B.x + c * C2.x + d * D.x, y: a * A.y + b * B.y + c * C2.y + d * D.y, z: a * A.z + b * B.z + c * C2.z + d * D.z };
+  };
+  const tan = (ang) => ({ x: -Math.sin(ang), z: Math.cos(ang) }); // 고리 진행 방향
+  const ringStart = ring(a0, 0), ringEnd = ring(a0, 1), t0 = tan(a0);
+  const top = { x: C.x + Math.cos(a0) * R * 0.9 - t0.x * R * 0.8, y: C.y + 9, z: C.z + Math.sin(a0) * R * 0.9 - t0.z * R * 0.8 };
+  const A1 = { x: top.x, y: C.y + 2, z: top.z }; // 구름을 뚫고 곧게 내려오다가
+  const A2 = { x: ringStart.x - t0.x * 6, y: ringStart.y + 0.6, z: ringStart.z - t0.z * 6 }; // 고리 방향으로 부드럽게 꺾임
+  const B = { x: G.x, y: G.y - 2.5, z: G.z };
+  const C1 = { x: ringEnd.x + t0.x * 12, y: ringEnd.y - 2.4, z: ringEnd.z + t0.z * 12 }; // 고리에서 그대로 미끄러져 나와
+  const C2 = { x: B.x, y: B.y + 13, z: B.z }; // 마지막엔 거의 수직으로 꽂힘
   const path = (t) => {
-    if (t <= TA) { // 구름 위에서 나타나 구름을 뚫고 아래로
-      const s = ease(t / TA);
-      return bez(top, { x: C.x + Math.cos(a0 - 0.8) * R * 1.3, y: C.y + 1, z: C.z + Math.sin(a0 - 0.8) * R * 1.3 }, ringStart, s);
-    }
+    t = Math.max(0, t);
+    if (t <= TA) { const u = t / TA; return bez3(top, A1, A2, ringStart, (u * u + u) / 2); } // 끝으로 갈수록 빨라져 고리 속도와 맞춤
     if (t <= TA + TB) return ring(a0 + ((t - TA) / TB) * Math.PI * 2, (t - TA) / TB); // 구름 아래 한 바퀴
-    // S자로 꿈틀대며 땅까지 (처음 버전 모션)
-    const s = Math.min(1, (t - TA - TB) / TC);
-    const A = ring(a0, 1), B = { x: G.x, y: G.y - 2.5, z: G.z };
-    const e = ease(s);
-    const sw = 3.4 * Math.sin(s * Math.PI * 2.2) * (1 - s * 0.6);
-    const bob = 1.4 * Math.sin(s * Math.PI * 3) * (1 - s);
-    return { x: A.x + (B.x - A.x) * e + side.x * sw, y: A.y + (B.y - A.y) * (s * s) + bob, z: A.z + (B.z - A.z) * e + side.z * sw };
+    const u = Math.min(1, (t - TA - TB) / TC);
+    const s = u * 1.05 - u * u * 0.05; // 고리 속도 그대로 이어서 출발
+    const q = bez3(ringEnd, C1, C2, B, s);
+    const sw = 3 * u * Math.sin(u * Math.PI * 2.2) * (1 - u); // 시작·끝은 0 → 꺾임 없이 꿈틀
+    return { x: q.x + side.x * sw, y: q.y, z: q.z + side.z * sw };
   };
   const T = TA + TB + TC;
-  let prev = path(0), landed = false;
+  let landed = false;
   for (let t = 1; t <= T; t++) {
     later(t, () => {
       const cur = path(t);
       const s = t / T;
       const thick = 0.95 * Math.min(1, 0.35 + s * 3);
-      if (cur.y > o.y - 0.5) body(dim, prev, cur, thick, 1.7);
-      const hd = headDir(prev, cur);
-      if (cur.y > o.y + 0.3 && t % 2 === 0) pt(dim, "cr_head", cur, { ...hd, n: 420, life: 0.14, scale: 1.7 });
+      // 한 틱 사이도 실제 곡선을 따라 5번 나눠 그림 → 몸통이 각지지 않음
+      if (cur.y > o.y - 0.5) bodyAlong(dim, path, t, thick, 1.7, 5);
+      const hd = headDir(path(t - 1), path(t + 1)); // 앞뒤 차이로 방향 → 머리가 덜 흔들림
+      if (cur.y > o.y + 0.3) pt(dim, "cr_head", cur, { ...hd, n: 380, life: 0.1, scale: 1.7 });
       if (t % 3 === 0) snow(dim, cur, 3, 2);
       cluster(dim, cur, { n: 8, r: 0.5, spd: 1.8, tone: 0.5 });
       for (const e of M.around(dim, cur, 3)) hit(e, 0.5);
@@ -251,7 +267,6 @@ function dragon(ctx) {
         M.sound(p, "random.splash", 0.7);
         M.sound(p, "random.explode", 1.2, 0.6);
       }
-      prev = cur;
     });
   }
   // 진짜 마크 번개: 주변 몹 위로 차례로 (몹이 없으면 떨어진 곳 주변)
@@ -316,61 +331,81 @@ function dragonDiveMain(ctx, hit) {
     try { p.applyKnockback(f.x, f.z, 0.3, 1.25); } catch {}
     M.sound(p, "mob.enderdragon.flap", 1, 1);
   });
-  // 비상: 1.5초 동안 떠오르며, 눈앞을 가로질러 큰 청룡이 모습을 드러냄
-  //   (그림은 옆모습이라 내 시선과 수직인 면에 세워야 잘 보임: 머리 = 오른쪽, 몸통 = 왼쪽)
-  const HOVER = 30;
+  // 비상 → 내리꽂기를 한 루프로: 큰 청룡이 플레이어 '옆'에서 같은 방향을 보고 나란히 날다가
+  //   (머리 = 플레이어보다 약간 앞, 몸통 = 플레이어 옆을 지나 뒤로 흐름)
+  //   내리꽂을 때 고개가 수평 → 아래로 자연스럽게 숙여지며 플레이어와 함께 땅에 박힘
+  const HOVER = 30, START = 17;
   later(16, () => { M.potion(p, "levitation", 1, 1.2); M.potion(p, "slow_falling", 1, 2.2); });
-  const headAt = (pitch, k = 1) => {
-    const yw = yawOf(p), f = fwdOf(yw), rx = -Math.cos((yw * Math.PI) / 180), rz = -Math.sin((yw * Math.PI) / 180);
-    return { at: { x: p.location.x + f.x * 8 + rx * 3, y: p.location.y + 1.8, z: p.location.z + f.z * 8 + rz * 3 }, yaw: yw + 90, pitch, k };
+  let yawS = yawOf(p), pitchS = 0, t = 0, diveT = -1, landT = -1, G = null, hitAt = null;
+  const angLerp = (a, b, k) => a + ((((b - a) % 360) + 540) % 360 - 180) * k;
+  const SIDE = 2.4; // 플레이어 오른쪽 거리
+  const anchor = (yw, dy) => {
+    const f = fwdOf(yw), rx = -Math.cos((yw * Math.PI) / 180), rz = -Math.sin((yw * Math.PI) / 180);
+    return { x: p.location.x + f.x * 1.2 + rx * SIDE, y: p.location.y + dy, z: p.location.z + f.z * 1.2 + rz * SIDE };
   };
-  for (let t = 0; t <= HOVER; t++) {
-    later(17 + t, () => {
-      const grow = Math.min(1, 0.55 + t / 10 * 0.45); // 처음 0.5초 동안 커지며 솟아오름
-      const h = headAt(8 * Math.sin(t / 5), grow);
-      h.at.y += (1 - grow) * -3;
-      pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.18, scale: 1.1 * grow });
-      if (t === 0) { M.sound(p, "mob.enderdragon.growl", 1.3, 1); snow(dim, h.at, 14, 4); }
-      if (t % 3 === 0) cluster(dim, h.at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
-      if (t % 6 === 0) snow(dim, h.at, 4, 4);
-    });
-  }
-  // 함께 내리꽂기
-  later(17 + HOVER + 1, () => {
-    M.anim(p, "smash");
-    try { p.removeEffect("levitation"); p.removeEffect("slow_falling"); } catch {}
-    const f = fwdOf(yawOf(p));
-    try { p.applyKnockback(f.x, f.z, 0.8, -2.6); } catch {}
-  });
-  let t = 0, landed = false;
-  const follow = () => {
-    t++;
-    if (!p.isValid() || landed) return;
-    let g = false;
-    try { g = p.isOnGround; } catch {}
-    const h = headAt(-30);
-    pt(dim, "cr_bighead", h.at, { yaw: h.yaw, pitch: h.pitch, n: 3200, life: 0.14, scale: 1.1 });
-    if ((t > 2 && g) || t > 30) {
-      landed = true;
-      const G = { ...p.location };
-      const ff = fwdOf(yawOf(p));
-      const hitAt = { x: G.x + ff.x * 2.5, y: G.y, z: G.z + ff.z * 2.5 };
-      pt(dim, "cr_ring", hitAt, { r: 4.5, h: 0.2, dots: 52, spin: 260, tone: 0.45, life: 1.2 });
-      pt(dim, "cr_arc", hitAt, { yaw: 0, a0: 0, a1: 360, r: 3.4, thick: 1, h: 0.3, dur: 0.2, n: 280 });
-      for (let k = 0; k < 14; k++) {
-        const a = (k / 14) * Math.PI * 2;
-        cluster(dim, { x: hitAt.x + Math.cos(a) * 2.4, y: hitAt.y + 1 + Math.random(), z: hitAt.z + Math.sin(a) * 2.4 }, { n: 22, r: 0.5, spd: 4.5, tone: k % 3 ? 0.35 : 0.8 });
-      }
-      snow(dim, up(hitAt, 2), 12, 3.5);
-      for (const e of M.around(dim, hitAt, 5)) { hit(e, 2); M.toss(hitAt, e, 3, 6); }
-      M.sound(p, "random.explode", 1.1, 0.9);
-      M.sound(p, "random.splash", 0.7);
-      later(7, () => lightning(ctx, { x: hitAt.x + 1, y: hitAt.y + 18, z: hitAt.z - 1 }, hitAt, hit, 2.2));
-      return;
+  const draw = (at, pitch, grow, life = 0.2) => pt(dim, "cr_bighead", at, { yaw: yawS, pitch, n: 3800, life, scale: 1.1 * grow });
+  const land = () => {
+    const ff = fwdOf(yawS);
+    G = { ...p.location };
+    hitAt = { x: G.x + ff.x * 2.5, y: G.y, z: G.z + ff.z * 2.5 };
+    pt(dim, "cr_ring", hitAt, { r: 4.5, h: 0.2, dots: 52, spin: 260, tone: 0.45, life: 1.2 });
+    pt(dim, "cr_arc", hitAt, { yaw: 0, a0: 0, a1: 360, r: 3.4, thick: 1, h: 0.3, dur: 0.2, n: 280 });
+    for (let k = 0; k < 14; k++) {
+      const a = (k / 14) * Math.PI * 2;
+      cluster(dim, { x: hitAt.x + Math.cos(a) * 2.4, y: hitAt.y + 1 + Math.random(), z: hitAt.z + Math.sin(a) * 2.4 }, { n: 22, r: 0.5, spd: 4.5, tone: k % 3 ? 0.35 : 0.8 });
     }
-    later(1, follow);
+    snow(dim, up(hitAt, 2), 12, 3.5);
+    for (const e of M.around(dim, hitAt, 5)) { hit(e, 2); M.toss(hitAt, e, 3, 6); }
+    M.sound(p, "random.explode", 1.1, 0.9);
+    M.sound(p, "random.splash", 0.7);
+    later(7, () => lightning(ctx, { x: hitAt.x + 1, y: hitAt.y + 18, z: hitAt.z - 1 }, hitAt, hit, 2.2));
   };
-  later(17 + HOVER + 2, follow);
+  const tick = () => {
+    if (!p.isValid()) return;
+    yawS = angLerp(yawS, yawOf(p), 0.3); // 시선을 부드럽게 따라감
+    if (t === HOVER + 1) { // 내리꽂기 시작
+      diveT = 0;
+      M.anim(p, "smash");
+      try { p.removeEffect("levitation"); p.removeEffect("slow_falling"); } catch {}
+      const f = fwdOf(yawOf(p));
+      try { p.applyKnockback(f.x, f.z, 0.8, -2.2); } catch {}
+      M.sound(p, "mob.enderdragon.growl", 1.1, 1.3);
+    }
+    if (landT < 0) {
+      let at, pitch, grow = 1;
+      if (diveT < 0) { // 비상: 아래에서 솟아오르며 커짐, 살짝 꿈틀
+        grow = Math.min(1, 0.55 + (t / 10) * 0.45);
+        pitch = 6 * Math.sin(t / 5) + (1 - grow) * 30; // 솟아오를 땐 고개를 들고 → 수평
+        at = anchor(yawS, 1.4 - (1 - grow) * 4);
+        if (t === 0) { M.sound(p, "mob.enderdragon.growl", 1.3, 1); snow(dim, at, 14, 4); }
+      } else { // 내리꽂기: 수평 → 머리를 아래로 (6틱에 걸쳐)
+        const k = ease(Math.min(1, diveT / 6));
+        pitch = 6 * Math.sin(t / 5) * (1 - k) - 58 * k;
+        at = anchor(yawS, 1.4 - k * 1.2);
+      }
+      pitchS += (pitch - pitchS) * 0.5;
+      draw(at, pitchS, grow);
+      if (t % 3 === 0) cluster(dim, at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
+      if (t % 6 === 0) snow(dim, at, 4, 4);
+      if (diveT >= 0) {
+        diveT++;
+        let g = false;
+        try { g = p.isOnGround; } catch {}
+        if ((diveT > 2 && g) || diveT > 30) { landT = 0; land(); }
+      }
+    } else { // 땅에 닿은 뒤: 용 머리가 그대로 땅속으로 파고들며 사라짐
+      const k = landT / 7;
+      pitchS += (-70 - pitchS) * 0.4;
+      const f = fwdOf(yawS), rx = -Math.cos((yawS * Math.PI) / 180), rz = -Math.sin((yawS * Math.PI) / 180);
+      const at = { x: G.x + f.x * (1.2 + k * 1.2) + rx * SIDE * (1 - k * 0.5), y: G.y + 0.2 - k * 2.5, z: G.z + f.z * (1.2 + k * 1.2) + rz * SIDE * (1 - k * 0.5) };
+      draw(at, pitchS, 1, 0.16);
+      if (landT % 2 === 0) cluster(dim, up(at, 0.5), { n: 14, r: 1.2, spd: 3, tone: 0.6 });
+      if (++landT > 7) return;
+    }
+    t++;
+    later(1, tick);
+  };
+  later(START, tick);
   void yaw0;
 }
 const norm = (v) => { const l = Math.hypot(v.x, v.y, v.z) || 1; return { x: v.x / l, y: v.y / l, z: v.z / l }; };
@@ -382,6 +417,6 @@ export const WEAPON_SKILLS = {
     { id: "w_cr_1", key: 1, name: "청룡 · 유수", short: "유수", lv: 1, mp: 12, cd: 4, pow: 1, run: flowingWater, desc: "앞으로 미끄러지며 몸을 감는 물살을 그린다." },
     { id: "w_cr_2", key: 2, name: "청룡 · 와선", short: "와선", lv: 1, mp: 25, cd: 14, pow: 1, run: whirlpool, desc: "기울어진 점선 물결 고리가 돌며 적을 끌어당긴다." },
     { id: "w_cr_3", key: 3, name: "청룡 강림", short: "강림", lv: 1, mp: 45, cd: 30, pow: 1, run: dragon, desc: "거대한 먹구름 위에서 나타난 청룡이 아래를 한 바퀴 돌고 꿈틀대며 땅으로 떨어진 뒤, 주변 몹에게 번개가 떨어진다." },
-    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "돌진하며 검기 두 발 → 솟구쳐 큰 청룡 머리와 함께 내리꽂고 번개." },
+    { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "크게 두 번 긋고 돌진하며 검기 → 솟구쳐 옆에 나란히 나타난 청룡과 함께 아래로 내리꽂고 번개." },
   ],
 };

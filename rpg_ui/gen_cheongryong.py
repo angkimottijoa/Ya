@@ -222,9 +222,9 @@ def main():
         **dust_look("0.13", tone=f"{R3} * 0.35"),
     })
     # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
-    IW, IH, CX, CY = 320, 162, 240, 67
+    IW, IH, CX, CY = 240, 121, 180, 50
     px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
-    S = "(variable.scale * 0.036)"
+    S = "(variable.scale * 0.048)"
     lx, ly, lz = f"(({px} - {CX}) * {S})", f"(({CY} - {py}) * {S})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
     cp, sp = "math.cos(variable.pitch)", "math.sin(variable.pitch)"
     fx, fy = f"({lx} * {cp} - {ly} * {sp})", f"({lx} * {sp} + {ly} * {cp})"
@@ -237,7 +237,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * 0.62", f"{S} * 0.62"], "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S} * 1.7", f"{S} * 1.7"], "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW, "texture_height": IH, "uv": [px, py], "uv_size": [1, 1]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 9) 큰 세로 초승달 획 (유수): 면은 u·v 기저(스크립트가 넘김), a0 → a1 을 dur 동안 그음

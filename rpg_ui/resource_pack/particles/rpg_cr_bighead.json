@@ -17,9 +17,9 @@
    },
    "minecraft:emitter_shape_point": {
     "offset": [
-     "(-(((math.floor(variable.particle_random_1 * 320) - 240) * (variable.scale * 0.036)) * math.cos(variable.pitch) - ((67 - math.floor(variable.particle_random_2 * 162)) * (variable.scale * 0.036)) * math.sin(variable.pitch)) * math.sin(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.cos(variable.yaw))",
-     "(((math.floor(variable.particle_random_1 * 320) - 240) * (variable.scale * 0.036)) * math.sin(variable.pitch) + ((67 - math.floor(variable.particle_random_2 * 162)) * (variable.scale * 0.036)) * math.cos(variable.pitch))",
-     "((((math.floor(variable.particle_random_1 * 320) - 240) * (variable.scale * 0.036)) * math.cos(variable.pitch) - ((67 - math.floor(variable.particle_random_2 * 162)) * (variable.scale * 0.036)) * math.sin(variable.pitch)) * math.cos(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.sin(variable.yaw))"
+     "(-(((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.sin(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.cos(variable.yaw))",
+     "(((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.sin(variable.pitch) + ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.cos(variable.pitch))",
+     "((((math.floor(variable.particle_random_1 * 240) - 180) * (variable.scale * 0.048)) * math.cos(variable.pitch) - ((50 - math.floor(variable.particle_random_2 * 121)) * (variable.scale * 0.048)) * math.sin(variable.pitch)) * math.cos(variable.yaw) + ((variable.particle_random_3 - 0.5) * 0.4 * variable.scale) * math.sin(variable.yaw))"
     ],
     "direction": [
      0,
@@ -34,16 +34,16 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "(variable.scale * 0.036) * 0.62",
-     "(variable.scale * 0.036) * 0.62"
+     "(variable.scale * 0.048) * 1.7",
+     "(variable.scale * 0.048) * 1.7"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
-     "texture_width": 320,
-     "texture_height": 162,
+     "texture_width": 240,
+     "texture_height": 121,
      "uv": [
-      "math.floor(variable.particle_random_1 * 320)",
-      "math.floor(variable.particle_random_2 * 162)"
+      "math.floor(variable.particle_random_1 * 240)",
+      "math.floor(variable.particle_random_2 * 121)"
      ],
      "uv_size": [
       1,
