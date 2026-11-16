@@ -21,20 +21,32 @@ function bar(cur, max, len, on, off = "§8") {
   return on + "|".repeat(n) + off + "|".repeat(len - n);
 }
 
+/** 카드 폭에 맞게: 짧은 이름(최대 5자), 4개 이상이면 두 줄 */
+const short = (s, max) => {
+  const n = s.short ?? s.name.replace(/^.*·\s*/, "");
+  return n.length > max ? n.slice(0, max - 1) + "…" : n;
+};
+function skillLines(items, holding) {
+  if (!items.length) return [];
+  const tail = holding ? "" : " §8(도구)";
+  if (items.length <= 3) return [items.join("§r ") + tail];
+  return [items.slice(0, 2).join("§r "), items.slice(2).join("§r ") + tail];
+}
+
 export function card(p) {
   const d = data(p);
   if (!d.set.card) return "[CARD]";
   const t = J.PATHS[J.currentPath(d)] ?? J.PATHS.novice;
   const c = { name: t.name, color: t.color ?? "§f" };
   const info = currentSkillInfo(p);
-  const sk = ({ key, s, left, ok }) => (!s ? "" : !ok ? `§8${J.KEY_ICONS[key]}Lv${s.lv}` : left > 0 ? `§7${J.KEY_ICONS[key]}§f${Math.ceil(left)}s` : `${info.holding ? "§b" : "§3"}${J.KEY_ICONS[key]}${s.name}`);
+  const sk = ({ key, s, left, ok }) => (!s ? "" : !ok ? `§8${J.KEY_ICONS[key]}Lv${s.lv}` : left > 0 ? `§7${J.KEY_ICONS[key]}§f${Math.ceil(left)}s` : `${info.holding ? "§b" : "§3"}${J.KEY_ICONS[key]}${short(s, info.list.length >= 4 ? 5 : 7)}`);
   const dash = dashLeft(p);
   const unread = unreadCount(p);
   const s = combatStats(p);
   const lines = [
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
-    info.list.some((x) => x.s) ? info.list.map(sk).filter(Boolean).join("§r ") + (info.holding ? "" : " §8(도구)") : "",
+    ...skillLines(info.list.map(sk).filter(Boolean), info.holding),
     d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,

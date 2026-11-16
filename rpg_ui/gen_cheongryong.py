@@ -222,9 +222,9 @@ def main():
         **dust_look("0.13", tone=f"{R3} * 0.35"),
     })
     # 7) 큰 청룡 (④): gen_dragonhead.py 가 만든 사용자 그림(200x101)을 픽셀마다 점으로. 투명 픽셀은 안 그려짐 → 색 영역이 그대로
-    IW, IH, CX, CY = 200, 101, 150, 42
+    IW, IH, CX, CY = 320, 162, 240, 67
     px, py = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
-    S = "(variable.scale * 0.055)"
+    S = "(variable.scale * 0.036)"
     lx, ly, lz = f"(({px} - {CX}) * {S})", f"(({CY} - {py}) * {S})", f"(({R3} - 0.5) * 0.4 * variable.scale)"
     cp, sp = "math.cos(variable.pitch)", "math.sin(variable.pitch)"
     fx, fy = f"({lx} * {cp} - {ly} * {sp})", f"({lx} * {sp} + {ly} * {cp})"
@@ -237,18 +237,18 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"{S} * 0.75", f"{S} * 0.75"], "facing_camera_mode": "lookat_xyz",
+            "size": [f"{S} * 0.62", f"{S} * 0.62"], "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW, "texture_height": IH, "uv": [px, py], "uv_size": [1, 1]}},
     }, tex="textures/particle/rpg_cr_dragonhead")
     # 8) 먹구름: 크고 어두운 연기 덩어리가 원판 모양으로 뭉쳐 천천히 꿈틀
     part("cr_cloud", {
-        **steady("variable.r * 40", "variable.life", f"1.6 + {R4} * 1.2", 900),
-        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "offset": [0, f"({R3} - 0.5) * 1.4", 0],
+        **steady("variable.r * 55", "variable.life", f"2.2 + {R4} * 1.6", 2600),
+        "minecraft:emitter_shape_disc": {"radius": "variable.r", "plane_normal": "y", "offset": [0, f"({R3} - 0.5) * 2.6", 0],
                                          "direction": [f"({R1} - 0.5)", f"({R2} - 0.5) * 0.4", f"({R3} - 0.5)"]},
         "minecraft:particle_initial_speed": f"0.2 + {R1} * 0.4",
         "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 0.6},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"(1.4 + {R3} * 1.6) * (0.6 + math.sin({AGE} * 180) * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"(2.6 + {R3} * 3.2) * (0.6 + math.sin({AGE} * 180) * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": [f"0.2 + {R1} * 0.14", f"0.22 + {R1} * 0.15", f"0.3 + {R1} * 0.16", f"math.sin({AGE} * 180) * 0.9"]},
     }, material="particles_blend")
