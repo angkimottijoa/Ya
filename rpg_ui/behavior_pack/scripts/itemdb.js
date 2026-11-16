@@ -1,7 +1,7 @@
 // 아이템 분류 / 희귀도 / 스탯 / 아이콘 / 이름
 import { ItemStack, world } from "@minecraft/server";
 import { getJSON, setJSON } from "./db.js";
-import { ITEM_TEX, BLOCK_TEX } from "./texmap.js";
+import { ITEM_TEX, BLOCK_TEX, NAME_KEY } from "./texmap.js";
 
 export const ICON = (n) => `textures/ui/rpg/icons/${n}`;
 
@@ -135,20 +135,20 @@ export function iconOf(id) {
   return path;
 }
 
-/** 아이템 이름 RawMessage */
+/** 아이템 이름 RawMessage
+ *  1) 모루로 바꾼 이름(nameTag)  2) 게임 언어 번역(item/tile.<id>.name)  3) API 번역 키  4) ID 정리 */
 export function itemName(stackOrId) {
-  if (typeof stackOrId !== "string") {
-    if (stackOrId.nameTag) return { text: stackOrId.nameTag };
-    if (!stackOrId.typeId.startsWith("minecraft:") && !stackOrId.localizationKey) return { text: pretty(stackOrId.typeId) };
-    const k = stackOrId.localizationKey;
-    if (k) return { translate: k };
-    return { text: pretty(stackOrId.typeId) };
-  }
+  const stack = typeof stackOrId === "string" ? null : stackOrId;
+  if (stack?.nameTag) return { text: stack.nameTag };
+  const id = stack ? stack.typeId : stackOrId.includes(":") ? stackOrId : `minecraft:${stackOrId}`;
+  const [ns, s] = id.split(":");
+  if (ns === "minecraft" && NAME_KEY[s]) return { translate: `${NAME_KEY[s]}.${s}.name` };
+  let key = null;
   try {
-    const k = new ItemStack(stackOrId, 1).localizationKey;
-    if (k) return { translate: k };
+    key = (stack ?? new ItemStack(id, 1)).localizationKey;
   } catch {}
-  return { text: pretty(stackOrId) };
+  if (key) return { translate: key };
+  return { text: pretty(id) };
 }
 
 export function entityName(typeId) {
@@ -157,7 +157,7 @@ export function entityName(typeId) {
 }
 
 export function pretty(id) {
-  return short(id).replace(/_/g, " ");
+  return short(id.split(":").pop()).replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export const STARS = (n) => "★".repeat(n);

@@ -55,11 +55,20 @@ def main():
             if p:
                 block_paths[name.replace("minecraft:", "")] = p
 
+    # 이름 번역 키: lang 파일에 item.<id>.name / tile.<id>.name 이 있는 것만 (게임 언어로 표시됨)
+    lang = urllib.request.urlopen(BASE + "texts/en_US.lang").read().decode("utf-8")
+    keys = {}
+    for line in lang.splitlines():
+        m = re.match(r"^(item|tile)\.([a-z0-9_]+)\.name=", line)
+        if m and m.group(2) not in keys:
+            keys[m.group(2)] = m.group(1)
     OUT.write_text(
         "// 자동 생성 파일 (gen_texmap.py). 직접 수정하지 말 것.\n"
         f"export const ITEM_TEX = {json.dumps(item_paths, separators=(',', ':'))};\n"
         f"export const BLOCK_TEX = {json.dumps(block_paths, separators=(',', ':'))};\n"
+        f"export const NAME_KEY = {json.dumps(keys, separators=(',', ':'))};\n"
     )
+    print(f"name keys {len(keys)}")
     print(f"items {len(item_paths)}, blocks {len(block_paths)} -> {OUT}")
 
 
