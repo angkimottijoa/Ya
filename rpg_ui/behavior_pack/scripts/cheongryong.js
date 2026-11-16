@@ -508,8 +508,27 @@ function bodyVolts(dim, at, k = 3, r = 1.1) {
     volt(dim, s0, s1, { amp: 0.35, size: 0.7, life: 0.12, branch: 0 });
   }
 }
-/** 뇌섬: 번개처럼 일직선으로 순간 돌진 (막히면 그 앞에서 멈춤), 지나간 줄의 적을 벰 */
-function flashDash(ctx, hit, dist = 13) {
+/** 연출 카메라: 마크 자유 시점 (실패하면 명령어로) */
+function cam(p, pos, look, ease = 0.3, type = "InOutSine") {
+  try {
+    p.camera.setCamera("minecraft:free", { location: pos, facingLocation: look, easeOptions: { easeTime: ease, easeType: type } });
+  } catch {
+    const f = (v) => v.toFixed(2), cmdType = type.replace(/([a-z])([A-Z])/g, "$1_$2").toLowerCase();
+    try { p.runCommand(`camera @s set minecraft:free ease ${ease} ${cmdType} pos ${f(pos.x)} ${f(pos.y)} ${f(pos.z)} facing ${f(look.x)} ${f(look.y)} ${f(look.z)}`); } catch {}
+  }
+}
+function camClear(p) { try { p.camera.clear(); } catch { try { p.runCommand("camera @s clear"); } catch {} } }
+function camFlash(p, r = 1, g = 1, b = 1) {
+  try { p.camera.fade({ fadeTime: { fadeInTime: 0.04, holdTime: 0.04, fadeOutTime: 0.35 }, fadeColor: { red: r, green: g, blue: b } }); } catch {
+    try { p.runCommand(`camera @s fade time 0.04 0.04 0.35 color ${Math.round(r * 255)} ${Math.round(g * 255)} ${Math.round(b * 255)}`); } catch {}
+  }
+}
+
+/**
+ * 뇌섬: 번개처럼 일직선으로 순간 돌진 (막히면 그 앞에서 멈춤)
+ *  지나가는 순간엔 번개·섬광만, 한 박자 뒤에 지나간 줄의 적이 한꺼번에 베임 (발도술 느낌)
+ */
+function flashDash(ctx, hit, dist = 22) {
   const { p } = ctx, dim = p.dimension;
   const yw = yawOf(p), rot = p.getRotation(), f = fwdOf(yw), o = { ...p.location };
   let reach = 0;
@@ -522,58 +541,102 @@ function flashDash(ctx, hit, dist = 13) {
     if (!ok) break;
     reach = d;
   }
-  const end = { x: o.x + f.x * reach, y: o.y, z: o.z + f.z * reach };
+  const end = { x: o.x + f.x * reach, y: o.y, z: o.z + f.z * reach }, path = sub(end, o);
   const right = { x: -Math.cos((yw * Math.PI) / 180), y: 0, z: -Math.sin((yw * Math.PI) / 180) };
-  M.anim(p, "dash");
-  M.sound(p, "ambient.weather.lightning.impact", 1.4, 1.6);
-  M.sound(p, "item.trident.thunder", 1, 1.4);
-  // 3틱에 걸쳐 순간이동 (잔상처럼 빠르게)
-  for (let i = 1; i <= 3; i++) later(i, () => {
-    const q = add(o, sub(end, o), i / 3);
+  const at = (q) => add(o, path, q);
+  M.anim(p, "iai_dash");
+  camFlash(p, 0.85, 0.95, 1);
+  M.sound(p, "ambient.weather.lightning.impact", 1.6, 1.5);
+  M.sound(p, "item.trident.thunder", 1.2, 1.3);
+  // 출발점: 바닥이 터지듯 흙먼지 고리 + 번개 튐
+  pt(dim, "cr_shock", up(o, 0.15), { n: 110, spd: 10, tone: 0.1 });
+  pt(dim, "cr_dust", up(o, 0.3), { n: 16, r: 0.8, spd: 4, size: 1.6, life: 1.8 });
+  for (let i = 0; i < 4; i++) { const a = Math.random() * 6.28; volt(dim, up(o, 0.2), { x: o.x + Math.cos(a) * 2.5, y: o.y + Math.random() * 1.2, z: o.z + Math.sin(a) * 2.5 }, { amp: 0.6, size: 0.9, life: 0.2 }); }
+  // 4틱에 걸쳐 순간이동
+  const STEPS = 4;
+  for (let i = 1; i <= STEPS; i++) later(i, () => {
+    const q = at(i / STEPS);
     try { p.teleport(q, { rotation: rot, keepVelocity: false }); } catch {}
-    bodyVolts(dim, q, 2, 1.2);
+    bodyVolts(dim, q, 3, 1.3);
   });
-  // 지나간 줄: 바닥을 기는 번개 여러 줄 + 흙먼지 + 빛줄기 한 줄
+  // 일직선 섬광 두 줄 (가슴 높이 굵은 줄 + 발밑 가는 줄)
+  later(1, () => {
+    volt(dim, up(o, 1.1), up(end, 1.1), { amp: 0.06, size: 1.7, life: 0.45, branch: 0, thick: 2 });
+    volt(dim, up(o, 0.25), up(end, 0.25), { amp: 0.15, size: 1, life: 0.4, branch: 0 });
+  });
+  // 바닥을 기는 번개: 지나간 뒤에도 1초 동안 계속 튀며 잦아듦
+  for (let w = 0; w < 7; w++) later(1 + w * 3, () => {
+    const k = w < 2 ? 5 : 3 - Math.floor(w / 3);
+    for (let i = 0; i < k; i++) {
+      const q0 = Math.random() * 0.8, q1 = Math.min(1, q0 + 0.12 + Math.random() * 0.3);
+      const s0 = add(at(q0), right, (Math.random() - 0.5) * 2.4), s1 = add(at(q1), right, (Math.random() - 0.5) * 3);
+      volt(dim, up(s0, 0.1 + Math.random() * 0.4), up(s1, 0.1 + Math.random() * 1.1), { amp: 0.8, size: w < 2 ? 1.15 : 0.85, life: 0.28, branch: 2 });
+    }
+  });
+  // 흙먼지 연기 줄 + 바닥 그을음 선
   const L = Math.max(1, reach);
-  later(1, () => volt(dim, up(o, 1.1), up(end, 1.1), { amp: 0.08, size: 1.4, life: 0.35, branch: 0, thick: 1.6 })); // 일직선 섬광
-  for (let i = 0; i < 9; i++) later(1 + Math.floor(i / 3), () => {
-    const q0 = Math.random() * 0.7, q1 = Math.min(1, q0 + 0.25 + Math.random() * 0.35);
-    const s0 = add(add(o, sub(end, o), q0), right, (Math.random() - 0.5) * 2.2), s1 = add(add(o, sub(end, o), q1), right, (Math.random() - 0.5) * 2.6);
-    volt(dim, up(s0, 0.15 + Math.random() * 0.5), up(s1, 0.15 + Math.random() * 0.9), { amp: 0.9, size: 1.1, life: 0.3, branch: 2 });
-  });
-  for (let k = 0; k <= L; k += 1.2) {
+  for (let k = 0; k <= L; k += 1.1) {
     const c = add(o, f, k);
-    later(1 + Math.floor((k / L) * 3), () => {
-      pt(dim, "cr_dust", up(c, 0.3), { n: 5, r: 0.6, spd: 2.5, size: 1.4, life: 1.6 });
-      if (Math.random() < 0.4) cluster(dim, up(c, 0.4), { n: 6, r: 0.4, spd: 2, tone: 0.1 });
+    later(1 + Math.floor((k / L) * STEPS), () => {
+      pt(dim, "cr_dust", up(c, 0.3), { n: 6, r: 0.7, spd: 2.8, size: 1.5, life: 2 });
+      if (Math.random() < 0.35) cluster(dim, up(c, 0.4), { n: 6, r: 0.4, spd: 2, tone: 0.1 });
     });
   }
-  // 도착점: 흙먼지 크게 + 번개 튐 + 적 베기
-  later(4, () => {
-    pt(dim, "cr_dust", up(end, 0.4), { n: 22, r: 1.2, spd: 4, size: 1.8, life: 1.8 });
-    flash(dim, up(end, 1), 3);
-    for (let i = 0; i < 4; i++) { const a = Math.random() * 6.28; volt(dim, up(end, 0.3), { x: end.x + Math.cos(a) * 3, y: end.y + Math.random() * 1.5, z: end.z + Math.sin(a) * 3 }, { amp: 0.7, size: 0.9, life: 0.25 }); }
+  later(2, () => line(dim, up(o, 0.06), up(end, 0.06), { tone: 0.97, n: Math.round(L * 14), thick: 0.2, life: 2.4, size: 1.4 }));
+  // 도착: 흙먼지 크게 + 번개 사방으로
+  later(STEPS + 1, () => {
+    pt(dim, "cr_dust", up(end, 0.4), { n: 26, r: 1.3, spd: 4.5, size: 1.9, life: 2 });
+    pt(dim, "cr_shock", up(end, 0.15), { n: 140, spd: 12, tone: 0.15 });
+    flash(dim, up(end, 1), 3.5);
+    for (let i = 0; i < 6; i++) { const a = Math.random() * 6.28; volt(dim, up(end, 0.3), { x: end.x + Math.cos(a) * 3.5, y: end.y + Math.random() * 2, z: end.z + Math.sin(a) * 3.5 }, { amp: 0.8, size: 1, life: 0.28 }); }
+    shake(dim, end, 0.5, 0.5);
   });
-  for (let i = 1; i <= 4; i++) later(i, () => {
-    for (const e of M.around(dim, add(o, sub(end, o), Math.min(1, i / 3)), 2.6)) hit(e, 1.3);
+  // 한 박자 뒤: 지나간 줄의 적이 한꺼번에 베임
+  const victims = new Set();
+  for (let i = 1; i <= STEPS; i++) later(i, () => { for (const e of M.around(dim, at(Math.min(1, i / STEPS)), 2.8)) victims.add(e); });
+  later(STEPS + 6, () => {
+    M.sound(p, "item.trident.riptide_3", 1, 1.4);
+    M.sound(p, "ambient.weather.thunder", 0.8, 1.6);
+    for (const e of victims) {
+      if (!e.isValid()) continue;
+      slash(dim, up(e.location, 1), yw + (Math.random() - 0.5) * 30, { tilt: 30 * (Math.random() < 0.5 ? 1 : -1), r: 1.6, thick: 0.6, n: 160, dur: 0.05, life: 0.4 });
+      volt(dim, up(e.location, 2.2), up(e.location, 0.1), { amp: 0.4, size: 0.9, life: 0.2, branch: 1 });
+      hit(e, 2.2);
+    }
   });
-  return 4;
+  return { end, steps: STEPS };
 }
 function dragonDive(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  M.invuln(p, 7);
-  // 0~5: 칼을 쥐고 번개 기운을 두름
-  M.anim(p, "raise");
-  M.sound(p, "random.fizz", 1, 1.8);
-  for (let t = 0; t < 6; t++) later(t + 1, () => { bodyVolts(dim, p.location, 3, 1); if (t % 2 === 0) cluster(dim, up(p.location, 0.2), { n: 6, r: 0.8, spd: 1, tone: 0.1 }); });
-  // 6: 뇌섬 (일직선 번개 돌진)
-  later(6, () => flashDash(ctx, hit, 13));
-  // 큰 대각 베기 두 번 (길게 남음), 한 바퀴 베기, 올려 베기
+  M.invuln(p, 9);
+  const o = { ...p.location }, yw = yawOf(p), f = fwdOf(yw);
+  const right = { x: -Math.cos((yw * Math.PI) / 180), y: 0, z: -Math.sin((yw * Math.PI) / 180) };
+  const pp = (fw, rt, h) => ({ x: o.x + f.x * fw + right.x * rt, y: o.y + h, z: o.z + f.z * fw + right.z * rt });
+  // 0~20: 발도 준비 — 웅크려 기를 모으고, 카메라는 앞옆에서 가까이 (클로즈업 → 천천히 다가감)
+  M.anim(p, "iai_ready");
+  M.potion(p, "slowness", 255, 1.1);
+  cam(p, pp(1.9, 1.5, 1.0), pp(0, 0, 0.8), 0.35);
+  later(8, () => cam(p, pp(1.3, 1.05, 0.75), pp(0, 0, 0.75), 0.6));
+  M.sound(p, "beacon.activate", 0.8, 1.6);
+  for (let t = 0; t < 20; t++) later(t + 1, () => {
+    const L = p.location, k = 1 + Math.floor(t / 7);
+    bodyVolts(dim, L, k, 0.9);
+    if (t % 3 === 0) cluster(dim, up(L, 0.1), { n: 6, r: 0.8, spd: 0.8, tone: 0.1 });
+    if (t % 5 === 0) M.sound(p, "random.fizz", 0.6, 1.4 + t * 0.03);
+    if (t === 16) volt(dim, up(L, 6), up(L, 0.2), { amp: 0.7, size: 1.1, life: 0.2 }); // 출발 직전 번개 한 줄기
+  });
+  // 20: 와이드 샷으로 빠르게 빠지며 뇌섬
+  later(20, () => {
+    cam(p, pp(-4, 7.5, 6.5), pp(11, 0, 0.5), 0.22, "OutCubic");
+    flashDash(ctx, hit, 22);
+  });
+  later(36, () => camClear(p));
+  // 대각 베기 두 번 (길게 남음) → 한 바퀴 베기 → 올려 베기
   const cuts = [
-    [12, () => ({ tilt: 32, dir: 1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash", 0.9],
-    [19, () => ({ tilt: -32, dir: -1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash_down", 0.9],
-    [26, () => ({ full: true, dir: 1, r: 4.4, thick: 1.5, n: 760, dur: 0.3, life: 1.0, size: 1.2 }), "slash", 1.1],
-    [34, () => ({ tilt: 90, dir: -1, r: 4.2, thick: 1.6, n: 460, dur: 0.18, life: 0.9, size: 1.25 }), "raise", 1],
+    [37, () => ({ tilt: 32, dir: 1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash", 0.9],
+    [44, () => ({ tilt: -32, dir: -1, r: 4.8, thick: 1.8, n: 520, dur: 0.24, life: 1.0, size: 1.3 }), "slash_down", 0.9],
+    [51, () => ({ full: true, dir: 1, r: 4.4, thick: 1.5, n: 760, dur: 0.3, life: 1.0, size: 1.2 }), "spin", 1.1],
+    [59, () => ({ tilt: 90, dir: -1, r: 4.2, thick: 1.6, n: 460, dur: 0.18, life: 0.9, size: 1.25 }), "raise", 1],
   ];
   for (const [t, opt, anim, mul] of cuts) {
     later(t, () => {
@@ -592,7 +655,7 @@ function dragonDive(ctx) {
       M.sound(p, "item.trident.riptide_1", o.full ? 0.8 : 1.1, 0.9);
     });
   }
-  later(39, () => dragonDiveMain(ctx, hit));
+  later(64, () => dragonDiveMain(ctx, hit));
 }
 function dragonDiveMain(ctx, hit) {
   const { p } = ctx, dim = p.dimension;
