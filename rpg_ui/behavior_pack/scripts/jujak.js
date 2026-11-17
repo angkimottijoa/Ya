@@ -4,7 +4,7 @@
 //      1단: 불화살 한 발 → 맞히면 2단
 //      2단: 불화살 세 발(부채꼴) → 맞히면 3단
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
-//      3단: 주작의 활(사용자 그림 점 찍기)이 손 앞에 나타나 시선을 따라다니며 2초 동안 시위를 당김
+//      3단: 주작의 활(사용자 그림 점 찍기)이 앞 바닥에 서고 오른쪽 어깨 위 시점으로 2초 동안 시위를 당김 (시선 따라 조준)
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
 //      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발: 남아 있으면 6초, 다 쓰면 2초 동안 안 쏘면 자동 장전
 // 파티클: gen_jujak.py (jj_bow, jj_bigarrow, jj_ember, jj_trail, jj_boom, jj_ring)
@@ -148,6 +148,11 @@ function drawBow(p, k, withArrow = true, drawBody = true) {
   }
   return { nock, v: aim, upv: norm(cross(norm(cross(aim, UP).x || cross(aim, UP).z ? cross(aim, UP) : right), aim)) };
 }
+/** 어깨 위 시점: 오른쪽 어깨 바로 위·조금 뒤에서 시선 방향을 봄 (매 틱 따라가며 조준 그대로) */
+function shoulderCam(p) {
+  const v = viewOf(p), eye = eyeOf(p), r = rightOf(yawOf(p));
+  cam(p, add(add(add(eye, r, 0.6), v, -1.1), UP, 0.3), add(eye, v, 25), 0.06, "Linear");
+}
 function flashScreen(p, r, g, b, t = 0.3) {
   try { p.camera.fade({ fadeTime: { fadeInTime: 0.04, holdTime: 0.02, fadeOutTime: t }, fadeColor: { red: r, green: g, blue: b } }); } catch {
     try { p.runCommand(`camera @s fade time 0.04 0.02 ${t} color ${Math.round(r * 255)} ${Math.round(g * 255)} ${Math.round(b * 255)}`); } catch {}
@@ -167,6 +172,7 @@ function bigShot(ctx, done) {
     if (!p.isValid()) return;
     const k = ease(t / DRAW), L = p.location;
     drawBow(p, k, true, t % 3 === 1);
+    shoulderCam(p);
     // 기 모으기: 불티가 몸으로 빨려 들어옴, 발밑 불 고리가 솟음, 불꽃, 게이지, 점점 세지는 떨림
     if (t % 2 === 0) for (let j = 0; j < 3; j++) {
       const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random() * 1.5, q = { x: L.x + Math.cos(a) * r, y: L.y + 0.3 + Math.random() * 2.5, z: L.z + Math.sin(a) * r };
@@ -186,6 +192,8 @@ function bigShot(ctx, done) {
   later(DRAW + 1, () => {
     if (!p.isValid()) return done();
     const { nock, v, upv } = drawBow(p, 1, false);
+    for (let i = 1; i <= 12; i++) later(i, () => shoulderCam(p)); // 쏜 뒤 잠깐 어깨 시점 유지
+    later(14, () => camClear(p));
     M.sound(p, "random.bow", 1.2, 0.6);
     M.sound(p, "mob.blaze.shoot", 1.2, 0.8);
     shake(dim, nock, 0.3, 0.3);
@@ -220,6 +228,7 @@ function bigShot(ctx, done) {
     };
     fly();
   });
+  later(140, () => camClear(p)); // 안전장치
   const explode = (at) => {
     const near = enemiesNear(dim, p, at, 6.5, 2);
     for (const e of near) { const d = len(sub(center(e), at)); hit(e, d < 2.5 ? 4.5 : 2.2, 6); M.toss(at, e, 1.6, 3); }
