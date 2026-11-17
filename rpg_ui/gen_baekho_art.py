@@ -11,8 +11,8 @@ ROOT = Path(__file__).parent
 SRC = ROOT / "art" / "baekho_axe_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png"
 ICON = ROOT / "resource_pack" / "textures" / "items" / "rpg" / "baekho_axe.png"
-CELL = 8
-TARGET_W = 150
+CELL = 4
+TARGET_W = 110
 
 
 def cutout():
@@ -65,28 +65,8 @@ def main():
     w, h = axe.size
     small = axe.resize((TARGET_W, max(1, round(h * TARGET_W / w))), Image.LANCZOS)
     n = clean(small)
-    # 연기 점: 픽셀마다 듬성듬성한 연기 뭉치(4종), 색은 사진 그대로
-    import random
-    rnd = random.Random(5)
-    clumps = []
-    for _ in range(4):
-        m = []
-        for j in range(CELL):
-            for i in range(CELL):
-                d = ((i - 3.5) ** 2 + (j - 3.5) ** 2) ** 0.5
-                if rnd.random() < max(0.0, 1.0 - d * 0.2):
-                    m.append((i, j))
-        clumps.append(m)
-    big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
-    bp, sp0 = big.load(), small.load()
-    for y in range(small.size[1]):
-        for x in range(small.size[0]):
-            r, g, b, a = sp0[x, y]
-            if not a:
-                continue
-            col = (r, g, b)  # 사진 색 그대로 (검정·흰 불꽃·금빛)
-            for i, j in clumps[(x * 7 + y * 13) % 4]:
-                bp[x * CELL + i, y * CELL + j] = col + (255,)
+    # 선명한 점: 픽셀마다 꽉 찬 칸, 색은 사진 그대로
+    big = small.resize((small.size[0] * CELL, small.size[1] * CELL), Image.NEAREST)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     big.save(OUT)
     bg = Image.new("RGBA", small.size, (90, 120, 80, 255))
@@ -99,7 +79,19 @@ def main():
     best = min(((x - tx) ** 2 + (y - ty) ** 2, x, y) for y in range(H2) for x in range(W2) if sp[x, y][3])
     gx, gy = best[1], best[2]
     meta = ROOT / "behavior_pack" / "scripts" / "bh_art_meta.js"
-    meta.write_text(f"// gen_baekho_art.py 가 만듦: 도끼 점 그림 크기와 쥐는 곳\nexport const AXE_ART = {{ x0: 0, y0: 0, iw: {W2}, ih: {H2}, cx: {gx}, cy: {gy} }};\n")
+    # 띠 나누기: 4줄씩 묶어 그 줄들에서 도끼가 있는 가로 범위만 → 파티클이 빈 곳에 낭비되지 않음
+    bands = []
+    for y0 in range(0, H2, 4):
+        rows = range(y0, min(H2, y0 + 4))
+        xs = [x for y in rows for x in range(W2) if sp[x, y][3]]
+        if not xs:
+            continue
+        x0, x1 = min(xs), max(xs)
+        filled = len(xs)
+        bands.append([x0, y0, x1 - x0 + 1, len(rows), filled])
+    meta.write_text("// gen_baekho_art.py 가 만듦: 도끼 점 그림 크기, 쥐는 곳, 띠(x0, y0, 너비, 높이, 채워진 픽셀 수)\n"
+                    f"export const AXE_ART = {{ x0: 0, y0: 0, iw: {W2}, ih: {H2}, cx: {gx}, cy: {gy} }};\n"
+                    f"export const AXE_BANDS = {bands};\n")
     print(f"axe art {small.size} filled {n} grip=({gx},{gy})")
 
 

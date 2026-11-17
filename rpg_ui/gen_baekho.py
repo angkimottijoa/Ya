@@ -110,24 +110,24 @@ def main():
     })
     # 4) 그림 점 찍기 (백호 머리 · 도끼): 텍스처 rpg_bh_art 의 (x0,y0,iw,ih) 영역을 픽셀마다 점으로
     #   u = 그림 가로, v = 그림 세로(위), w = 그림 앞(볼록하게 튀어나옴 depth → 입체), 기준점 (cx, cy), scale = 픽셀당 블록
-    CELL = 8
+    CELL = 4
     _art = Image.open(ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png")
     AWT, AHT = _art.size[0] // CELL, _art.size[1] // CELL
     bx, by = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
     fx_ = f"({R1} * variable.iw - {bx} - 0.5)"
-    lx = f"(({bx} - variable.cx + {fx_} * 0.6) * variable.scale)"
-    ly = f"((variable.cy - {by}) * variable.scale)"
+    lx = f"((variable.x0 + {bx} - variable.cx + {fx_} * 0.4) * variable.scale)"
+    ly = f"((variable.cy - variable.y0 - {by}) * variable.scale)"
     d2 = f"(math.pow(({bx} - variable.iw / 2) / (variable.iw / 2), 2) + math.pow(({by} - variable.ih / 2) / (variable.ih / 2), 2))"
-    lz = f"(math.sqrt(math.max(0, 1 - {d2})) * variable.depth + ({R3} - 0.5) * variable.scale * 2)"
+    lz = f"(math.sqrt(math.max(0, 1 - {d2})) * variable.depth + ({R3} - 0.5) * variable.scale * 1.5)"
     part("bh_art", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
         "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [f"({R3} - 0.5)", "1", f"({R4} - 0.5)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
-        "minecraft:particle_initial_speed": f"0.15 + {R4} * 0.35",
-        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.5, 0], "linear_drag_coefficient": 1.5},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.scale * 1.35 * variable.size * (0.85 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"variable.scale * 0.8 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
                    "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_bh_art")
@@ -177,7 +177,7 @@ def main():
     rr2 = f"math.sqrt(math.max(0, 1 - {zz_} * {zz_}))"
     yy_ = f"({rr2} * math.cos({R2} * 360))"
     ss_ = f"({rr2} * math.sin({R2} * 360))"
-    kk_ = f"(0.86 + {R4} * 0.14)"
+    kk_ = f"(0.97 + {R4} * 0.03)"  # 겉면에만 얇게 (속은 비움)
     # 줄무늬: 긴 축을 따라 세로 띠, 등에서 굵고 배 쪽으로 갈수록 가늘어져 끊김, 가장자리 들쭉날쭉
     sv = f"(math.sin({zz_} * variable.thick * 180 + {ss_} * 30 * {yy_} + {yy_} * 25 + math.sin({yy_} * 260 + {zz_} * 150) * 9 + variable.h) - (0.72 + (0.5 - {yy_} * 0.5) * 0.24))"
     stripe = f"(variable.thick != 0 && {yy_} > -0.45 && {sv} > 0)"

@@ -3,13 +3,13 @@
 //   ① 클릭        백호 · 할퀴기 : ↘ ↙ 엇갈려 X자로 할퀸 뒤, 앞으로 덮치며 거대한 가로 할퀴기 (발톱 줄은 옆에서 보면 ")")
 //   ② 쉬프트+클릭 백호 · 질풍조 : 대시처럼 앞으로 질주하며 연속 할퀴기 → 마지막 X 할퀴기 폭발
 //   ③ 쉬프트+점프 백호 · 습격   : 살짝 도약 → 바로 내리꽂기 → 주변 적마다 순간이동해 등 뒤에서 할퀴기 (폭발)
-//   ④ 쉬프트 두 번 백호 · 천붕   : 주변 사람·몹과 함께 크게 솟구침 → 하늘에서 거대한 백호 앞발이 옆으로 크게 긁음
+//   ④ 쉬프트 두 번 백호 · 천붕   : 주변 사람·몹과 함께 크게 솟구침 → 하늘에서 거대한 백호 앞발이 내리쳐 할큄
 //                                → 함께 떨어지며 도끼(사용자 그림 점 찍기, 사진 그대로 45도로 박힘)를 내리찍음 → 땅이 갈라지는 파문 · 폭발
 // 파티클: gen_baekho.py (bh_claw 발톱 자국 · bh_cluster 흑백 먼지 · bh_shock 충격파)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
-import { AXE_ART } from "./bh_art_meta.js";
+import { AXE_ART, AXE_BANDS } from "./bh_art_meta.js";
 
 export const AXE_ID = "rpg:baekho_axe";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -277,13 +277,11 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
 function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
   const N = norm(sub(N0, scl(D, dot3(N0, D)))), S = cross(D, N);
   const P = (d, n, s) => add(add(add(W, D, d * k), N, n * k), S, s * k);
-  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 14, size: 1.4, ...o, ...(o.dens ? { dens: o.dens * 0.5 } : {}) });
+  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 11, size: 1.4, ...o, ...(o.dens ? { dens: o.dens * 0.4 } : {}) });
   const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.05, r, r, o); };
-  // 팔뚝: 굵은 근육 + 가는 고리 줄무늬, 털이 손목 쪽으로 뻗침
-  const flex = Math.sin(t * 0.8) * 0.05;
-  seg(P(-4.2, -0.2, 0), P(-1.6, 0, 0), 0.8, { stripe: 2.2, ao: 0.1 });
-  B(P(-2.6, -0.45 + flex, 0.15), D, 1.1, 0.55, 0.62, { stripe: 1.6, ph: 40 });        // 팔 근육 불룩
-  seg(P(-1.7, 0, 0), P(0, 0.05, 0), 0.7, { stripe: 2.2, ph: 20, ao: 0.15 });
+  // 팔뚝: 짧게 (손 위주로 보이게), 고리 줄무늬
+  seg(P(-2.1, -0.1, 0), P(-0.9, 0, 0), 0.72, { stripe: 1.6, ao: 0.1 });
+  seg(P(-1.0, 0, 0), P(0, 0.05, 0), 0.68, { stripe: 1.6, ph: 20, ao: 0.15 });
   B(P(-0.1, -0.1, 0), D, 0.62, 0.7, 0.82, { ao: 0.2 });                              // 손목
   // 손바닥 (위는 흰 털, 아래는 큰 발바닥 살)
   B(P(0.7, -0.05, 0), D, 0.8, 0.52, 1.08, { ao: 0.05 });
@@ -359,25 +357,25 @@ function apex(ctx) {
     // 솟구치는 동안 몸에서 폭발 뭉게 꼬리
     if (e === p) for (let t = 1; t <= 8; t += 2) later(t, () => { if (e.isValid()) pt(dim, "bh_boom", e.location, { n: 3, r: 0.3, spd: 0.8, size: 1.2, life: 0.7, tone: t % 4 === 1 ? 0 : 0.85 }); });
   }
-  // 8~30: 화면 오른쪽 위에 거대한 백호 앞발이 나타나 → 발톱을 꺼내며 뒤로 치켜듦 → 옆으로 크게 긁어 내림(오른쪽 → 왼쪽) → 흩어짐
+  // 8~30: 하늘(화면 오른쪽 위)에서 거대한 백호 앞발이 나타나 → 높이 치켜들며 발톱을 꺼냄 → 위에서 내리쳐 할큄 → 눌렀다 흩어짐
   const E0 = add(L, UP, 1.2), T0 = 8, TE = T0 + 22;
-  const side = scl(camRight, -1); // 긁는 방향 (화면 오른쪽 → 왼쪽)
-  const strikeDir = norm(add(side, UP, -0.35));
-  const palm = side;                // 손바닥(발톱 갈고리)이 긁는 쪽을 향함
+  const strikeDir = norm(add(add(scl(camRight, -0.55), UP, -1), f, 0.15)); // 오른쪽 위 → 왼쪽 아래로 내리침
+  const side = norm({ x: strikeDir.x, y: 0, z: strikeDir.z });
+  const palm = norm(add(strikeDir, toCam, 0.25));
   const pawState = (t) => {
-    const K = 1.55;
-    if (t <= T0 + 8) { // 오른쪽 위에 나타나며 뒤로 치켜듦
+    const K = 2.1; // 손을 크게
+    if (t <= T0 + 8) { // 나타나며 치켜듦
       const e = ease((t - T0) / 8);
-      const W = add(add(add(E0, camRight, 9 + e * 2), UP, 5 + e * 1.5), toCam, 1);
-      return { W, D: norm(add(UP, camRight, 0.3 + e * 0.6)), k: K * (0.6 + e * 0.4), spread: e };
+      const W = add(add(E0, strikeDir, -(11 + e * 3)), UP, e * 2);
+      return { W, D: norm(add(strikeDir, UP, 0.5 * e)), k: K * (0.6 + e * 0.4), spread: e };
     }
-    if (t <= T0 + 14) { // 옆으로 크게 긁음: 오른쪽 위 → 가운데 아래 → 왼쪽 위 (활 모양), 손끝이 아래로 휘두름
-      const e = Math.pow((t - T0 - 8) / 6, 1.3), a = -0.5 + e;
-      const W = add(add(add(E0, camRight, -a * 22), UP, 5 - Math.cos(a * Math.PI) * 4.5), toCam, 1);
-      return { W, D: norm(add(scl(UP, -1), camRight, -a * 0.9)), k: K, spread: 1 };
+    if (t <= T0 + 12) { // 내리침 (점점 빨라짐)
+      const e = Math.pow((t - T0 - 8) / 4, 1.8);
+      const from = add(add(E0, strikeDir, -14), UP, 2), to = add(E0, strikeDir, -3.4);
+      return { W: add(from, sub(to, from), e), D: norm(add(strikeDir, UP, 0.5 * (1 - e))), k: K, spread: 1 };
     }
-    const e = Math.min(1, (t - T0 - 14) / 8); // 지나가며 들리고 흩어짐
-    return { W: add(add(add(E0, camRight, -11 - e * 3), UP, 5 + e * 2), toCam, 1), D: norm(add(UP, side, 0.4)), k: K * (1 - e * 0.2), spread: 1 - e * 0.4 };
+    const e = Math.min(1, (t - T0 - 12) / 10); // 누른 채 버팀 → 살짝 들림
+    return { W: add(add(E0, strikeDir, -3.4), UP, e * e * 3), D: strikeDir, k: K, spread: 1 - e * 0.3 };
   };
   const frame = (t) => { const st = pawState(t); SINK = []; try { drawPaw(dim, st.W, st.D, palm, st.k, st.spread, t); } catch {} const l = SINK; SINK = null; return { l, st }; };
   for (let t = T0; t <= TE; t++) later(t, () => {
@@ -392,23 +390,23 @@ function apex(ctx) {
     });
     const W = cur.st.W;
     if (t === T0) { M.sound(p, "mob.ravager.roar", 1.7, 0.5); smoke(dim, W, { n: 14, r: 3, spd: 2, size: 2.4, life: 1.2 }); }
-    if (t > T0 + 8 && t <= T0 + 14) { // 긁을 때 바람 줄기
+    if (t > T0 + 8 && t <= T0 + 12) { // 내리칠 때 바람 줄기
       for (let j = 0; j < 2; j++) {
         const o2 = add(add(W, camRight, (Math.random() - 0.5) * 6), UP, (Math.random() - 0.5) * 4);
-        pt(dim, "bh_line", o2, { u: camRight, v: UP, r: 7, h: 0, n: 30, tone: 0, life: 0.18, size: 1.3, thick: j });
+        pt(dim, "bh_line", o2, { u: scl(strikeDir, -1), v: UP, r: 7, h: 0, n: 30, tone: 0, life: 0.18, size: 1.3, thick: j });
       }
     }
   });
-  // 긁는 순간: 옆으로 길게 그어지는 거대한 3D 할퀴기 자국 + 폭발 + 번지는 폭발, 맞은 자리마다 폭발
-  later(T0 + 10, () => {
-    const u = norm(add(side, UP, -0.15)), v = norm(cross(toCam, u)), c = add(E0, toCam, 1.5);
-    clawAt(dim, c, u, v, toCam, { r: 15, dots: 4, thick: 1.8, size: 3, n: 1800, dur: 0.22, life: 0.95, h: 70 });
+  // 내리친 순간: 거대한 3D 할퀴기 자국 + 폭발 + 번지는 폭발, 맞은 자리마다 폭발
+  later(T0 + 12, () => {
+    const u = strikeDir, v = norm(cross(toCam, u)), c = add(E0, toCam, 1.5);
+    clawAt(dim, c, u, v, toCam, { r: 13, dots: 4, thick: 1.8, size: 3, n: 1600, dur: 0.12, life: 0.9, h: 75 });
     boom(dim, E0, true);
     boomWave(dim, add(E0, UP, -1), { r: 0.5, spd: 14, n: 90, dur: 0.35, size: 2.2 });
     let nb = 0;
     for (const e of [...crowd, ...M.around(dim, E0, 10)]) {
       hit(e, 2.8);
-      if (e.isValid()) { if (nb++ < 5) later(2, () => boom(dim, up(e.location, 1))); try { e.applyKnockback(side.x, side.z, 1.2, 0.2); } catch {} }
+      if (e.isValid()) { if (nb++ < 5) later(2, () => boom(dim, up(e.location, 1))); try { e.applyKnockback(side.x, side.z, 0.6, -0.8); } catch {} }
     }
     shake(dim, E0, 0.9, 0.6);
     M.sound(p, "mob.ravager.bite", 1.6, 0.6);
@@ -429,12 +427,15 @@ function apex(ctx) {
     }
     M.sound(p, "mob.enderdragon.flap", 1, 0.7);
   });
-  // 도끼: 빨간 연기 점으로 크게, 사진 그대로 45도 (날 = 앞 아래로 땅에 박힘). 쥐는 곳 기준, 날이 H 지점 땅속 1칸에
-  const AXS = 0.085, back = scl(f, -1);
-  const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 };
-  const axeAt = (H, drop, life = 0.4) => {
+  // 도끼: 사진 그대로 선명한 점 그림, 45도 (날 = 앞 아래로 땅에 박힘). 띠마다 도끼가 있는 범위만 찍음
+  const AXS = 0.116, back = scl(f, -1);
+  const headPx = { x: 20 - AXE_ART.cx, y: AXE_ART.cy - 97 };
+  const axeAt = (H, drop, life) => {
     const grip = add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
-    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n: 1700, life });
+    for (const [x0, y0, iw, ih, filled] of AXE_BANDS) {
+      const n = Math.round((filled * 1.8 * iw * ih) / Math.max(1, filled) * Math.min(1, filled / (iw * ih)) + 2);
+      pt(dim, "bh_art", grip, { x0, y0, iw, ih, cx: AXE_ART.cx, cy: AXE_ART.cy, u: back, v: UP, w: rt, scale: AXS, depth: 0, n, life, size: 1 });
+    }
   };
   let tt = 0, landed = false;
   const fall = () => {
@@ -454,9 +455,9 @@ function apex(ctx) {
     pt(dim, "bh_shock", up(G, 0.15), { n: 160, spd: 22, size: 1.6 });
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
-    // 하늘에서 거대한 빨간 연기 도끼가 떨어져 내리꽂힘 (3틱) → 4초 동안 박혀 연기를 피워 올림
-    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15));
-    for (let t = 3; t < 163; t += 4) later(t, () => axeAt(H, 0, 0.75)); // 8초 동안 박혀 있음
+    // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 한 번 그려 8초 동안 그대로 박혀 있음
+    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.1));
+    later(3, () => axeAt(H, 0, 8));
     later(3, () => boom(dim, up(H, 0.5), true));
     // 연쇄 폭발: 박힌 곳에서 바깥으로 두 바퀴
     for (let k = 0; k < 6; k++) {
