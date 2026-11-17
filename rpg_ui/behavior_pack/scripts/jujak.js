@@ -1105,9 +1105,38 @@ function crimsonDance(ctx) {
       go(scl(norm(add(sub(tgt && tgt.isValid() ? center(tgt) : lost, b.pos), UP, 0.6)), 0.7));
     });
   });
+  // ── 역동적인 시점 ──
+  const P = () => up(p.location, 1);
+  // 1) 빙의 한 바퀴: 주작 바로 뒤·위에서 쫓아가는 추격 시점
+  for (let t = 2; t <= LOOP; t += 2) later(t, () => {
+    const L = P(), d = norm({ x: L.x - prevB.x, y: 0, z: L.z - prevB.z }), back = len(d) > 0.1 ? d : f0;
+    cam(p, add(add(L, back, -7), UP, 2.6), add(L, back, 3), 0.15, "Linear");
+  });
+  // 2) 비상: 땅 가까이에서 올려다보는 시점 → 솟구치는 주작을 따라 고개를 듦
+  later(LOOP + 1, () => cam(p, add(up(C, 1.5), r0, 9), P(), 0.3));
+  for (let t = LOOP + 3; t <= SPLIT; t += 2) later(t, () => cam(p, add(up(C, 1.5 + (t - LOOP) * 0.5), r0, 9), P(), 0.12, "Linear"));
+  // 3) 쪼개짐: 가까이 옆에서 번쩍 → 4틱 뒤 크게 뒤로 빠지며 하늘 전경
+  later(SPLIT + 1, () => { const L = P(); cam(p, add(add(L, r0, 4.5), UP, 0.5), L, 0.08); });
+  later(SPLIT + 5, () => { const L = P(); cam(p, add(add(L, r0, 15), UP, 5), up(L, -1), 0.6, "OutCubic"); });
+  // 4) 작은 주작 셋이 크게 돌 때: 천천히 둘레를 도는 넓은 시점 (주작과 반대 방향으로 돌아 역동적으로)
+  for (let t = SPLIT + 14; t < FIRE; t += 3) later(t, () => {
+    const H = up(hold ?? p.location, 0), a = -((t - SPLIT - 14) * 0.06) + Math.atan2(r0.z, r0.x);
+    cam(p, { x: H.x + Math.cos(a) * 17, y: H.y + 4 + Math.sin(t * 0.08) * 2, z: H.z + Math.sin(a) * 17 }, up(H, -1), 0.15, "Linear");
+  });
+  // 5) 불화살 발사: 플레이어 등 뒤 위에서 땅의 적들을 내려다보는 시점
+  later(FIRE, () => { const H = up(hold ?? p.location, 1.5); cam(p, add(add(H, sub(H, S).y > 0 ? norm({ x: H.x - S.x, y: 0, z: H.z - S.z }) : f0, 3), UP, 4), S, 0.25, "OutCubic"); });
+  // 6) 주작 셋이 내리꽂힐 때: 땅 가까이 표적 옆에서 하늘을 올려다봄 → 맞을 때 표적 쪽으로 다가감
+  later(DIVE + 2, () => {
+    const tg = foes.filter((e) => e.isValid()).sort((a, b) => maxHpOf(b) - maxHpOf(a))[0];
+    const G = tg ? center(tg) : S, side = norm(cross(norm(sub(G, up(hold ?? p.location, 0))), UP));
+    cam(p, add(up(G, 1.2), len(side) > 0.1 ? side : r0, 7), up(G, 6), 0.3);
+    later(10, () => cam(p, add(up(G, 1.6), len(side) > 0.1 ? side : r0, 5), up(G, 1), 0.4, "OutCubic"));
+  });
+  // 끝: 화면 살짝 번쩍이며 원래 시점으로
+  later(DIVE + 34, () => { flashScreen(p, 1, 0.6, 0.2, 0.3); camClear(p); });
   // 내려옴
   later(DIVE + 9, () => { skillLock.delete(p.id); M.potion(p, "slow_falling", 1, 4); });
-  later(DIVE + 120, () => skillLock.delete(p.id)); // 안전장치
+  later(DIVE + 120, () => { skillLock.delete(p.id); camClear(p); }); // 안전장치
 }
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
