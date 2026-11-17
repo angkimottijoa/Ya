@@ -248,6 +248,34 @@ def main():
         "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.8 + {R3} * 0.5) * (0.8 + {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz", "uv": flip},
         "minecraft:particle_appearance_tinting": fire_tint,
     }, tex="textures/particle/rpg_bh_boom")
+    # 깃털 칼날 (연기 점): u 방향 길이 r, v 쪽으로 h 만큼 휨, 가운데 두껍고 끝 뾰족, 뿌리 노랑 → 끝 빨강
+    q = R1
+    mid = f"math.sin({q} * 180)"
+    smoke_look = lambda col: {
+        "minecraft:particle_initial_speed": f"0.05 + {R4} * 0.2",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.5, 0], "linear_drag_coefficient": 1.5},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.07 + {R3} * 0.06) * (1 + {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": col, "gradient": FIRE}},
+    }
+    part("jj_feather", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {q} * variable.r + variable.v.{c} * ({mid} * variable.h * variable.r + ({R2} - 0.5) * variable.thick * math.pow({mid}, 0.7))" for c in "xyz"],
+                                          "direction": [f"({R3} - 0.5)", 1, f"({R2} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.75 + {R4} * 0.4)"},
+        **smoke_look(f"math.clamp(variable.tone + {q} * 0.55 + math.abs({R2} - 0.5) * 0.35 + {AGE} * 0.3, 0, 1)"),
+    })
+    # 불 고리 (연기 점): u·v 면 위 반지름 r 원
+    ang = f"({R1} * 360)"
+    part("jj_circle", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * math.cos({ang}) + variable.v.{c} * math.sin({ang})) * (variable.r + ({R2} - 0.5) * variable.thick)" for c in "xyz"],
+                                          "direction": [f"({R3} - 0.5)", 1, f"({R2} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.75 + {R4} * 0.4)"},
+        **smoke_look(f"math.clamp(variable.tone + math.abs({R2} - 0.5) * 0.6 + {AGE} * 0.3, 0, 1)"),
+    })
     item()
     print("jujak particles + item ok")
 

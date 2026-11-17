@@ -32,7 +32,7 @@ const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z
 const UP = { x: 0, y: 1, z: 0 };
 const ease = (s) => s * s * (3 - 2 * s);
 
-const DEF = { n: 10, r: 0.2, spd: 1, tone: 0, size: 1, life: 0.5, cx: 0, cy: 0, scale: 0.03 };
+const DEF = { n: 10, r: 0.2, spd: 1, tone: 0, size: 1, life: 0.5, cx: 0, cy: 0, scale: 0.03, h: 0, thick: 0.2 };
 function pt(dim, name, loc, o = {}) {
   try {
     const m = new MolangVariableMap();
@@ -375,6 +375,39 @@ function bigShot(ctx, done) {
   };
 }
 
+// ───────── 1·2단 연출 (연기 점, 시야를 가리지 않게 몸 뒤·양옆) ─────────
+const feather = (dim, root, dir, bend, o = {}) => pt(dim, "jj_feather", root, { u: dir, v: bend, r: o.len ?? 1.6, h: o.h ?? 0.12, thick: o.thick ?? 0.28, n: o.n ?? 60, life: o.life ?? 0.6, size: o.size ?? 1, tone: o.tone ?? 0 });
+const ring = (dim, c, u, v, r, o = {}) => pt(dim, "jj_circle", c, { u, v, r, thick: o.thick ?? 0.12, n: o.n ?? Math.round(r * 60), life: o.life ?? 0.6, size: o.size ?? 1, tone: o.tone ?? 0.1 });
+/** 1단: 등 뒤로 펼쳐지는 불 날개 (깃털 칼날 세 장씩) */
+function fireWings(p) {
+  const dim = p.dimension, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), base = add(up(p.location, 1.35), f, -0.55);
+  for (let step = 0; step < 3; step++) later(step, () => {
+    const g = 0.55 + step * 0.22;
+    for (const s2 of [-1, 1]) for (const [deg, len] of [[32, 1.9], [8, 1.7], [-18, 1.35]]) {
+      const a = rad(deg), dir = norm(add(add(scl(r, s2 * Math.cos(a)), UP, Math.sin(a)), f, -0.35));
+      feather(dim, add(base, r, s2 * 0.25), dir, norm(cross(dir, f)), { len: len * g, n: Math.round(45 * g), life: 0.45, tone: 0.05 });
+    }
+  });
+}
+/** 2단: 양옆 불 고리(깃털 넷 + 바깥으로 뻗는 줄) + 머리 위 작은 고리. 화살은 왼쪽 고리 · 가운데 · 오른쪽 고리에서 */
+function sideArrays(p) {
+  const dim = p.dimension, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), eye = eyeOf(p);
+  const spots = [-1, 1].map((s2) => add(add(up(p.location, 1.45), r, s2 * 2.1), f, -0.3));
+  spots.forEach((c, i) => {
+    const s2 = i ? 1 : -1;
+    ring(dim, c, r, UP, 0.5, { life: 0.7, tone: 0 });
+    for (const deg of [45, 135, 225, 315]) {
+      const a = rad(deg), dir = norm(add(scl(r, Math.cos(a)), UP, Math.sin(a)));
+      feather(dim, add(c, dir, 0.62), dir, norm(cross(dir, f)), { len: 0.55, n: 18, life: 0.6, thick: 0.14, tone: 0.1 });
+    }
+    trail(dim, c, add(c, r, s2 * 3.2), { size: 1, life: 0.35, n: 26, tone: 0.1 });
+    trail(dim, add(c, UP, 0.12), add(add(c, r, s2 * 2.6), UP, 0.5), { size: 0.7, life: 0.3, n: 18, tone: 0.3 });
+    ember(dim, c, { n: 10, r: 0.3, spd: 1.5, life: 0.6, tone: 0 });
+  });
+  ring(dim, add(up(p.location, 2.7), f, -0.3), r, f, 0.55, { life: 0.6, tone: 0 });
+  return [spots[0], add(eye, viewOf(p), 1), spots[1]];
+}
+
 // ───────── ① 주작 · 화시 (3단 콤보, 6발 장전) ─────────
 const AMMO = 6;
 const combo = new Map(); // pid -> { stage, until, busy, ammo, reload }
@@ -416,6 +449,7 @@ function flameShot(ctx) {
     M.anim(p, "shoot");
     M.sound(p, "random.bow", 1, 1.2);
     used();
+    fireWings(p);
     fireArrow(ctx, start, v, { mul: 1, radius: 1.5, onHit: () => next(1, "§6주작 · 화시 §f2단 §7— 불화살 세 발!"), onMiss: () => { st.stage = 0; } });
   } else if (st.stage === 1) {
     M.anim(p, "shoot");
@@ -424,11 +458,12 @@ function flameShot(ctx) {
     let hitAny = false, left = 3;
     const fin = () => { if (--left === 0 && !hitAny) st.stage = 0; };
     const yaw0 = yawOf(p), horiz = Math.hypot(v.x, v.z);
-    for (const deg of [-11, 0, 11]) {
+    const origins = sideArrays(p);
+    [-11, 0, 11].forEach((deg, i) => {
       const f = fwdOf(yaw0 + deg), d = norm({ x: f.x * horiz, y: v.y, z: f.z * horiz });
       // 근접 신관: 화살 둘레(아래쪽까지)에 조금이라도 들어오면 그 자리에서 폭발
-      fireArrow(ctx, start, d, { mul: 0.9, prox: 2.4, boom: 3, onHit: () => { if (!hitAny) { hitAny = true; next(2, "§6주작 · 화시 §c3단 §7— 주작의 활!"); } fin(); }, onMiss: fin });
-    }
+      fireArrow(ctx, origins[i], d, { mul: 0.9, prox: 2.4, boom: 3, onHit: () => { if (!hitAny) { hitAny = true; next(2, "§6주작 · 화시 §c3단 §7— 주작의 활!"); } fin(); }, onMiss: fin });
+    });
   } else {
     st.stage = 0;
     used();
@@ -443,13 +478,74 @@ system.runInterval(() => {
     try { held = p.getComponent("minecraft:inventory").container.getItem(p.selectedSlotIndex)?.typeId === BOW_ID; } catch {}
     if (!held) continue;
     if (system.currentTick - (lastSay.get(p.id) ?? -99) < 30) continue;
-    try { p.onScreenDisplay.setActionBar(`§6§l주작 · 화시§r  ${ammoLine(p)}  §7(클릭: 불화살 → 세 발 → 주작의 활)`); } catch {}
+    try { p.onScreenDisplay.setActionBar(`§6§l주작 · 화시§r  ${ammoLine(p)}`); } catch {}
   }
 }, 5);
+
+// ───────── ② 주작 · 연사 (쉬프트+클릭): 뒤로 물러섰다가, 바닥에 눕힌 거대한 활로 연속 사격 → 불화살 비 ─────────
+function rapidFire(ctx) {
+  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
+  M.potion(p, "resistance", 3, 3);
+  const yw0 = yawOf(p), f0 = fwdOf(yw0);
+  M.anim(p, "dash");
+  try { p.applyKnockback(-f0.x, -f0.z, 1.1, 0.35); } catch {}
+  M.sound(p, "mob.blaze.breathe", 0.8, 1.3);
+  ember(dim, up(p.location, 0.3), { n: 20, r: 0.6, spd: 2, life: 0.8 });
+  let impact = null;
+  // 6~: 바닥에 활을 눕히고 (활 몸 = 플레이어 앞 바닥, 활 배가 앞) 8발 연속
+  for (let t = 6; t <= 30; t += 3) later(t, () => {
+    const L = p.location, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), v = viewOf(p);
+    const SB = 0.05, H = add(up(L, 0.15), f, 1.6);
+    pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u: f, v: r, scale: SB, n: Math.round((BOW.filled * 0.8) / BOW.fill), life: 0.25, size: 1 });
+    if (t <= 27) {
+      M.anim(p, "shoot");
+      const start = add(eyeOf(p), v, 1), d = norm(add(v, add(scl(r, (Math.random() - 0.5) * 0.12), UP, (Math.random() - 0.5) * 0.06), 1));
+      fireArrow(ctx, start, d, { mul: 0.55, radius: 1.5, speed: 2.6, onHit: (e) => { impact = { ...e.location }; } });
+      M.sound(p, "random.bow", 0.8, 1.3 + Math.random() * 0.3);
+      ember(dim, add(start, v, 0.5), { n: 4, r: 0.15, spd: 1.5, life: 0.4, tone: 0 });
+    }
+  });
+  // 32~: 불화살 비 — 맞힌 곳(없으면 앞 10칸)에 하늘에서 쏟아짐
+  later(32, () => {
+    const L = p.location, v = viewOf(p);
+    const c = impact ?? add(L, { x: v.x, y: 0, z: v.z }, 10);
+    M.sound(p, "mob.blaze.shoot", 1.2, 0.6);
+    ring(dim, up(c, 0.1), { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, 4.5, { life: 1.6, tone: 0.2, n: 200 });
+    for (let i = 0; i < 18; i++) later(Math.floor(i * 1.2), () => {
+      const a = Math.random() * Math.PI * 2, rr = Math.random() * 4.2;
+      const land = { x: c.x + Math.cos(a) * rr, y: c.y, z: c.z + Math.sin(a) * rr };
+      const from = add(land, { x: -1.5, y: 14, z: -1.5 }), d = norm(sub(land, from));
+      let pos = from, k = 0;
+      const fall = () => {
+        k++;
+        const next = add(pos, d, 3);
+        trail(dim, pos, next, { size: 1.3, life: 0.25, n: 18 });
+        pos = next;
+        if (pos.y <= land.y + 0.3 || k > 8) {
+          fireBoom(dim, up(land, 0.3), { n: 5, r: 0.3, spd: 2.5, size: 1.3 });
+          ember(dim, up(land, 0.3), { n: 10, r: 0.3, spd: 3, life: 0.7 });
+          for (const e of enemiesNear(dim, p, up(land, 0.5), 2, 1)) hit(e, 0.5, 3);
+          if (i % 4 === 0) M.sound(p, "random.explode", 0.4, 1.5);
+          return;
+        }
+        later(1, fall);
+      };
+      fall();
+    });
+    later(26, () => { // 마지막 큰 불 폭발
+      fireBoom(dim, up(c, 0.5), { n: 18, r: 1.4, spd: 5, size: 2.4 });
+      pt(dim, "jj_ring", c, { n: 50, r: 0.5, spd: 12, size: 1.8, life: 0.6, tone: 0.1 });
+      for (const e of enemiesNear(dim, p, up(c, 0.5), 5, 1.5)) hit(e, 1.2, 4);
+      shake(dim, c, 0.5, 0.4);
+      M.sound(p, "random.explode", 1, 0.9);
+    });
+  });
+}
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
+    { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "뒤로 물러섰다가 바닥에 눕힌 거대한 활로 불화살 8발 연속 사격, 맞힌 곳에 불화살 비." },
   ],
 };
