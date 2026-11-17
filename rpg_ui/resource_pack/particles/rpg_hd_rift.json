@@ -4,8 +4,8 @@
   "description": {
    "identifier": "rpg:hd_rift",
    "basic_render_parameters": {
-    "material": "particles_blend",
-    "texture": "textures/particle/rpg_hd"
+    "material": "particles_alpha",
+    "texture": "textures/particle/particles"
    }
   },
   "components": {
@@ -34,20 +34,20 @@
    },
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.size * (variable.particle_random_2 < 0.3 ? 0.1 : 0.15) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4)) * math.min(1, variable.particle_age * 6)",
-     "variable.size * (variable.particle_random_2 < 0.3 ? 0.1 : 0.15) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4)) * math.min(1, variable.particle_age * 6)"
+     "(variable.size * (variable.particle_random_2 < 0.3 ? 0.1 : 0.15) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4)) * math.min(1, variable.particle_age * 6)) * 0.6",
+     "(variable.size * (variable.particle_random_2 < 0.3 ? 0.1 : 0.15) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4)) * math.min(1, variable.particle_age * 6)) * 0.6"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
-     "texture_width": 32,
-     "texture_height": 8,
+     "texture_width": 16,
+     "texture_height": 16,
      "uv": [
-      "(variable.particle_random_4 > 0.85 ? 16 : 0)",
+      "(variable.particle_random_4 > 0.85 ? (math.floor(variable.particle_random_3 * 2) + 6) : (math.floor(variable.particle_random_3 * 4) + 3))",
       0
      ],
      "uv_size": [
-      8,
-      8
+      1,
+      1
      ]
     }
    },

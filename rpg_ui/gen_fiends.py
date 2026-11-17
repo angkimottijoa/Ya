@@ -19,7 +19,31 @@ R1, R2, R3, R4 = (f"variable.particle_random_{i}" for i in (1, 2, 3, 4))
 SPR = 8
 
 
+VAN_SMK = f"(math.floor({R3} * 4) + 3)"
+VAN_DOT = f"(math.floor({R3} * 2) + 6)"
+
+
+def vanillaize(comps):
+    """rpg_hd 시트 → 마크 기본 파티클 시트 (사신수처럼 픽셀 연기 먼지): 0 부드러운 빛 → 연기, 8·16 별·조각 → 작은 점, 24 연기 뭉치 → 연기"""
+    import re
+    bbd = comps.get("minecraft:particle_appearance_billboard")
+    if not bbd or "uv" not in bbd: return comps
+    uv = bbd["uv"]
+    if uv.get("texture_width") != 32: return comps
+    mp = lambda v: {"0": VAN_SMK, "8": VAN_DOT, "16": VAN_DOT, "24": VAN_SMK}.get(str(v).strip(), VAN_SMK)
+    u = uv["uv"][0]
+    if isinstance(u, str):
+        m = re.fullmatch(r"\((.*) \? (\d+) : (\d+)\)", u.strip())
+        u = f"({m.group(1)} ? {mp(m.group(2))} : {mp(m.group(3))})" if m else VAN_SMK
+    else: u = mp(u)
+    bbd["uv"] = {"texture_width": 16, "texture_height": 16, "uv": [u, 0], "uv_size": [1, 1]}
+    bbd["size"] = [f"({x}) * 0.6" for x in bbd["size"]]
+    return comps
+
+
 def part(name, tex, comps, material="particles_blend"):
+    if tex == "rpg_hd":
+        comps = vanillaize(comps); tex = "particles"; material = "particles_alpha"
     d = {"format_version": "1.10.0", "particle_effect": {
         "description": {"identifier": f"rpg:{name}", "basic_render_parameters": {"material": material, "texture": f"textures/particle/{tex}"}},
         "components": comps}}
@@ -92,7 +116,7 @@ def frac(x):
 def main():
     # ═════ 혼돈: 색이 계속 바뀜 (빨 → 주 → 노 → 초 → 파 → 보 → 빨) ═════
     PRISM = {"0.0": "#FFFF3A6A", "0.17": "#FFFF9A2A", "0.33": "#FFF6F04A", "0.5": "#FF4AF09A", "0.67": "#FF3A9AFF", "0.83": "#FFB04AFF", "1.0": "#FFFF3A6A"}
-    sheet("rpg_hd", [soft, star4, shard, puff])
+    # (혼돈은 마크 기본 파티클 시트 사용 — vanillaize)
     lag = f"({R4} * {R4} * 0.5)"
     part("hd_orb", "rpg_hd", {**once(),
         "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 2 * variable.r", f"({R2} - 0.5) * 2 * variable.r", f"({R3} - 0.5) * 2 * variable.r"], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
@@ -164,6 +188,97 @@ def main():
         "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 2},
         "minecraft:particle_appearance_billboard": bb(f"variable.size * 0.16 * (1 - {AGE})", 0),
         **tint(PRISM, frac(f"{R2} * 0.5 + {A} * 2"))})
+
+    # ═════ 혼돈 입체 기동 (V12.2) — 마크 기본 파티클(픽셀 연기 먼지) 기반, 사신수처럼 ═════
+    # 강철 줄 · 줄 불티 · 가스 분사 · 속도선 · 회오리 원반 · 회오리 기둥 · 낙뢰 · 충격파
+    def vb(size, cell, mode="lookat_xyz", extra=None, w=None):
+        d = {"size": [w or size, size], "facing_camera_mode": mode,
+             "uv": {"texture_width": 16, "texture_height": 16, "uv": [cell, 0], "uv_size": [1, 1]}}
+        if extra: d.update(extra)
+        return d
+    def vpart(name, comps): part(name, "particles", comps, material="particles_alpha")
+    SMK = f"(math.floor({R3} * 4) + 3)"   # 기본 연기 먼지 (작은 칸들)
+    DOT = f"(math.floor({R3} * 2) + 6)"   # 가장 작은 픽셀 점
+    VEL = {"direction": {"mode": "derive_from_velocity", "min_speed_threshold": 0.01}}
+    WIRE = {"0.0": "#FFFFFFFF", "0.4": "#FFE6D8FF", "0.75": "#FFB08AE0", "1.0": "#FF5A3A8A"}
+    GAS = {"0.0": "#FFFFFFFF", "0.25": "#FFE0E6F0", "0.55": "#FFB4A8D8", "0.8": "#FF7A5AA8", "1.0": "#FF3A2A5A"}
+    # 3D 쇠사슬: 길이 r 을 variable.h 개의 고리로 나눔, 고리는 u 방향으로 긴 타원, 짝수 고리는 v 평면 / 홀수 고리는 w 평면 (서로 90°)
+    #   위쪽(밝음) → 아래쪽(어두움) 음영으로 입체감, 고리마다 살짝 겹침
+    LK = f"math.floor({R1} * variable.h)"
+    LT = f"(({LK} + 0.5) / variable.h * variable.r)"
+    LA = f"({R2} * 360)"
+    SIDE = lambda c: f"(math.mod({LK}, 2) < 1 ? variable.v.{c} : variable.w.{c})"
+    LHL = "(variable.r / variable.h * 0.62)"
+    CHAIN = {"0.0": "#FFFFFFFF", "0.3": "#FFD8D4E8", "0.55": "#FF9A92B8", "0.8": "#FF5A4A7A", "1.0": "#FF2A1E3A"}
+    vpart("hd_wire", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * ({LT} + math.cos({LA}) * {LHL}) + {SIDE(c)} * math.sin({LA}) * {LHL} * 0.5 * variable.size" for c in "xyz"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_appearance_billboard": vb("variable.size * 0.055", DOT),
+        **tint(CHAIN, f"math.clamp(0.5 - math.sin({LA}) * 0.45 * (math.mod({LK}, 2) < 1 ? 1 : 0.6) + {R3} * 0.1, 0, 1)")})
+    # 줄을 타고 감겨 오는 불티 (u 방향으로 스스로 이동)
+    vpart("hd_reelspark", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r * 0.5" for c in "xyz"], "direction": ["variable.u.x", "variable.u.y", "variable.u.z"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.7 + {R4} * 0.5)",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": vb("variable.size * 0.09", 7),
+        **tint(FLAME, f"math.clamp({R2} * 0.3, 0, 1)")})
+    # 가스 분사: 기본 연기 먼지가 뿜어진 뒤 빠르게 느려지며 부풀고 옅어짐
+    vpart("hd_gas", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 2 * variable.r", f"({R2} - 0.5) * 2 * variable.r", f"({R3} - 0.5) * 2 * variable.r"],
+                                          "direction": [f"variable.vd.x + ({R1} - 0.5) * 0.5", f"variable.vd.y + ({R2} - 0.5) * 0.5", f"variable.vd.z + ({R3} - 0.5) * 0.5"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.6)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.6 + {R4} * 0.6)",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 3.2, "linear_acceleration": [0, 0.5, 0]},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * (0.1 + {R4} * 0.08) * (0.7 + math.sqrt({AGE}) * 1.2)", SMK),
+        **tint(GAS, f"math.clamp({AGE} * 0.9 + {R2} * 0.1 + variable.tone, 0, 1)")})
+    # 속도선: 몸 둘레에서 뒤로 스쳐 가는 가는 픽셀 선
+    vpart("hd_speed", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * math.cos({R1} * 360) + variable.v.{c} * math.sin({R1} * 360)) * variable.r * (0.6 + {R2} * 0.6) + variable.vd.{c} * ({R3} - 0.3) * 3" for c in "xyz"],
+                                          "direction": [f"-variable.vd.{c}" for c in "xyz"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.6)"},
+        "minecraft:particle_initial_speed": "variable.spd",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * (0.7 + {R4} * 0.8) * (1 - {AGE})", 7, "lookat_direction", VEL, "variable.size * 0.035"),
+        **tint(WIRE, f"0.1 + {AGE} * 0.7")})
+    # 회오리 원반: u·v 평면에 세 갈래 나선 팔(연기 먼지)이 빠르게 돌며 퍼짐 (vd 쪽으로 이동)
+    arm = f"(math.floor({R2} * 3) * 120 + {R1} * 220 + {A} * variable.spin)"
+    rr = f"(variable.r * (0.25 + {R1} * 0.75) * (0.55 + {AGE} * 0.7))"
+    vpart("hd_swirl", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.75 + {R4} * 0.35)"},
+        "minecraft:particle_motion_parametric": {"relative_position": [f"(variable.u.{c} * math.cos({arm}) + variable.v.{c} * math.sin({arm})) * {rr} + variable.vd.{c} * variable.vs * {A}" for c in "xyz"]},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * ({R4} < 0.55 ? 0.17 : 0.08) * (0.6 + {R1} * 0.6) * (1 - {AGE} * 0.6)", f"({R4} < 0.55 ? {SMK} : {DOT})"),
+        **tint(GAS, f"math.clamp({R1} * 0.45 + {AGE} * 0.5, 0, 1)")})
+    # 회오리 기둥: 세 갈래 나선이 축(vd)을 따라 감기며 돎 (부피감)
+    arm2 = f"(math.floor({R2} * 3) * 120 + {R1} * 300 + {A} * variable.spin)"
+    rad_ = f"(variable.r * (0.35 + {R1} * 0.65))"
+    vpart("hd_vortex", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.4)"},
+        "minecraft:particle_motion_parametric": {"relative_position": [f"(variable.u.{c} * math.cos({arm2}) + variable.v.{c} * math.sin({arm2})) * {rad_} * (1 + {AGE} * 0.5) + variable.vd.{c} * ({R1} - 0.5) * variable.h" for c in "xyz"]},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * ({R4} < 0.5 ? 0.15 : 0.07) * (1 - {AGE} * 0.7)", f"({R4} < 0.5 ? {SMK} : {DOT})"),
+        **tint(GAS, f"math.clamp({AGE} * 0.8 + {R3} * 0.2, 0, 1)")})
+    # 낙뢰: vd 방향 길이 r 의 지그재그 번개 (8마디, variable.tone = 모양 씨앗), 픽셀 점으로 깜빡임
+    tt = R1
+    k = f"math.floor({tt} * 8)"
+    fr = f"({tt} * 8 - {k})"
+    hz = lambda kk, sd: f"math.sin(({kk}) * 127.1 + variable.tone * 311.7 + {sd})"
+    jag = lambda sd: f"({hz(k, sd)} * (1 - {fr}) + {hz(f'{k} + 1', sd)} * {fr}) * variable.h * math.sin({tt} * 180 + 20)"
+    vpart("hd_bolt", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"variable.vd.{c} * {tt} * variable.r + variable.u.{c} * {jag(0)} + variable.v.{c} * {jag(57)}" for c in "xyz"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.4)"},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * ({R4} < 0.2 ? 0.16 : 0.08) * (math.sin({A} * 2400) > -0.3 ? 1 : 0.3) * (1 - {AGE} * 0.5)", f"({R4} < 0.2 ? {SMK} : {DOT})"),
+        **tint({"0.0": "#FFFFFFFF", "0.35": "#FFE8C8FF", "0.7": "#FFA040FF", "1.0": "#FF4A1A9A"}, f"math.clamp({R4} * 0.5 + {AGE} * 0.6, 0, 1)")})
+    # 땅 충격파: 바닥에 누운 연기 먼지 고리가 퍼지며 바깥 테가 밝음
+    ang = f"({R1} * 360)"
+    ring = f"(variable.r * (0.15 + math.sqrt({AGE}) * 0.85) * ({R2} < 0.6 ? 1 : 0.75 + {R3} * 0.2))"
+    vpart("hd_shock", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.3)"},
+        "minecraft:particle_motion_parametric": {"relative_position": [f"math.cos({ang}) * {ring}", f"{AGE} * ({R4} * 0.6)", f"math.sin({ang}) * {ring}"]},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * ({R2} < 0.6 ? 0.2 : 0.12) * (1 - {AGE} * 0.5)", SMK),
+        **tint(GAS, f"math.clamp(({R2} < 0.6 ? 0 : 0.35) + {AGE} * 0.65, 0, 1)")})
 
     # ═════ 궁기: 핏빛 · 검정 깃털 ═════
     CRIM = {"0.0": "#FFFFE0E0", "0.18": "#FFFF6A6A", "0.4": "#FFD01A2A", "0.65": "#FF6A0A18", "0.85": "#FF200408", "1.0": "#E0000000"}
