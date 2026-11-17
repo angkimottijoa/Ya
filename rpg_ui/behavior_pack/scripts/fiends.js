@@ -241,7 +241,7 @@ function hd_mode_start(p, ctx) {
   const hip = (sd) => add(up(p.location, 0.9), rightOf(yawOf(p)), sd * 0.3);
   const anc = (A) => (A.ent ? (A.ent.isValid() ? add(A.ent.location, A.off) : null) : A.at);
   const play = (name) => M.anim(p, name);
-  m.end = () => { if (m.done) return; m.done = true; if (s.swing === m) s.swing = null; fov(p, false); s.setCd3?.(8); notify(p, "§5입체 기동 종료 §7(8초)"); hd_keep(p); };
+  m.end = () => { if (m.done) return; m.done = true; if (s.swing === m) s.swing = null; fov(p, false); s.setCd3?.(8); notify(p, "§5사슬혼돈 종료 §7(8초)"); hd_keep(p); };
   const release = (a) => { const q = anc(a.A) ?? a.A.at; for (let k = 1; k <= 4; k++) later(k, () => { const H = hip(a.sd); chain(dim, H, add(H, sub(q, H), 1 - k / 4), 0.08); }); snd(p, "item.armor.equip_chain", 0.7, 1.8); };
   /** 한 번 휘돌기 */
   m.hop = () => {
@@ -254,11 +254,26 @@ function hd_mode_start(p, ctx) {
     const d = sub(A.at, H0), L0 = len(d), fa = d.x * f.x + d.z * f.z, la = d.x * r.x + d.z * r.z;
     let g = false; try { g = p.isOnGround; } catch {}
     const lookUp = viewOf(p).y;
-    // 호: 박힌 곳 앞뒤로 대칭에 가깝게 (진자처럼) — 앞으로 2×(앞 거리), 6~34칸
-    const reach = Math.max(6, Math.min(34, fa * 2));
-    const P1 = add(add(add(P0, f, reach), r, la * 0.35), UP, 1.4 + Math.max(-2, Math.min(5, lookUp * 7)) + Math.min(4, Math.max(0, d.y) * 0.15));
+    // 구조에 맞춘 호 계획
+    //  · 가파른 곳(높은 벽·나무 위, 천장): 박힌 곳 바로 위·앞으로 넘어감(올라타기)
+    //  · 보통: 박힌 곳 앞 거리 ×2 만큼 진자처럼 (6~34칸)
+    //  · 끝점이 막히면 막힌 곳 1.5칸 앞까지, 처지는 점이 땅에 박히면 땅 위로 올림, 머리 위가 막히면 처짐을 키움
+    const steep = d.y > Math.max(4, fa * 1.1), ceiling = d.y > 2 && fa < 3 && Math.abs(la) < 3;
+    let P1;
+    if (ceiling) P1 = add(add(P0, f, Math.max(8, Math.min(20, d.y * 1.6))), UP, Math.min(3, d.y * 0.3)); // 천장: 밑으로 크게 휘돌아 앞으로
+    else if (steep) P1 = add(add(add(A.at, f, 1.8), r, la > 0 ? -0.4 : 0.4), UP, 1.6); // 올라타기
+    else {
+      const reach = Math.max(6, Math.min(34, fa * 2));
+      P1 = add(add(add(P0, f, reach), r, la * 0.35), UP, 1.4 + Math.max(-2, Math.min(5, lookUp * 7)) + Math.min(4, Math.max(0, d.y) * 0.15));
+    }
+    const ray = (from, to) => { const dd = sub(to, from), L = len(dd); if (L < 0.5) return null; try { const h = dim.getBlockFromRay(from, scl2(dd, 1 / L), { maxDistance: L, includeLiquidBlocks: false, includePassableBlocks: false }); return h ? add(h.block.location, { x: h.faceLocation?.x ?? 0.5, y: h.faceLocation?.y ?? 0.5, z: h.faceLocation?.z ?? 0.5 }) : null; } catch { return null; } };
+    if (steep && (solid(dim, P1) || solid(dim, up(P1, 1)))) P1 = add(add(A.at, f, -1.3), UP, 0.6); // 위가 더 높은 벽이면 박힌 곳 바로 앞까지 끌어올림
+    if (!steep) { const blk = ray(H0, up(P1, 0.9)); if (blk) { const back = sub(blk, H0), bl = len(back); P1 = add(up(blk, -0.9), scl2(back, 1 / (bl || 1)), -1.5); } }
     const mid = scl2(add(P0, P1), 0.5);
-    const C = add(add(mid, r, Math.sign(la || sd) * Math.min(4, Math.abs(la) * 0.5 + 1)), UP, g ? 1.2 : -Math.min(5, L0 * 0.22));
+    let C = add(add(mid, r, Math.sign(la || sd) * Math.min(4, Math.abs(la) * 0.5 + 1)), UP, g ? 1.2 : -Math.min(5, L0 * 0.22) - (ceiling ? 2 : 0));
+    if (steep) C = add(add(P0, f, Math.max(1, fa * 0.6)), UP, Math.max(1, d.y * 0.55)); // 올라타기: 벽 따라 위로
+    const floor = ray(up(C, 3), up(C, -6)); if (floor && C.y < floor.y + 1.5) C = { ...C, y: floor.y + 1.5 }; // 땅 밑으로 안 들어가게
+    m.arcKind = ceiling ? "천장" : steep ? "올라타기" : "진자";
     const pathLen = len(sub(C, P0)) + len(sub(P1, C)), n = Math.max(12, Math.min(34, Math.round(pathLen / 1.35)));
     m.arc = { A, sd, P0, C, P1, n, k: 0, L: L0 };
     play(sd < 0 ? "gear_hook_l" : "gear_hook_r");
@@ -268,8 +283,25 @@ function hd_mode_start(p, ctx) {
     for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = hip(sd), q = anc(A) ?? A.at; chain(dim, h, add(h, sub(q, h), k / fly), 0.1); });
     later(fly, () => { const q = anc(A) ?? A.at; hookHit(dim, q); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { flame(dim, q, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
     m.arc.fly = fly;
-    notify(p, `§5입체 기동 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · 점프: 다음 사슬`);
+    notify(p, `§5사슬혼돈 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · ${m.arcKind} §8(점프: 다음 사슬 · 클릭: 회전 도약)`);
     return true;
+  };
+  /** 클릭: 몸을 돌리며 위로 도약 (사슬 놓음), 둘레 베기 */
+  m.leap = () => {
+    if (m.done || m.t - (m.lastLeap ?? -99) < 8) return;
+    m.lastLeap = m.t;
+    if (m.arc) { release(m.arc); m.arc = null; }
+    let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
+    const f = fwdOf(yawOf(p)), nv = { x: v.x * 0.6 + f.x * 0.45, y: 0.95, z: v.z * 0.6 + f.z * 0.45 }, h = Math.hypot(nv.x, nv.z);
+    try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, h, nv.y); } catch {}
+    m.v = nv;
+    play("gear_leap");
+    const c = up(p.location, 1);
+    scythe(dim, c, { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { spin: 1100, life: 0.3, scale: 0.05, prio: 1 });
+    darc(dim, c, yawOf(p), { sweep: 380, r: 2.8, thick: 1, dur: 0.15, n: 150, life: 0.4 });
+    pt(dim, "hd_swirl", c, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 3, r: 1.8, spin: 900, n: 40, life: 0.35 }, 2);
+    for (const e of foes(dim, c, 3)) if (hit(e, 0.6, 6)) flame(dim, center(e), { n: 6, r: 0.3, spd: 2 });
+    snd(p, "game.player.attack.sweep", 0.9, 1.4); snd(p, "mob.phantom.swoop", 0.7, 1.7);
   };
   M.anim(p, "gear_fire");
   if (!m.hop()) { m.done = true; s.swing = null; return false; }
@@ -370,6 +402,7 @@ function hd_swing(ctx) { // ③ 입체 기동 시작 (첫 사슬)
   ctx.setCd?.(99); // 기동 중엔 ③ = 다음 사슬, 끝나면 8초
   if (!hd_mode_start(p, ctx)) ctx.setCd?.(0.5);
 }
+const hd_leap = (p) => { const m = st(p).swing; if (!m || m.done || !m.leap) return false; m.leap(); return true; };
 const hd_swing_pre = (p) => { const m = st(p).swing; if (!m || m.done) return false; m.hop(); return true; };
 /** ④ 혼돈 · 선풍 낙뢰: 회오리를 두르고 낙뢰처럼 그대로 내리꽂힘. 땅이면 먼저 솟구침, ③ 기동 중(공중)이면 바로 강하 + 위력 1.35배 (연계) */
 function hd_plunge(ctx) {
@@ -756,7 +789,7 @@ function tt_ult(ctx) {
 }
 export const fiendLine = (p) => {
   const id = heldId(p);
-  if (id === "rpg:hundun_scythe") { const s = st(p); if (s.hook && now() <= s.hook.until) return "§5§l걸렸다! §r§7② · ① 다시: 부딪치기"; if (s.swing && !s.swing.done) return `§5§l입체 기동 §r§d${"◆".repeat(s.swing.left)}§8${"◇".repeat(5 - s.swing.left)} §7점프: 다음 사슬 · ④ 낙뢰`; return "§5혼돈의 낫"; }
+  if (id === "rpg:hundun_scythe") { const s = st(p); if (s.hook && now() <= s.hook.until) return "§5§l걸렸다! §r§7② · ① 다시: 부딪치기"; if (s.swing && !s.swing.done) return `§5§l사슬혼돈 §r§d${"◆".repeat(s.swing.left)}§8${"◇".repeat(5 - s.swing.left)} §7점프: 사슬 · 클릭: 도약 · ④ 낙뢰`; return "§5혼돈의 낫"; }
   if (id === "rpg:taotie_maw") { const h = Math.floor(HUNGER.get(p.id) ?? 0), b = Math.round(h / 10); return `§2허기 ${h >= 100 ? "§c" : "§a"}${"■".repeat(b)}§8${"■".repeat(10 - b)} §7${h}`; }
   if (id === "rpg:taowu_hammer") { const m = Math.floor(MOM.get(p.id) ?? 0), b = Math.round(m / 10); return `§6가속 §e${"■".repeat(b)}§8${"■".repeat(10 - b)} §7${m}`; }
   if (id === "rpg:qiongqi_claws") { const n = [...MARK.values()].filter((m) => m.pid === p.id && m.until > now() && m.e.isValid()).length; return `§c표식 §f${n}`; }
@@ -766,10 +799,10 @@ export const fiendLine = (p) => {
 /** 무기 스킬 표 (사신수와 같은 모양, pre = 재입력·모드 중 입력: true 면 쿨타임·마나 없이 처리) */
 export const WEAPON_SKILLS = {
   "rpg:hundun_scythe": [
-    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다." },
+    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_leap(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다. 사슬혼돈 중에는 클릭 = 몸을 돌리며 위로 도약(둘레 베기)." },
     { id: "w_hd_2", key: 2, name: "혼돈 · 낫 끌어오기", short: "끌어오기", lv: 1, mp: 14, cd: 7, pow: 1, run: hd_hook, pre: hd_hook_pre, desc: "낫을 회전시켜 던져(14칸) 걸린 적을 끌어온다. 끌려오는 동안·직후 ② 나 ① 을 다시 누르면 몸을 부딪쳐 크게 날려 보내는 연계, 아니면 도착하며 넉백으로 밀려난다." },
-    { id: "w_hd_3", key: 3, name: "혼돈 · 입체 기동", short: "기동", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "보이는 벽·나무·지형·적(앞쪽 56칸 안)에 사슬이 자동으로 박히고 둥글게 휘돌아 앞으로 날아간다. 움직임은 설계한 둥근 호와 박힌 곳을 축으로 한 진짜 진자를 반반 섞고 줄 길이로 묶어서, 박힌 구조물에 맞춰 휜다. 시선으로 조종, 위를 보면 더 높이. 점프할 때마다 반대쪽에 다음 사슬 (모두 5번, ③ 다시도 됨). 벽 차기(횟수 1 돌려받음) · 지나가며 베기 · 착지 구르기. ④ = 선풍 낙뢰 연계. 다 쓰거나 12초 지나면 8초 대기." },
-    { id: "w_hd_4", key: 4, name: "혼돈 · 선풍 낙뢰", short: "낙뢰", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_plunge, desc: "회오리를 두르고 사슬 낫을 돌리며 낙뢰처럼 그대로 내리꽂힌다(아래를 보면 시선이 닿는 곳으로). 땅에서 쓰면 먼저 솟구친다. ③ 사슬 기동 중 공중에서 쓰면 바로 강하하는 연계기(위력 1.35배). 착지하면 충격파 · 주변 낙뢰 · 거대한 낫 한 바퀴." },
+    { id: "w_hd_3", key: 3, name: "혼돈 · 사슬혼돈", short: "사슬혼돈", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "보이는 벽·나무·지형·적(앞쪽 56칸 안)에 사슬이 자동으로 박히고 둥글게 휘돌아 앞으로 날아간다. 구조에 맞춰 바뀜: 높은 벽·나무는 위로 올라타 넘고, 천장은 밑으로 크게 휘돌고, 앞이 막히면 그 앞까지만, 땅 밑으로 처지지 않음. 움직임은 설계한 호와 박힌 곳 축 진자를 반반 섞어 줄 길이로 묶음. 시선으로 조종. 점프할 때마다 반대쪽에 다음 사슬(모두 5번, ③ 다시도 됨), 클릭 = 몸을 돌리며 위로 도약(둘레 베기). 벽 차기 · 지나가며 베기 · 착지 구르기. ④ = 선풍 낙뢰 연계. 다 쓰거나 12초 지나면 8초 대기." },
+    { id: "w_hd_4", key: 4, name: "혼돈 · 선풍 낙뢰", short: "낙뢰", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_plunge, desc: "회오리를 두르고 사슬 낫을 돌리며 낙뢰처럼 그대로 내리꽂힌다(아래를 보면 시선이 닿는 곳으로). 땅에서 쓰면 먼저 솟구친다. ③ 사슬혼돈 중 공중에서 쓰면 바로 강하하는 연계기(위력 1.35배). 착지하면 충격파 · 주변 낙뢰 · 거대한 낫 한 바퀴." },
   ],
   "rpg:qiongqi_claws": [
     { id: "w_qq_1", key: 1, name: "궁기 · 쌍조 연참", short: "쌍조", lv: 1, mp: 5, cd: 0.35, pow: 1, run: qq_combo, pre: (p) => (st(p).glide && now() < st(p).glide.until ? qq_dive(p) : qq_ult_pre(p)), desc: "4타: 칠 때마다 짧게 돌진, 4타는 함께 솟구치는 올려 베기. 맞힌 적에게 표식. 활공 중 클릭 = 급강하, ④ 중 클릭 = 깃털 탄막." },
