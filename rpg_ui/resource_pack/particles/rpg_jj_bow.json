@@ -17,9 +17,9 @@
    },
    "minecraft:emitter_shape_point": {
     "offset": [
-     "variable.u.x * ((math.floor(variable.particle_random_1 * 90) - variable.cx) * variable.scale) + variable.v.x * ((variable.cy - math.floor(variable.particle_random_2 * 92)) * variable.scale)",
-     "variable.u.y * ((math.floor(variable.particle_random_1 * 90) - variable.cx) * variable.scale) + variable.v.y * ((variable.cy - math.floor(variable.particle_random_2 * 92)) * variable.scale)",
-     "variable.u.z * ((math.floor(variable.particle_random_1 * 90) - variable.cx) * variable.scale) + variable.v.z * ((variable.cy - math.floor(variable.particle_random_2 * 92)) * variable.scale)"
+     "variable.u.x * ((math.floor(variable.particle_random_1 * 72) - variable.cx) * variable.scale) + variable.v.x * ((variable.cy - math.floor(variable.particle_random_2 * 73)) * variable.scale)",
+     "variable.u.y * ((math.floor(variable.particle_random_1 * 72) - variable.cx) * variable.scale) + variable.v.y * ((variable.cy - math.floor(variable.particle_random_2 * 73)) * variable.scale)",
+     "variable.u.z * ((math.floor(variable.particle_random_1 * 72) - variable.cx) * variable.scale) + variable.v.z * ((variable.cy - math.floor(variable.particle_random_2 * 73)) * variable.scale)"
     ],
     "direction": [
      0,
@@ -34,16 +34,16 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.scale * 0.85 * variable.size",
-     "variable.scale * 0.85 * variable.size"
+     "variable.scale * 1.5 * variable.size",
+     "variable.scale * 1.5 * variable.size"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
-     "texture_width": 360,
-     "texture_height": 368,
+     "texture_width": 288,
+     "texture_height": 292,
      "uv": [
-      "math.floor(variable.particle_random_1 * 90) * 4",
-      "math.floor(variable.particle_random_2 * 92) * 4"
+      "math.floor(variable.particle_random_1 * 72) * 4",
+      "math.floor(variable.particle_random_2 * 73) * 4"
      ],
      "uv_size": [
       4,

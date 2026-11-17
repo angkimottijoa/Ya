@@ -34,8 +34,8 @@
    "minecraft:particle_motion_dynamic": {},
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.scale * 0.85 * variable.size",
-     "variable.scale * 0.85 * variable.size"
+     "variable.scale * 1.5 * variable.size",
+     "variable.scale * 1.5 * variable.size"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {

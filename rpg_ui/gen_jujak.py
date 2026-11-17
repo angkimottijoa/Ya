@@ -81,7 +81,7 @@ def img_part(name, tex, IW, IH):
         "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
-        "minecraft:particle_appearance_billboard": {"size": ["variable.scale * 0.85 * variable.size", "variable.scale * 0.85 * variable.size"], "facing_camera_mode": "lookat_xyz",
+        "minecraft:particle_appearance_billboard": {"size": ["variable.scale * 1.5 * variable.size", "variable.scale * 1.5 * variable.size"], "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"{by} * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex=f"textures/particle/{tex}")
 
@@ -159,7 +159,7 @@ def main():
             if px[x, y][3] and lab[y][x] != keep:
                 px[x, y] = (0, 0, 0, 0)
     im = im.crop(im.getbbox())
-    small, n = shrink(im, 90)
+    small, n = shrink(im, 72)
     save_tex(small, "rpg_jj_bow")
     sp = small.load(); IW, IH = small.size
     op_ = [(x, y) for y in range(IH) for x in range(IW) if sp[x, y][3]]
