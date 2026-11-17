@@ -5,6 +5,7 @@
 //      2단: 불화살 세 발(부채꼴) → 맞히면 3단
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
 //      3단: 주작의 활(사용자 그림 점 찍기)이 앞 왼쪽 바닥에 서고 오른쪽 어깨 위 시점으로 시위를 당김 (시선 따라 조준)
+//           조준하는 동안 진짜 몸은 바로 위 하늘에, 원래 자리엔 흰 반투명 유령 몸 + 대역(맞으면 진짜 몸이 맞음), 걸을 수는 없고 고개로 조준
 //           → 타이밍 게이지가 HP 바처럼 차오름(회색 빗나감 ×0.4 · 금색 좋음 ×1 · 빨강 완벽 ×1.5), 다시 클릭한 순간의 칸으로 세기 결정 (5초 지나면 빗나감)
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
 //      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발: 남아 있으면 6초, 다 쓰면 2초 동안 안 쏘면 자동 장전
@@ -35,7 +36,7 @@ function pt(dim, name, loc, o = {}) {
   try {
     const m = new MolangVariableMap();
     for (const k of Object.keys(DEF)) m.setFloat(`variable.${k}`, o[k] ?? DEF[k]);
-    for (const k of ["u", "v"]) m.setVector3(`variable.${k}`, o[k] ?? { x: 1, y: 0, z: 0 });
+    for (const k of ["u", "v", "w"]) m.setVector3(`variable.${k}`, o[k] ?? { x: 1, y: 0, z: 0 });
     dim.spawnParticle(`rpg:${name}`, loc, m);
   } catch {}
 }
@@ -136,7 +137,7 @@ function fireArrow(ctx, from, dir, o = {}) {
 // ───────── 3단: 주작의 활 · 큰 불화살 ─────────
 const BOW = JJ.BOW, AR = JJ.ARROW;
 /** 활·시위·화살: 플레이어 앞 바닥에 크게(높이 약 5블록) 세움. k = 당긴 정도 0~1. drawBody 일 때만 활 몸을 그림 (3틱마다) */
-function drawBow(p, k, withArrow = true, drawBody = true) {
+function drawBow(p, k, withArrow = true, drawBody = true, base = p.location) {
   const dim = p.dimension, v = viewOf(p), yw = yawOf(p), f = fwdOf(yw), right = rightOf(yw);
   // 활 면: 플레이어가 바라보는 방향과 나란히 (활 배 = 앞, 시위 = 플레이어 쪽)
   const u = f;
@@ -144,7 +145,7 @@ function drawBow(p, k, withArrow = true, drawBody = true) {
   // 시위 가운데(활 양 끝의 중간)가 플레이어 바로 앞 가운데 줄에 오게 활 위치를 맞춤 → 화살이 정면으로 곧게
   const rel = (ix, iy) => add(scl(u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
   const restRel = scl(add(rel(BOW.top[0], BOW.top[1]), rel(BOW.bot[0], BOW.bot[1])), 0.5);
-  const want = add(add(up(p.location, 1.3), f, 2.6), right, -1.5); // 앞 왼쪽: 오른쪽 어깨 시점을 가리지 않게
+  const want = add(add(up(base, 1.3), f, 2.6), right, -1.5); // 앞 왼쪽: 오른쪽 어깨 시점을 가리지 않게
   const H = sub(want, restRel);
   const toW = (ix, iy) => add(H, rel(ix, iy));
   const tipT = toW(BOW.top[0], BOW.top[1]), tipB = toW(BOW.bot[0], BOW.bot[1]);
@@ -161,8 +162,8 @@ function drawBow(p, k, withArrow = true, drawBody = true) {
   return { nock, v: aim, upv: norm(cross(norm(cross(aim, UP).x || cross(aim, UP).z ? cross(aim, UP) : right), aim)) };
 }
 /** 어깨 위 시점: 오른쪽 어깨 바로 위·조금 뒤에서 시선 방향을 봄 (매 틱 따라가며 조준 그대로) */
-function shoulderCam(p) {
-  const v = viewOf(p), eye = eyeOf(p), r = rightOf(yawOf(p));
+function shoulderCam(p, base) {
+  const v = viewOf(p), eye = base ? up(base, 1.62) : eyeOf(p), r = rightOf(yawOf(p));
   cam(p, add(add(add(eye, r, 0.6), v, -1.1), UP, 0.3), add(eye, v, 25), 0.06, "Linear");
 }
 function flashScreen(p, r, g, b, t = 0.3) {
@@ -171,6 +172,48 @@ function flashScreen(p, r, g, b, t = 0.3) {
   }
 }
 const vanilla = (dim, id, at) => { try { dim.spawnParticle(id, at); } catch {} };
+// ───────── 3단 조준 중 '유령 몸' 시스템 ─────────
+// 진짜 몸은 바로 위 하늘(30칸)에 붙잡아 두고, 원래 자리에는 흰 반투명 유령 몸(파티클) + 보이지 않는 대역(rpg:jj_decoy)
+// 대역이 맞으면 그 피해가 진짜 몸으로, 시점·활·발사는 모두 원래 자리 기준
+const HOLD = "rpg:jj_hold";
+const decoyOwner = new Map(); // decoy id -> player id
+function ghost(dim, base, yaw) {
+  const f = fwdOf(yaw), r = rightOf(yaw), L = scl(r, -1);
+  const box = (c, hu, hv, hw, n) => pt(dim, "jj_ghost", c, { u: hu, v: hv, w: hw, n, life: 0.55 });
+  box(up(base, 1.12), scl(r, 0.25), scl(UP, 0.37), scl(f, 0.13), 70);                          // 몸통
+  box(up(base, 1.76), scl(r, 0.25), scl(UP, 0.25), scl(f, 0.25), 55);                          // 머리
+  for (const s2 of [-1, 1]) box(add(up(base, 0.37), r, s2 * 0.12), scl(r, 0.12), scl(UP, 0.37), scl(f, 0.12), 34); // 다리
+  box(add(add(up(base, 1.42), L, 0.36), f, 0.32), scl(r, 0.11), scl(UP, 0.11), scl(f, 0.38), 34);  // 앞으로 뻗은 왼팔
+  box(add(add(up(base, 1.46), r, 0.22), f, 0.12), scl(r, 0.11), scl(UP, 0.11), scl(f, 0.26), 28);  // 시위 당긴 오른팔
+}
+function restoreHold(p) {
+  let h = null;
+  try { h = JSON.parse(p.getDynamicProperty(HOLD) ?? "null"); } catch {}
+  if (!h) return;
+  try { p.teleport({ x: h.x, y: h.y, z: h.z }, { rotation: p.getRotation(), keepVelocity: false }); } catch {}
+  try { p.setDynamicProperty(HOLD, undefined); } catch {}
+  M.potion(p, "slow_falling", 1, 1);
+  if (h.decoy) for (const [id, pid] of decoyOwner) if (id === h.decoy) { decoyOwner.delete(id); try { world.getEntity(id)?.remove(); } catch {} }
+}
+// 대역이 맞으면 → 진짜 몸이 맞음
+world.afterEvents.entityHurt.subscribe(({ hurtEntity, damage, damageSource }) => {
+  if (hurtEntity?.typeId !== "rpg:jj_decoy") return;
+  const owner = world.getEntity(decoyOwner.get(hurtEntity.id) ?? "");
+  try { hurtEntity.getComponent("minecraft:health")?.resetToMaxValue(); } catch {}
+  if (!owner?.isValid()) return;
+  try { owner.applyDamage(damage, { cause: damageSource.cause, damagingEntity: damageSource.damagingEntity }); } catch {
+    try { owner.applyDamage(damage); } catch {}
+  }
+});
+// 다시 접속했거나 스크립트가 다시 시작된 경우: 붙잡혀 있던 몸을 원래 자리로, 주인 없는 대역 정리
+world.afterEvents.playerSpawn.subscribe(({ player }) => { if (!aiming.has(player.id)) restoreHold(player); });
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) if (!aiming.has(p.id) && p.getDynamicProperty(HOLD)) restoreHold(p);
+  for (const dn of ["overworld", "nether", "the_end"]) {
+    try { for (const e of world.getDimension(dn).getEntities({ type: "rpg:jj_decoy" })) if (!decoyOwner.has(e.id)) e.remove(); } catch {}
+  }
+}, 40);
+
 /** 타이밍 게이지 (HP 바처럼 왼쪽부터 참): 0 = 빗나감(회색), 1 = 좋음(금색, 피해 ×1), 2 = 완벽(빨강, 피해 ×1.5)
  *  다 차면 비우고 다시 참. 다시 클릭한 순간 채워진 끝이 놓인 칸으로 결정 */
 const GAUGE = [0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0];
@@ -189,16 +232,18 @@ function bigShot(ctx, done) {
   M.potion(p, "resistance", 3, 6);
   M.sound(p, "mob.blaze.breathe", 1, 0.7);
   ember(dim, up(p.location, 0.6), { n: 30, r: 1, spd: 2, life: 1 });
-  // 조준하는 동안 몸을 투명하게 (어깨 시점에서 시야를 가리지 않게), 쏘면 바로 원래대로
-  try { p.addEffect("invisibility", 120, { amplifier: 0, showParticles: false }); } catch {}
-  const unhide = () => { try { p.removeEffect("invisibility"); } catch {} };
+  // 유령 몸 시스템: 진짜 몸은 위 하늘로, 원래 자리에는 유령 몸 + 대역
+  const base = { ...p.location }, yaw0 = yawOf(p), sky = up(base, 30);
+  let decoy = null;
+  try { decoy = dim.spawnEntity("rpg:jj_decoy", base); decoy.setRotation?.({ x: 0, y: yaw0 }); decoyOwner.set(decoy.id, p.id); } catch {}
+  try { p.setDynamicProperty(HOLD, JSON.stringify({ x: base.x, y: base.y, z: base.z, decoy: decoy?.id })); } catch {}
+  const unhide = () => restoreHold(p);
   const MAX = 100; // 5초 안에 안 누르면 빗나감으로 발사
   let t = 0, fired = false;
   const release = () => {
     if (fired) return;
     fired = true;
     aiming.delete(p.id);
-    later(12, unhide);
     const zone = GAUGE[gaugePos(t)];
     shoot(zone);
   };
@@ -206,9 +251,11 @@ function bigShot(ctx, done) {
   const loop = () => {
     if (fired || !p.isValid()) { aiming.delete(p.id); unhide(); return; }
     t++;
-    const k = ease(Math.min(1, t / 20)), L = p.location;
-    drawBow(p, k, true, t % 3 === 1);
-    shoulderCam(p);
+    const k = ease(Math.min(1, t / 20)), L = base;
+    try { p.teleport(sky, { rotation: p.getRotation(), keepVelocity: false }); } catch {} // 진짜 몸은 하늘에 붙잡아 둠 (고개만 돌려 조준)
+    drawBow(p, k, true, t % 3 === 1, base);
+    shoulderCam(p, base);
+    if (t % 8 === 1) ghost(dim, base, yawOf(p));
     if (t % 20 === 0) M.anim(p, "bow_hold");
     // 기 모으기 (시야를 가리지 않게 발밑·낮은 곳에서만)
     if (t % 3 === 0) for (let j = 0; j < 2; j++) {
@@ -237,11 +284,12 @@ function bigShot(ctx, done) {
   later(1, loop);
   // 발사: zone 에 따라 세기 (2 완벽 / 1 좋음 / 0 빗나감)
   const shoot = (zone) => {
-    if (!p.isValid()) return done();
+    if (!p.isValid()) { unhide(); return done(); }
     const pow = [0.4, 1, 1.5][zone], big = [0.55, 1, 1.3][zone]; // 피해: 빗나감 0.4 · 좋음 1 · 완벽 1.5
     say(p, ["§7빗나감... 약한 화살", "§6좋음! 큰 불화살", "§c§l완벽!! §r§6주작의 화살"][zone]);
     M.anim(p, "shoot");
-    const { nock, v, upv } = drawBow(p, 1, false);
+    const { nock, v, upv } = drawBow(p, 1, false, false, base);
+    unhide(); // 쏘는 순간 진짜 몸이 원래 자리로 돌아옴
     for (let i = 1; i <= 12; i++) later(i, () => shoulderCam(p));
     later(14, () => camClear(p));
     M.sound(p, "random.bow", 1.2, 0.6);
