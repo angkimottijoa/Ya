@@ -497,6 +497,8 @@ function apex(ctx) {
       pt(dim, "bh_line", s0, { u: UP, v: rt, r: 4 + t, h: 0, n: 24, tone: j % 2 ? 0.85 : 0, life: 0.15, size: 1.2, thick: j });
     }
     if (t === 0) {
+      camClear(p); // 내리꽂을 때는 플레이어 시점으로
+      try { p.runCommand("camerashake add @s 0.35 0.5 rotational"); } catch {}
       M.anim(p, "smash");
       for (const e of [p, ...crowd]) {
         try { e.removeEffect("levitation"); e.removeEffect("slow_falling"); } catch {}
