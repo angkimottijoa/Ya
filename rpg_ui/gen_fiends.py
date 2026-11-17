@@ -137,33 +137,24 @@ def main():
         "minecraft:particle_appearance_billboard": bb(f"variable.size * ({R2} < 0.3 ? 0.1 : 0.15) * (1 - math.pow({AGE}, 4)) * math.min(1, {A} * 6)", f"({R4} > 0.85 ? {2 * SPR} : 0)"),
         **tint(PRISM, frac(f"{R1} + {A} * 0.8"))})
     burst("hd_burst", "rpg_hd", PRISM, f"({R4} > 0.6 ? {SPR} : {3 * SPR})", cycle=True)
-    # 혼돈의 낫 그림: 그림 점들이 돌리는 중심(cx, cy)을 축으로 스스로 돌며(rot + spin) vd 방향으로 이동 (u·v = 그림 면)
+    # 연기 낫: 조각(ox, oy, tw, th) 안의 그림 점 하나 = 그 색 연기 뭉치. 쥐는 곳(cx, cy) 축으로 rot(+spin·시간) 돌린 모양으로 u·v 면에 놓이고,
+    #   연기처럼 살짝 흩어지며(제자리 흔들림 + 위로 떠오름) 부풀었다 옅어짐. vd·vs 로 통째로 이동. tone 1 = 보랏빛 잔상색
     global SC_W, SC_H
     _, SC_W, SC_H = scythe_art()
-    sbx, sby = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
-    slx, sly = f"(({sbx} - variable.cx) * variable.scale)", f"((variable.cy - {sby}) * variable.scale)"
+    sbx, sby = f"(variable.ox + math.floor({R1} * variable.tw))", f"(variable.oy + math.floor({R2} * variable.th))"
+    slx, sly = f"(({sbx} + 0.5 - variable.cx) * variable.scale)", f"((variable.cy - {sby} - 0.5) * variable.scale)"
     SB = f"(variable.rot + variable.spin * {A})"
-    part("hd_scythe", "rpg_hd_scythe", {**once(),
+    drift = lambda c, k: f"({R3} - 0.5) * 0.5 * {AGE} * variable.scale * 12 * ({k})"
+    part("hd_scythe", "rpg_hd_scythe_smoke", {**once(),
         "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
-        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
-        "minecraft:particle_motion_parametric": {"relative_position": [f"variable.vd.{c} * variable.vs * {A} + variable.u.{c} * ({slx} * math.cos({SB}) - {sly} * math.sin({SB})) + variable.v.{c} * ({slx} * math.sin({SB}) + {sly} * math.cos({SB}))" for c in "xyz"]},
-        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * 1.5 * variable.size * (1 - math.pow({AGE}, 6))"] * 2, "facing_camera_mode": "lookat_xyz",
-                                                    "uv": {"texture_width": SC_W, "texture_height": SC_H, "uv": [sbx, sby], "uv_size": [1, 1]}},
-    }, material="particles_alpha")
-    # 통짜 그림 낫: 파티클 하나에 그림 전체 (쥐는 곳 = 가운데). 회전 = rot(+spin·시간), 크기 r, vd·vs 로 이동
-    #   hd_scy_flat = 수평으로 누움(몸 둘레로 돌리기) · hd_scy_up = 세로로 서서 카메라 쪽을 봄(내려찍기 · 박기)
-    #   색 = (cr, cg, cb) · 투명도 a (잔상은 a 낮게, 보랏빛) · 끝에 사라짐
-    for nm, mode in (("hd_scy_flat", "emitter_transform_xz"), ("hd_scy_up", "lookat_y")):
-        part(nm, "rpg_hd_scythe_img", {**once(),
-            "minecraft:emitter_shape_point": {"offset": [0, 0, 0], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
-            "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
-            "minecraft:particle_initial_speed": "variable.vs",
-            "minecraft:particle_motion_dynamic": {},
-            "minecraft:particle_initial_spin": {"rotation": "variable.rot", "rotation_rate": "variable.spin"},
-            "minecraft:particle_appearance_billboard": {"size": ["variable.r", "variable.r"], "facing_camera_mode": mode,
-                                                        "uv": {"texture_width": 128, "texture_height": 128, "uv": [0, 0], "uv_size": [128, 128]}},
-            "minecraft:particle_appearance_tinting": {"color": ["variable.cr", "variable.cg", "variable.cb", f"variable.a * (1 - math.pow({AGE}, 3))"]},
-        }, material="particles_blend")
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.75 + {R4} * 0.5)"},
+        "minecraft:particle_motion_parametric": {"relative_position": [
+            f"variable.vd.{c} * variable.vs * {A} + variable.u.{c} * ({slx} * math.cos({SB}) - {sly} * math.sin({SB})) + variable.v.{c} * ({slx} * math.sin({SB}) + {sly} * math.cos({SB}))"
+            + f" + {drift(c, '1' if c != 'y' else '0.4')}" + (f" + {AGE} * {R4} * 0.5" if c == "y" else "") for c in "xyz"]},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * variable.size * (1.5 + {AGE} * 1.6) * (1 - math.pow({AGE}, 4))"] * 2, "facing_camera_mode": "lookat_xyz",
+                                                    "uv": {"texture_width": SC_W * 8, "texture_height": SC_H * 8, "uv": [f"{sbx} * 8", f"{sby} * 8"], "uv_size": [8, 8]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"1 - variable.tone * 0.25", f"1 - variable.tone * 0.6", "1", f"variable.a * (1 - math.pow({AGE}, 2) * 0.8)"]},
+    }, material="particles_blend")
     # 보랏빛 불꽃 (그림의 불길처럼: 흰 보라 → 보라 → 짙은 보라, 붉은 기 섞임), 위로 일렁이며 피어오름
     FLAME = {"0.0": "#FFF6E0FF", "0.2": "#FFC888FF", "0.42": "#FF9A3CF0", "0.6": "#FF6A1AB8", "0.75": "#FFB0204A", "0.88": "#FF3A0A5A", "1.0": "#A0100418"}
     part("hd_flame", "rpg_hd", {**once(),
@@ -455,20 +446,31 @@ def scythe_art():
     icon = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); icon.paste(ic, ((32 - ic.size[0]) // 2, (32 - ic.size[1]) // 2), ic)
     art = shrink(52)
     art.save(TEXD / "rpg_hd_scythe.png")
-    # 통짜 그림 낫 (파티클 하나에 그림 전체): 쥐는 곳(0.45, 0.58)이 정사각형 가운데 오게 여백을 두고 128x128
-    bw, bh = im.size; gx, gy = bw * 0.45, bh * 0.58
-    half = int(max(gx, bw - gx, gy, bh - gy)) + 2
-    sq = Image.new("RGBA", (half * 2, half * 2), (0, 0, 0, 0)); sq.paste(im, (int(half - gx), int(half - gy)), im)
-    big = sq.resize((128, 128), Image.LANCZOS); pb = big.load()
-    for y in range(128):
-        for x in range(128):
-            r, g, b2, a2 = pb[x, y]
-            pb[x, y] = (r, g, b2, 255) if a2 > 110 else (0, 0, 0, 0)
-    big.save(TEXD / "rpg_hd_scythe_img.png")
+    # 연기 낫: 그림 한 점(픽셀) = 그 색의 작은 연기 뭉치(8x8, 가장자리 투명 · 위쪽 밝게) → rpg_hd_scythe_smoke.png
+    aw, ah = art.size
+    sm = Image.new("RGBA", (aw * 8, ah * 8), (0, 0, 0, 0)); ps = sm.load(); pa = art.load()
+    PUFF = ["..####..", ".######.", "########", "########", "########", "########", ".######.", "..####.."]
+    for y in range(ah):
+        for x in range(aw):
+            r, g, b2, a2 = pa[x, y]
+            if not a2: continue
+            for j in range(8):
+                for i in range(8):
+                    if PUFF[j][i] != "#": continue
+                    k = 1.18 - j * 0.05 - (0.08 if (i + j) % 3 == 0 else 0)  # 위 밝고 아래 어둡게 + 점무늬
+                    ps[x * 8 + i, y * 8 + j] = (min(255, int(r * k)), min(255, int(g * k)), min(255, int(b2 * k)), 255)
+    sm.save(TEXD / "rpg_hd_scythe_smoke.png")
     iw, ih = art.size
     filled = sum(1 for y in range(ih) for x in range(iw) if art.getpixel((x, y))[3])
     # 돌리는 중심: 자루 가운데쯤 (그림 비율 0.45, 0.58)
-    (ROOT / "behavior_pack" / "scripts" / "hd_meta.js").write_text(f"// gen_fiends.py 가 만듦: 혼돈의 낫 그림\nexport const SCYTHE = {{ iw: {iw}, ih: {ih}, cx: {iw * 0.45:.1f}, cy: {ih * 0.58:.1f}, filled: {filled} }};\n")
+    # 빈칸 낭비를 줄이려고 그림을 10x10 조각으로 나눠, 칠해진 조각만 [ox, oy, w, h, 칠한 수] 로 기록 → 조각마다 따로 뿌림
+    tiles = []
+    for oy in range(0, ih, 10):
+        for ox in range(0, iw, 10):
+            w, h = min(10, iw - ox), min(10, ih - oy)
+            cnt = sum(1 for y in range(oy, oy + h) for x in range(ox, ox + w) if art.getpixel((x, y))[3])
+            if cnt: tiles.append([ox, oy, w, h, cnt])
+    (ROOT / "behavior_pack" / "scripts" / "hd_meta.js").write_text(f"// gen_fiends.py 가 만듦: 혼돈의 낫 그림 (연기 낫 조각)\nexport const SCYTHE = {{ iw: {iw}, ih: {ih}, cx: {iw * 0.45:.1f}, cy: {ih * 0.58:.1f}, filled: {filled}, tiles: {json.dumps(tiles)} }};\n")
     return icon, iw, ih
 
 
