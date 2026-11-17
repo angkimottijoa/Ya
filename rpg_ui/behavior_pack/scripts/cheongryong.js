@@ -763,22 +763,20 @@ function dragonDiveMain(ctx, hit) {
   // 비상 → 내리꽂기를 한 루프로: 큰 청룡이 플레이어 '옆'에서 같은 방향을 보고 나란히 날다가
   //   (머리 = 플레이어보다 약간 앞, 몸통 = 플레이어 옆을 지나 뒤로 흐름)
   //   내리꽂을 때 고개가 수평 → 아래로 자연스럽게 숙여지며 플레이어와 함께 땅에 박힘
-  const HOVER = 40, START = 17;
+  const HOVER = 40, START = 17, WIND = 5;
   later(16, () => { M.potion(p, "levitation", 1, 1.1); M.potion(p, "slow_falling", 1, 2.8); });
   /** 공중 이동: 이동 키(가능하면) 또는 이미 움직이던 방향으로 밀어줌 → 공중에서 자유롭게 위치 잡기 */
   const steer = (t) => {
-    let dx = 0, dz = 0;
+    // 자동으로 시선 방향 앞으로 빠르게 날아감 (부유보다 빠름) + 이동 키로 좌우·감속 조절
     const yw = yawOf(p), f = fwdOf(yw), r = { x: -Math.cos((yw * Math.PI) / 180), z: -Math.sin((yw * Math.PI) / 180) };
+    let fw = 1, sd = 0;
     try {
       const mv = p.inputInfo?.getMovementVector?.();
-      if (mv && (Math.abs(mv.x) > 0.1 || Math.abs(mv.y) > 0.1)) { dx = f.x * mv.y - r.x * mv.x; dz = f.z * mv.y - r.z * mv.x; }
+      if (mv) { fw = 1 + Math.max(-0.6, Math.min(0.3, mv.y * 0.3)); sd = mv.x * 0.6; }
     } catch {}
-    if (!dx && !dz) { // 이동 키를 못 읽으면: 플레이어가 움직이는 방향을 증폭
-      try { const v = p.getVelocity(); if (Math.hypot(v.x, v.z) > 0.03) { dx = v.x; dz = v.z; } } catch {}
-    }
-    const l = Math.hypot(dx, dz);
-    if (l < 0.01) return;
-    try { p.applyKnockback(dx / l, dz / l, 0.55, t < 18 ? 0.16 : 0.02); } catch {}
+    const dx = f.x * fw - r.x * sd, dz = f.z * fw - r.z * sd, l = Math.hypot(dx, dz) || 1;
+    const spd = 0.95 * Math.min(1, t / 6) * Math.hypot(fw, sd); // 처음엔 서서히 가속
+    try { p.applyKnockback(dx / l, dz / l, spd, t < 18 ? 0.16 : 0.02); } catch {}
   };
   let yawS = yawOf(p), pitchS = 0, t = 0, diveT = -1, landT = -1, G = null, hitAt = null;
   const angLerp = (a, b, k) => a + ((((b - a) % 360) + 540) % 360 - 180) * k;
@@ -790,7 +788,7 @@ function dragonDiveMain(ctx, hit) {
   // 그림의 목 토막(왼쪽 24열)을 몸통 곡선을 따라 이어 붙여 용 몸이 뒤로 길게 이어지게 함
   //   그림과 같은 면 위에서 S자로 꿈틀(물결이 꼬리 쪽으로 흐름), 꼬리로 갈수록 가늘어짐
   let tick0 = 0;
-  const SEGS = 14, PX = 0.048, NECK_X = -180 * PX, NECK_Y = 24 * PX, STRIP = 24 * PX;
+  const SEGS = 24, PX = 0.048, NECK_X = -180 * PX, NECK_Y = 24 * PX, STRIP = 24 * PX;
   // 몸통 = 밧줄처럼 이어진 사슬: 0번(목)은 머리에 붙고, 나머지 마디는 앞 마디를 따라감(길이 고정) + 원래 S자 모양으로 천천히 돌아감
   //   → 앞으로 가면 몸이 지나온 길을 따라 이어지고, 내리꽂을 때 머리부터 꺾이고 몸이 자연스럽게 따라옴
   let chain = null;
@@ -819,7 +817,7 @@ function dragonDiveMain(ctx, hit) {
     for (let k = 1; k <= SEGS; k++) {
       const a2 = chain[k - 1], b2 = chain[k], d = norm(sub(a2, b2)), taper = 1 - ((k - 1) / SEGS) * 0.72;
       const sy = (Math.atan2(-d.x, d.z) * 180) / Math.PI, sp = (Math.asin(Math.max(-1, Math.min(1, d.y))) * 180) / Math.PI;
-      pt(dim, "cr_bigbody", scl(add(a2, b2), 0.5), { yaw: sy, pitch: sp, a0: 0, scale: sc * taper, n: Math.round(115 * taper + 25), life: life * 3 });
+      pt(dim, "cr_bigbody", scl(add(a2, b2), 0.5), { yaw: sy, pitch: sp, a0: 0, scale: sc * taper, n: Math.round(95 * taper + 20), life: life * 3 });
     }
   };
   const draw = (at, pitch, grow, life = 0.2) => {
@@ -847,13 +845,18 @@ function dragonDiveMain(ctx, hit) {
     if (!p.isValid()) return;
     yawS = angLerp(yawS, yawOf(p), 0.3); // 시선을 부드럽게 따라감
     if (diveT < 0 && t <= HOVER) steer(t);
-    if (t === HOVER + 1) { // 내리꽂기 시작
+    if (t === HOVER + 1) { // 내리꽂기 시작: 먼저 고개를 치켜들며 숨을 고름
       diveT = 0;
+      M.sound(p, "mob.enderdragon.growl", 1.1, 1.3);
+    }
+    if (diveT === WIND) { // 머리가 꺾이기 시작할 때 플레이어도 함께 곡선으로 떨어짐
       M.anim(p, "smash");
       try { p.removeEffect("levitation"); p.removeEffect("slow_falling"); } catch {}
-      const f = fwdOf(yawOf(p));
-      try { p.applyKnockback(f.x, f.z, 0.8, -2.2); } catch {}
-      M.sound(p, "mob.enderdragon.growl", 1.1, 1.3);
+      M.sound(p, "item.trident.riptide_3", 1, 0.8);
+    }
+    if (diveT >= WIND && landT < 0) { // 앞으로 나아가며 점점 아래로 (포물선)
+      const f = fwdOf(yawOf(p)), q = Math.min(1, (diveT - WIND) / 8);
+      try { p.applyKnockback(f.x, f.z, 0.9 * (1 - q * 0.5), -0.4 - q * 1.6); } catch {}
     }
     if (landT < 0) {
       let at, pitch, grow = 1;
@@ -862,12 +865,13 @@ function dragonDiveMain(ctx, hit) {
         pitch = 6 * Math.sin(t / 5) + (1 - grow) * 30; // 솟아오를 땐 고개를 들고 → 수평
         at = anchor(yawS, 1.4 - (1 - grow) * 4);
         if (t === 0) { M.sound(p, "mob.enderdragon.growl", 1.3, 1); snow(dim, at, 14, 4); }
-      } else { // 내리꽂기: 수평 → 머리를 아래로 (6틱에 걸쳐)
-        const k = ease(Math.min(1, diveT / 12)); // 머리를 천천히 숙임 (0.6초)
-        pitch = 6 * Math.sin(t / 5) * (1 - k) - 58 * k;
-        at = anchor(yawS, 1.4 - k * 1.2);
+      } else { // 내리꽂기: 고개를 살짝 치켜들었다가(예비 동작) → 활처럼 휘며 머리부터 아래로
+        const lift = ease(Math.min(1, diveT / WIND)) * (1 - ease(Math.min(1, Math.max(0, diveT - WIND) / 6)));
+        const k = ease(Math.min(1, Math.max(0, diveT - WIND) / 14)); // 0.7초에 걸쳐 머리를 숙임
+        pitch = 6 * Math.sin(t / 5) * (1 - k) + 22 * lift - 60 * k;
+        at = add(anchor(yawS, 1.4 + lift * 1.2 - k * 1.6), fwdOf(yawS), k * 1.5);
       }
-      pitchS += (pitch - pitchS) * 0.25;
+      pitchS += (pitch - pitchS) * 0.2;
       draw(at, pitchS, grow);
       if (t % 3 === 0) cluster(dim, at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
       if (t % 6 === 0) snow(dim, at, 4, 4);
@@ -875,16 +879,16 @@ function dragonDiveMain(ctx, hit) {
         diveT++;
         let g = false;
         try { g = p.isOnGround; } catch {}
-        if ((diveT > 2 && g) || diveT > 30) { landT = 0; land(); }
+        if ((diveT > WIND + 2 && g) || diveT > WIND + 34) { landT = 0; land(); }
       }
     } else { // 땅에 닿은 뒤: 용 머리가 그대로 땅속으로 파고들며 사라짐
-      const k = landT / 7;
-      pitchS += (-70 - pitchS) * 0.18;
+      const k = landT / 16;
+      pitchS += (-72 - pitchS) * 0.12;
       const f = fwdOf(yawS), rx = -Math.cos((yawS * Math.PI) / 180), rz = -Math.sin((yawS * Math.PI) / 180);
-      const at = { x: G.x + f.x * (1.2 + k * 1.2) + rx * SIDE * (1 - k * 0.5), y: G.y + 0.2 - k * 2.5, z: G.z + f.z * (1.2 + k * 1.2) + rz * SIDE * (1 - k * 0.5) };
+      const at = { x: G.x + f.x * (1.2 + k * 2) + rx * SIDE * (1 - k * 0.5), y: G.y + 0.2 - k * 4.5, z: G.z + f.z * (1.2 + k * 1.2) + rz * SIDE * (1 - k * 0.5) };
       draw(at, pitchS, 1, 0.16);
       if (landT % 2 === 0) cluster(dim, up(at, 0.5), { n: 14, r: 1.2, spd: 3, tone: 0.6 });
-      if (++landT > 7) return;
+      if (++landT > 16) return;
     }
     t++;
     later(1, tick);

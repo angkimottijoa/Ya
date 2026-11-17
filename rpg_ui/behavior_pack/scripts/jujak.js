@@ -760,25 +760,34 @@ function soar(ctx) {
     trail(dim, G.tipT, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
     trail(dim, G.tipB, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
     fireBoom(dim, G.nock, { n: 14, r: 1, spd: 4, size: 2 });
-    const start = up(add(G.nock, G.dh, 1.5), 0.8), goal = G.tgt, dist = len(sub(goal, start));
-    const T = Math.max(50, Math.min(80, Math.round(dist / 0.45))); // 2.5~4초 동안 천천히 날아감
-    const side = G.sh;
+    // 조준 지점에서 멈추지 않고 조준 방향으로 오래(약 5초) 날아감 → 사거리 약 65칸, 마지막에 땅으로 내리꽂혀 폭발
+    const start = up(add(G.nock, G.dh, 1.5), 0.8), T = 100, RANGE = 65;
+    const dir3 = norm(add(G.dh, UP, Math.max(-0.25, Math.min(0.3, G.d.y))));
+    const endAir = add(start, dir3, RANGE);
+    let groundY = endAir.y - 4;
+    try { const top = dim.getTopmostBlock({ x: Math.floor(endAir.x), z: Math.floor(endAir.z) }); if (top) groundY = top.location.y + 1; } catch {}
+    const goal = { x: endAir.x, y: groundY, z: endAir.z };
+    const side = G.sh, DIVE = 0.8; // 마지막 20% 동안 내리꽂힘
     let t2 = 0, prev = start, yawF = yawTo(G.dh);
     const angLerp = (a2, b2, k2) => a2 + ((((b2 - a2) % 360) + 540) % 360 - 180) * k2;
     const fly = () => {
       t2++;
-      const q = t2 / T, e = q * q * (3 - 2 * q);
-      // 출렁이며 좌우로 휘는 비행 (끝으로 갈수록 줄어듦)
-      //   땅의 활에서 떠올라 크게 호를 그리며 솟았다가 목표로 내리꽂힘
-      const wob = Math.sin(q * Math.PI * 2) * 2.2 * (1 - q), arc = Math.sin(q * Math.PI) * Math.min(8, 2 + dist * 0.2);
-      const pos = add(add(add(start, sub(goal, start), e), side, wob), UP, arc);
+      const q = t2 / T;
+      const w = q < DIVE ? 0 : ease((q - DIVE) / (1 - DIVE)); // 내리꽂기 정도
+      // 일정한 속도로 앞으로, 처음엔 활에서 떠올라 4칸 위로, 좌우로 크게 휘며 출렁임
+      const cruise = add(start, dir3, RANGE * q);
+      const lift = 4 * ease(Math.min(1, q / 0.15)) + Math.sin(q * Math.PI * 6) * 0.6;
+      const wob = Math.sin(q * Math.PI * 4) * 1.8;
+      let pos = add(add(cruise, side, wob * (1 - w)), UP, lift * (1 - w));
+      pos = { x: pos.x, y: pos.y + (goal.y - pos.y) * w, z: pos.z };
       const dir = norm(sub(pos, prev));
       yawF = angLerp(yawF, yawTo(len(dir) > 0.01 ? dir : G.d), 0.25); // 몸 방향도 부드럽게 돌림
       phoenix(dim, pos, yawF, t2 * 0.32, 1.9, 0.07); // 매 틱 그림 + 작은 위상 → 끊김 없는 날갯짓
       trail(dim, prev, pos, { size: 2.6, life: 0.9, n: 24 });
       if (t2 % 2 === 0) ember(dim, pos, { n: 12, r: 1.4, spd: 1.2, life: 1 });
-      if (t2 % 6 === 0) { fireBoom(dim, pos, { n: 4, r: 0.8, spd: 1.5, size: 1.8, tone: 0.1 }); for (const e2 of enemiesNear(dim, p, pos, 3.2, 1.5)) hit(e2, 0.7, 4); }
+      if (t2 % 6 === 0) { fireBoom(dim, pos, { n: 4, r: 0.8, spd: 1.5, size: 1.8, tone: 0.1 }); for (const e2 of enemiesNear(dim, p, pos, 3.4, 1.5)) hit(e2, 0.7, 4); }
       if (t2 % 20 === 4) M.sound(p, "mob.enderdragon.flap", 0.9, 1.2);
+      if (t2 === Math.round(T * DIVE)) M.sound(p, "mob.enderdragon.growl", 1, 1.5);
       prev = pos;
       if (t2 >= T) { finish(goal); return; }
       later(1, fly);
@@ -786,7 +795,7 @@ function soar(ctx) {
     fly();
   });
   // 공중 정지 풀기 (주작이 날아간 뒤)
-  later(49, () => M.potion(p, "slow_falling", 1, 2));
+  later(49, () => { M.potion(p, "slow_falling", 1, 2); skillLock.delete(p.id); }); // 주작이 날아가는 동안엔 다른 스킬 사용 가능
   const finish = (L) => {
     try { dim.spawnParticle("minecraft:huge_explosion_emitter", L); } catch {}
     fireBoom(dim, L, { n: 30, r: 1.8, spd: 7.5, size: 3.2, life: 1.1 });
@@ -799,7 +808,7 @@ function soar(ctx) {
     M.sound(p, "random.explode", 1.6, 0.8);
     skillLock.delete(p.id);
   };
-  later(150, () => skillLock.delete(p.id)); // 안전장치
+  later(170, () => skillLock.delete(p.id)); // 안전장치
 }
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
