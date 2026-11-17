@@ -150,11 +150,12 @@ def main():
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.75 + {R4} * 0.5)"},
         "minecraft:particle_motion_parametric": {"relative_position": [
             f"variable.vd.{c} * variable.vs * {A} + variable.u.{c} * ({slx} * math.cos({SB}) - {sly} * math.sin({SB})) + variable.v.{c} * ({slx} * math.sin({SB}) + {sly} * math.cos({SB}))"
-            + f" + {drift(c, '1' if c != 'y' else '0.4')}" + (f" + {AGE} * {R4} * 0.5" if c == "y" else "") for c in "xyz"]},
-        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * variable.size * (1.5 + {AGE} * 1.6) * (1 - math.pow({AGE}, 4))"] * 2, "facing_camera_mode": "lookat_xyz",
+            + f" + {drift(c, '1' if c != 'y' else '0.4')}" + (f" + {AGE} * {R4} * 0.5" if c == "y" else "")
+            + f" + (variable.u.{c} * ({R3} - 0.5) + variable.v.{c} * ({R4} - 0.5)) * variable.scale * 0.9" for c in "xyz"]},  # 격자로 안 보이게 흩뿌림
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * variable.size * (1.7 + {AGE} * 1.2) * (1 - math.pow({AGE}, 3))"] * 2, "facing_camera_mode": "lookat_xyz",
                                                     "uv": {"texture_width": SC_W * 8, "texture_height": SC_H * 8, "uv": [f"{sbx} * 8", f"{sby} * 8"], "uv_size": [8, 8]}},
-        "minecraft:particle_appearance_tinting": {"color": [f"1 - variable.tone * 0.25", f"1 - variable.tone * 0.6", "1", f"variable.a * (1 - math.pow({AGE}, 2) * 0.8)"]},
-    }, material="particles_blend")
+        "minecraft:particle_appearance_tinting": {"color": [f"1 - variable.tone * 0.25", f"1 - variable.tone * 0.6", "1", "1"]},
+    }, material="particles_alpha")
     # 보랏빛 불꽃 (그림의 불길처럼: 흰 보라 → 보라 → 짙은 보라, 붉은 기 섞임), 위로 일렁이며 피어오름
     FLAME = {"0.0": "#FFF6E0FF", "0.2": "#FFC888FF", "0.42": "#FF9A3CF0", "0.6": "#FF6A1AB8", "0.75": "#FFB0204A", "0.88": "#FF3A0A5A", "1.0": "#A0100418"}
     part("hd_flame", "rpg_hd", {**once(),
@@ -449,7 +450,8 @@ def scythe_art():
     # 연기 낫: 그림 한 점(픽셀) = 그 색의 작은 연기 뭉치(8x8, 가장자리 투명 · 위쪽 밝게) → rpg_hd_scythe_smoke.png
     aw, ah = art.size
     sm = Image.new("RGBA", (aw * 8, ah * 8), (0, 0, 0, 0)); ps = sm.load(); pa = art.load()
-    PUFF = ["..####..", ".######.", "########", "########", "########", "########", ".######.", "..####.."]
+    # 픽셀 가루 덩어리 (듬성듬성 네모 점, 가장자리로 갈수록 성김) — 마크 기본 파티클처럼 선명하게
+    PUFF = ["...#.#..", ".#.###..", "..#####.", "#.######", ".#####.#", "..####..", ".#.##.#.", "...#...."]
     for y in range(ah):
         for x in range(aw):
             r, g, b2, a2 = pa[x, y]

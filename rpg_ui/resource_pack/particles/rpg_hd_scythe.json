@@ -4,7 +4,7 @@
   "description": {
    "identifier": "rpg:hd_scythe",
    "basic_render_parameters": {
-    "material": "particles_blend",
+    "material": "particles_alpha",
     "texture": "textures/particle/rpg_hd_scythe_smoke"
    }
   },
@@ -27,15 +27,15 @@
    },
    "minecraft:particle_motion_parametric": {
     "relative_position": [
-     "variable.vd.x * variable.vs * variable.particle_age + variable.u.x * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.x * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (1)",
-     "variable.vd.y * variable.vs * variable.particle_age + variable.u.y * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.y * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (0.4) + (variable.particle_age / variable.particle_lifetime) * variable.particle_random_4 * 0.5",
-     "variable.vd.z * variable.vs * variable.particle_age + variable.u.z * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.z * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (1)"
+     "variable.vd.x * variable.vs * variable.particle_age + variable.u.x * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.x * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (1) + (variable.u.x * (variable.particle_random_3 - 0.5) + variable.v.x * (variable.particle_random_4 - 0.5)) * variable.scale * 0.9",
+     "variable.vd.y * variable.vs * variable.particle_age + variable.u.y * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.y * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (0.4) + (variable.particle_age / variable.particle_lifetime) * variable.particle_random_4 * 0.5 + (variable.u.y * (variable.particle_random_3 - 0.5) + variable.v.y * (variable.particle_random_4 - 0.5)) * variable.scale * 0.9",
+     "variable.vd.z * variable.vs * variable.particle_age + variable.u.z * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.z * ((((variable.ox + math.floor(variable.particle_random_1 * variable.tw)) + 0.5 - variable.cx) * variable.scale) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.cy - (variable.oy + math.floor(variable.particle_random_2 * variable.th)) - 0.5) * variable.scale) * math.cos((variable.rot + variable.spin * variable.particle_age))) + (variable.particle_random_3 - 0.5) * 0.5 * (variable.particle_age / variable.particle_lifetime) * variable.scale * 12 * (1) + (variable.u.z * (variable.particle_random_3 - 0.5) + variable.v.z * (variable.particle_random_4 - 0.5)) * variable.scale * 0.9"
     ]
    },
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.scale * variable.size * (1.5 + (variable.particle_age / variable.particle_lifetime) * 1.6) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4))",
-     "variable.scale * variable.size * (1.5 + (variable.particle_age / variable.particle_lifetime) * 1.6) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 4))"
+     "variable.scale * variable.size * (1.7 + (variable.particle_age / variable.particle_lifetime) * 1.2) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))",
+     "variable.scale * variable.size * (1.7 + (variable.particle_age / variable.particle_lifetime) * 1.2) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))"
     ],
     "facing_camera_mode": "lookat_xyz",
     "uv": {
@@ -56,7 +56,7 @@
      "1 - variable.tone * 0.25",
      "1 - variable.tone * 0.6",
      "1",
-     "variable.a * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 2) * 0.8)"
+     "1"
     ]
    }
   }
