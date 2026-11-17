@@ -852,7 +852,7 @@ function playerTab(p, selId) {
     return re();
   });
   scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
-  for (const [id, nm] of [["rpg:hundun_orb", "§d혼돈의 구슬"], ["rpg:qiongqi_claws", "§c궁기의 쌍발톱"], ["rpg:taowu_hammer", "§6도올의 대망치"], ["rpg:taotie_maw", "§2도철의 아가리"]]) scr.action(`${nm} 지급`, () => { giveItem(t, id, 1); msg(p, `${nm}§f을(를) 지급했습니다.`); return re(); });
+  for (const [id, nm] of [["rpg:hundun_scythe", "§5혼돈의 낫"], ["rpg:qiongqi_claws", "§c궁기의 쌍발톱"], ["rpg:taowu_hammer", "§6도올의 대망치"], ["rpg:taotie_maw", "§2도철의 아가리"]]) scr.action(`${nm} 지급`, () => { giveItem(t, id, 1); msg(p, `${nm}§f을(를) 지급했습니다.`); return re(); });
   scr.action("§2현무의 방패 지급", () => { giveItem(t, "rpg:hyeonmu_shield", 1); msg(p, "§2현무의 방패를 지급했습니다."); return re(); });
   scr.action("§6주작의 활 지급", () => { giveItem(t, "rpg:jujak_bow", 1); msg(p, "§6주작의 활을 지급했습니다."); return re(); });
   scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
@@ -1095,7 +1095,7 @@ function skillHelpTab(p, sel) {
   scr.action("재사용 대기 초기화", () => { SK.resetCooldowns(p); msg(p, "§a모든 스킬 재사용 대기를 초기화했습니다."); return skillHelpTab(p, sel); });
   scr.action("마나 가득", () => { d.mp = 99999; save(p); msg(p, "§9마나를 채웠습니다."); return skillHelpTab(p, sel); });
   scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기 (대기·마나 없음)", () => { d.set ??= {}; d.set.adminSkill = !d.set.adminSkill; save(p); msg(p, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐" : "§7관리자 스킬 모드 꺼짐"); return skillHelpTab(p, sel); });
-  scr.action("사신수 · 사흉수 무기 받기", () => { for (const id of ["rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield", "rpg:hundun_orb", "rpg:qiongqi_claws", "rpg:taowu_hammer", "rpg:taotie_maw"]) giveItem(p, id, 1); msg(p, "§a사신수 · 사흉수 무기를 받았습니다."); return skillHelpTab(p, sel); });
+  scr.action("사신수 · 사흉수 무기 받기", () => { for (const id of ["rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield", "rpg:hundun_scythe", "rpg:qiongqi_claws", "rpg:taowu_hammer", "rpg:taotie_maw"]) giveItem(p, id, 1); msg(p, "§a사신수 · 사흉수 무기를 받았습니다."); return skillHelpTab(p, sel); });
   return scr.show(p);
 }
 

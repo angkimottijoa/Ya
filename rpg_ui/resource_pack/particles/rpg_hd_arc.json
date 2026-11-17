@@ -1,0 +1,77 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:hd_arc",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_hd"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "(variable.u.x * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.x * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.h * variable.particle_random_2 * math.sin(variable.particle_random_1 * 180))",
+     "(variable.u.y * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.y * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.h * variable.particle_random_2 * math.sin(variable.particle_random_1 * 180))",
+     "(variable.u.z * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.z * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.h * variable.particle_random_2 * math.sin(variable.particle_random_1 * 180))"
+    ],
+    "direction": [
+     "(variable.u.x * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) - variable.v.x * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.a1 > variable.a0 ? 1 : -1)",
+     "(variable.u.y * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) - variable.v.y * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.a1 > variable.a0 ? 1 : -1)",
+     "(variable.u.z * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) - variable.v.z * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.a1 > variable.a0 ? 1 : -1)"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "(variable.particle_random_1 * variable.dur) + variable.life * (0.6 + variable.particle_random_4 * 0.5)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * variable.particle_random_4",
+   "minecraft:particle_motion_dynamic": {
+    "linear_drag_coefficient": 2.2,
+    "linear_acceleration": [
+     0,
+     1,
+     0
+    ]
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.particle_age < (variable.particle_random_1 * variable.dur) ? 0 : variable.size * (variable.particle_random_4 < 0.5 ? (0.3 + math.sin(variable.particle_random_1 * 180) * 0.2) * (0.7 + math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.6) : (0.12 + math.sin(variable.particle_random_1 * 180) * 0.12) * (1 - math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.85))",
+     "variable.particle_age < (variable.particle_random_1 * variable.dur) ? 0 : variable.size * (variable.particle_random_4 < 0.5 ? (0.3 + math.sin(variable.particle_random_1 * 180) * 0.2) * (0.7 + math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.6) : (0.12 + math.sin(variable.particle_random_1 * 180) * 0.12) * (1 - math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.85))"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      "(variable.particle_random_4 < 0.5 ? 24 : 0)",
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(variable.particle_random_2 * 0.45 + math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.35 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFF6E0FF",
+      "0.2": "#FFC888FF",
+      "0.42": "#FF9A3CF0",
+      "0.6": "#FF6A1AB8",
+      "0.75": "#FFB0204A",
+      "0.88": "#FF3A0A5A",
+      "1.0": "#A0100418"
+     }
+    }
+   }
+  }
+ }
+}

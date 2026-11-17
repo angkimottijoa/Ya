@@ -65,6 +65,12 @@ def rock(d, s, c):
     rnd = random.Random(5)
     pts = [(c + math.cos(k / 6 * 6.283) * rnd.uniform(18, 28), c + math.sin(k / 6 * 6.283) * rnd.uniform(18, 28)) for k in range(6)]
     d.polygon(pts, fill=(150, 150, 150, 255)); d.polygon(pts[:3] + [(c, c)], fill=(215, 215, 215, 255))
+def puff(d, s, c):  # 연기 뭉치 (사신수처럼 연기 위주)
+    rnd = random.Random(9)
+    for _ in range(10):
+        x, y, r = c + rnd.uniform(-13, 13), c + rnd.uniform(-11, 11), rnd.uniform(10, 18)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=(255, 255, 255, 120))
+    s.paste(s.filter(ImageFilter.GaussianBlur(4)))
 def tooth(d, s, c): d.polygon([(c - 12, 6), (c + 12, 6), (c, 60)], fill=(255, 255, 255, 255))
 
 
@@ -75,7 +81,7 @@ def burst(name, tex, grad, sprite, up="0.3", grav=0, cycle=False):
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.6)"},
         "minecraft:particle_initial_speed": f"variable.spd * (0.4 + {R4} * 0.8)",
         "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, grav, 0], "linear_drag_coefficient": 2.4},
-        "minecraft:particle_appearance_billboard": bb(f"variable.size * (0.14 + {R4} * 0.12) * (1 - {AGE} * 0.8)", sprite),
+        "minecraft:particle_appearance_billboard": bb(f"variable.size * (0.18 + {R4} * 0.22) * (0.8 + {AGE} * 0.4) * (1 - {AGE} * 0.6)", sprite),
         **tint(grad, interp)})
 
 
@@ -86,7 +92,7 @@ def frac(x):
 def main():
     # ═════ 혼돈: 색이 계속 바뀜 (빨 → 주 → 노 → 초 → 파 → 보 → 빨) ═════
     PRISM = {"0.0": "#FFFF3A6A", "0.17": "#FFFF9A2A", "0.33": "#FFF6F04A", "0.5": "#FF4AF09A", "0.67": "#FF3A9AFF", "0.83": "#FFB04AFF", "1.0": "#FFFF3A6A"}
-    sheet("rpg_hd", [soft, star4, shard, disc])
+    sheet("rpg_hd", [soft, star4, shard, puff])
     lag = f"({R4} * {R4} * 0.5)"
     part("hd_orb", "rpg_hd", {**once(),
         "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 2 * variable.r", f"({R2} - 0.5) * 2 * variable.r", f"({R3} - 0.5) * 2 * variable.r"], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
@@ -106,7 +112,43 @@ def main():
         "minecraft:particle_motion_parametric": {"relative_position": [f"variable.u.{c} * math.cos({sw}) * variable.r * 0.55 * {wob} * {inner} + variable.v.{c} * math.sin({sw}) * variable.r * {wob} * {inner}" for c in "xyz"]},
         "minecraft:particle_appearance_billboard": bb(f"variable.size * ({R2} < 0.3 ? 0.1 : 0.15) * (1 - math.pow({AGE}, 4)) * math.min(1, {A} * 6)", f"({R4} > 0.85 ? {2 * SPR} : 0)"),
         **tint(PRISM, frac(f"{R1} + {A} * 0.8"))})
-    burst("hd_burst", "rpg_hd", PRISM, f"({R4} > 0.6 ? {SPR} : 0)", cycle=True)
+    burst("hd_burst", "rpg_hd", PRISM, f"({R4} > 0.6 ? {SPR} : {3 * SPR})", cycle=True)
+    # 혼돈의 낫 그림: 그림 점들이 돌리는 중심(cx, cy)을 축으로 스스로 돌며(rot + spin) vd 방향으로 이동 (u·v = 그림 면)
+    global SC_W, SC_H
+    _, SC_W, SC_H = scythe_art()
+    sbx, sby = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
+    slx, sly = f"(({sbx} - variable.cx) * variable.scale)", f"((variable.cy - {sby}) * variable.scale)"
+    SB = f"(variable.rot + variable.spin * {A})"
+    part("hd_scythe", "rpg_hd_scythe", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_motion_parametric": {"relative_position": [f"variable.vd.{c} * variable.vs * {A} + variable.u.{c} * ({slx} * math.cos({SB}) - {sly} * math.sin({SB})) + variable.v.{c} * ({slx} * math.sin({SB}) + {sly} * math.cos({SB}))" for c in "xyz"]},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * 1.5 * variable.size * (1 - math.pow({AGE}, 6))"] * 2, "facing_camera_mode": "lookat_xyz",
+                                                    "uv": {"texture_width": SC_W, "texture_height": SC_H, "uv": [sbx, sby], "uv_size": [1, 1]}},
+    }, material="particles_alpha")
+    # 보랏빛 불꽃 (그림의 불길처럼: 흰 보라 → 보라 → 짙은 보라, 붉은 기 섞임), 위로 일렁이며 피어오름
+    FLAME = {"0.0": "#FFF6E0FF", "0.2": "#FFC888FF", "0.42": "#FF9A3CF0", "0.6": "#FF6A1AB8", "0.75": "#FFB0204A", "0.88": "#FF3A0A5A", "1.0": "#A0100418"}
+    part("hd_flame", "rpg_hd", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 2 * variable.r", f"({R2} - 0.5) * 2 * variable.r", f"({R3} - 0.5) * 2 * variable.r"], "direction": [f"({R1} - 0.5) * 0.6 + variable.vd.x", f"0.8 + {R2} * 0.6 + variable.vd.y", f"({R3} - 0.5) * 0.6 + variable.vd.z"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.6)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.4 + {R4} * 0.7)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 1.6, 0], "linear_drag_coefficient": 1.8},
+        # 60% 는 연기 뭉치(크게, 천천히 부풂), 나머지는 불티
+        "minecraft:particle_appearance_billboard": bb(f"variable.size * ({R4} < 0.6 ? (0.42 + {R4} * 0.35) * (0.6 + {AGE} * 0.7) : (0.14 + {R4} * 0.1) * (1 - {AGE} * 0.8))", f"({R4} < 0.6 ? {3 * SPR} : 0)"),
+        **tint(FLAME, f"math.clamp({AGE} * 0.75 + {R2} * 0.2 + ({R4} < 0.6 ? 0.18 : 0) + variable.tone, 0, 1)")})
+    # 보랏빛 낫 호 (불꽃 잔영이 뒤로 흩날림)
+    sq = R1
+    sth = f"(variable.a0 + (variable.a1 - variable.a0) * {sq})"
+    sdl = f"({sq} * variable.dur)"
+    slive = f"math.clamp(({A} - {sdl}) / variable.life, 0, 1)"
+    part("hd_arc", "rpg_hd", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * math.cos({sth}) + variable.v.{c} * math.sin({sth})) * (variable.r - variable.h * {R2} * math.sin({sq} * 180))" for c in "xyz"],
+                                          "direction": [f"(variable.u.{c} * math.sin({sth}) - variable.v.{c} * math.cos({sth})) * (variable.a1 > variable.a0 ? 1 : -1)" for c in "xyz"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"{sdl} + variable.life * (0.6 + {R4} * 0.5)"},
+        "minecraft:particle_initial_speed": f"variable.spd * {R4}",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 2.2, "linear_acceleration": [0, 1, 0]},
+        "minecraft:particle_appearance_billboard": bb(f"{A} < {sdl} ? 0 : variable.size * ({R4} < 0.5 ? (0.3 + math.sin({sq} * 180) * 0.2) * (0.7 + {slive} * 0.6) : (0.12 + math.sin({sq} * 180) * 0.12) * (1 - {slive} * 0.85))", f"({R4} < 0.5 ? {3 * SPR} : 0)"),
+        **tint(FLAME, f"math.clamp({R2} * 0.45 + {slive} * 0.35 + variable.tone, 0, 1)")})
     part("hd_ghost", "rpg_hd", {**once(),
         "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 0.7", f"{R2} * 1.8", f"({R3} - 0.5) * 0.7"], "direction": [f"({R1} - 0.5)", 0.2, f"({R3} - 0.5)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R4} * 0.5)"},
@@ -117,7 +159,7 @@ def main():
 
     # ═════ 궁기: 핏빛 · 검정 깃털 ═════
     CRIM = {"0.0": "#FFFFE0E0", "0.18": "#FFFF6A6A", "0.4": "#FFD01A2A", "0.65": "#FF6A0A18", "0.85": "#FF200408", "1.0": "#E0000000"}
-    sheet("rpg_qq", [soft, feather, shard, disc])
+    sheet("rpg_qq", [soft, feather, shard, puff])
     # 세 줄 발톱: 호 세 개(반지름 r, r-0.35, r-0.7)를 같이
     q = R1
     lane = f"(math.floor({R3} * 3) * 0.38)"
@@ -150,7 +192,7 @@ def main():
         "minecraft:particle_motion_parametric": {"relative_position": [f"(variable.u.{c} * math.cos({spread}) + variable.v.{c} * math.sin({spread})) * {rr} + variable.w.{c} * {R2} * {R2} * -0.6" for c in "xyz"]},
         "minecraft:particle_appearance_billboard": bb(f"variable.size * (0.1 + {R2} * 0.14) * (1 - math.pow({AGE}, 4))", f"({R2} > 0.7 ? {SPR} : 0)"),
         **tint(CRIM, f"math.clamp(0.75 - {R2} * 0.5 + {R3} * 0.1, 0, 1)")})
-    burst("qq_burst", "rpg_qq", CRIM, f"({R4} > 0.5 ? {SPR} : 0)", grav=-2)
+    burst("qq_burst", "rpg_qq", CRIM, f"({R4} > 0.5 ? {SPR} : {3 * SPR})", grav=-2)
 
     # ═════ 도올: 녹슨 청동 · 용암빛 ═════
     BRONZE = {"0.0": "#FFFFE8B0", "0.2": "#FFFFA040", "0.4": "#FFC0602A", "0.6": "#FF7A4A2A", "0.8": "#FF3A2A22", "1.0": "#FF141010"}
@@ -195,7 +237,7 @@ def main():
 
     # ═════ 도철: 청동 녹 · 금 · 짙은 초록 ═════
     TT = {"0.0": "#FFFFF6C8", "0.2": "#FFF0C860", "0.42": "#FFB08A3A", "0.6": "#FF4A7A5A", "0.8": "#FF1E3A2A", "1.0": "#E0080E0A"}
-    sheet("rpg_tt", [soft, tooth, shard, disc])
+    sheet("rpg_tt", [soft, tooth, shard, puff])
     # 아가리: 위턱(호)과 아래턱이 스스로 닫힘 (u = 앞, v = 위). 이빨은 턱 가장자리에
     jaw = f"({R1} < 0.5 ? 1 : -1)"
     close = f"math.min(1, {A} / math.max(0.05, variable.dur))"
@@ -228,9 +270,59 @@ def main():
         "minecraft:particle_motion_parametric": {"relative_position": [f"math.cos({aa}) * variable.r * (1 - {fr})", f"{R3} * 1.5 * (1 - {fr})", f"math.sin({aa}) * variable.r * (1 - {fr})"]},
         "minecraft:particle_appearance_billboard": bb(f"variable.size * (0.1 + (1 - {fr}) * 0.12) * (1 - math.pow({AGE}, 4))", 0),
         **tint(TT, f"math.clamp(0.3 + {fr} * 0.6, 0, 1)")})
-    burst("tt_burst", "rpg_tt", TT, f"({R4} > 0.6 ? {2 * SPR} : 0)")
+    burst("tt_burst", "rpg_tt", TT, f"({R4} > 0.6 ? {2 * SPR} : {3 * SPR})")
     items()
     print("fiends particles + items ok")
+
+
+def scythe_art():
+    """혼돈의 낫 (사용자 그림 art/hundun_scythe_ref.jpg): 흰 배경 제거 → 아이콘 32x32 + 파티클용 그림(rpg_hd_scythe) + 메타"""
+    from collections import deque
+    im = Image.open(ROOT / "art" / "hundun_scythe_ref.jpg").convert("RGBA")
+    im = im.crop((8, 8, im.size[0] - 8, im.size[1] - 8))
+    W, H = im.size
+    px = im.load()
+    seen = bytearray(W * H)
+    q = deque([(x, 0) for x in range(W)] + [(x, H - 1) for x in range(W)] + [(0, y) for y in range(H)] + [(W - 1, y) for y in range(H)])
+    while q:
+        x, y = q.popleft()
+        i = y * W + x
+        if seen[i]:
+            continue
+        seen[i] = 1
+        r, g, b, a = px[x, y]
+        if min(r, g, b) < 225:
+            continue
+        px[x, y] = (0, 0, 0, 0)
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < W and 0 <= ny < H and not seen[ny * W + nx]:
+                q.append((nx, ny))
+    # 둘러싸인 안쪽 흰 구멍(자루와 불길 사이)도 지움: 그림엔 흰색이 거의 없음
+    for y in range(H):
+        for x in range(W):
+            r, g, b, a = px[x, y]
+            if a and min(r, g, b) > 200 and max(r, g, b) - min(r, g, b) < 30:
+                px[x, y] = (0, 0, 0, 0)
+    bbox = im.getbbox(); im = im.crop(bbox)
+    def shrink(w):
+        h = round(im.size[1] * w / im.size[0])
+        sm = im.resize((w, h), Image.LANCZOS)
+        p2 = sm.load()
+        for y in range(h):
+            for x in range(w):
+                r, g, b, a = p2[x, y]
+                p2[x, y] = (r, g, b, 255) if a > 120 else (0, 0, 0, 0)
+        return sm
+    ic = shrink(30)
+    icon = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); icon.paste(ic, ((32 - ic.size[0]) // 2, (32 - ic.size[1]) // 2), ic)
+    art = shrink(52)
+    art.save(TEXD / "rpg_hd_scythe.png")
+    iw, ih = art.size
+    filled = sum(1 for y in range(ih) for x in range(iw) if art.getpixel((x, y))[3])
+    # 돌리는 중심: 자루 가운데쯤 (그림 비율 0.45, 0.58)
+    (ROOT / "behavior_pack" / "scripts" / "hd_meta.js").write_text(f"// gen_fiends.py 가 만듦: 혼돈의 낫 그림\nexport const SCYTHE = {{ iw: {iw}, ih: {ih}, cx: {iw * 0.45:.1f}, cy: {ih * 0.58:.1f}, filled: {filled} }};\n")
+    return icon, iw, ih
 
 
 def mask_art():
@@ -296,8 +388,8 @@ def items():
     atlas_p = ROOT / "resource_pack" / "textures" / "item_texture.json"
     atlas = json.loads(atlas_p.read_text())
     (ROOT / "resource_pack" / "textures" / "items" / "rpg").mkdir(parents=True, exist_ok=True)
-    for iid, kind, name, dmg in [("hundun_orb", "orb", "§d§l혼돈의 구슬", 7), ("qiongqi_claws", "claws", "§c§l궁기의 쌍발톱", 9), ("taowu_hammer", "hammer", "§6§l도올의 대망치", 10), ("taotie_maw", "maw", "§2§l도철의 아가리", 8)]:
-        icon(kind).save(ROOT / "resource_pack" / "textures" / "items" / "rpg" / f"{iid}.png")
+    for iid, kind, name, dmg in [("hundun_scythe", "scythe", "§5§l혼돈의 낫", 9), ("qiongqi_claws", "claws", "§c§l궁기의 쌍발톱", 9), ("taowu_hammer", "hammer", "§6§l도올의 대망치", 10), ("taotie_maw", "maw", "§2§l도철의 아가리", 8)]:
+        (scythe_art()[0] if kind == "scythe" else icon(kind)).save(ROOT / "resource_pack" / "textures" / "items" / "rpg" / f"{iid}.png")
         atlas["texture_data"][f"rpg_{iid}"] = {"textures": f"textures/items/rpg/{iid}"}
         data = {"format_version": "1.21.40", "minecraft:item": {
             "description": {"identifier": f"rpg:{iid}", "menu_category": {"category": "equipment", "group": "itemGroup.name.sword"}},

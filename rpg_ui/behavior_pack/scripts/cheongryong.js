@@ -10,6 +10,7 @@ import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server"
 import * as M from "./ms.js";
 import { SPEAR } from "./cr_spear_meta.js";
 import { skillOpt } from "./skill_opts.js";
+import { drawMagic } from "./magic.js";
 
 export const SWORD_ID = "rpg:cheongryong_sword";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -730,6 +731,8 @@ function flashDash(ctx, hit, dist = 22) {
   pt(dim, "cr_shock", up(o, 0.15), { n: 110, spd: 10, tone: 0.1 });
   pt(dim, "cr_dust", up(o, 0.3), { n: 16, r: 0.8, spd: 4, size: 1.6, life: 1.8 });
   for (let i = 0; i < 4; i++) { const a = Math.random() * 6.28; volt(dim, up(o, 0.2), { x: o.x + Math.cos(a) * 2.5, y: o.y + Math.random() * 1.2, z: o.z + Math.sin(a) * 2.5 }, { amp: 0.6, size: 0.9, life: 0.2 }); }
+  // 더 화려하게: 지나간 길에 세로로 선 검기 초승달이 차례로 남았다 사라짐
+  for (let k = 1; k <= 5; k++) later(k, () => { const q = at(k / 5.5); slash(dim, up(q, 1.1), yw, { tilt: 90, dir: k % 2 ? 1 : -1, r: 2, thick: 0.6, n: 110, dur: 0.04, life: 0.7, size: 1.1 }); });
   // 4틱에 걸쳐 순간이동
   const STEPS = 4;
   for (let i = 1; i <= STEPS; i++) later(i, () => {
@@ -803,6 +806,9 @@ function dragonDive(ctx) {
   cam(p, pp(1.9, 1.5, 1.0), pp(0, 0, 0.8), 0.35);
   later(8, () => cam(p, pp(1.3, 1.05, 0.75), pp(0, 0, 0.75), 0.6));
   M.sound(p, "beacon.activate", 0.8, 1.6);
+  // 더 화려하게: 발밑에 물빛 육망성 마법진 + 등 뒤에 세운 작은 성좌 마법진
+  drawMagic(dim, up(o, 0.08), { x: 0, y: 1, z: 0 }, "hexa", { R: 2.6, color: [0.45, 0.85, 1], life: 1.3, draw: 0.3, yaw: -yw });
+  drawMagic(dim, add(up(o, 1.6), f, -1.2), f, "triseal", { R: 1.3, color: [0.6, 0.9, 1], life: 1.2, draw: 0.3, spin: 3 });
   for (let t = 0; t < 20; t++) later(t + 1, () => {
     const L = p.location, k = 1 + Math.floor(t / 7);
     bodyVolts(dim, L, k, 0.9);
@@ -955,6 +961,10 @@ function dragonDiveMain(ctx, hit) {
     M.sound(p, "random.explode", 1.1, 0.9);
     M.sound(p, "random.splash", 0.7);
     later(7, () => lightning(ctx, { x: hitAt.x + 1, y: hitAt.y + 18, z: hitAt.z - 1 }, hitAt, hit, 2.2));
+    // 더 화려하게: 거대한 물빛 성좌 마법진 + 번개 감옥(둘레 여덟 줄기)
+    drawMagic(dim, up(hitAt, 0.1), { x: 0, y: 1, z: 0 }, "astral", { R: 6.5, color: [0.45, 0.85, 1], life: 2.4, draw: 0.35, spin: 1.5 });
+    for (let k = 0; k < 8; k++) later(2 + k, () => { const a = (k / 8) * Math.PI * 2, q = { x: hitAt.x + Math.cos(a) * 7, y: hitAt.y, z: hitAt.z + Math.sin(a) * 7 }; volt(dim, up(q, 14), up(q, 0.2), { size: 1.1, life: 0.3, branch: 2 }); pt(dim, "cr_pillar", q, { r: 0.5, h: 2, n: 60, life: 0.6 }); });
+    later(8, () => wave(ctx, hit, hitAt, { r: 1.5, spd: 10, h: 1.8, life: 0.8, n: 360, size: 1.1, foam: false }));
     // 더 화려하게: 사방으로 날아가는 검기 여덟 · 해일 · 둘레 번개 · 하늘로 솟는 빛기둥
     for (let k = 0; k < 8; k++) slash(dim, up(hitAt, 1), k * 45, { tilt: 0, dir: k % 2 ? 1 : -1, r: 3, thick: 1, n: 220, dur: 0.05, life: 0.7, spd: 22, size: 1.2 });
     wave(ctx, hit, hitAt, { r: 2, spd: 14, h: 2.4, life: 0.9, n: 520, mul: 0.5, push: 6 });
