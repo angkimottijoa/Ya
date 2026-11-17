@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V10.8.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V10.9.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V10.9 변경
+- 청룡 강림 파괴 연출: 청룡이 땅속으로 박히는 순간 큰 폭발 + 진짜 낙뢰 세 줄기 + 둘레 여덟 곳 연쇄 폭발 + 바위 파편이 사방으로 튐, 낙뢰 구간도 번개가 떨어진 자리마다 폭발 + 파편
 
 ## V10.8 변경
 - 청룡 강림 더 화려하게:

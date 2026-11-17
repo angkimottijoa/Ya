@@ -535,6 +535,17 @@ function dragon(ctx) {
         // 더 화려하게: 둘레 여덟 물기둥이 차례로 솟고, 큰 물결 고리 두 겹이 퍼짐
         for (let k = 0; k < 8; k++) later(2 + k, () => { const a = (k / 8) * Math.PI * 2, q = { x: G.x + Math.cos(a) * 5.5, y: G.y, z: G.z + Math.sin(a) * 5.5 }; pt(dim, "cr_column", q, { r: 0.8, n: 90, spd: 12 }); snow(dim, up(q, 2), 6, 2); });
         later(5, () => { pt(dim, "cr_ring", G, { r: 9, h: 0.3, dots: 80, spin: -200, tone: 0.3, life: 1.4 }); pt(dim, "cr_shock", g1, { n: 200, spd: 22, tone: 0.3 }); });
+        // 파괴: 청룡이 땅속으로 박히는 순간 큰 폭발 + 낙뢰 세 줄기 + 둘레 연쇄 폭발 + 바위 파편이 사방으로 튐
+        try { dim.spawnParticle("minecraft:huge_explosion_emitter", up(G, 1)); } catch {}
+        pt(dim, "hm_rock", G, { n: 50, r: 2, spd: 12, size: 1.3, life: 1.6, tone: 0 });
+        for (const [dt, ang] of [[0, 0.5], [2, 2.6], [4, 4.7]]) later(dt, () => { const at = { x: G.x + Math.cos(ang) * 2.5, y: G.y, z: G.z + Math.sin(ang) * 2.5 }; try { dim.spawnEntity("minecraft:lightning_bolt", at); } catch {} vfxBolt(dim, up(at, 16), up(at, 0.3), 0.35); });
+        for (let k = 0; k < 8; k++) later(3 + k * 2, () => {
+          const a = (k / 8) * Math.PI * 2 + 0.4, r = 3.5 + (k % 2) * 2.5, q = { x: G.x + Math.cos(a) * r, y: G.y + 0.5, z: G.z + Math.sin(a) * r };
+          try { dim.spawnParticle("minecraft:large_explosion", q); } catch {}
+          pt(dim, "hm_rock", q, { n: 12, r: 0.6, spd: 8, size: 1.1, life: 1.3, tone: 0 });
+          cluster(dim, q, { n: 10, r: 0.5, spd: 4, tone: 0.3 });
+          if (k % 2 === 0) M.sound(p, "random.explode", 0.8, 0.9 + k * 0.05);
+        });
         // 해일: 물결 충격파가 세 번 더 퍼지고, 한가운데서 거대한 물기둥이 두 번 치솟음
         for (const [dt, spd, tone] of [[8, 14, 0.6], [12, 26, 0.2], [16, 34, 0.45]]) later(dt, () => pt(dim, "cr_shock", g1, { n: 180, spd, tone }));
         for (const dt of [6, 14]) later(dt, () => { pt(dim, "cr_column", G, { r: 2, n: 260, spd: 22 }); pt(dim, "cr_pillar", G, { r: 2.4, h: 4, n: 200, life: 1.4 }); flash(dim, up(G, 4), 8); M.sound(p, "random.splash", 1, 0.6); });
@@ -569,6 +580,8 @@ function dragon(ctx) {
       pt(dim, "cr_ring", up(at, 0.1), { r: 2.2, h: 0.2, dots: 30, spin: 260, tone: 0.4, life: 0.8 });
       pt(dim, "cr_column", at, { r: 0.6, n: 60, spd: 10 });
       vfxBolt(dim, up(at, 14), up(at, 0.5), 0.3);
+      try { dim.spawnParticle("minecraft:large_explosion", up(at, 0.5)); } catch {} // 낙뢰가 떨어진 자리가 터지며 파편이 튐
+      pt(dim, "hm_rock", at, { n: 14, r: 0.7, spd: 9, size: 1.1, life: 1.3, tone: 0 });
       cluster(dim, up(at, 0.5), { n: 18, r: 0.6, spd: 3.5, tone: 0.2 });
       snow(dim, up(at, 1.5), 5, 2);
       if (e.id) hit(e, 2);
