@@ -6,10 +6,10 @@
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
 //      3단: 주작의 활(사용자 그림 점 찍기)이 손 앞에 나타나 시선을 따라다니며 2초 동안 시위를 당김
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
-//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발, 7초 동안 안 쏘면 자동 장전
+//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발, 2초 동안 안 쏘면 자동 장전
 // 파티클: gen_jujak.py (jj_bow, jj_bigarrow, jj_ember, jj_trail, jj_boom, jj_ring)
 // ═══════════════════════════════════════════════════════════════════════
-import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
+import { system, world, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 import { JJ } from "./jujak_meta.js";
 
@@ -54,7 +54,8 @@ function cam(p, pos, look, easeT = 0.3, type = "InOutSine") {
   }
 }
 function camClear(p) { try { p.camera.clear(); } catch { try { p.runCommand("camera @s clear"); } catch {} } }
-const say = (p, t) => { try { p.onScreenDisplay.setActionBar(t); } catch {} };
+const lastSay = new Map();
+const say = (p, t) => { try { p.onScreenDisplay.setActionBar(t); lastSay.set(p.id, system.currentTick); } catch {} };
 
 function hitter(ctx) {
   return (e, mul, fire = 3) => {
@@ -127,14 +128,19 @@ function drawBow(p, k, withArrow = true, drawBody = true) {
   const dim = p.dimension, v = viewOf(p), yw = yawOf(p), f = fwdOf(yw), right = rightOf(yw);
   // 활 면: 대부분 옆을 향하게 (뒤·1인칭에서도 활 모양이 보임), 활 배(그림 오른쪽)는 앞쪽
   const u = norm(add(scl(f, 0.35), right, 0.94));
-  const SB = 0.068, H = add(up(p.location, (BOW.ih - BOW.cy) * SB + 0.1), f, 2.2);
-  const toW = (ix, iy) => add(add(H, u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
+  const SB = 0.068;
+  // 시위 가운데(활 양 끝의 중간)가 플레이어 바로 앞 가운데 줄에 오게 활 위치를 맞춤 → 화살이 정면으로 곧게
+  const rel = (ix, iy) => add(scl(u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
+  const restRel = scl(add(rel(BOW.top[0], BOW.top[1]), rel(BOW.bot[0], BOW.bot[1])), 0.5);
+  const want = add(up(p.location, 1.4), f, 1.6);
+  const H = sub(want, restRel);
+  const toW = (ix, iy) => add(H, rel(ix, iy));
   const tipT = toW(BOW.top[0], BOW.top[1]), tipB = toW(BOW.bot[0], BOW.bot[1]);
   const rest = scl(add(tipT, tipB), 0.5), nock = add(rest, f, -1.8 * k);
   if (drawBody) pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u, v: UP, scale: SB, n: Math.round((BOW.filled * 0.9) / BOW.fill), life: 0.3, size: 1 });
   trail(dim, tipT, nock, { size: 1.5, life: 0.12, n: 34, tone: 0.3 });
   trail(dim, tipB, nock, { size: 1.5, life: 0.12, n: 34, tone: 0.3 });
-  let aim = v;
+  let aim = norm({ x: f.x * Math.hypot(v.x, v.z), y: v.y, z: f.z * Math.hypot(v.x, v.z) }); // 정면(시선 높낮이만 따름)
   if (withArrow) {
     const SA = 4.5 / AR.iw, side = norm(cross(aim, UP).x || cross(aim, UP).z ? cross(aim, UP) : right), av = norm(cross(side, aim));
     pt(dim, "jj_bigarrow", nock, { cx: AR.cx, cy: AR.cy, u: aim, v: av, scale: SA, n: Math.round((AR.filled * 1.1) / AR.fill), life: 0.12, size: 1.2 });
@@ -191,6 +197,17 @@ function bigShot(ctx, done) {
       const speed = 2.0;
       pt(dim, "jj_bigarrow", pos, { cx: AR.cx, cy: AR.cy, u: v, v: upv, scale: SA, n: Math.round((AR.filled * 0.8) / AR.fill), life: 0.07, size: 1 });
       trail(dim, add(pos, v, -2.5), add(pos, v, 0.3), { size: 2.4, life: 0.45, n: 44 });
+      // 나선 검기: 날아간 길을 두 가닥 불꽃 나선이 감으며 따라감
+      { const side = norm(cross(v, upv)), seg = 4;
+        for (const ph of [0, Math.PI]) {
+          let prevQ = null;
+          for (let j = 0; j <= seg; j++) {
+            const s2 = (t - 1) * speed + (j / seg) * speed, ang = s2 * 0.9 + ph, rr = 1.3;
+            const q = add(add(add(pos, v, -speed + (j / seg) * speed), side, Math.cos(ang) * rr), upv, Math.sin(ang) * rr);
+            if (prevQ) trail(dim, prevQ, q, { size: 1.6, life: 0.55, n: 10, tone: ph ? 0.25 : 0 });
+            prevQ = q;
+          }
+        } }
       ember(dim, pos, { n: 6, r: 0.3, spd: 1.2, life: 0.8 });
       if (t % 2 === 0) fireBoom(dim, add(pos, v, -1), { n: 2, r: 0.3, spd: 0.6, size: 1.4, life: 0.6, tone: 0.2 });
       for (let q = 0; q <= 1.001; q += 0.25) { // 화살 앞부분이 지나가는 길 전부 검사
@@ -233,7 +250,7 @@ function bigShot(ctx, done) {
 // ───────── ① 주작 · 화시 (3단 콤보, 6발 장전) ─────────
 const AMMO = 6;
 const combo = new Map(); // pid -> { stage, until, busy, ammo, reload }
-const REFILL = 140; // 7초 동안 안 쓰면 다시 채워짐
+const REFILL = 40; // 2초 동안 안 쓰면 다시 채워짐 (들고 있을 때)
 function refill(p, st) {
   if (st.ammo >= AMMO || system.currentTick - st.last < REFILL) return;
   st.ammo = AMMO;
@@ -287,6 +304,17 @@ function flameShot(ctx) {
     bigShot(ctx, () => { st.stage = 0; st.until = 0; });
   }
 }
+
+// 주작의 활을 들고 있으면 화면 아래(액션바)에 스킬 정보를 계속 띄움 (방금 띄운 알림은 1.5초 동안 덮지 않음)
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    let held = false;
+    try { held = p.getComponent("minecraft:inventory").container.getItem(p.selectedSlotIndex)?.typeId === BOW_ID; } catch {}
+    if (!held) continue;
+    if (system.currentTick - (lastSay.get(p.id) ?? -99) < 30) continue;
+    try { p.onScreenDisplay.setActionBar(`§6§l주작 · 화시§r  ${ammoLine(p)}  §7(클릭: 불화살 → 세 발 → 주작의 활)`); } catch {}
+  }
+}, 5);
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {

@@ -121,10 +121,10 @@ def main():
         return (max(ys) - min(ys)) if ys else 0
     if far(Wd - 4, Wd) > far(0, 4):
         small = small.transpose(Image.FLIP_LEFT_RIGHT); sp = small.load()
-    save_tex(small, "rpg_jj_bigarrow")
+    save_tex(small, "rpg_jj_bigarrow", smoke=True)
     IW, IH = small.size
     meta["ARROW"] = {"iw": IW, "ih": IH, "cx": 0, "cy": IH // 2, "filled": n, "fill": round(n / (IW * IH), 3)}
-    img_part("jj_bigarrow", "rpg_jj_bigarrow", IW, IH)
+    img_part("jj_bigarrow", "rpg_jj_bigarrow", IW, IH, smoke=True)
     # ── 활: 시위(가는 선)와 화살은 지우고 활 몸만
     im = cutout(ROOT / "art" / "jujak_bow_ref.png")
     # 시위로 둘러싸인 안쪽 흰 배경도 지움: 큰 흰 덩어리(1500픽셀 이상)는 배경
