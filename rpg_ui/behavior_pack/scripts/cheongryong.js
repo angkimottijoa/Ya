@@ -395,10 +395,11 @@ function dragon(ctx) {
   const G = { x: o.x + f.x * 9, y: o.y, z: o.z + f.z * 9 }; // 떨어질 곳
   const C = { x: o.x + f.x * 4, y: o.y + 16, z: o.z + f.z * 4 }; // 구름 중심
   const R = 8;
-  // 거대한 먹구름 (여러 덩어리 겹침)
-  pt(dim, "cr_cloud", C, { r: 14, life: 8 });
-  for (const [dx, dz, r] of [[9, 0, 9], [-9, 0, 9], [0, 9, 9], [0, -9, 9]]) later(4, () => pt(dim, "cr_cloud", { x: C.x + dx, y: C.y + 1, z: C.z + dz }, { r, life: 7.5 }));
-  later(8, () => pt(dim, "cr_cloud", up(C, 2.5), { r: 11, life: 7 }));
+  // 거대한 먹구름 (훨씬 크게: 가운데 큰 덩어리 + 둘레 여섯 덩어리 + 위로 부푼 덩어리)
+  pt(dim, "cr_cloud", C, { r: 22, life: 8.5 });
+  for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2 + 0.3; later(3 + k, () => pt(dim, "cr_cloud", { x: C.x + Math.cos(a) * 17, y: C.y + 1 + (k % 2) * 1.2, z: C.z + Math.sin(a) * 17 }, { r: 11, life: 8 })); }
+  later(8, () => pt(dim, "cr_cloud", up(C, 3), { r: 16, life: 7.5 }));
+  later(12, () => pt(dim, "cr_cloud", up(C, -1.5), { r: 13, life: 7 }));
   for (let i = 0; i < 4; i++) later(i * 25, () => M.sound(p, "ambient.weather.thunder", 0.5 + i * 0.05, 0.7));
   const a0 = Math.atan2(o.z - C.z, o.x - C.x) + Math.PI; // 플레이어 반대쪽 구름 위에서 등장
   const ring = (ang, s) => ({ x: C.x + Math.cos(ang) * R, y: C.y - 3 - Math.sin(s * Math.PI * 4) * 0.8, z: C.z + Math.sin(ang) * R });
@@ -439,7 +440,24 @@ function dragon(ctx) {
   const T = T3 + TD;
   // ── 분위기: 비, 구름 속 번개, 회오리 ──
   pt(dim, "cr_rain", up(C, -2.5), { r: 13, n: 130, life: (T + 20) / 20 });
-  pt(dim, "cr_snowfall", up(C, -2), { r: 15, n: 70, life: (T + 30) / 20 });
+  pt(dim, "cr_rain", up(C, -2), { r: 22, n: 140, life: (T + 20) / 20 }); // 구름이 커진 만큼 넓게 한 겹 더
+  pt(dim, "cr_snowfall", up(C, -2), { r: 20, n: 90, life: (T + 30) / 20 });
+  // 땅의 진(陣): 구름 아래 바닥에 세 겹 물결 고리가 서로 반대로 돌고, 고리 사이에 끊어진 호 여섯 개 (현무처럼, 1초마다 다시 그림)
+  const Gc = { x: C.x, y: o.y + 0.12, z: C.z };
+  for (let t = 0; t < T + 60; t += 20) later(t, () => {
+    pt(dim, "cr_ring", Gc, { r: 13, h: 0.1, dots: 90, spin: 50, tone: 0.35, life: 1.05 });
+    pt(dim, "cr_ring", Gc, { r: 9, h: 0.1, dots: 64, spin: -80, tone: 0.55, life: 1.05 });
+    pt(dim, "cr_ring", Gc, { r: 5, h: 0.1, dots: 40, spin: 130, tone: 0.75, life: 1.05 });
+    if (t % 40 === 0) for (let k = 0; k < 6; k++) pt(dim, "cr_arc", Gc, { yaw: 0, a0: k * 60 + t, a1: k * 60 + 38 + t, r: 11, thick: 0.4, h: 0.1, dur: 0.3, n: 50 });
+  });
+  // 구름에서 땅의 진 둘레로 떨어지는 번개 (연출만, 넷)
+  for (const [dt, ang] of [[18, 0.8], [40, 2.9], [62, 4.4], [84, 5.7]]) later(dt, () => {
+    const g2 = { x: C.x + Math.cos(ang) * 13, y: o.y, z: C.z + Math.sin(ang) * 13 };
+    vfxBolt(dim, { x: g2.x * 0.7 + C.x * 0.3, y: C.y - 1, z: g2.z * 0.7 + C.z * 0.3 }, g2, 0.35);
+    flash(dim, up(g2, 1), 4);
+    pt(dim, "cr_shock", up(g2, 0.1), { n: 60, spd: 7, tone: 0.2 });
+    M.sound(p, "ambient.weather.thunder", 0.5, 1.4);
+  });
   for (let i = 0; i * 11 < T3 + 6; i++) {
     later(3 + i * 11 + Math.floor(Math.random() * 5), () => {
       const r1 = Math.random() * Math.PI * 2, r2 = r1 + 1.5 + Math.random() * 2;
@@ -507,6 +525,9 @@ function dragon(ctx) {
           cluster(dim, { x: G.x + Math.cos(a) * 2.2, y: G.y + 1 + Math.random(), z: G.z + Math.sin(a) * 2.2 }, { n: 20, r: 0.5, spd: 4.5, tone: k % 3 ? 0.4 : 0.8 });
         }
         for (const e of M.around(dim, G, 5)) { hit(e, 1.6); M.toss(G, e, 3, 5); }
+        // 더 화려하게: 둘레 여덟 물기둥이 차례로 솟고, 큰 물결 고리 두 겹이 퍼짐
+        for (let k = 0; k < 8; k++) later(2 + k, () => { const a = (k / 8) * Math.PI * 2, q = { x: G.x + Math.cos(a) * 5.5, y: G.y, z: G.z + Math.sin(a) * 5.5 }; pt(dim, "cr_column", q, { r: 0.8, n: 90, spd: 12 }); snow(dim, up(q, 2), 6, 2); });
+        later(5, () => { pt(dim, "cr_ring", G, { r: 9, h: 0.3, dots: 80, spin: -200, tone: 0.3, life: 1.4 }); pt(dim, "cr_shock", g1, { n: 200, spd: 22, tone: 0.3 }); });
         shake(dim, G, 0.9, 1.1);
         M.sound(p, "random.splash", 0.7);
         M.sound(p, "random.explode", 1.2, 0.6);
