@@ -449,7 +449,14 @@ function dragon(ctx) {
     pt(dim, "cr_ring", Gc, { r: 9, h: 0.1, dots: 64, spin: -80, tone: 0.55, life: 1.05 });
     pt(dim, "cr_ring", Gc, { r: 5, h: 0.1, dots: 40, spin: 130, tone: 0.75, life: 1.05 });
     if (t % 40 === 0) for (let k = 0; k < 6; k++) pt(dim, "cr_arc", Gc, { yaw: 0, a0: k * 60 + t, a1: k * 60 + 38 + t, r: 11, thick: 0.4, h: 0.1, dur: 0.3, n: 50 });
+    pt(dim, "cr_ring", up(Gc, 0.1), { r: 16, h: 0.1, dots: 70, spin: -30, tone: 0.2, life: 1.05 }); // 가장 바깥 고리
+    // 진의 여섯 꼭짓점에서 하늘로 빛기둥 (번갈아)
+    for (let k = t / 20 % 2; k < 6; k += 2) { const a = (k / 6) * Math.PI * 2 + t * 0.01, q = { x: Gc.x + Math.cos(a) * 13, y: o.y, z: Gc.z + Math.sin(a) * 13 }; pt(dim, "cr_pillar", q, { r: 0.6, h: 2.5, n: 70, life: 0.9 }); cluster(dim, up(q, 1), { n: 6, r: 0.4, spd: 2, tone: 0.8 }); }
   });
+  // 구름에서 진 한가운데로 내려오는 물 회오리 (두 겹, 서로 반대로)
+  later(10, () => { pt(dim, "cr_spiral", { x: C.x, y: o.y, z: C.z }, { r: 2.8, h: 15, n: 150, spin: 300, life: (T - 10) / 20 }); pt(dim, "cr_spiral", { x: C.x, y: o.y, z: C.z }, { r: 4.2, h: 14, n: 110, spin: -220, life: (T - 10) / 20 }); });
+  // 하늘 번쩍임 + 구름 아래 물방울 별빛
+  for (let t = 6; t < T; t += 14) later(t, () => { flash(dim, { x: C.x + (Math.random() - 0.5) * 30, y: C.y + 1, z: C.z + (Math.random() - 0.5) * 30 }, 8); snow(dim, up(C, -4), 10, 12); });
   // 구름에서 땅의 진 둘레로 떨어지는 번개 (연출만, 넷)
   for (const [dt, ang] of [[18, 0.8], [40, 2.9], [62, 4.4], [84, 5.7]]) later(dt, () => {
     const g2 = { x: C.x + Math.cos(ang) * 13, y: o.y, z: C.z + Math.sin(ang) * 13 };
@@ -458,8 +465,8 @@ function dragon(ctx) {
     pt(dim, "cr_shock", up(g2, 0.1), { n: 60, spd: 7, tone: 0.2 });
     M.sound(p, "ambient.weather.thunder", 0.5, 1.4);
   });
-  for (let i = 0; i * 11 < T3 + 6; i++) {
-    later(3 + i * 11 + Math.floor(Math.random() * 5), () => {
+  for (let i = 0; i * 6 < T3 + 6; i++) {
+    later(3 + i * 6 + Math.floor(Math.random() * 4), () => {
       const r1 = Math.random() * Math.PI * 2, r2 = r1 + 1.5 + Math.random() * 2;
       const q1 = { x: C.x + Math.cos(r1) * (4 + Math.random() * 9), y: C.y + (Math.random() - 0.5) * 2, z: C.z + Math.sin(r1) * (4 + Math.random() * 9) };
       const q2 = { x: C.x + Math.cos(r2) * (4 + Math.random() * 9), y: C.y + (Math.random() - 0.5) * 2, z: C.z + Math.sin(r2) * (4 + Math.random() * 9) };
@@ -528,6 +535,10 @@ function dragon(ctx) {
         // 더 화려하게: 둘레 여덟 물기둥이 차례로 솟고, 큰 물결 고리 두 겹이 퍼짐
         for (let k = 0; k < 8; k++) later(2 + k, () => { const a = (k / 8) * Math.PI * 2, q = { x: G.x + Math.cos(a) * 5.5, y: G.y, z: G.z + Math.sin(a) * 5.5 }; pt(dim, "cr_column", q, { r: 0.8, n: 90, spd: 12 }); snow(dim, up(q, 2), 6, 2); });
         later(5, () => { pt(dim, "cr_ring", G, { r: 9, h: 0.3, dots: 80, spin: -200, tone: 0.3, life: 1.4 }); pt(dim, "cr_shock", g1, { n: 200, spd: 22, tone: 0.3 }); });
+        // 해일: 물결 충격파가 세 번 더 퍼지고, 한가운데서 거대한 물기둥이 두 번 치솟음
+        for (const [dt, spd, tone] of [[8, 14, 0.6], [12, 26, 0.2], [16, 34, 0.45]]) later(dt, () => pt(dim, "cr_shock", g1, { n: 180, spd, tone }));
+        for (const dt of [6, 14]) later(dt, () => { pt(dim, "cr_column", G, { r: 2, n: 260, spd: 22 }); pt(dim, "cr_pillar", G, { r: 2.4, h: 4, n: 200, life: 1.4 }); flash(dim, up(G, 4), 8); M.sound(p, "random.splash", 1, 0.6); });
+        later(10, () => { for (let k = 0; k < 6; k++) pt(dim, "cr_arc", G, { yaw: 0, a0: k * 60, a1: k * 60 + 40, r: 7, thick: 0.6, h: 0.2, dur: 0.2, n: 70 }); });
         shake(dim, G, 0.9, 1.1);
         M.sound(p, "random.splash", 0.7);
         M.sound(p, "random.explode", 1.2, 0.6);
@@ -555,6 +566,9 @@ function dragon(ctx) {
       shake(dim, at, 0.4, 0.4);
       pt(dim, "cr_pillar", at, { r: 0.8, h: 2, n: 120, life: 0.6 });
       pt(dim, "cr_shock", up(at, 0.1), { n: 90, spd: 9, tone: 0.1 });
+      pt(dim, "cr_ring", up(at, 0.1), { r: 2.2, h: 0.2, dots: 30, spin: 260, tone: 0.4, life: 0.8 });
+      pt(dim, "cr_column", at, { r: 0.6, n: 60, spd: 10 });
+      vfxBolt(dim, up(at, 14), up(at, 0.5), 0.3);
       cluster(dim, up(at, 0.5), { n: 18, r: 0.6, spd: 3.5, tone: 0.2 });
       snow(dim, up(at, 1.5), 5, 2);
       if (e.id) hit(e, 2);
