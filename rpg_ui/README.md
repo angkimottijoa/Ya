@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V11.4.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V11.5.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V11.5 변경
+- 영혼 수확자 ④ 영혼 수확 처형 너프: 체력 25% → **15% 이하**, **최대 체력 80 이하 일반 몹만**, 한 번에 **3마리까지**. 큰 몹·보스는 처형 대신 체력 15% 이하일 때 피해 1.5배
 
 ## V11.4 변경
 - **히든 직업 영혼 수확자** (reaper.js · gen_reaper.py, 도구 「영혼 수확자의 낫」 · 3차 대신 고르는 숨겨진 길)

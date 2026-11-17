@@ -7,7 +7,7 @@
 //   ② 영혼 사슬: 앞 14칸 최대 4명에게 사슬을 던져 묶고(2초) 끌어당김 + 「낙인」(④에서 피해 1.5배)
 //   ③ 망령 행진: 망령이 되어(투명·무적에 가깝게) 주변 적 사이를 세 번 꿰뚫고 지나감, 영혼 3개마다 한 번 더
 //   ④ 영혼 수확: 발밑에 죽음의 진, 등 뒤에 거대한 낫 → 범위 안 적에게서 영혼을 뽑아내 낫에 모은 뒤 크게 한 바퀴 베어 거둠
-//      체력 25% 이하의 일반 몹은 처형, 쌓인 영혼만큼 피해·회복 증가 (영혼을 모두 씀)
+//      체력 15% 이하 · 최대 체력 80 이하 일반 몹은 처형(한 번에 3마리까지, 보스는 피해 1.5배만), 쌓인 영혼만큼 피해·회복 증가
 // 파티클: gen_reaper.py (sr_slash · sr_wisp · sr_mist · sr_chain · sr_burst) + 마법진 캐스터(죽음의 진)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, world, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
@@ -241,10 +241,18 @@ function rp_ult(ctx) {
     scythe(dim, c, yw, { sweep: 380, r: R, thick: 2.2, dur: 0.25, n: 600, life: 0.7, size: 1.6, spd: 4 });
     later(2, () => scythe(dim, up(c, 0.4), yw + 20, { sweep: 380, r: R - 1.5, thick: 1, dur: 0.25, n: 220, life: 0.7, size: 1.3, tone: 0.8, prio: 1 }));
     later(4, () => {
+      let executed = 0;
       for (const e of foes(dim, o, R + 0.5)) {
         let m = 2.2 * mul * (BRAND.get(e.id) > system.currentTick ? 1.5 : 1);
+        // 처형: 체력 15% 이하 · 최대 체력 80 이하 일반 몹만, 한 번에 3마리까지. 큰 몹(보스)은 체력 15% 이하면 피해 1.5배만
         let execute = false;
-        try { const hp = e.getComponent("minecraft:health"); if (hp && e.typeId !== "minecraft:player" && hp.currentValue <= hp.effectiveMax * 0.25) execute = true; } catch {}
+        try {
+          const hp = e.getComponent("minecraft:health");
+          if (hp && e.typeId !== "minecraft:player" && hp.currentValue <= hp.effectiveMax * 0.15) {
+            if (hp.effectiveMax <= 80 && executed < 3) execute = true; else m *= 1.5;
+          }
+        } catch {}
+        if (execute) executed++;
         if (execute) { try { e.applyDamage(99999, { cause: EntityDamageCause.entityAttack, damagingEntity: p }); } catch {} pt(dim, "sr_burst", center(e), { n: 24, r: 0.3, spd: 5, life: 0.8, tone: 1 }, 1); continue; }
         if (hit(e, m, 1)) { M.toss(o, e, 7, 3); pt(dim, "sr_burst", center(e), { n: 12, r: 0.3, spd: 4, life: 0.6 }, 2); }
       }

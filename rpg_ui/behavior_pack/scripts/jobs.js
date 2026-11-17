@@ -88,7 +88,7 @@ export const JOB_SKILLS = [
   { id: "jr_soul_reaper_1", key: 1, path: "soul_reaper", name: "사신의 낫질", lv: 45, mp: 7, cd: 0.5, kind: "melee", pow: 1, wr: "rp_combo", desc: "3타: 낫을 크게 휘두름 → 반대로 → 한 바퀴 돌며 주변 적을 끌어당겨 거둠(영혼 조각). 마지막 뒤 8초 대기." },
   { id: "jr_soul_reaper_2", key: 2, path: "soul_reaper", name: "영혼 사슬", lv: 45, mp: 24, cd: 12, kind: "melee", pow: 1, wr: "rp_chain", desc: "앞 14칸 최대 네 명에게 영혼 사슬을 던져 2초 묶고 끌어당긴다. 사슬에 묶인 적에게 낙인(영혼 수확 피해 1.5배)." },
   { id: "jr_soul_reaper_3", key: 3, path: "soul_reaper", name: "망령 행진", lv: 45, mp: 28, cd: 15, kind: "melee", pow: 1, wr: "rp_wraith", desc: "망령이 되어 주변 적 사이를 세 번 꿰뚫고 지나가며 벤다. 영혼 3개마다 한 번 더 (최대 6개 사용)." },
-  { id: "jr_soul_reaper_4", key: 4, path: "soul_reaper", name: "영혼 수확", lv: 50, mp: 60, cd: 45, kind: "melee", pow: 1, wr: "rp_ult", desc: "발밑에 죽음의 진, 등 뒤에 거대한 낫. 주변 적의 영혼을 뽑아 낫에 모은 뒤 크게 한 바퀴 베어 거둔다. 체력 25% 이하 몹은 처형, 모은 영혼만큼 피해·회복 증가." },
+  { id: "jr_soul_reaper_4", key: 4, path: "soul_reaper", name: "영혼 수확", lv: 50, mp: 60, cd: 45, kind: "melee", pow: 1, wr: "rp_ult", desc: "발밑에 죽음의 진, 등 뒤에 거대한 낫. 주변 적의 영혼을 뽑아 낫에 모은 뒤 크게 한 바퀴 베어 거둔다. 체력 15% 이하 일반 몹은 처형(최대 3마리, 보스는 피해 1.5배), 모은 영혼만큼 피해·회복 증가." },
   // ── 마법사 계열 (V11.2, mage.js · 마법진 캐스터) ──
   { id: "jm_mage_1", key: 1, path: "mage", name: "마력탄", lv: 1, mp: 4, cd: 0.5, kind: "magic", pow: 1, wr: "mg_bolt", desc: "3연: 손끝 작은 마법진에서 조준한 곳으로 마력탄. 3번째는 큰 마력탄(주변 폭발). 마지막 뒤 8초 대기." },
   { id: "jm_mage_2", key: 2, path: "mage", name: "비전 폭발", lv: 8, mp: 16, cd: 10, kind: "magic", pow: 1, wr: "mg_burst", desc: "발밑에 마법진을 그리고 0.6초 뒤 비전 폭발, 주변 적을 밀어낸다." },
