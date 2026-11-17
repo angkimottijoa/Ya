@@ -127,7 +127,7 @@ def main():
         "minecraft:particle_initial_speed": f"0.04 + {R4} * 0.12",
         "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.25, 0], "linear_drag_coefficient": 1.5},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.scale * 1.3 * variable.size * (0.9 + {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"variable.scale * 1.9 * variable.size * (0.9 + {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
                    "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_bh_art")
@@ -140,7 +140,7 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.scale * 0.85 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"variable.scale * 1.4 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": AWT * 4, "texture_height": AHT * 4,
                    "uv": [f"(variable.x0 + {bx}) * 4", f"(variable.y0 + {by}) * 4"], "uv_size": [4, 4]}},
     }, tex="textures/particle/rpg_bh_art_solid")

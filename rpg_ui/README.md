@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V6.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V6.1.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V6.1 변경
+- 도끼 점 크기 키움: 선명한 점 약 1.65배, 연기 점 약 1.45배 (틈 없이 꽉 차 보이게)
 
 ## V6.0 변경
 - 도끼 점을 반반으로: 선명한 꽉 찬 점 4500개(박힐 때 한 번 그려 8초 그대로, 흩날림 없음) + 피어오르는 연기 점 3200개(6틱마다) — 총 점 수 크게 늘림, 새 파티클 bh_art_solid
