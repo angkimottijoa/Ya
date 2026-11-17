@@ -482,17 +482,65 @@ system.runInterval(() => {
   }
 }, 5);
 
-// ───────── ② 주작 · 연사 (쉬프트+클릭): 뒤로 물러섰다가, 바닥에 눕힌 거대한 활로 연속 사격 → 불화살 비 ─────────
+// ───────── ② 주작 · 연사 (쉬프트+클릭) ─────────
+// 뒤로 물러서며 등에 3D 불 날개 → 바닥에 눕힌 거대한 활로 연속 사격 → 날개가 하늘로 솟아 흩어지며 깃털 하나하나가 불화살 비가 됨
+/** 3D 불 날개 깃털 목록 (새 날개 구조): 어깨 → 팔꿈치 → 손목 뼈대를 따라
+ *  칼깃(손목에서 바깥·아래로 긴 깃) · 둘째깃(팔을 따라 아래·뒤로) · 덮깃(팔 위 짧은 깃), 모두 살짝 뒤로 젖혀 입체감
+ *  flap = 날갯짓(라디안, 어깨를 축으로 위아래), open = 펼침 정도 */
+function wingFeathers(base, yaw, flap = 0, open = 1) {
+  const f = fwdOf(yaw), r = rightOf(yaw), out = [];
+  for (const s2 of [-1, 1]) {
+    const rr = scl(r, s2);
+    // 날갯짓: (바깥, 위) 평면에서 어깨를 축으로 회전
+    const rot = (v) => { const x = v.x * rr.x + v.z * rr.z, y = v.y, fb = v.x * f.x + v.z * f.z, c = Math.cos(flap), sn = Math.sin(flap);
+      const nx = x * c - y * sn, ny = x * sn + y * c; return add(add(scl(rr, nx), UP, ny), f, fb); };
+    const S0 = add(base, rr, 0.2);
+    const E = add(S0, rot(add(add(scl(rr, 0.9 * open), UP, 0.55), f, -0.1)), 1);
+    const W = add(E, rot(add(add(scl(rr, 0.95 * open), UP, 0.12), f, -0.18)), 1);
+    const push = (root, d, l, tone) => { const dir = norm(rot(d)); out.push({ root, dir, bend: norm(cross(dir, f)), len: l, tone, tip: add(root, dir, l) }); };
+    // 뼈대(굵은 앞깃)
+    push(S0, sub(E, S0), len(sub(E, S0)), 0.05);
+    push(E, sub(W, E), len(sub(W, E)), 0.05);
+    // 칼깃 5: 손목에서 바깥 → 아래로 펼쳐짐
+    for (let i = 0; i < 5; i++) {
+      const q = i / 4, a = rad(12 - q * 62);
+      push(add(W, rr, -q * 0.35), add(add(scl(rr, Math.cos(a)), UP, Math.sin(a)), f, -0.45), (2.5 - q * 0.6) * (0.7 + open * 0.3), 0.15);
+    }
+    // 둘째깃 5: 팔을 따라 아래·뒤로
+    for (let i = 0; i < 5; i++) {
+      const q = 0.12 + (i / 4) * 0.8, root = q < 0.5 ? add(S0, sub(E, S0), q * 2) : add(E, sub(W, E), (q - 0.5) * 2), a = rad(-62 + q * 22);
+      push(root, add(add(scl(rr, Math.cos(a) * 0.55), UP, Math.sin(a)), f, -0.4), 1.5 - q * 0.2, 0.1);
+    }
+    // 덮깃 4: 팔 위 짧은 깃
+    for (let i = 0; i < 4; i++) {
+      const q = 0.15 + i * 0.25, root = q < 0.5 ? add(S0, sub(E, S0), q * 2) : add(E, sub(W, E), (q - 0.5) * 2);
+      push(add(root, UP, 0.05), add(add(scl(rr, 0.7), UP, -0.45), f, -0.3), 0.75, 0);
+    }
+  }
+  return out;
+}
+function drawWings(dim, list, life = 0.16, size = 1) {
+  for (const w of list) feather(dim, w.root, w.dir, w.bend, { len: w.len, n: Math.round(w.len * 18), life, size, tone: w.tone, h: 0.1, thick: 0.26 });
+}
 function rapidFire(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  M.potion(p, "resistance", 3, 3);
+  M.potion(p, "resistance", 3, 4);
   const yw0 = yawOf(p), f0 = fwdOf(yw0);
   M.anim(p, "dash");
   try { p.applyKnockback(-f0.x, -f0.z, 1.1, 0.35); } catch {}
   M.sound(p, "mob.blaze.breathe", 0.8, 1.3);
+  M.sound(p, "mob.enderdragon.flap", 0.8, 1.4);
   ember(dim, up(p.location, 0.3), { n: 20, r: 0.6, spd: 2, life: 0.8 });
   let impact = null;
-  // 6~: 바닥에 활을 눕히고 (활 몸 = 플레이어 앞 바닥, 활 배가 앞) 8발 연속
+  const back = () => add(up(p.location, 1.4), fwdOf(yawOf(p)), -0.35);
+  // 0~30: 등에 붙은 3D 불 날개 (펼쳐지며 천천히 날갯짓)
+  for (let t = 0; t <= 30; t += 2) later(t + 1, () => {
+    const open = Math.min(1, 0.35 + t / 8);
+    drawWings(dim, wingFeathers(back(), yawOf(p), Math.sin(t * 0.35) * 0.18, open));
+    if (t % 6 === 0) ember(dim, back(), { n: 6, r: 0.8, spd: 1, life: 0.6, tone: 0.1 });
+    if (t % 10 === 0) M.sound(p, "mob.enderdragon.flap", 0.5, 1.6);
+  });
+  // 6~27: 바닥에 눕힌 거대한 활로 8발 연속 사격
   for (let t = 6; t <= 30; t += 3) later(t, () => {
     const L = p.location, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), v = viewOf(p);
     const SB = 0.05, H = add(up(L, 0.15), f, 1.6);
@@ -505,23 +553,37 @@ function rapidFire(ctx) {
       ember(dim, add(start, v, 0.5), { n: 4, r: 0.15, spd: 1.5, life: 0.4, tone: 0 });
     }
   });
-  // 32~: 불화살 비 — 맞힌 곳(없으면 앞 10칸)에 하늘에서 쏟아짐
-  later(32, () => {
+  // 32~44: 날개가 크게 펼쳐지며 하늘로 솟음 → 44: 흩어짐, 깃털 하나하나가 불화살이 되어 떨어짐
+  const base0 = { v: null };
+  for (let t = 32; t <= 44; t += 2) later(t, () => {
+    if (!base0.v) base0.v = { b: back(), yaw: yawOf(p) };
+    const e = (t - 32) / 12, b = add(base0.v.b, UP, e * e * 9);
+    drawWings(dim, wingFeathers(b, base0.v.yaw, -0.25 + e * 0.5, 1 + e * 0.4), 0.18, 1 + e * 0.4);
+    ember(dim, b, { n: 10, r: 1.2, spd: 1.5, life: 0.7, tone: 0 });
+    if (t === 32) { M.sound(p, "mob.enderdragon.flap", 1.2, 0.9); M.sound(p, "mob.blaze.shoot", 1, 0.6); }
+  });
+  later(46, () => {
     const L = p.location, v = viewOf(p);
     const c = impact ?? add(L, { x: v.x, y: 0, z: v.z }, 10);
-    M.sound(p, "mob.blaze.shoot", 1.2, 0.6);
-    ring(dim, up(c, 0.1), { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, 4.5, { life: 1.6, tone: 0.2, n: 200 });
-    for (let i = 0; i < 18; i++) later(Math.floor(i * 1.2), () => {
+    const b = add(base0.v?.b ?? back(), UP, 9);
+    const feathers = wingFeathers(b, base0.v?.yaw ?? yawOf(p), 0.25, 1.4);
+    M.sound(p, "random.explode", 0.7, 1.4);
+    ring(dim, up(c, 0.1), { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, 4.5, { life: 1.8, tone: 0.2, n: 200 });
+    feathers.forEach((w, i) => later(Math.floor(i * 0.8), () => {
+      // 깃털이 흩어지는 자리에서 불티가 터지고, 그 깃털이 불화살이 되어 목표로
+      fireBoom(dim, w.tip, { n: 2, r: 0.3, spd: 1, size: 1, life: 0.5 });
+      ember(dim, w.tip, { n: 6, r: 0.3, spd: 2, life: 0.6, tone: 0 });
       const a = Math.random() * Math.PI * 2, rr = Math.random() * 4.2;
       const land = { x: c.x + Math.cos(a) * rr, y: c.y, z: c.z + Math.sin(a) * rr };
-      const from = add(land, { x: -1.5, y: 14, z: -1.5 }), d = norm(sub(land, from));
-      let pos = from, k = 0;
+      const d = norm(sub(land, w.tip)), dist = len(sub(land, w.tip));
+      let pos = w.tip, k = 0;
+      const step = Math.max(2.2, dist / 7);
       const fall = () => {
         k++;
-        const next = add(pos, d, 3);
-        trail(dim, pos, next, { size: 1.3, life: 0.25, n: 18 });
+        const next = add(pos, d, step);
+        trail(dim, pos, next, { size: 1.3, life: 0.28, n: 18 });
         pos = next;
-        if (pos.y <= land.y + 0.3 || k > 8) {
+        if (len(sub(pos, w.tip)) >= dist - 0.2 || k > 10) {
           fireBoom(dim, up(land, 0.3), { n: 5, r: 0.3, spd: 2.5, size: 1.3 });
           ember(dim, up(land, 0.3), { n: 10, r: 0.3, spd: 3, life: 0.7 });
           for (const e of enemiesNear(dim, p, up(land, 0.5), 2, 1)) hit(e, 0.5, 3);
@@ -531,8 +593,8 @@ function rapidFire(ctx) {
         later(1, fall);
       };
       fall();
-    });
-    later(26, () => { // 마지막 큰 불 폭발
+    }));
+    later(30, () => { // 마지막 큰 불 폭발
       fireBoom(dim, up(c, 0.5), { n: 18, r: 1.4, spd: 5, size: 2.4 });
       pt(dim, "jj_ring", c, { n: 50, r: 0.5, spd: 12, size: 1.8, life: 0.6, tone: 0.1 });
       for (const e of enemiesNear(dim, p, up(c, 0.5), 5, 1.5)) hit(e, 1.2, 4);
@@ -546,6 +608,6 @@ function rapidFire(ctx) {
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
-    { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "뒤로 물러섰다가 바닥에 눕힌 거대한 활로 불화살 8발 연속 사격, 맞힌 곳에 불화살 비." },
+    { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러섰다가 바닥에 눕힌 거대한 활로 불화살 8발 연속 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
   ],
 };
