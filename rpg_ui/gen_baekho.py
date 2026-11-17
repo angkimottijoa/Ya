@@ -27,13 +27,39 @@ def pix(size):
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 4) + 3", 0], "uv_size": [1, 1]}}
 
 
+def boom_texture():
+    """폭발 뭉게 플립북 8프레임 (16x16씩, 가로로): 둥근 덩어리 → 위는 밝고 아래 오른쪽은 어두운 반달 그늘 → 점점 구멍 나며 사라짐"""
+    import random, math
+    rnd = random.Random(11)
+    noise = [[rnd.random() for _ in range(16)] for _ in range(16)]
+    im = Image.new("RGBA", (128, 16), (0, 0, 0, 0))
+    for f in range(8):
+        r = 7.6 - f * 0.25
+        ero = max(0, f - 2) / 6.5          # 처음 3프레임은 꽉 찬 덩어리
+        for y in range(16):
+            for x in range(16):
+                dx, dy = x - 7.5, y - 9.5      # 중심을 아래로 → 반구(돔)
+                d = math.hypot(dx, dy * (1.25 if dy < 0 else 1.0))
+                if d > r or dy > 3.5 or noise[y][x] < ero * (0.55 + d / r * 0.6):
+                    continue
+                lit = 1 - max(0, (dy + 4 + dx * 0.35) / (r + 4)) * 0.7 - f * 0.035
+                if dy > 0.5 and d > r * 0.45:      # 아래쪽 반달 그늘
+                    lit -= 0.25
+                if -3 < dy < 1 and -4 < dx < 1 and d < r * 0.55 and f < 5:  # 안쪽 깊은 그늘 (사진의 어두운 반달)
+                    lit -= 0.35
+                v = max(0, min(255, int(255 * lit)))
+                im.putpixel((f * 16 + x, y), (v, v, v, 255))
+    im.save(ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_boom.png")
+
+
 def main():
+    boom_texture()
     # 1) 발톱 자국
     q = R1                                    # 획 위치 0 → 1 (그어지는 순서)
     i = f"math.floor({R2} * variable.dots)"   # 몇 번째 발톱
     mid = f"math.sin({q} * 180)"              # 가운데 1, 양 끝 0 → 뾰족
     lane = f"(({i} - (variable.dots - 1) / 2) * variable.thick)"
-    wid = f"(({R3} - 0.5) * 0.2 * variable.size * (0.25 + {mid} * 0.75))"
+    wid = f"(({R3} - 0.5) * 0.3 * variable.size * (0.2 + {mid} * 0.8))"
     stag = f"({i} * 0.05 - variable.dots * 0.025)"  # 발톱마다 살짝 어긋나게
     # 발톱 줄 = 옆에서 보면 ")" — 가운데가 앞으로 나가고 양 끝이 플레이어 쪽으로 감기는 원호 (u·w 면)
     #   정면에서는 나란한 발톱 줄 (v 방향으로 간격), h = 호가 휘는 각도(도)
@@ -55,7 +81,7 @@ def main():
         "minecraft:particle_initial_speed": f"{R4} > 0.72 ? 0.8 + {R4} : 0",
         "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, f"{R4} > 0.72 ? -7 : 0", 0], "linear_drag_coefficient": 3},
         "minecraft:particle_appearance_billboard": pix(
-            f"variable.particle_age < {delay} ? 0 : variable.size * (0.065 + {mid} * 0.075) * (1 - {live} * 0.8)"),
+            f"variable.particle_age < {delay} ? 0 : variable.size * (0.07 + {mid} * 0.09) * (1 - {live} * 0.8)"),
         # 줄 가운데 흰색 → 가장자리 검정, 시간이 지나면 어두워짐
         "minecraft:particle_appearance_tinting": {"color": {
             "interpolant": f"math.clamp(math.abs({R3} - 0.5) * 2 + {live} * 0.3 + variable.tone, 0, 1)", "gradient": BW}},
@@ -84,7 +110,7 @@ def main():
     })
     # 4) 그림 점 찍기 (백호 머리 · 도끼): 텍스처 rpg_bh_art 의 (x0,y0,iw,ih) 영역을 픽셀마다 점으로
     #   u = 그림 가로, v = 그림 세로(위), w = 그림 앞(볼록하게 튀어나옴 depth → 입체), 기준점 (cx, cy), scale = 픽셀당 블록
-    CELL = 4
+    CELL = 8
     _art = Image.open(ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png")
     AWT, AHT = _art.size[0] // CELL, _art.size[1] // CELL
     bx, by = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
@@ -96,12 +122,12 @@ def main():
     part("bh_art", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
-        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [f"({R3} - 0.5)", "1", f"({R4} - 0.5)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
-        "minecraft:particle_initial_speed": 0,
-        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_initial_speed": f"0.15 + {R4} * 0.35",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.5, 0], "linear_drag_coefficient": 1.5},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.scale * 0.75 * variable.size * (1 - {AGE} * {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"variable.scale * 1.35 * variable.size * (0.85 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
                    "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_bh_art")
@@ -124,9 +150,9 @@ def main():
     part("bh_line", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
-        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r + variable.v.{c} * math.sin({R1} * 900 + variable.thick * 77) * 0.18 * variable.h" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r + variable.v.{c} * math.sin({R1} * 900 + variable.thick * 77) * 0.18 * variable.h" for c in "xyz"], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
-        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_initial_speed": "variable.vs",
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": pix(f"variable.size * (0.1 + {R3} * 0.06) * (1 - {R1} * 0.6) * (1 - {AGE} * 0.5)"),
         "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(variable.tone + ({R2} - 0.5) * 0.3, 0, 1)", "gradient": BW}},
@@ -146,26 +172,59 @@ def main():
     }, material="particles_blend")
     # 8) 3D 백호 몸 덩어리: 타원체 겉면 (u 긴 축, v 위, w 옆 — 벡터 길이 = 반지름)
     #    흰 털 + 위에서 빛 받는 음영 + 검은 줄무늬(thick = 줄 빈도, 0 이면 없음, 배 쪽은 줄 없음), tone 1 = 검정 부위
-    FUR = {"0.0": "#FFFFFFFF", "0.18": "#FFE8EAF0", "0.32": "#FFC4C8D2", "0.55": "#FF5C5E66", "0.8": "#FF1E1E22", "1.0": "#FF070707"}
+    FUR = {"0.0": "#FFFFFFFF", "0.15": "#FFEDEEF2", "0.3": "#FFC9CCD6", "0.45": "#FF8E929E", "0.62": "#FF4A4C54", "0.8": "#FF1C1C20", "1.0": "#FF060606"}
     zz_ = f"({R1} * 2 - 1)"
     rr2 = f"math.sqrt(math.max(0, 1 - {zz_} * {zz_}))"
     yy_ = f"({rr2} * math.cos({R2} * 360))"
     ss_ = f"({rr2} * math.sin({R2} * 360))"
     kk_ = f"(0.86 + {R4} * 0.14)"
-    stripe = f"(variable.thick > 0 && {yy_} > -0.3 && math.sin({zz_} * variable.thick * 180 + {ss_} * 50 + {yy_} * 30 + variable.h) > 0.38)"
+    # 줄무늬: 긴 축을 따라 세로 띠, 등에서 굵고 배 쪽으로 갈수록 가늘어져 끊김, 가장자리 들쭉날쭉
+    stripe = f"(variable.thick > 0 && {yy_} > -0.45 && math.sin({zz_} * variable.thick * 180 + {ss_} * 25 * {yy_} + math.sin({R2} * 1440) * 8 + variable.h) > 0.42 + (0.5 - {yy_} * 0.5) * 0.4)"
+    # 명암: 겉면 법선(대략 중심→점 방향)과 빛 방향(위·약간 앞옆)의 내적. 1 = 밝음, -1 = 그늘
+    nvec = [f"(variable.u.{c} * {zz_} + variable.v.{c} * {yy_} + variable.w.{c} * {ss_})" for c in "xyz"]
+    nlen = f"math.sqrt({nvec[0]} * {nvec[0]} + {nvec[1]} * {nvec[1]} + {nvec[2]} * {nvec[2]} + 0.0001)"
+    light = f"(({nvec[0]} * 0.35 + {nvec[1]} * 0.85 + {nvec[2]} * 0.4) / {nlen})"
     part("bh_blob", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
-        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * {zz_} + variable.v.{c} * {yy_} + variable.w.{c} * {ss_}) * {kk_}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * {zz_} + variable.v.{c} * {yy_} + variable.w.{c} * {ss_}) * {kk_}" for c in "xyz"], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R3} * 0.3)"},
-        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_initial_speed": "variable.vs",
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
             "size": [f"variable.size * (0.13 + {R3} * 0.07) * (1 - {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": {
-            "interpolant": f"{stripe} ? 0.96 : math.clamp(variable.tone + (1 - variable.tone) * (0.16 - {yy_} * 0.16) + ({R3} - 0.5) * 0.06, 0, 1)", "gradient": FUR}},
+            "interpolant": f"{stripe} ? 0.96 : math.clamp(variable.tone + (1 - variable.tone) * (0.2 - {light} * 0.26) + ({R3} - 0.5) * 0.05, 0, 1)", "gradient": FUR}},
     })
+    # 9) 폭발 뭉게: 플립북 (둥글게 부풀었다 구멍 나며 사라짐), tone 0 흰 ~ 1 검정
+    flip = {"texture_width": 128, "texture_height": 16, "uv": [0, 0], "uv_size": [16, 16],
+            "flipbook": {"base_UV": [0, 0], "size_UV": [16, 16], "step_UV": [16, 0], "max_frame": 8, "stretch_to_lifetime": True}}
+    boom_col = f"(1 - math.clamp(variable.tone + ({R4} - 0.5) * 0.25, 0, 1) * 0.86)"
+    part("bh_boom", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_sphere": {"radius": "variable.r", "direction": "outwards"},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R2} * 0.6)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.3 + {R1} * 0.7)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.8, 0], "linear_drag_coefficient": 3.5},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.55 + {R3} * 0.6) * (0.75 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz", "uv": flip},
+        "minecraft:particle_appearance_tinting": {"color": [boom_col, boom_col, f"{boom_col} * 1.02", 1]},
+    }, tex="textures/particle/rpg_bh_boom")
+    # 10) 퍼지는 폭발: 반지름이 커지는 고리를 따라 폭발 뭉게가 연달아 터짐 (땅을 타고 번지는 폭발)
+    wa = f"({R1} * 360)"
+    wr = "(variable.r + variable.emitter_age * variable.spd)"
+    part("bh_boomwave", {
+        "minecraft:emitter_rate_steady": {"spawn_rate": "variable.n", "max_particles": 600},
+        "minecraft:emitter_lifetime_once": {"active_time": "variable.dur"},
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({wa}) * {wr}", f"{R2} * 0.6 * variable.size", f"math.sin({wa}) * {wr}"],
+                                          "direction": [f"math.cos({wa}) * 0.3", "1", f"math.sin({wa}) * 0.3"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.6 + {R2} * 0.6)"},
+        "minecraft:particle_initial_speed": f"0.8 + {R1} * 1.5",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 1, 0], "linear_drag_coefficient": 3},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.6 + {R3} * 0.7) * (0.75 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz", "uv": flip},
+        "minecraft:particle_appearance_tinting": {"color": [boom_col, boom_col, f"{boom_col} * 1.02", 1]},
+    }, tex="textures/particle/rpg_bh_boom")
     item()
     print("baekho particles + item ok")
 

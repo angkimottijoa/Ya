@@ -11,7 +11,7 @@ ROOT = Path(__file__).parent
 SRC = ROOT / "art" / "baekho_axe_ref.png"
 OUT = ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png"
 ICON = ROOT / "resource_pack" / "textures" / "items" / "rpg" / "baekho_axe.png"
-CELL = 4
+CELL = 8
 TARGET_W = 150
 
 
@@ -65,7 +65,37 @@ def main():
     w, h = axe.size
     small = axe.resize((TARGET_W, max(1, round(h * TARGET_W / w))), Image.LANCZOS)
     n = clean(small)
-    big = small.resize((small.size[0] * CELL, small.size[1] * CELL), Image.NEAREST)
+    # 빨간 연기 점: 픽셀마다 듬성듬성한 연기 뭉치(4종), 밝기에 따라 짙은 빨강 → 빨강 → 연한 빨강
+    import random
+    rnd = random.Random(5)
+    clumps = []
+    for _ in range(4):
+        m = []
+        for j in range(CELL):
+            for i in range(CELL):
+                d = ((i - 3.5) ** 2 + (j - 3.5) ** 2) ** 0.5
+                if rnd.random() < max(0.0, 1.0 - d * 0.2):
+                    m.append((i, j))
+        clumps.append(m)
+    big = Image.new("RGBA", (small.size[0] * CELL, small.size[1] * CELL), (0, 0, 0, 0))
+    bp, sp0 = big.load(), small.load()
+    for y in range(small.size[1]):
+        for x in range(small.size[0]):
+            r, g, b, a = sp0[x, y]
+            if not a:
+                continue
+            lum = (r + g + b) / 765
+            gold = r > 180 and g > 140 and b < 110
+            if gold:
+                col = (255, 190, 120)
+            elif lum < 0.25:
+                col = (165 + int(lum * 120), 14, 16)          # 짙은 빨강
+            elif lum < 0.6:
+                col = (232, 38 + int((lum - 0.25) * 60), 34)  # 빨강
+            else:
+                col = (255, 105 + int((lum - 0.6) * 180), 92 + int((lum - 0.6) * 150))  # 연한 빨강
+            for i, j in clumps[(x * 7 + y * 13) % 4]:
+                bp[x * CELL + i, y * CELL + j] = col + (255,)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     big.save(OUT)
     bg = Image.new("RGBA", small.size, (90, 120, 80, 255))
