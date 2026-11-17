@@ -9,8 +9,7 @@
 //          벽에 닿는 투사체는 부서져 사라짐, 벽에 붙은 적은 밀려남
 //   ① 클릭  귀갑타: 3타 콤보 (방패 밀치기 → 뱀 꼬리 휘두르기 → 내리찍어 균열·띄우기) · 현무 기운 1개당 +15%
 //   ② 쉬프트+클릭  사신박: 방패에서 뱀이 뻗어 나가 처음 맞은 적을 휘감아 끌어옴 (독 · 느려짐)
-//   ③ 쉬프트+점프  현무진: 방패를 땅에 박아 큰 등껍질 벽 5초 → 끝날 때 벽이 깨지며 앞쪽으로 파편 폭발
-//   ④ 쉬프트 두 번  현무붕지: 거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄움
+//   ③ 쉬프트+점프  현무붕지 (+ 큰 현무진 4초): 거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄움
 //          → 끝(또는 처음 맞은 적)에서 흑요석빛 비취 바위 기둥 다발이 솟고 검은 뱀이 감아 오름 · 현무 기운을 모두 써서 강해짐
 // 파티클: gen_hyeonmu.py
 // ═══════════════════════════════════════════════════════════════════════
@@ -411,42 +410,25 @@ function serpentBind(ctx) {
 }
 
 // ───────── ③ 현무진 전개 ─────────
-function fortress(ctx) {
-  st(ctx.p).dmg = ctx.dmg;
-  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  M.anim(p, "smash");
-  M.potion(p, "resistance", 1, 5);
-  const f = flat(viewOf(p)), r = { x: -f.z, y: 0, z: f.x };
-  const base = add({ ...p.location }, f, 2);
-  // 큰 방패를 땅에 박음 (위에서 내려와 꽂힘)
-  for (let t = 0; t < 4; t++) later(t, () => shieldArt(dim, up(base, 1.9 + (3 - t) * 0.6), scl(r, -1), UP, 3.2, { n: 1100, life: 0.08 }));
-  later(4, () => {
-    shieldArt(dim, up(base, 1.9), scl(r, -1), UP, 3.2, { n: 1500, life: 5 });
-    ring(dim, base, { n: 80, spd: 10, size: 1.6 });
-    rocks(dim, base, { n: 26, r: 1.4, spd: 6 });
-    smoke(dim, base, { n: 10, r: 1.5, size: 1.8 });
-    for (let k = 0; k < 6; k++) crack(dim, base, { x: Math.cos(k * 1.05), y: 0, z: Math.sin(k * 1.05) }, 2 + Math.random() * 1.5, { life: 3 });
-    shake(dim, base, 0.4, 0.4);
-    snd(p, "random.anvil_land", 1, 0.5);
-    snd(p, "random.explode", 0.6, 0.7);
-    for (const e of foesAround(dim, p, base, 2.6)) { if (hit(e, 0.8)) M.toss(base, e, 8, 2.5); }
-    wall(p, {
-      sec: 5, half: 3.6, H: 4.4, big: true,
-      onEnd: (w) => { // 벽이 깨지며 앞쪽으로 파편 폭발
-        const mid = up(w.P0, w.H / 2);
-        pt(dim, "hm_flash", mid, { n: 4, spd: 1, size: 3, life: 0.3 });
-        for (let k = 0; k < 7; k++) { const q = add(up(w.P0, 0.5 + Math.random() * w.H), w.r, (k / 6 - 0.5) * 2 * w.half); glow(dim, q, { n: 10, r: 0.2, spd: 6, size: 1.1 }); rocks(dim, q, { n: 5, r: 0.3, spd: 5, life: 1 }); }
-        pt(dim, "hm_hex", mid, { u: w.r, v: UP, w: w.n, r: 9, h: 6, scale: 0.55, thick: 0.05, n: 300, size: 1.3, life: 0.4, tone: 0 });
-        for (const e of foesAround(dim, p, add(mid, w.n, 2.5), 4.2)) { if (dot(sub(e.location, w.P0), w.n) > -0.5 && hit(e, 1.3)) M.toss(w.P0, e, 10, 3); }
-        shake(dim, w.P0, 0.4, 0.3);
-        snd(p, "random.glass", 1, 0.6);
-        snd(p, "random.explode", 0.8, 1.1);
-      },
-    });
+/** 큰 현무진: 박힌 방패 앞에 큰 등껍질 벽 → 끝날 때 깨지며 앞으로 파편 폭발 */
+function bigWall(p, hit, sec) {
+  const dim = p.dimension;
+  wall(p, {
+    sec, half: 3.6, H: 4.4, big: true,
+    onEnd: (w) => {
+      const mid = up(w.P0, w.H / 2);
+      pt(dim, "hm_flash", mid, { n: 4, spd: 1, size: 3, life: 0.3 });
+      for (let k = 0; k < 7; k++) { const q = add(up(w.P0, 0.5 + Math.random() * w.H), w.r, (k / 6 - 0.5) * 2 * w.half); glow(dim, q, { n: 10, r: 0.2, spd: 6, size: 1.1 }); rocks(dim, q, { n: 5, r: 0.3, spd: 5, life: 1 }); }
+      pt(dim, "hm_hex", mid, { u: w.r, v: UP, w: w.n, r: 9, h: 6, scale: 0.55, thick: 0.05, n: 300, size: 1.3, life: 0.4, tone: 0 });
+      for (const e of foesAround(dim, p, add(mid, w.n, 2.5), 4.2)) { if (dot(sub(e.location, w.P0), w.n) > -0.5 && hit(e, 1.3)) M.toss(w.P0, e, 10, 3); }
+      shake(dim, w.P0, 0.4, 0.3);
+      snd(p, "random.glass", 1, 0.6);
+      snd(p, "random.explode", 0.8, 1.1);
+    },
   });
 }
 
-// ───────── ④ 현무붕지 ─────────
+// ───────── ③ 현무붕지 (쉬프트+점프): 내리찍기 → 대지 솟음 → 바위 기둥 다발, 박힌 방패 앞에 4초 현무진 ─────────
 function earthbreak(ctx) {
   st(ctx.p).dmg = ctx.dmg;
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
@@ -474,7 +456,7 @@ function earthbreak(ctx) {
   });
   later(11, () => {
     const G = add(o, f0, 1.8);
-    shieldArt(dim, up(G, 0.9), scl(r0, 1), norm(add(UP, f0, 1.4)), 4.5, { n: 1500, life: 2.5 });
+    shieldArt(dim, up(G, 0.9), scl(r0, 1), norm(add(UP, f0, 1.4)), 4.5, { n: 1500, life: 4.2 });
     pt(dim, "hm_flash", up(G, 1), { n: 5, spd: 1.5, size: 4, life: 0.35 });
     ring(dim, G, { n: 110, spd: 14, size: 2, life: 0.7 });
     ring(dim, G, { n: 70, spd: 7, size: 1.6, life: 0.8, tone: 0.3 });
@@ -487,6 +469,7 @@ function earthbreak(ctx) {
     for (const e of foesAround(dim, p, G, 3)) if (hit(e, 0.8 * mul)) knockUp(e, 0.7, 1);
     for (const deg of lines) wave(deg);
   });
+  later(13, () => bigWall(p, hit, 4)); // 박힌 거대 방패 앞에 큰 등껍질 벽 (대지가 갈라지는 동안 앞을 막아 줌)
   const done = new Set();
   let first = null;
   function wave(deg) {
@@ -570,7 +553,6 @@ export const WEAPON_SKILLS = {
   [SHIELD_ID]: [
     { id: "w_hm_1", key: 1, name: "현무 · 귀갑타", short: "귀갑타", lv: 1, mp: 5, cd: 0.35, pow: 1, run: bash, desc: "3타 콤보: 방패 밀치기 → 뱀 꼬리 휘두르기(독) → 내리찍어 균열·바위 기둥·띄우기. 현무 기운 1개당 +15%. 우클릭을 길게 누르면 막기, 맞기 직전 0.3초 안에 누르면 완벽 패링." },
     { id: "w_hm_2", key: 2, name: "현무 · 사신박", short: "사신박", lv: 1, mp: 18, cd: 8, pow: 1, run: serpentBind, desc: "방패에서 검푸른 뱀이 11칸 뻗어 처음 맞은 적을 휘감아(독·느려짐) 내 앞으로 끌어온다." },
-    { id: "w_hm_3", key: 3, name: "현무 · 현무진", short: "현무진", lv: 1, mp: 28, cd: 18, pow: 1, run: fortress, desc: "큰 방패를 땅에 박아 5초 동안 육각 등껍질 벽을 세운다. 벽 뒤의 나와 아군은 앞에서 오는 공격을 받지 않고 투사체는 부서진다. 끝날 때 벽이 깨지며 앞으로 파편 폭발." },
-    { id: "w_hm_4", key: 4, name: "현무 · 붕지", short: "붕지", lv: 1, mp: 45, cd: 26, pow: 1, run: earthbreak, desc: "거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄우고, 끝에서 흑요석빛 바위 기둥 다발이 솟는다. 현무 기운을 모두 써서 넓고 강해지며, 3개면 두 갈래로 갈라진다." },
+    { id: "w_hm_3", key: 3, name: "현무 · 붕지", short: "붕지", lv: 1, mp: 50, cd: 26, pow: 1, run: earthbreak, desc: "거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄우고, 끝에서 흑요석빛 바위 기둥 다발이 솟는다. 박힌 방패 앞에는 4초 동안 큰 현무진(벽 뒤는 앞쪽 공격 무시, 끝날 때 파편 폭발). 현무 기운을 모두 써서 넓고 강해지며, 3개면 두 갈래로 갈라진다." },
   ],
 };
