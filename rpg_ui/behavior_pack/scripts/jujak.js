@@ -193,7 +193,6 @@ function restoreHold(p) {
   if (!h) return;
   try { p.teleport({ x: h.x, y: h.y, z: h.z }, { rotation: p.getRotation(), keepVelocity: false }); } catch {}
   try { p.setDynamicProperty(HOLD, undefined); } catch {}
-  skillLock.delete(p.id);
   try { p.removeEffect("slowness"); } catch {}
   M.potion(p, "slow_falling", 1, 1);
   if (h.decoy) for (const [id, pid] of decoyOwner) if (id === h.decoy) { decoyOwner.delete(id); try { world.getEntity(id)?.remove(); } catch {} }
@@ -209,9 +208,13 @@ world.afterEvents.entityHurt.subscribe(({ hurtEntity, damage, damageSource }) =>
   }
 });
 // 다시 접속했거나 스크립트가 다시 시작된 경우: 붙잡혀 있던 몸을 원래 자리로, 주인 없는 대역 정리
-world.afterEvents.playerSpawn.subscribe(({ player }) => { if (!aiming.has(player.id)) restoreHold(player); });
+world.afterEvents.playerSpawn.subscribe(({ player }) => { if (!aiming.has(player.id)) { restoreHold(player); skillLock.delete(player.id); } });
 system.runInterval(() => {
-  for (const p of world.getAllPlayers()) if (!aiming.has(p.id) && p.getDynamicProperty(HOLD)) restoreHold(p);
+  for (const p of world.getAllPlayers()) {
+    if (!aiming.has(p.id) && p.getDynamicProperty(HOLD)) restoreHold(p);
+    // 안전장치: 조준도 아니고 큰 화살도 끝났는데 잠겨 있으면 풂
+    if (skillLock.has(p.id) && !aiming.has(p.id) && system.currentTick > (shotLock.get(p.id) ?? 0)) skillLock.delete(p.id);
+  }
   for (const dn of ["overworld", "nether", "the_end"]) {
     try { for (const e of world.getDimension(dn).getEntities({ type: "rpg:jj_decoy" })) if (!decoyOwner.has(e.id)) e.remove(); } catch {}
   }
@@ -228,7 +231,11 @@ function gaugeText(pos) {
 }
 const aiming = new Map(); // pid -> release(zone) 함수
 /** 3단 조준 중 다시 클릭하면 쏨 (skills.js 가 쿨다운 전에 먼저 부름) */
-export function releaseAim(p) { const f = aiming.get(p.id); if (!f) return false; f(); return true; }
+const shotLock = new Map(); // pid -> 이 틱까지 클릭 무시 (발사한 큰 화살이 터질 때까지)
+export function releaseAim(p) {
+  if (system.currentTick < (shotLock.get(p.id) ?? 0)) return true; // 이미 한 번 눌렀음 → 무시
+  const f = aiming.get(p.id); if (!f) return false; f(); return true;
+}
 function bigShot(ctx, done) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "bow_draw");
@@ -242,14 +249,15 @@ function bigShot(ctx, done) {
   let decoy = null;
   try { decoy = dim.spawnEntity("rpg:jj_decoy", base); decoy.setRotation?.({ x: 0, y: yaw0 }); decoyOwner.set(decoy.id, p.id); } catch {}
   try { p.setDynamicProperty(HOLD, JSON.stringify({ x: base.x, y: base.y, z: base.z, decoy: decoy?.id })); } catch {}
-  const unhide = () => { restoreHold(p); skillLock.delete(p.id); };
+  const unhide = () => { restoreHold(p); }; // 스킬 잠금은 큰 화살이 터질 때 풂
   skillLock.add(p.id);
   try { p.teleport(sky, { keepVelocity: false }); } catch {} // 한 번만 옮기고, 이후엔 속도를 0으로 붙잡음 (고개는 자유롭게)
   const MAX = 100; // 5초 안에 안 누르면 빗나감으로 발사
   let t = 0, fired = false;
   const release = () => {
-    if (fired) return;
+    if (fired || t < 6) return; // 게이지는 한 번만, 처음 0.3초 동안의 터치는 무시 (연타·꾹 누름 방지)
     fired = true;
+    shotLock.set(p.id, system.currentTick + 60);
     aiming.delete(p.id);
     const zone = GAUGE[gaugePos(t)];
     shoot(zone);
@@ -293,7 +301,7 @@ function bigShot(ctx, done) {
   later(1, loop);
   // 발사: zone 에 따라 세기 (2 완벽 / 1 좋음 / 0 빗나감)
   const shoot = (zone) => {
-    if (!p.isValid()) { unhide(); return done(); }
+    if (!p.isValid()) { unhide(); skillLock.delete(p.id); return done(); }
     const pow = [0.4, 1, 1.5][zone], big = [0.55, 1, 1.3][zone]; // 피해: 빗나감 0.4 · 좋음 1 · 완벽 1.5
     say(p, ["§7빗나감... 약한 화살", "§6좋음! 큰 불화살", "§c§l완벽!! §r§6주작의 화살"][zone]);
     M.anim(p, "shoot");
@@ -361,6 +369,8 @@ function bigShot(ctx, done) {
     shake(dim, at, 0.9 * big, 0.7);
     M.sound(p, "random.explode", 1.6 * big, 0.8);
     M.sound(p, "mob.blaze.death", 0.9, 1.3);
+    shotLock.set(p.id, system.currentTick + 6);
+    skillLock.delete(p.id);
     done();
   };
 }
@@ -397,6 +407,7 @@ function flameShot(ctx) {
   refill(p, st);
   if (st.ammo <= 0) { say(p, `§7화살이 없습니다 — ${Math.ceil((refillDelay(st) - (now - st.last)) / 20)}초 뒤 자동 장전`); return; }
   if (aiming.has(p.id)) { releaseAim(p); return; } // 3단 조준 중 다시 클릭 = 발사
+  if (now < (shotLock.get(p.id) ?? 0)) return;          // 큰 화살이 날아가는 중엔 클릭 무시
   if (now > st.until) st.stage = 0;
   const eye = eyeOf(p), v = viewOf(p), start = add(eye, v, 1);
   const next = (stage, msg) => { st.stage = stage; st.until = system.currentTick + 120; say(p, msg); M.sound(p, "random.orb", 0.6, 0.8 + stage * 0.3); };
