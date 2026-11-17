@@ -631,8 +631,8 @@ function rapidFire(ctx) {
 }
 
 // ───────── ③ 주작 · 비상 (쉬프트+점프) ─────────
-// 뒤로 크게 도약 → 공중에 멈춤(시선 자유) → 등의 불 날개를 크게 세 번 퍼덕여 앞쪽에 불비 → 주위에 불화살 셋 + 날개 앞 엄청 큰 불화살
-//   → 곁 화살 발사 + 큰 화살에서 주작이 튀어나와 조준 지점으로 날아가 큰 폭발
+// 뒤로 크게 도약 → 공중에 멈춤(시선 자유) → 등의 불 날개를 크게 세 번 퍼덕여 앞쪽에 불비 → 주위에 불화살 셋 + 날개 앞 거대한 활 소환
+//   → 시위에 건 주작을 당겨 쏨: 곁 화살 발사 + 주작이 크게 날갯짓하며 천천히 출렁이며 조준 지점으로 날아가 큰 폭발
 /** 주작(불새): 몸통 깃털 · 머리(고리 + 부리 + 볏) · 크게 날갯짓하는 날개 · 물결치는 긴 꼬리깃 */
 function phoenix(dim, c, yaw, t, k = 1.4) {
   const f = fwdOf(yaw), r = rightOf(yaw), flap = Math.sin(t * 0.55) * 0.75; // 진짜 나는 듯한 큰 날갯짓
@@ -662,8 +662,8 @@ function soar(ctx) {
   ember(dim, up(p.location, 0.2), { n: 30, r: 0.8, spd: 3, life: 0.8 });
   const back = () => add(up(p.location, 1.4), fwdOf(yawOf(p)), -0.35);
   let hold = null;
-  // 1~46: 날개, 8부터 공중에 멈춤 (몸은 고정, 시선은 자유)
-  for (let t = 1; t <= 46; t++) later(t, () => {
+  // 1~48: 날개, 8부터 공중에 멈춤 (몸은 고정, 시선은 자유)
+  for (let t = 1; t <= 48; t++) later(t, () => {
     if (t >= 8) {
       if (!hold) hold = { ...p.location };
       try { p.applyKnockback(0, 0, 0, 0.03); } catch {}
@@ -702,59 +702,72 @@ function soar(ctx) {
       fall();
     });
   });
-  // 32~44: 주위에 불화살 셋 + 날개 앞에 엄청 큰 불화살 → 조준 지점을 겨누며 기를 모음
+  // 32~46: 주위에 불화살 셋 + 날개 앞에 거대한 활 소환 → 시위에 주작을 걸고 조준 지점을 겨눠 당김
   const aimAt = () => {
     try { const h = p.getEntitiesFromViewDirection({ maxDistance: 45 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id); if (h) return center(h); } catch {}
     try { const bh = p.getBlockFromViewDirection({ maxDistance: 45 }); if (bh) return add(bh.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {}
     return add(eyeOf(p), viewOf(p), 30);
   };
-  const SAm = 2.6 / AR.iw, SAh = 9 / AR.iw; // 곁 화살 2.6블록, 큰 화살 9블록
-  const arrowsNow = () => {
+  const SAm = 2.6 / AR.iw, SBg = 0.1; // 곁 화살 2.6블록, 거대한 활 높이 약 7블록
+  const yawTo = (d) => (Math.atan2(-d.x, d.z) * 180) / Math.PI;
+  const giant = (k) => {
     const eye = eyeOf(p), tgt = aimAt(), d = norm(sub(tgt, eye));
     const side = norm(len(cross(d, UP)) > 0.1 ? cross(d, UP) : rightOf(yawOf(p))), upv = norm(cross(side, d));
     const around = [90, 210, 330].map((deg) => add(add(eye, side, Math.cos(rad(deg)) * 1.7), upv, Math.sin(rad(deg)) * 1.7));
-    const bigTail = add(eye, d, 0.8);
-    return { tgt, d, upv, around, bigTail };
+    // 거대한 활: 날개 앞(시선 앞 3.5칸, 조금 아래), 활 배가 조준 쪽
+    const H = add(add(eye, d, 3.5), upv, -0.6);
+    const rel = (ix, iy) => add(scl(d, (ix - BOW.cx) * SBg), upv, (BOW.cy - iy) * SBg);
+    const tipT = add(H, rel(BOW.top[0], BOW.top[1])), tipB = add(H, rel(BOW.bot[0], BOW.bot[1]));
+    const nock = add(scl(add(tipT, tipB), 0.5), d, -3.2 * k);
+    return { tgt, d, upv, around, H, tipT, tipB, nock };
   };
-  for (let t = 32; t <= 44; t += 2) later(t, () => {
-    const A = arrowsNow(), k = (t - 32) / 12;
-    for (const q of A.around) {
-      pt(dim, "jj_bigarrow", q, { cx: AR.cx, cy: AR.cy, u: A.d, v: A.upv, scale: SAm, n: 700, life: 0.16, size: 1 });
-      ember(dim, add(q, A.d, 2.2), { n: 2, r: 0.1, spd: 0.6, life: 0.4, tone: 0 });
+  for (let t = 32; t <= 46; t += 2) later(t, () => {
+    const k = ease((t - 32) / 14), G = giant(k);
+    for (const q of G.around) {
+      pt(dim, "jj_bigarrow", q, { cx: AR.cx, cy: AR.cy, u: G.d, v: G.upv, scale: SAm, n: 700, life: 0.16, size: 1 });
+      ember(dim, add(q, G.d, 2.2), { n: 2, r: 0.1, spd: 0.6, life: 0.4, tone: 0 });
     }
-    pt(dim, "jj_bigarrow", A.bigTail, { cx: AR.cx, cy: AR.cy, u: A.d, v: A.upv, scale: SAh * (0.6 + k * 0.4), n: 2600, life: 0.16, size: 1.5 });
-    trail(dim, A.bigTail, add(A.bigTail, A.d, 9 * (0.6 + k * 0.4)), { size: 2.2, life: 0.16, n: 40, tone: 0.1 });
-    ember(dim, add(A.bigTail, A.d, 8), { n: 6, r: 0.5, spd: 1.5, life: 0.5, tone: 0 });
+    if (t % 4 === 0) pt(dim, "jj_bow", G.H, { cx: BOW.cx, cy: BOW.cy, u: G.d, v: G.upv, scale: SBg, n: Math.round((BOW.filled * 0.8) / BOW.fill), life: 0.3, size: 1.4 });
+    trail(dim, G.tipT, G.nock, { size: 2, life: 0.16, n: 50, tone: 0.3 });
+    trail(dim, G.tipB, G.nock, { size: 2, life: 0.16, n: 50, tone: 0.3 });
+    phoenix(dim, add(G.nock, G.d, 1.5), yawTo(G.d), t, 0.7 + k * 0.6); // 시위에 걸린 주작이 점점 커짐
     if (t % 4 === 0) M.sound(p, "note.pling", 0.6 + k * 0.4, 0.6 + k * 1.2);
-    if (t === 32) { M.sound(p, "mob.blaze.shoot", 1.3, 0.6); flashScreen(p, 1, 0.55, 0.15, 0.25); }
+    if (t === 32) { M.sound(p, "mob.blaze.shoot", 1.3, 0.6); flashScreen(p, 1, 0.55, 0.15, 0.25); ember(dim, G.H, { n: 40, r: 2, spd: 2, life: 0.8, tone: 0 }); }
   });
-  // 45: 곁 화살 셋 발사 + 큰 화살에서 주작이 튀어나와 조준 지점으로 날아감
-  later(45, () => {
-    const A = arrowsNow();
-    for (const q of A.around) fireArrow(ctx, q, norm(sub(A.tgt, q)), { mul: 0.8, radius: 1.6, speed: 2.8 });
-    M.sound(p, "random.bow", 1.3, 0.7);
-    M.sound(p, "mob.enderdragon.growl", 0.8, 1.8);
+  // 47: 곁 화살 셋 발사 + 시위를 놓으면 주작이 날아감 (천천히, 출렁이며, 크게)
+  later(47, () => {
+    const G = giant(1);
+    for (const q of G.around) fireArrow(ctx, q, norm(sub(G.tgt, q)), { mul: 0.8, radius: 1.6, speed: 2.8 });
+    M.sound(p, "random.bow", 1.5, 0.5);
+    M.sound(p, "mob.enderdragon.growl", 0.9, 1.6);
     flashScreen(p, 1, 0.5, 0.1, 0.3);
-    fireBoom(dim, add(A.bigTail, A.d, 6), { n: 18, r: 1.2, spd: 5, size: 2.2 });
-    let pos = add(A.bigTail, A.d, 6), t2 = 0;
-    const goal = A.tgt, total = Math.max(6, Math.ceil(len(sub(goal, pos)) / 2.2));
-    const yawTo = (d) => (Math.atan2(-d.x, d.z) * 180) / Math.PI;
+    trail(dim, G.tipT, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
+    trail(dim, G.tipB, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
+    fireBoom(dim, G.nock, { n: 14, r: 1, spd: 4, size: 2 });
+    const start = add(G.nock, G.d, 1.5), goal = G.tgt, dist = len(sub(goal, start));
+    const T = Math.max(24, Math.min(50, Math.round(dist / 0.9))); // 1초 이상 천천히 (멀면 조금 빠르게)
+    const side = norm(len(cross(G.d, UP)) > 0.1 ? cross(G.d, UP) : { x: 1, y: 0, z: 0 });
+    let t2 = 0, prev = start;
     const fly = () => {
       t2++;
-      const d = norm(sub(goal, pos)), step = Math.min(2.2, len(sub(goal, pos)));
-      const next = add(pos, d, step);
-      if (t2 % 2 === 1) phoenix(dim, pos, yawTo(d), t2 * 2, 1.5);
-      trail(dim, add(pos, d, -3), pos, { size: 2.4, life: 0.5, n: 40 });
-      ember(dim, pos, { n: 8, r: 1, spd: 1.5, life: 0.8 });
-      if (t2 % 3 === 0) { fireBoom(dim, pos, { n: 4, r: 0.6, spd: 2, size: 1.6, tone: 0.1 }); for (const e of enemiesNear(dim, p, pos, 3, 1.5)) hit(e, 0.7, 4); }
-      pos = next;
-      if (len(sub(goal, pos)) < 0.5 || t2 > total + 4) { finish(goal); return; }
+      const q = t2 / T, e = q * q * (3 - 2 * q);
+      // 출렁이며 좌우로 휘는 비행 (끝으로 갈수록 줄어듦)
+      const wob = Math.sin(q * Math.PI * 3) * 1.6 * (1 - q), bob = Math.sin(q * Math.PI * 5) * 0.7 * (1 - q * 0.8);
+      const pos = add(add(add(start, sub(goal, start), e), side, wob), UP, bob);
+      const dir = norm(sub(pos, prev));
+      if (t2 % 2 === 1) phoenix(dim, pos, yawTo(len(dir) > 0.01 ? dir : G.d), t2 * 1.6, 1.9); // 크게, 크게 날갯짓
+      trail(dim, prev, pos, { size: 2.6, life: 0.7, n: 30 });
+      ember(dim, pos, { n: 10, r: 1.4, spd: 1.2, life: 1 });
+      if (t2 % 4 === 0) { fireBoom(dim, pos, { n: 4, r: 0.8, spd: 1.5, size: 1.8, tone: 0.1 }); for (const e2 of enemiesNear(dim, p, pos, 3.2, 1.5)) hit(e2, 0.7, 4); }
+      if (t2 % 8 === 0) M.sound(p, "mob.enderdragon.flap", 0.9, 1.2);
+      prev = pos;
+      if (t2 >= T) { finish(goal); return; }
       later(1, fly);
     };
     fly();
   });
   // 공중 정지 풀기 (주작이 날아간 뒤)
-  later(47, () => M.potion(p, "slow_falling", 1, 2));
+  later(49, () => M.potion(p, "slow_falling", 1, 2));
   const finish = (L) => {
     try { dim.spawnParticle("minecraft:huge_explosion_emitter", L); } catch {}
     fireBoom(dim, L, { n: 30, r: 1.8, spd: 7.5, size: 3.2, life: 1.1 });
@@ -767,14 +780,14 @@ function soar(ctx) {
     M.sound(p, "random.explode", 1.6, 0.8);
     skillLock.delete(p.id);
   };
-  later(80, () => skillLock.delete(p.id)); // 안전장치
+  later(120, () => skillLock.delete(p.id)); // 안전장치
 }
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
-    { id: "w_jj_3", key: 3, name: "주작 · 비상", short: "비상", lv: 1, mp: 40, cd: 18, pow: 1, run: soar, desc: "뒤로 크게 도약해 공중에 멈춘 뒤 불 날개를 세 번 퍼덕여 불비를 내리고, 주위 불화살 셋과 거대한 불화살을 겨눠 쏘면 큰 화살에서 주작이 나와 조준 지점으로 날아가 폭발." },
+    { id: "w_jj_3", key: 3, name: "주작 · 비상", short: "비상", lv: 1, mp: 40, cd: 18, pow: 1, run: soar, desc: "뒤로 크게 도약해 공중에 멈춘 뒤 불 날개를 세 번 퍼덕여 불비를 내리고, 거대한 활을 소환해 시위에 건 주작을 쏘면 주작이 날갯짓하며 조준 지점으로 날아가 폭발." },
     { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러서면 등 뒤 양옆에 활 6개가 나타나 목표를 향해 세 번 일제 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
   ],
 };
