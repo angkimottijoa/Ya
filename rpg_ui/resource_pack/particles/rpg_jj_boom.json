@@ -1,0 +1,84 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:jj_boom",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/rpg_bh_boom"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_sphere": {
+    "radius": "variable.r",
+    "direction": "outwards"
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life * (0.6 + variable.particle_random_2 * 0.6)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * (0.3 + variable.particle_random_1 * 0.7)",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     1.5,
+     0
+    ],
+    "linear_drag_coefficient": 3.5
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (0.55 + variable.particle_random_3 * 0.6) * (0.75 + (variable.particle_age / variable.particle_lifetime) * 0.4)",
+     "variable.size * (0.55 + variable.particle_random_3 * 0.6) * (0.75 + (variable.particle_age / variable.particle_lifetime) * 0.4)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 128,
+     "texture_height": 16,
+     "uv": [
+      0,
+      0
+     ],
+     "uv_size": [
+      16,
+      16
+     ],
+     "flipbook": {
+      "base_UV": [
+       0,
+       0
+      ],
+      "size_UV": [
+       16,
+       16
+      ],
+      "step_UV": [
+       16,
+       0
+      ],
+      "max_frame": 8,
+      "stretch_to_lifetime": true
+     }
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp((variable.particle_age / variable.particle_lifetime) * 0.9 + variable.particle_random_4 * 0.2 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFF8D0",
+      "0.2": "#FFFFDC50",
+      "0.42": "#FFFF9A1E",
+      "0.65": "#FFEB4410",
+      "0.85": "#FFA0140A",
+      "1.0": "#FF3C0804"
+     }
+    }
+   }
+  }
+ }
+}

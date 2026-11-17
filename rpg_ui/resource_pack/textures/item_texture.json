@@ -106,6 +106,9 @@
     },
     "rpg_baekho_axe": {
       "textures": "textures/items/rpg/baekho_axe"
+    },
+    "rpg_jujak_bow": {
+      "textures": "textures/items/rpg/jujak_bow"
     }
   }
 }

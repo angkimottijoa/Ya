@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V6.4.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V6.5.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,13 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V6.5 변경
+- 새 스킬 무기 **주작의 활** (rpg:jujak_bow, 아이콘·활·큰 불화살 = 사용자 그림 art/jujak_*_ref.png, 관리자 지급·상점 30000G)
+  - ① 클릭 주작 · 화시 (3단 콤보): 불화살 한 발 → 맞히면 세 발(부채꼴) → 맞히면 주작의 활이 나타나 2초 동안 시위를 당겨 조준(옆 어깨 카메라, 목표 발밑 불 고리) → 큰 불화살이 목표를 끝까지 따라가 명중 → 불 폭발·불 폭발 원 3겹
+  - 6초 안에 이어 쏘지 않거나 빗나가면 1단으로
+- 새 파티클: jj_bow, jj_bigarrow(그림 점 찍기), jj_ember(불티), jj_trail(불꽃 줄), jj_boom(불 폭발 뭉게), jj_ring(불 폭발 원), 새 모션 bow_draw
+- 생성: gen_jujak.py, 스크립트: jujak.js
 
 ## V6.4 변경
 - 와선창의 창을 사용자 그림(art/cheongryong_spear_ref.png) 그대로 점 찍기 (gen_spear.py → 파티클 rpg:cr_spear, 쥐는 곳 cr_spear_meta.js)
