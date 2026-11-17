@@ -533,6 +533,25 @@ def main():
             "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": [f"0.2 + {R1} * 0.14", f"0.22 + {R1} * 0.15", f"0.3 + {R1} * 0.16", f"math.sin({AGE} * 180) * 0.9"]},
     }, material="particles_blend")
+    # 9) 파도: u·v = 바닥 면, a0~a1 = 파도 폭(도), r = 시작 반지름, spd = 밀려가는 속도, h = 높이, thick = 물마루가 앞으로 말리는 정도
+    #   점이 스스로 바깥으로 밀려가며 솟았다 부서짐 (스크립트는 한 번만 뿌림), 아래 짙은 파랑 → 물마루 흰 거품
+    th = f"(variable.a0 + (variable.a1 - variable.a0) * {R1})"
+    q = f"math.pow({R2}, 0.8)"
+    dirs = [f"(variable.u.{c} * math.cos({th}) + variable.v.{c} * math.sin({th}))" for c in "xyz"]
+    part("cr_wave", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"{dirs[i]} * (variable.r + variable.thick * {q} * {q} + ({R3} - 0.5) * 0.7) + {['0', 'variable.h * ' + q, '0'][i]}" for i in range(3)],
+                                          "direction": [dirs[0], f"0.08 * {q}", dirs[2]]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R4} * 0.3)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.92 + {R4} * 0.16)",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 0.35},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.38 + {R4} * 0.3) * (0.35 + math.sin({AGE} * 180) * 0.85)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 4) + 4", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp({q} * 0.8 + {AGE} * 0.25, 0, 1)",
+                                                            "gradient": {"0.0": "#E8143E8C", "0.35": "#E02A6FC4", "0.6": "#D84E9CE6", "0.82": "#D0B4E6FF", "1.0": "#B8FFFFFF"}}},
+    }, material="particles_blend")
     item()
     print("cheongryong particles + item ok")
 
