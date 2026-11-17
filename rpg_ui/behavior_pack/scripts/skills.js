@@ -14,8 +14,9 @@ import * as MSR from "./msrun.js";
 import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
 import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
+import * as HM from "./hyeonmu.js";
 import { isSkillLocked } from "./skill_lock.js";
-const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS };
+const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS };
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
@@ -341,8 +342,10 @@ export function skillJumpTick(p) {
 }
 
 export function initSkillTriggers() {
+  HM.setShieldCaster(castKey); // 현무의 방패: 짧게 눌렀다 떼면 ①/② (누른 순간은 패링 판정)
   world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
     if (p?.typeId !== "minecraft:player" || !(J.pathOfTool(itemStack?.typeId) || WEAPON_SKILLS[itemStack?.typeId])) return;
+    if (itemStack?.typeId === HM.SHIELD_ID && HM.HANDLES_USE) { HM.useEvent(p); return; } // 방패는 누름·뗌 이벤트로 처리 (안 오면 클릭으로)
     if (itemStack?.typeId === "rpg:jujak_bow" && jjRelease(p)) return; // 주작 3단 조준 중 클릭 = 발사 (쿨타임·MP 없이)
     castKey(p, p.isSneaking ? 2 : 1);
   });

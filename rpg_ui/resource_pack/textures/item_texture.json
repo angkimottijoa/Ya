@@ -109,6 +109,9 @@
     },
     "rpg_jujak_bow": {
       "textures": "textures/items/rpg/jujak_bow"
+    },
+    "rpg_hyeonmu_shield": {
+      "textures": "textures/items/rpg/hyeonmu_shield"
     }
   }
 }

@@ -850,6 +850,7 @@ function playerTab(p, selId) {
     return re();
   });
   scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
+  scr.action("§2현무의 방패 지급", () => { giveItem(t, "rpg:hyeonmu_shield", 1); msg(p, "§2현무의 방패를 지급했습니다."); return re(); });
   scr.action("§6주작의 활 지급", () => { giveItem(t, "rpg:jujak_bow", 1); msg(p, "§6주작의 활을 지급했습니다."); return re(); });
   scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });

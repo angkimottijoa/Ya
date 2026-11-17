@@ -9,6 +9,7 @@ import { partyOf, memberIds } from "./party.js";
 import { combatStats } from "./combat.js";
 import { currentSkillInfo, heldWeaponSkills } from "./skills.js";
 import { ammoLine, BOW_ID } from "./jujak.js";
+import { shieldLine, heldShield } from "./hyeonmu.js";
 import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
@@ -50,6 +51,7 @@ export function card(p) {
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
     ...skillLines(info.list.map(sk).filter(Boolean), info.holding),
     heldBow(p) ? ammoLine(p) : "",
+    heldShield(p) ? shieldLine(p) : "",
     d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,
