@@ -152,7 +152,7 @@ def main():
     yy_ = f"({rr2} * math.cos({R2} * 360))"
     ss_ = f"({rr2} * math.sin({R2} * 360))"
     kk_ = f"(0.86 + {R4} * 0.14)"
-    stripe = f"(variable.thick > 0 && {yy_} > -0.3 && math.sin({zz_} * variable.thick * 180 + {ss_} * 50 + {yy_} * 30 + variable.h) > 0.6)"
+    stripe = f"(variable.thick > 0 && {yy_} > -0.3 && math.sin({zz_} * variable.thick * 180 + {ss_} * 50 + {yy_} * 30 + variable.h) > 0.38)"
     part("bh_blob", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},

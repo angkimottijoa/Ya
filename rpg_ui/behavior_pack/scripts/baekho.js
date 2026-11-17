@@ -210,61 +210,84 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
   pt(dim, "bh_blob", c, { u: scl(d, a), v: scl(vv, b), w: scl(ww, cc), n: Math.min(700, Math.round(area * (o.dens ?? 15) + 12)), life: o.life ?? 0.13, size: o.size ?? 1.5, tone: o.tone ?? 0, thick: o.stripe ?? 0, h: o.ph ?? 0 });
 }
 /**
- * 거대한 3D 백호 (덮치는 자세): 몸통·가슴·엉덩이·목·머리·주둥이·벌린 턱·송곳니·귀·금빛 눈·네 다리·발톱·줄무늬 꼬리
- *  c 중심, F 앞(덮치는 방향), k 크기(1 ≈ 길이 8블록), t 애니메이션 틱, swipe 0~1 (오른 앞발 휘두르기)
+ * 거대한 3D 백호. 자세(pose)로 움직임:
+ *  t 틱, gait 0~1 (질주 진폭), pitch 몸 기울기(도), jaw 0~1 (입 벌림), reach 0~1 (앞발 뻗기·뒷발 펴기), swipe 0~1 (오른 앞발 머리 위→아래로 휘두름)
  */
-function drawTiger(dim, c, F, k, t, swipe = 0) {
-  const U = norm(sub(UP, scl(F, dot3(UP, F)))), S = cross(F, U);
+function drawTiger(dim, c, F0, k, pose = {}) {
+  const { t = 0, gait = 0, pitch = 0, jaw = 0.6, reach = 0, swipe = -1 } = pose;
+  const U0 = norm(sub(UP, scl(F0, dot3(UP, F0)))), S = cross(F0, U0);
+  const pr = rad(pitch), F = norm(add(scl(F0, Math.cos(pr)), U0, Math.sin(pr))), U = cross(S, F);
+  const ph = t * 1.15, flex = Math.sin(ph) * gait; // 질주: 등이 접혔다 펴짐
   const P = (f, u, s) => add(add(add(c, F, f * k), U, u * k), S, s * k);
   const B = (pos, d, a, b, cc, o) => blob(dim, pos, d, a * k, b * k, cc * k, U, o);
-  const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.08, r, r, o); };
-  // 몸
-  B(P(0, 0, 0), F, 2.0, 0.95, 0.9, { stripe: 3.2 });
-  B(P(1.5, 0.05, 0), F, 1.0, 1.05, 1.0, { stripe: 2 });
-  B(P(-1.6, 0.1, 0), F, 0.95, 0.95, 0.92, { stripe: 2.4, ph: 60 });
-  B(P(2.3, 0.45, 0), norm(add(F, U, 0.75)), 0.75, 0.7, 0.7, { stripe: 2 });
-  // 머리
-  const H = P(3.0, 0.85, 0);
-  B(H, F, 0.78, 0.72, 0.76, { stripe: 1.6, ph: 90 });
+  const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.06, r, r, o); };
+  // 몸: 길고 근육질, 어깨 근육
+  const chest = P(1.55 - flex * 0.35, 0.1 + flex * 0.15, 0), hips = P(-1.7 + flex * 0.35, 0.15 + flex * 0.2, 0);
+  B(P(0, 0.05 + flex * 0.3, 0), F, 2.15, 0.88, 0.85, { stripe: 3.6 });
+  B(chest, F, 1.05, 1.08, 1.0, { stripe: 2.2 });
+  B(hips, F, 0.95, 0.9, 0.9, { stripe: 2.6, ph: 60 });
+  for (const s of [-1, 1]) B(add(chest, S, s * 0.55 * k), F, 0.6, 0.7, 0.35, { stripe: 2, ph: 30 });
+  // 머리: 낮게 내밀고 질주에 맞춰 흔들림, 각진 큰 머리 + 긴 주둥이
+  const nod = Math.sin(ph + 1) * 0.15 * gait;
+  const Hc = P(3.25, 0.7 + nod, 0), Hd = norm(add(F, U, -0.18));
+  B(P(2.45, 0.5, 0), norm(add(F, U, 0.45)), 0.8, 0.72, 0.72, { stripe: 2.4 });
+  B(Hc, Hd, 0.98, 0.74, 0.82, { stripe: 2, ph: 90 });
   for (const s of [-1, 1]) {
-    B(P(2.95, 0.6, s * 0.55), F, 0.42, 0.42, 0.34, { stripe: 2.2 });            // 볼털
-    B(P(2.68, 1.5, s * 0.42), U, 0.3, 0.18, 0.12, { dens: 30 });                  // 귀
-    B(P(2.66, 1.74, s * 0.44), U, 0.09, 0.08, 0.08, { tone: 1, dens: 40 });        // 귀 끝 검정
-    glow(dim, P(3.5, 1.0, s * 0.36), 0.42);                                         // 금빛 눈
+    B(P(3.1, 0.45 + nod, s * 0.62), F, 0.5, 0.45, 0.36, { stripe: 2.6 });        // 볼털 (갈기처럼 뻗침)
+    B(P(2.75, 1.42 + nod, s * 0.5), norm(add(U, F, -0.5)), 0.3, 0.16, 0.1, { dens: 30 }); // 뒤로 젖힌 귀
+    B(P(3.62, 1.13 + nod, s * 0.33), norm(add(F, S, s * 0.4)), 0.32, 0.07, 0.13, { tone: 1, dens: 40 }); // 찌푸린 눈썹 (검정)
+    eye(dim, P(3.78, 0.98 + nod, s * 0.36));                                         // 금빛 눈
   }
-  B(P(3.66, 0.62, 0), F, 0.45, 0.32, 0.42, { dens: 22 });                          // 주둥이
-  B(P(4.08, 0.8, 0), F, 0.12, 0.1, 0.15, { tone: 1, dens: 50 });                   // 코
-  B(P(3.55, 0.36, 0), F, 0.34, 0.12, 0.3, { tone: 0.92, dens: 30 });               // 벌린 입 안
-  B(P(3.52, 0.12, 0), norm(sub(F, scl(U, 0.45))), 0.5, 0.15, 0.36, { dens: 22 });  // 아래턱
+  B(P(4.05, 0.62 + nod, 0), Hd, 0.62, 0.3, 0.42, { dens: 22, stripe: 1.2 });       // 긴 주둥이
+  B(P(4.62, 0.74 + nod, 0), F, 0.13, 0.11, 0.17, { tone: 1, dens: 50 });           // 코
+  // 입: jaw 만큼 아래턱이 크게 벌어짐, 붉은 입 안, 긴 송곳니
+  const jr = rad(10 + jaw * 42), jd = norm(sub(scl(F, Math.cos(jr)), scl(U, Math.sin(jr))));
+  const jawBase = P(3.45, 0.18 + nod, 0);
+  B(add(jawBase, jd, 0.55 * k), jd, 0.6, 0.14, 0.38, { dens: 22 });
+  B(add(jawBase, add(F, jd), 0.35 * k), F, 0.45, 0.1 + jaw * 0.22, 0.32, { tone: 0.9, dens: 30 });
+  const upTip = (s) => P(4.35, 0.42 + nod, s * 0.2), loTip = (s) => add(add(jawBase, jd, 1.0 * k), S, s * 0.18 * k);
   for (const s of [-1, 1]) {
-    line(dim, P(3.95, 0.52, s * 0.2), P(3.97, 0.2, s * 0.17), 0.05);             // 위 송곳니
-    line(dim, P(3.75, 0.08, s * 0.18), P(3.8, 0.32, s * 0.16), 0.05);            // 아래 송곳니
+    line(dim, upTip(s), add(upTip(s), U, -0.55 * k), 0.02);
+    line(dim, loTip(s), add(add(loTip(s), U, 0.38 * k), F, -0.05 * k), 0.02);
   }
-  // 다리 (덮치는 자세: 앞다리는 앞으로 뻗고 뒷다리는 뒤로) + 발 + 발톱
-  const gal = Math.sin(t * 0.7) * 0.25;
+  // 다리: 질주(앞뒤 같이 모였다 펴짐) → 뻗기 → 휘두르기
   for (const s of [-1, 1]) {
-    const sw = s > 0 ? swipe : 0; // 오른 앞발이 휘두름
-    const sh = P(1.6, -0.45, s * 0.62);
-    const el = sw ? P(2.6 + sw * 0.2, -0.6 + Math.sin(sw * Math.PI) * 1.8, s * 0.8) : P(2.6 + gal, -0.95, s * 0.66);
-    const paw = sw ? P(3.5 + sw * 0.6, -0.6 + Math.sin(sw * Math.PI) * 2.6 - sw * 0.8, s * 0.95) : P(3.6 + gal, -0.85, s * 0.66);
-    seg(sh, el, 0.34, { stripe: 3 });
-    seg(el, paw, 0.27, { stripe: 3, ph: 45 });
-    B(paw, F, 0.36, 0.25, 0.32, { dens: 24 });
-    for (let j = -1.5; j <= 1.5; j++) line(dim, add(paw, S, j * 0.16 * k), add(add(add(paw, F, 0.55 * k), U, -0.25 * k), S, j * 0.2 * k), 0.25);
-    const hp = P(-1.75, -0.4, s * 0.6), kn = P(-2.6 - gal, -0.95, s * 0.62), ft = P(-3.5 - gal, -0.75, s * 0.6);
-    seg(hp, kn, 0.38, { stripe: 3 });
-    seg(kn, ft, 0.26, { stripe: 3, ph: 45 });
-    B(ft, F, 0.32, 0.22, 0.28, { dens: 24 });
+    const off = s > 0 ? 0.35 : 0;
+    const aF = rad(Math.sin(ph + off) * 55 * gait + reach * 85 - 10), aH = rad(-Math.sin(ph + off) * 50 * gait - reach * 75 + 5);
+    const sh = add(chest, add(scl(U, -0.45), scl(S, s * 0.62)), k);
+    let paw, el;
+    if (s > 0 && swipe >= 0) { // 오른 앞발: 머리 위 뒤 → 앞 아래로 크게 휘두름
+      const a = rad(200 - swipe * 175), L = 2.5 * k;
+      const dir = norm(add(add(scl(F, Math.sin(a)), U, -Math.cos(a)), S, 0.35));
+      el = add(sh, dir, L * 0.5); paw = add(sh, dir, L);
+    } else {
+      const dir = norm(add(scl(F, Math.sin(aF)), U, -Math.cos(aF)));
+      el = add(add(sh, dir, 1.0 * k), F, -0.25 * k); paw = add(sh, dir, 2.05 * k);
+    }
+    seg(sh, el, 0.38, { stripe: 3.4 });
+    seg(el, paw, 0.29, { stripe: 3.4, ph: 45 });
+    B(paw, F, 0.4, 0.27, 0.36, { dens: 24 });
+    const clawDir = s > 0 && swipe >= 0 ? norm(sub(paw, el)) : F;
+    for (let j = -1.5; j <= 1.5; j++) line(dim, add(paw, S, j * 0.17 * k), add(add(add(paw, clawDir, 0.75 * k), U, -0.25 * k), S, j * 0.24 * k), 0.95); // 검고 긴 발톱
+    const hp = add(hips, add(scl(U, -0.4), scl(S, s * 0.6)), k);
+    const hd = norm(add(scl(F, Math.sin(aH)), U, -Math.cos(aH)));
+    const kn = add(add(hp, hd, 1.05 * k), F, 0.3 * k), ft = add(hp, hd, 2.1 * k);
+    seg(hp, kn, 0.42, { stripe: 3.4 });
+    seg(kn, ft, 0.27, { stripe: 3.4, ph: 45 });
+    B(ft, F, 0.36, 0.22, 0.3, { dens: 24 });
   }
-  // 꼬리: 위로 휘었다 내려오는 곡선, 검은 고리 줄무늬, 끝 검정
-  let prev = P(-2.4, 0.4, 0);
-  for (let j = 1; j <= 7; j++) {
-    const q = j / 7;
-    const cur = P(-2.4 - q * 2.8, 0.4 + Math.sin(q * Math.PI * 0.9) * 1.5, Math.sin(q * Math.PI * 2 + t * 0.5) * 0.5);
-    seg(prev, cur, 0.27 - q * 0.1, { tone: j === 7 ? 1 : j % 2 ? 0 : 0.95, dens: 22 });
+  // 꼬리: 채찍처럼 휘둘림
+  let prev = add(hips, F, -0.9 * k);
+  for (let j = 1; j <= 8; j++) {
+    const q = j / 8, wv = Math.sin(t * 0.9 - q * 3) * (0.6 + gait * 0.6);
+    const cur = add(add(add(prev, F, -0.42 * k), U, (0.28 - q * 0.35 + wv * 0.25) * k), S, wv * 0.35 * k);
+    seg(prev, cur, 0.26 - q * 0.1, { tone: j === 8 ? 1 : j % 2 ? 0 : 0.96, dens: 22 });
     prev = cur;
   }
+  // 검은 기운
+  if (t % 2 === 0) { smoke(dim, P(0, 0.3, 0), { n: 6, r: 1.6 * k, spd: 0.8, size: 2, life: 0.8 }); smoke(dim, Hc, { n: 3, r: 0.6 * k, spd: 0.6, size: 1.4, life: 0.6 }); }
 }
+const eye = (dim, at) => { pt(dim, "cr_glow", at, { n: 2, r: 0, size: 0.7, tone: 0.55, life: 0.16 }); pt(dim, "cr_glow", at, { n: 1, r: 0, size: 0.28, tone: 0, life: 0.16 }); };
 const glow = (dim, at, size) => pt(dim, "cr_glow", at, { n: 2, r: 0, size, tone: 0.45, life: 0.13 });
 const line = (dim, a, b, tone = 0.2) => {
   const d = sub(b, a), L = Math.hypot(d.x, d.y, d.z) || 0.01;
@@ -303,20 +326,31 @@ function apex(ctx) {
     try { e.applyKnockback(0, 0, 0, e === p ? 1.45 : 1.3); } catch {}
     later(5, () => M.potion(e, "levitation", 1, 1.05));
   }
-  // 6~24: 화면 오른쪽 위에서 거대한 3D 백호가 덮쳐 옴 (몸 전체, 달리듯 다리 움직임, 20틱에 오른 앞발 휘두름)
-  const S0 = add(add(L, camRight, 16), UP, 11), E0 = add(L, UP, 1.5);
+  // 6~26: 화면 오른쪽 위에서 거대한 3D 백호가 허공을 질주해 옴 → 크게 도약 → 일어서며 오른 앞발로 내리 할큄
+  const S0 = add(add(L, camRight, 22), UP, 9), E0 = add(L, UP, 1.5);
   const Fdir = norm(sub(E0, S0));
-  for (let t = 6; t <= 24; t++) later(t, () => {
-    const kk = Math.min(1, (t - 6) / 14), e = ease(kk);
-    const at = add(S0, sub(add(E0, Fdir, -3), S0), e);
-    const fw = norm(add(Fdir, UP, e * 0.45)); // 다가오며 몸을 세움
-    const sw = t >= 16 && t <= 23 ? Math.min(1, (t - 16) / 6) : 0;
-    drawTiger(dim, at, fw, 1.6, t, sw);
-    if (t % 2 === 0) dust(dim, add(at, Fdir, -5), { n: 12, r: 1.5, spd: 1.5, tone: 0 });
-    if (t === 6) M.sound(p, "mob.ravager.roar", 1.5, 0.6);
+  for (let t = 6; t <= 26; t++) later(t, () => {
+    let at, pose;
+    if (t <= 14) { // 질주: 튀어 오르듯 크게 몸을 접었다 폄
+      const e = (t - 6) / 8;
+      at = add(add(S0, sub(add(E0, Fdir, -9), S0), e), UP, Math.abs(Math.sin(t * 0.575)) * 1.6);
+      pose = { t, gait: 1, pitch: Math.sin(t * 1.15) * 14, jaw: 0.35 + Math.sin(t * 0.9) * 0.25 };
+    } else if (t <= 18) { // 도약: 몸을 쭉 펴고 앞발·발톱을 뻗음, 입을 크게 벌림
+      const e = ease((t - 14) / 4);
+      at = add(add(E0, Fdir, -9 + e * 5), UP, 1.6 - e * 0.6);
+      pose = { t, gait: 0.15, pitch: 8 - e * 4, jaw: 0.8 + e * 0.2, reach: e };
+    } else { // 일어서며 휘두르기
+      const e = Math.min(1, (t - 18) / 5);
+      at = add(add(E0, Fdir, -4 + e * 0.6), UP, 1 + Math.sin(e * Math.PI) * 0.8);
+      pose = { t, gait: 0, pitch: 40 * Math.sin(Math.min(1, e * 1.4) * Math.PI * 0.5) - (t > 23 ? (t - 23) * 10 : 0), jaw: 1, reach: 0.6, swipe: ease(e) };
+    }
+    drawTiger(dim, at, Fdir, 1.7, pose);
+    if (t % 2 === 0) dust(dim, add(at, Fdir, -6), { n: 14, r: 1.5, spd: 2, tone: 0 });
+    if (t === 6 || t === 15) M.sound(p, "mob.ravager.roar", 1.6, t === 6 ? 0.55 : 0.45);
+    if (t <= 14 && t % 3 === 0) { M.sound(p, "mob.ravager.step", 1, 0.6); shake(dim, at, 0.15, 0.15); }
   });
   // 20: 백호의 거대한 3D 할퀴기 (오른쪽 위 → 왼쪽 아래)
-  later(20, () => {
+  later(21, () => {
     const a = rad(40), u = norm(add({ x: -camRight.x * Math.cos(a), y: -camRight.y * Math.cos(a), z: -camRight.z * Math.cos(a) }, camUp, -Math.sin(a)));
     const v = norm(cross(toCam, u));
     const c = add(E0, toCam, 2);
@@ -326,7 +360,7 @@ function apex(ctx) {
     M.sound(p, "mob.ravager.bite", 1.5, 0.7);
     M.sound(p, "game.player.attack.strong", 1.5, 0.5);
   });
-  later(25, () => { // 백호가 흩어짐
+  later(27, () => { // 백호가 흩어짐
     dust(dim, E0, { n: 50, r: 4, spd: 5, tone: 0 });
     dust(dim, E0, { n: 30, r: 4, spd: 4, tone: 0.9 });
     smoke(dim, E0, { n: 16, r: 3, spd: 2, size: 2.2, life: 1.4 });
@@ -340,18 +374,17 @@ function apex(ctx) {
     }
     M.sound(p, "mob.enderdragon.flap", 1, 0.7);
   });
-  // 도끼: 사진 그대로(θ=0) = 날이 앞 아래, 자루 끝이 뒤 위 (45도). θ -180 → 0 으로 머리 위를 넘어 내리찍음
-  const back = scl(f, -1);
-  const axeAt = (th, pivot) => {
-    const r_ = rad(th), u = add(scl(back, Math.cos(r_)), UP, Math.sin(r_)), v = add(scl(back, -Math.sin(r_)), UP, Math.cos(r_));
-    art(dim, "axe", pivot, u, v, rt, { scale: 0.045, depth: 0.4, n: 3600, life: 0.13 });
+  // 도끼: 사진 그대로 45도 (날 = 앞 아래로 땅에 박힘, 자루 끝 = 뒤 위). 쥐는 곳(grip)을 기준으로 놓되, 날이 H 지점 땅속 1칸에 오게
+  const AXS = 0.06, back = scl(f, -1);
+  const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 }; // 날 위치(그림 픽셀) - 쥐는 곳
+  const axeAt = (H, drop) => {
+    const grip = add(add(up(H, -1 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
+    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.45, n: 4200, life: 0.14 });
   };
   let tt = 0, landed = false;
   const fall = () => {
     if (!p.isValid() || landed) return;
     tt++;
-    const k = ease(Math.min(1, tt / 7)), a = -180 + k * 180;
-    axeAt(a, up(p.location, 1.3));
     let g = false;
     try { g = p.isOnGround; } catch {}
     if ((tt > 3 && g) || tt > 30) { landed = true; impact(); return; }
@@ -360,9 +393,10 @@ function apex(ctx) {
   later(27, fall);
   const impact = () => {
     const G = { ...p.location }, H = add(G, f, 4.3);
-    // 박힌 도끼 (0.8초)
-    for (let t = 0; t < 18; t++) later(t, () => axeAt(0, up(G, 1.3)));
-    boom(dim, up(H, 0.5), true);
+    // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 2.5초 동안 박혀 있음
+    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 6));
+    for (let t = 3; t < 53; t++) later(t, () => axeAt(H, 0));
+    later(3, () => boom(dim, up(H, 0.5), true));
     later(3, () => boom(dim, up(add(H, rt, 3), 0.4)));
     later(5, () => boom(dim, up(add(H, rt, -3), 0.4)));
     pt(dim, "bh_shock", up(H, 0.15), { n: 280, spd: 17, size: 1.4 });
@@ -378,7 +412,7 @@ function apex(ctx) {
     shake(dim, H, 1, 1);
     M.sound(p, "random.explode", 1.5, 0.6);
     M.sound(p, "random.anvil_land", 1.2, 0.5);
-    later(22, () => camClear(p));
+    later(30, () => camClear(p));
   };
   later(90, () => camClear(p)); // 혹시 몰라 안전장치
 }
