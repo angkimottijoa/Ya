@@ -13,7 +13,7 @@ import * as SB from "./spellbook.js";
 import * as MSR from "./msrun.js";
 import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
 import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
-import { WEAPON_SKILLS as JJ_SKILLS } from "./jujak.js";
+import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS };
 
 export const WCLASS = {
@@ -341,6 +341,7 @@ export function skillJumpTick(p) {
 export function initSkillTriggers() {
   world.afterEvents.itemUse.subscribe(({ itemStack, source: p }) => {
     if (p?.typeId !== "minecraft:player" || !(J.pathOfTool(itemStack?.typeId) || WEAPON_SKILLS[itemStack?.typeId])) return;
+    if (itemStack?.typeId === "rpg:jujak_bow" && jjRelease(p)) return; // 주작 3단 조준 중 클릭 = 발사 (쿨타임·MP 없이)
     castKey(p, p.isSneaking ? 2 : 1);
   });
 }

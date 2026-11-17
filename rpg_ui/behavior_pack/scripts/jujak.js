@@ -4,7 +4,8 @@
 //      1단: 불화살 한 발 → 맞히면 2단
 //      2단: 불화살 세 발(부채꼴) → 맞히면 3단
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
-//      3단: 주작의 활(사용자 그림 점 찍기)이 앞 바닥에 서고 오른쪽 어깨 위 시점으로 2초 동안 시위를 당김 (시선 따라 조준)
+//      3단: 주작의 활(사용자 그림 점 찍기)이 앞 왼쪽 바닥에 서고 오른쪽 어깨 위 시점으로 시위를 당김 (시선 따라 조준)
+//           → 타이밍 게이지가 HP 바처럼 차오름(회색 빗나감 ×0.4 · 금색 좋음 ×1 · 빨강 완벽 ×1.5), 다시 클릭한 순간의 칸으로 세기 결정 (5초 지나면 빗나감)
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
 //      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발: 남아 있으면 6초, 다 쓰면 2초 동안 안 쏘면 자동 장전
 // 파티클: gen_jujak.py (jj_bow, jj_bigarrow, jj_ember, jj_trail, jj_boom, jj_ring)
@@ -143,7 +144,7 @@ function drawBow(p, k, withArrow = true, drawBody = true) {
   // 시위 가운데(활 양 끝의 중간)가 플레이어 바로 앞 가운데 줄에 오게 활 위치를 맞춤 → 화살이 정면으로 곧게
   const rel = (ix, iy) => add(scl(u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
   const restRel = scl(add(rel(BOW.top[0], BOW.top[1]), rel(BOW.bot[0], BOW.bot[1])), 0.5);
-  const want = add(up(p.location, 1.4), f, 1.6);
+  const want = add(add(up(p.location, 1.3), f, 2.6), right, -1.5); // 앞 왼쪽: 오른쪽 어깨 시점을 가리지 않게
   const H = sub(want, restRel);
   const toW = (ix, iy) => add(H, rel(ix, iy));
   const tipT = toW(BOW.top[0], BOW.top[1]), tipB = toW(BOW.bot[0], BOW.bot[1]);
@@ -170,98 +171,127 @@ function flashScreen(p, r, g, b, t = 0.3) {
   }
 }
 const vanilla = (dim, id, at) => { try { dim.spawnParticle(id, at); } catch {} };
+/** 타이밍 게이지 (HP 바처럼 왼쪽부터 참): 0 = 빗나감(회색), 1 = 좋음(금색, 피해 ×1), 2 = 완벽(빨강, 피해 ×1.5)
+ *  다 차면 비우고 다시 참. 다시 클릭한 순간 채워진 끝이 놓인 칸으로 결정 */
+const GAUGE = [0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0];
+const gaugePos = (t) => Math.floor(t / 2) % GAUGE.length; // 2틱마다 한 칸
+function gaugeText(pos) {
+  const full = ["§7", "§6", "§c"], empty = ["§8", "§6", "§4"];
+  return GAUGE.map((z, i) => (i <= pos ? `${full[z]}█` : `${empty[z]}▯`)).join("");
+}
+const aiming = new Map(); // pid -> release(zone) 함수
+/** 3단 조준 중 다시 클릭하면 쏨 (skills.js 가 쿨다운 전에 먼저 부름) */
+export function releaseAim(p) { const f = aiming.get(p.id); if (!f) return false; f(); return true; }
 function bigShot(ctx, done) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "bow_draw");
-  M.potion(p, "slowness", 2, 2.2); // 조금 느려질 뿐, 움직이며 자유롭게 조준
-  M.potion(p, "resistance", 3, 2.6);
+  M.potion(p, "slowness", 2, 6);
+  M.potion(p, "resistance", 3, 6);
   M.sound(p, "mob.blaze.breathe", 1, 0.7);
-  ember(dim, up(p.location, 1.4), { n: 30, r: 1, spd: 2, life: 1 });
-  say(p, "§6주작의 활 §f— 시선으로 조준!");
-  const DRAW = 40; // 2초 동안 기를 모음
-  for (let t = 1; t <= DRAW; t++) later(t, () => {
-    if (!p.isValid()) return;
-    const k = ease(t / DRAW), L = p.location;
+  ember(dim, up(p.location, 0.6), { n: 30, r: 1, spd: 2, life: 1 });
+  const MAX = 100; // 5초 안에 안 누르면 빗나감으로 발사
+  let t = 0, fired = false;
+  const release = () => {
+    if (fired) return;
+    fired = true;
+    aiming.delete(p.id);
+    const zone = GAUGE[gaugePos(t)];
+    shoot(zone);
+  };
+  aiming.set(p.id, release);
+  const loop = () => {
+    if (fired || !p.isValid()) { aiming.delete(p.id); return; }
+    t++;
+    const k = ease(Math.min(1, t / 20)), L = p.location;
     drawBow(p, k, true, t % 3 === 1);
     shoulderCam(p);
-    // 기 모으기: 불티가 몸으로 빨려 들어옴, 발밑 불 고리가 솟음, 불꽃, 게이지, 점점 세지는 떨림
-    if (t % 2 === 0) for (let j = 0; j < 3; j++) {
-      const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random() * 1.5, q = { x: L.x + Math.cos(a) * r, y: L.y + 0.3 + Math.random() * 2.5, z: L.z + Math.sin(a) * r };
-      pt(dim, "jj_trail", q, { u: norm(sub(up(L, 1.2), q)), r: r * 0.8, n: 10, size: 0.9, life: 0.25, tone: 0.1 });
+    if (t % 20 === 0) M.anim(p, "bow_hold");
+    // 기 모으기 (시야를 가리지 않게 발밑·낮은 곳에서만)
+    if (t % 3 === 0) for (let j = 0; j < 2; j++) {
+      const a = Math.random() * Math.PI * 2, r = 3 + Math.random() * 1.5, q = { x: L.x + Math.cos(a) * r, y: L.y + 0.15 + Math.random() * 0.6, z: L.z + Math.sin(a) * r };
+      pt(dim, "jj_trail", q, { u: norm(sub(up(L, 0.3), q)), r: r * 0.75, n: 9, size: 0.8, life: 0.25, tone: 0.1 });
     }
-    if (t % 4 === 0) {
-      pt(dim, "jj_ring", up(L, 0.1), { n: 22, r: 2.4 - k, spd: 0.4, size: 1 + k * 0.6, life: 0.5, tone: 0.15 });
-      for (let j = 0; j < 4; j++) { const a = (j / 4) * Math.PI * 2 + t * 0.3; vanilla(dim, "minecraft:basic_flame_particle", { x: L.x + Math.cos(a) * 1.8, y: L.y + 0.2, z: L.z + Math.sin(a) * 1.8 }); }
-      const bars = Math.round(k * 10);
-      say(p, `§6기 모으는 중 §c${"▮".repeat(bars)}§8${"▮".repeat(10 - bars)}`);
+    if (t % 5 === 0) {
+      pt(dim, "jj_ring", up(L, 0.05), { n: 22, r: 2.6 - k * 0.8, spd: 0.25, size: 0.9 + k * 0.5, life: 0.45, tone: 0.15 });
+      for (let j = 0; j < 3; j++) { const a = (j / 3) * Math.PI * 2 + t * 0.3; vanilla(dim, "minecraft:basic_flame_particle", { x: L.x + Math.cos(a) * 2, y: L.y + 0.1, z: L.z + Math.sin(a) * 2 }); }
     }
-    if (t % 8 === 0) try { p.runCommand(`camerashake add @s ${(0.04 + k * 0.18).toFixed(2)} 0.3 positional`); } catch {}
-    if (t % 10 === 0) M.sound(p, "random.bow", 0.4, 0.5 + t * 0.012);
-    if (t === DRAW) { flashScreen(p, 1, 0.5, 0.12, 0.35); M.sound(p, "mob.blaze.shoot", 0.8, 0.5); ember(dim, up(L, 1.2), { n: 50, r: 1.2, spd: 4, life: 0.9, tone: 0 }); }
-  });
-  // 발사: 그 순간 바라보는 방향으로 곧게 날아감 → 맞거나 막히면 큰 폭발
-  later(DRAW + 1, () => {
+    // 타이밍 게이지 (화면 아래)
+    const z = GAUGE[gaugePos(t)];
+    say(p, `${["§7", "§6", "§c§l"][z]}${["빗나감", "좋음 ×1", "완벽 ×1.5"][z]}§r  ${gaugeText(gaugePos(t))}  §7다시 클릭!`);
+    if (t === 20) { flashScreen(p, 1, 0.5, 0.12, 0.25); M.sound(p, "mob.blaze.shoot", 0.7, 0.5); }
+    if (t % 8 === 0) try { p.runCommand(`camerashake add @s ${(0.03 + k * 0.08).toFixed(2)} 0.25 positional`); } catch {}
+    if (t >= MAX) { release(); return; }
+    later(1, loop);
+  };
+  later(1, loop);
+  // 발사: zone 에 따라 세기 (2 완벽 / 1 좋음 / 0 빗나감)
+  const shoot = (zone) => {
     if (!p.isValid()) return done();
+    const pow = [0.4, 1, 1.5][zone], big = [0.55, 1, 1.3][zone]; // 피해: 빗나감 0.4 · 좋음 1 · 완벽 1.5
+    say(p, ["§7빗나감... 약한 화살", "§6좋음! 큰 불화살", "§c§l완벽!! §r§6주작의 화살"][zone]);
+    M.anim(p, "shoot");
     const { nock, v, upv } = drawBow(p, 1, false);
-    for (let i = 1; i <= 12; i++) later(i, () => shoulderCam(p)); // 쏜 뒤 잠깐 어깨 시점 유지
+    for (let i = 1; i <= 12; i++) later(i, () => shoulderCam(p));
     later(14, () => camClear(p));
     M.sound(p, "random.bow", 1.2, 0.6);
     M.sound(p, "mob.blaze.shoot", 1.2, 0.8);
-    shake(dim, nock, 0.3, 0.3);
-    const SA = 4.5 / AR.iw;
-    let pos = add(nock, v, 0.5), t = 0, over = false;
+    if (zone === 2) { flashScreen(p, 1, 0.35, 0.1, 0.3); M.sound(p, "random.levelup", 0.6, 1.6); }
+    shake(dim, nock, 0.3 * big, 0.3);
+    const SA = (4.5 * (zone === 2 ? 1.2 : 1)) / AR.iw;
+    let pos = add(nock, v, 0.5), tt = 0, over = false;
     const fly = () => {
       if (over) return;
-      t++;
+      tt++;
       const speed = 2.0;
       pt(dim, "jj_bigarrow", pos, { cx: AR.cx, cy: AR.cy, u: v, v: upv, scale: SA, n: Math.round((AR.filled * 0.8) / AR.fill), life: 0.07, size: 1 });
-      trail(dim, add(pos, v, -2.5), add(pos, v, 0.3), { size: 2.4, life: 0.45, n: 44 });
-      // 나선 검기: 날아간 길을 두 가닥 불꽃 나선이 감으며 따라감
+      trail(dim, add(pos, v, -2.5), add(pos, v, 0.3), { size: 2.4 * big, life: 0.45, n: 44 });
       { const side = norm(cross(v, upv)), seg = 4;
         for (const ph of [0, Math.PI]) {
           let prevQ = null;
           for (let j = 0; j <= seg; j++) {
-            const s2 = (t - 1) * speed + (j / seg) * speed, ang = s2 * 0.9 + ph, rr = 1.3;
+            const s2 = (tt - 1) * speed + (j / seg) * speed, ang = s2 * 0.9 + ph, rr = 1.3 * big;
             const q = add(add(add(pos, v, -speed + (j / seg) * speed), side, Math.cos(ang) * rr), upv, Math.sin(ang) * rr);
             if (prevQ) trail(dim, prevQ, q, { size: 1.6, life: 0.55, n: 10, tone: ph ? 0.25 : 0 });
             prevQ = q;
           }
         } }
       ember(dim, pos, { n: 6, r: 0.3, spd: 1.2, life: 0.8 });
-      if (t % 2 === 0) fireBoom(dim, add(pos, v, -1), { n: 2, r: 0.3, spd: 0.6, size: 1.4, life: 0.6, tone: 0.2 });
-      for (let q = 0; q <= 1.001; q += 0.25) { // 화살 앞부분이 지나가는 길 전부 검사
+      if (tt % 2 === 0) fireBoom(dim, add(pos, v, -1), { n: 2, r: 0.3, spd: 0.6, size: 1.4, life: 0.6, tone: 0.2 });
+      for (let q = 0; q <= 1.001; q += 0.25) {
         const tip = add(pos, v, 4.5 + speed * q);
-        if (enemiesNear(dim, p, tip, 2.2, 1.2).length || solidAt(dim, tip)) { over = true; explode(tip); return; }
+        if (enemiesNear(dim, p, tip, 2.2, 1.2).length || solidAt(dim, tip)) { over = true; explode(tip, pow, big); return; }
       }
-      if (t > 40) { over = true; explode(add(pos, v, 4.5)); return; }
+      if (tt > 40) { over = true; explode(add(pos, v, 4.5), pow, big); return; }
       pos = add(pos, v, speed);
       later(1, fly);
     };
     fly();
-  });
-  later(140, () => camClear(p)); // 안전장치
-  const explode = (at) => {
-    const near = enemiesNear(dim, p, at, 6.5, 2);
-    for (const e of near) { const d = len(sub(center(e), at)); hit(e, d < 2.5 ? 4.5 : 2.2, 6); M.toss(at, e, 1.6, 3); }
-    try { dim.spawnParticle("minecraft:huge_explosion_emitter", at); } catch {}
-    fireBoom(dim, at, { n: 34, r: 1.8, spd: 8, size: 3.4, life: 1.1 });
-    fireBoom(dim, at, { n: 14, r: 1, spd: 4, size: 2.4, life: 1.3, tone: 0.35 });
-    ember(dim, at, { n: 90, r: 1.2, spd: 9, life: 1.3 });
-    for (const [d, spd, tone] of [[0, 8, 0], [3, 12, 0.2], [6, 16, 0.35], [10, 20, 0.5]]) later(d + 1, () => pt(dim, "jj_ring", up(at, -0.6), { n: 64, r: 0.5, spd, size: 2.2, life: 0.75, tone }));
-    // 불기둥 6개 + 용암 방울 + 2초 동안 땅에 남는 불 고리
-    for (let j = 0; j < 6; j++) later(j, () => {
-      const a = (j / 6) * Math.PI * 2, q = { x: at.x + Math.cos(a) * 3, y: at.y - 1, z: at.z + Math.sin(a) * 3 };
-      pt(dim, "jj_trail", q, { u: UP, r: 5, n: 50, size: 2.2, life: 0.6, tone: 0 });
-      ember(dim, up(q, 1), { n: 20, r: 0.5, spd: 5, life: 1, tone: 0 });
-    });
-    for (let j = 0; j < 12; j++) vanilla(dim, "minecraft:lava_particle", add(at, { x: Math.random() - 0.5, y: 0, z: Math.random() - 0.5 }, 3));
-    for (let t = 4; t <= 40; t += 4) later(t, () => {
-      pt(dim, "jj_ring", up(at, -0.8), { n: 30, r: 4, spd: 0.3, size: 1.4, life: 0.5, tone: 0.2 });
-      for (let j = 0; j < 6; j++) { const a = Math.random() * Math.PI * 2; vanilla(dim, "minecraft:basic_flame_particle", { x: at.x + Math.cos(a) * 4, y: at.y - 0.8, z: at.z + Math.sin(a) * 4 }); }
-    });
-    flashScreen(p, 1, 0.55, 0.15, 0.4);
-    shake(dim, at, 0.9, 0.7);
-    M.sound(p, "random.explode", 1.6, 0.8);
+  };
+  later(MAX + 140, () => camClear(p)); // 안전장치
+  const explode = (at, pow, big) => {
+    const R = 6.5 * big;
+    const near = enemiesNear(dim, p, at, R, 2);
+    for (const e of near) { const d = len(sub(center(e), at)); hit(e, (d < 2.5 ? 4.5 : 2.2) * pow, 6); M.toss(at, e, 1.6 * big, 3 * big); }
+    try { dim.spawnParticle(big >= 1 ? "minecraft:huge_explosion_emitter" : "minecraft:large_explosion", at); } catch {}
+    fireBoom(dim, at, { n: Math.round(34 * big), r: 1.8 * big, spd: 8 * big, size: 3.4 * big, life: 1.1 });
+    fireBoom(dim, at, { n: 14, r: 1, spd: 4, size: 2.4 * big, life: 1.3, tone: 0.35 });
+    ember(dim, at, { n: Math.round(90 * big), r: 1.2, spd: 9 * big, life: 1.3 });
+    for (const [d, spd, tone] of [[0, 8, 0], [3, 12, 0.2], [6, 16, 0.35], [10, 20, 0.5]].slice(0, big >= 1 ? 4 : 2)) later(d + 1, () => pt(dim, "jj_ring", up(at, -0.6), { n: 64, r: 0.5, spd: spd * big, size: 2.2 * big, life: 0.75, tone }));
+    if (big >= 1) {
+      for (let j = 0; j < 6; j++) later(j, () => {
+        const a = (j / 6) * Math.PI * 2, q = { x: at.x + Math.cos(a) * 3 * big, y: at.y - 1, z: at.z + Math.sin(a) * 3 * big };
+        pt(dim, "jj_trail", q, { u: UP, r: 5 * big, n: 50, size: 2.2, life: 0.6, tone: 0 });
+        ember(dim, up(q, 1), { n: 20, r: 0.5, spd: 5, life: 1, tone: 0 });
+      });
+      for (let j = 0; j < 12; j++) vanilla(dim, "minecraft:lava_particle", add(at, { x: Math.random() - 0.5, y: 0, z: Math.random() - 0.5 }, 3));
+      for (let tt2 = 4; tt2 <= 40; tt2 += 4) later(tt2, () => {
+        pt(dim, "jj_ring", up(at, -0.8), { n: 30, r: 4 * big, spd: 0.3, size: 1.4, life: 0.5, tone: 0.2 });
+        for (let j = 0; j < 6; j++) { const a = Math.random() * Math.PI * 2; vanilla(dim, "minecraft:basic_flame_particle", { x: at.x + Math.cos(a) * 4 * big, y: at.y - 0.8, z: at.z + Math.sin(a) * 4 * big }); }
+      });
+      flashScreen(p, 1, 0.55, 0.15, 0.4);
+    }
+    shake(dim, at, 0.9 * big, 0.7);
+    M.sound(p, "random.explode", 1.6 * big, 0.8);
     M.sound(p, "mob.blaze.death", 0.9, 1.3);
     done();
   };
@@ -298,7 +328,7 @@ function flameShot(ctx) {
   if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, last: 0 }; combo.set(p.id, st); }
   refill(p, st);
   if (st.ammo <= 0) { say(p, `§7화살이 없습니다 — ${Math.ceil((refillDelay(st) - (now - st.last)) / 20)}초 뒤 자동 장전`); return; }
-  if (now < st.busy) return; // 3단 조준 중
+  if (aiming.has(p.id)) { releaseAim(p); return; } // 3단 조준 중 다시 클릭 = 발사
   if (now > st.until) st.stage = 0;
   const eye = eyeOf(p), v = viewOf(p), start = add(eye, v, 1);
   const next = (stage, msg) => { st.stage = stage; st.until = system.currentTick + 120; say(p, msg); M.sound(p, "random.orb", 0.6, 0.8 + stage * 0.3); };
@@ -321,7 +351,6 @@ function flameShot(ctx) {
       fireArrow(ctx, start, d, { mul: 0.9, prox: 2.4, boom: 3, onHit: () => { if (!hitAny) { hitAny = true; next(2, "§6주작 · 화시 §c3단 §7— 주작의 활!"); } fin(); }, onMiss: fin });
     }
   } else {
-    st.busy = now + 46;
     st.stage = 0;
     used();
     bigShot(ctx, () => { st.stage = 0; st.until = 0; });
