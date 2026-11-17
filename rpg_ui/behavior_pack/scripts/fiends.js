@@ -209,22 +209,29 @@ function findAnchors(p) {
 const ODM = { pull: 0.12, dualPull: 2.4, dualBoostPull: 1.5, orbit: 0.08, dualOrbit: 0.4, orbitPull: 1.8, boostOrbit: 2.5, lift: 0.05, ramp: 0.0588, decay: 0.0125, ease: 40, drag: 0.02, keep: 90 };
 const inputOf = (p) => { let mv = null, jump = false; try { mv = p.inputInfo?.getMovementVector?.(); } catch {} try { jump = !!p.isJumping; } catch {} return { sx: mv?.x ?? 0, fy: mv?.y ?? 0, jump }; };
 const steerVec = (p, inp) => { const l = Math.hypot(inp.sx, inp.fy); if (l < 0.01) return { x: 0, y: 0, z: 0 }; const k = 0.02 / Math.max(1, l), f = fwdOf(yawOf(p)), r = rightOf(yawOf(p)); return { x: (f.x * inp.fy - r.x * inp.sx) * k, y: 0, z: (f.z * inp.fy - r.z * inp.sx) * k }; };
-// ③ 입체 기동: 점프할 때마다 (최대 5번) 앞쪽 좌·우를 번갈아 사슬이 자동으로 걸리고, 둥글게 휘돌아(그네 호) 앞으로 날아감
-//   호 = 출발점 → (사슬 쪽으로 휘며 아래로 처짐) → 앞 11칸 · 조금 위 (2차 베지어), 보는 방향으로 조종
-//   ③ 다시 = 점프와 같음(한 번 더) · ④ = 선풍 낙뢰 연계 · 5번 다 쓰거나 10초 지나면 끝, 8초 대기
-const HOPS = 5, MODE_T = 200, ARC_T = 15;
+// ③ 입체 기동: 점프할 때마다 (최대 5번) 보이는 벽·나무·지형·적(56칸 안)에 좌·우 번갈아 사슬이 자동으로 박히고 휘돌아 앞으로 날아감
+//   움직임 = 반반 섞음: ① 설계한 둥근 호(출발 → 사슬 쪽으로 휘며 처짐 → 앞쪽, 박힌 곳 앞뒤 거리에 맞춘 길이) ② 박힌 곳을 축으로 한 진짜 진자(줄 길이 제약 · 감기)
+//   최종 속도 = 호 0.5 + 진자 0.5 → 그 뒤 줄 길이를 넘지 않게 묶음 (그래서 박힌 구조물 모양에 맞춰 휘어 감)
+const HOPS = 5, MODE_T = 240, ROPE_MAX = 56;
 const bez = (a, c, b, t) => { const u = 1 - t; return { x: u * u * a.x + 2 * u * t * c.x + t * t * b.x, y: u * u * a.y + 2 * u * t * c.y + t * t * b.y, z: u * u * a.z + 2 * u * t * c.z + t * t * b.z }; };
 const fov = (p, on) => { try { p.runCommand(on ? "camera @s fov_set 92 0.25 in_out_sine" : "camera @s fov_clear 0.4 in_out_sine"); } catch {} };
-/** 사슬 걸 곳 자동: side(-1 왼쪽 / 1 오른쪽) 앞 위쪽 벽·나무 → 없으면 허공 높은 곳(낫을 박는 것처럼) */
+/** 사슬 걸 곳 자동 (보이는 것만): 겨눈 적 → 앞쪽 여러 방향으로 광선(56칸), 앞으로 멀고 높고 side 쪽인 곳이 좋음. 없으면 null */
 function autoAnchor(p, side) {
-  const dim = p.dimension, eye = eyeOf(p), yaw = yawOf(p);
-  try { const h = p.getEntitiesFromViewDirection({ maxDistance: 18 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return { at: center(h), ent: h, real: true }; } catch {}
-  for (const [dy, dp] of [[25, 25], [35, 40], [18, 12], [45, 55]]) {
-    const y = rad(yaw + side * dy), pc = rad(dp), d = { x: -Math.sin(y) * Math.cos(pc), y: Math.sin(pc), z: Math.cos(y) * Math.cos(pc) };
-    try { const h = dim.getBlockFromRay(eye, d, { maxDistance: 24, includeLiquidBlocks: false, includePassableBlocks: false }); if (h) { const q = add(h.block.location, { x: h.faceLocation?.x ?? 0.5, y: h.faceLocation?.y ?? 0.5, z: h.faceLocation?.z ?? 0.5 }); if (len(sub(q, eye)) > 4) return { at: q, real: true }; } } catch {}
+  const dim = p.dimension, eye = eyeOf(p), yaw = yawOf(p), f = fwdOf(yaw), r = rightOf(yaw), lp = viewOf(p).y * 57.3;
+  try { const h = p.getEntitiesFromViewDirection({ maxDistance: ROPE_MAX }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return { at: center(h), ent: h, off: sub(center(h), h.location) }; } catch {}
+  let best = null;
+  for (const dy of [12, 22, 32, 45, 60]) for (const dp of [8, 20, 35, 50, 65]) for (const sg of [side, -side]) {
+    const y = rad(yaw + sg * dy), pc = rad(Math.min(80, dp + Math.max(-10, lp * 0.4))), d = { x: -Math.sin(y) * Math.cos(pc), y: Math.sin(pc), z: Math.cos(y) * Math.cos(pc) };
+    let h = null; try { h = dim.getBlockFromRay(eye, d, { maxDistance: ROPE_MAX, includeLiquidBlocks: false, includePassableBlocks: false }); } catch {}
+    if (!h) continue;
+    const q = add(h.block.location, { x: h.faceLocation?.x ?? 0.5, y: h.faceLocation?.y ?? 0.5, z: h.faceLocation?.z ?? 0.5 }), dq = sub(q, eye), L = len(dq);
+    if (L < 5) continue;
+    const fw = dq.x * f.x + dq.z * f.z, lat = dq.x * r.x + dq.z * r.z;
+    if (fw < 2) continue;
+    const score = Math.min(fw, 30) * 1 + Math.min(dq.y, 20) * 0.6 - Math.abs(Math.abs(lat) - 4) * 0.25 + (Math.sign(lat) === side ? 4 : 0) - (sg === side ? 0 : 2);
+    if (!best || score > best.score) best = { at: q, score };
   }
-  const f = fwdOf(yaw), r = rightOf(yaw);
-  return { at: add(add(add(eye, f, 9), r, side * 4), UP, 7), real: false };
+  return best;
 }
 function hd_mode_start(p, ctx) {
   const s = st(p), dim = p.dimension, hit = hitter(ctx);
@@ -232,82 +239,98 @@ function hd_mode_start(p, ctx) {
   const m = { t: 0, until: now() + MODE_T, done: false, left: HOPS, side: 1, arc: null, jumpPrev: true, lastHop: -99, fast: false, v: { x: 0, y: 0, z: 0 }, air: false };
   s.swing = m;
   const hip = (sd) => add(up(p.location, 0.9), rightOf(yawOf(p)), sd * 0.3);
+  const anc = (A) => (A.ent ? (A.ent.isValid() ? add(A.ent.location, A.off) : null) : A.at);
+  const play = (name) => M.anim(p, name);
   m.end = () => { if (m.done) return; m.done = true; if (s.swing === m) s.swing = null; fov(p, false); s.setCd3?.(8); notify(p, "§5입체 기동 종료 §7(8초)"); hd_keep(p); };
+  const release = (a) => { const q = anc(a.A) ?? a.A.at; for (let k = 1; k <= 4; k++) later(k, () => { const H = hip(a.sd); chain(dim, H, add(H, sub(q, H), 1 - k / 4), 0.08); }); snd(p, "item.armor.equip_chain", 0.7, 1.8); };
   /** 한 번 휘돌기 */
   m.hop = () => {
     if (m.done || m.left <= 0 || m.t - m.lastHop < 5) return false;
-    m.left--; m.lastHop = m.t;
-    const sd = (m.side = -m.side), A = autoAnchor(p, sd), yaw = yawOf(p), f = fwdOf(yaw), r = rightOf(yaw);
-    const P0 = { ...p.location };
-    // 호 길이: 사슬 걸린 곳의 앞쪽 거리에 맞춤 (6~14)
-    const ahead = (A.at.x - P0.x) * f.x + (A.at.z - P0.z) * f.z, Lh = Math.max(6, Math.min(14, ahead * 1.5 || 11));
+    const sd = -m.side, A = autoAnchor(p, sd);
+    if (!A) { notify(p, "§7사슬을 박을 곳이 없다 §8(앞쪽 56칸 안 벽 · 나무 · 지형 · 적)"); snd(p, "random.click", 0.6, 0.6); return false; }
+    if (m.arc) release(m.arc);
+    m.side = sd; m.left--; m.lastHop = m.t;
+    const yaw = yawOf(p), f = fwdOf(yaw), r = rightOf(yaw), P0 = { ...p.location }, H0 = up(P0, 0.9);
+    const d = sub(A.at, H0), L0 = len(d), fa = d.x * f.x + d.z * f.z, la = d.x * r.x + d.z * r.z;
     let g = false; try { g = p.isOnGround; } catch {}
     const lookUp = viewOf(p).y;
-    const P1 = add(add(add(P0, f, Lh), r, sd * 1.5), UP, 1.6 + Math.max(-2, Math.min(4, lookUp * 6)));
+    // 호: 박힌 곳 앞뒤로 대칭에 가깝게 (진자처럼) — 앞으로 2×(앞 거리), 6~34칸
+    const reach = Math.max(6, Math.min(34, fa * 2));
+    const P1 = add(add(add(P0, f, reach), r, la * 0.35), UP, 1.4 + Math.max(-2, Math.min(5, lookUp * 7)) + Math.min(4, Math.max(0, d.y) * 0.15));
     const mid = scl2(add(P0, P1), 0.5);
-    const C = add(add(mid, r, sd * 3), UP, g ? 1.2 : -2.6); // 사슬 쪽으로 휘고 아래로 처짐 (땅에서 출발하면 처지지 않음)
-    m.arc = { A, sd, P0, C, P1, k: 0, hooked: false };
+    const C = add(add(mid, r, Math.sign(la || sd) * Math.min(4, Math.abs(la) * 0.5 + 1)), UP, g ? 1.2 : -Math.min(5, L0 * 0.22));
+    const pathLen = len(sub(C, P0)) + len(sub(P1, C)), n = Math.max(12, Math.min(34, Math.round(pathLen / 1.35)));
+    m.arc = { A, sd, P0, C, P1, n, k: 0, L: L0 };
     play(sd < 0 ? "gear_hook_l" : "gear_hook_r");
     snd(p, "item.armor.equip_chain", 1, 1.2 + Math.random() * 0.3); snd(p, "random.bow", 0.5, 1.8);
-    for (let k = 1; k <= 3; k++) later(k - 1, () => { const h = hip(sd), q = A.ent?.isValid() ? center(A.ent) : A.at; chain(dim, h, add(h, sub(q, h), k / 3), 0.1); });
-    later(3, () => { hookHit(dim, A.ent?.isValid() ? center(A.ent) : A.at); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { flame(dim, A.at, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
-    
-        notify(p, `§5입체 기동 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7점프: 다음 사슬`);
+    // 사슬이 날아가 박힘: 길수록 조금 더 걸림 (2~4틱)
+    const fly = L0 > 30 ? 4 : L0 > 15 ? 3 : 2;
+    for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = hip(sd), q = anc(A) ?? A.at; chain(dim, h, add(h, sub(q, h), k / fly), 0.1); });
+    later(fly, () => { const q = anc(A) ?? A.at; hookHit(dim, q); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { flame(dim, q, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
+    m.arc.fly = fly;
+    notify(p, `§5입체 기동 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · 점프: 다음 사슬`);
     return true;
   };
-  const play = (name) => M.anim(p, name);
   M.anim(p, "gear_fire");
-  m.hop();
+  if (!m.hop()) { m.done = true; s.swing = null; return false; }
   const tick = () => {
     if (!p.isValid() || m.done || s.swing !== m) return;
     m.t++;
     let g = false; try { g = p.isOnGround; } catch {}
     let jump = false; try { jump = !!p.isJumping; } catch {}
-    if (jump && !m.jumpPrev) m.hop(); // 점프 누를 때마다 다음 사슬
+    if (jump && !m.jumpPrev) m.hop();
     m.jumpPrev = jump;
-    const P = p.location, PP = up(P, 1);
+    const P = p.location, PP = up(P, 1), H = up(P, 0.9);
     const a = m.arc;
     if (a) {
       a.k++;
-      const q = a.A.ent?.isValid() ? center(a.A.ent) : a.A.at;
-      if (a.k <= 2) { // 사슬이 날아가는 동안: 살짝 몸을 띄움
-        try { p.applyKnockback(0, 0, 0, 0.35); } catch {}
-      } else {
-        if (a.k === 3) play(a.sd < 0 ? "gear_arc_l" : "gear_arc_r");
-        const tt = Math.min(1, (a.k - 2) / ARC_T), tn = Math.min(1, (a.k - 1) / ARC_T);
-        // 보는 방향으로 조금씩 조종 (끝점이 시선 쪽으로 따라옴)
-        const yaw = yawOf(p), f = fwdOf(yaw), dF = sub(add(a.P0, f, len(sub({ ...a.P1, y: a.P0.y }, a.P0))), { ...a.P1, y: a.P0.y });
-        a.P1 = add(a.P1, { x: dF.x, y: 0, z: dF.z }, 0.12);
-        const Q = bez(a.P0, a.C, a.P1, tn);
-        let v = sub(Q, P); v.y += 0.08; // 중력 보정
-        const sp = len(v); if (sp > 2.6) v = scl2(v, 2.6 / sp);
-        // 앞이 막히면 벽 차기 후 끝
+      const q = anc(a.A);
+      if (!q) { release(a); m.arc = null; }
+      else if (a.k <= a.fly) { try { p.applyKnockback(0, 0, 0, 0.3); } catch {} }
+      else {
+        if (a.k === a.fly + 1) play(a.sd < 0 ? "gear_arc_l" : "gear_arc_r");
+        const kk = a.k - a.fly, tn = Math.min(1, kk / a.n);
+        // 시선으로 조종: 끝점이 보는 방향 쪽으로 조금씩
+        const f = fwdOf(yawOf(p)), reach = Math.hypot(a.P1.x - a.P0.x, a.P1.z - a.P0.z), want = add(a.P0, f, reach);
+        a.P1 = { x: a.P1.x + (want.x - a.P1.x) * 0.1, y: a.P1.y, z: a.P1.z + (want.z - a.P1.z) * 0.1 };
+        // ① 설계한 호
+        const Q = bez(a.P0, a.C, a.P1, tn), arcV = add(sub(Q, P), UP, 0.08);
+        // ② 박힌 곳 축 진자 (줄 감기 + 약한 당김 + 조향)
+        let cur = { x: 0, y: 0, z: 0 }; try { cur = p.getVelocity(); } catch {}
+        a.L = Math.max(2.5, a.L - 0.15);
+        const toA = sub(q, H), dist = len(toA) || 0.01, dir = scl2(toA, 1 / dist);
+        let phys = add(scl2(cur, 0.99), dir, 0.05);
+        if (len(sub(add(H, phys), q)) > a.L) { const o = -(phys.x * dir.x + phys.y * dir.y + phys.z * dir.z); if (o > 0) phys = add(phys, dir, o); }
+        if (dist > a.L) phys = add(phys, dir, Math.min(dist - a.L, 0.5) * 0.5);
+        phys = add(phys, steerVec(p, inputOf(p)));
+        // 반반 섞고 줄 길이로 묶음
+        let v = add(scl2(arcV, 0.5), scl2(phys, 0.5));
+        const nx = add(H, v), nd = len(sub(nx, q));
+        if (nd > a.L + 0.4) { const pull = scl2(norm(sub(q, nx)), nd - a.L - 0.4); v = add(v, pull); }
+        const sp = len(v); if (sp > 2.8) v = scl2(v, 2.8 / sp);
+        // 앞이 막히면 벽 차기 후 놓음 (횟수 1 돌려받음)
         const hz = Math.hypot(v.x, v.z), ahead = hz > 0.1 ? { x: PP.x + (v.x / hz) * 0.9, y: PP.y, z: PP.z + (v.z / hz) * 0.9 } : null;
-        if (ahead && (solid(dim, ahead) || solid(dim, up(ahead, -0.6)))) {
+        if (ahead && kk > 3 && (solid(dim, ahead) || solid(dim, up(ahead, -0.6)))) {
           v = add(scl2({ x: -v.x, y: 0, z: -v.z }, 0.5), UP, 0.7);
-          play("gear_kick"); snd(p, "step.stone", 1, 0.7);
-          m.arc = null; m.left = Math.min(HOPS, m.left + 1); // 벽 차기는 한 번 돌려줌
-        } else if (tt >= 1) { // 호 끝: 사슬 놓고 관성으로 날아감
-          const T2 = bez(a.P0, a.C, a.P1, 0.92), vt = scl2(sub(a.P1, T2), 1 / (0.08 * ARC_T));
-          v = add(vt, UP, 0.12);
-          play("gear_launch");
-          for (let k = 1; k <= 3; k++) later(k, () => { const H = hip(a.sd); chain(dim, H, add(H, sub(q, H), 1 - k / 3), 0.08); });
-          snd(p, "item.armor.equip_chain", 0.7, 1.8);
-          m.arc = null;
+          pt(dim, "hd_burst", PP, { n: 6, r: 0.3, spd: 2, life: 0.35 }, 2); play("gear_kick"); snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
+          release(a); m.arc = null; m.left = Math.min(HOPS, m.left + 1);
+        } else if (tn >= 1 || dist < 1.6) { // 호 끝: 사슬 놓고 관성
+          const T2 = bez(a.P0, a.C, a.P1, 0.92), vt = scl2(sub(a.P1, T2), a.n / (0.08 * a.n * a.n) * 1);
+          v = add(scl2(add(vt, v), 0.5), UP, 0.12);
+          play("gear_launch"); release(a); m.arc = null;
         }
         const h = Math.hypot(v.x, v.z);
         try { p.applyKnockback(h > 0.001 ? v.x / h : 0, h > 0.001 ? v.z / h : 0, h, v.y); } catch {}
         m.v = v;
         if (m.arc && a.k % 2 === 0) chain(dim, q, hip(a.sd), 0.12);
-        if (m.arc && a.k % 6 === 0) { const dd = sub(hip(a.sd), q); pt(dim, "hd_reelspark", q, { u: norm(dd), r: len(dd), spd: 12, n: 3, life: Math.min(0.5, len(dd) / 14), size: 1 }, 2); }
-        
+        if (m.arc && a.k % 6 === 0) { const dd = sub(hip(a.sd), q); pt(dim, "hd_reelspark", q, { u: norm(dd), r: len(dd), spd: 14, n: 3, life: Math.min(0.6, len(dd) / 16), size: 1 }, 2); }
       }
     } else {
       try { m.v = p.getVelocity(); } catch {}
       if (!g && m.t % 16 === 0) play(m.v.y >= 0 ? "gear_launch" : "gear_fall");
     }
     if (!g) m.air = true;
-    if (g && m.air && !m.arc) { // 착지 구르기
+    if (g && m.air && !m.arc) {
       m.air = false; const hs = Math.hypot(m.v.x, m.v.z);
       if (hs > 0.35) { const f = flatN(m.v); try { p.applyKnockback(f.x, f.z, Math.min(1.2, hs), 0.05); } catch {} play("gear_roll"); snd(p, "step.grass", 1, 0.8); }
     }
@@ -316,7 +339,6 @@ function hd_mode_start(p, ctx) {
     if (sp > 1.1 && !m.fast) { m.fast = true; fov(p, true); } else if (sp < 0.6 && m.fast) { m.fast = false; fov(p, false); }
     if (sp > 1.5 && m.t % 10 === 0) shake(p, 0.08, 0.3);
     if (sp > 0.5) for (const e of foes(dim, P, 2.6)) if (hit(e, 0.45 + Math.min(0.5, sp * 0.2), 10)) { const cc = up(P, 1); play("gear_spin"); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.8, 1.2); shake(p, 0.15, 0.15); }
-    // 끝: 다 쓰고 착지했거나 시간 초과
     if (now() >= m.until || (m.left <= 0 && !m.arc && g)) return m.end();
     later(1, tick);
   };
@@ -346,7 +368,7 @@ function hd_swing(ctx) { // ③ 입체 기동 시작 (첫 사슬)
   const { p } = ctx, s = st(p);
   s.ctx = ctx; s.setCd3 = ctx.setCd;
   ctx.setCd?.(99); // 기동 중엔 ③ = 다음 사슬, 끝나면 8초
-  hd_mode_start(p, ctx);
+  if (!hd_mode_start(p, ctx)) ctx.setCd?.(0.5);
 }
 const hd_swing_pre = (p) => { const m = st(p).swing; if (!m || m.done) return false; m.hop(); return true; };
 /** ④ 혼돈 · 선풍 낙뢰: 회오리를 두르고 낙뢰처럼 그대로 내리꽂힘. 땅이면 먼저 솟구침, ③ 기동 중(공중)이면 바로 강하 + 위력 1.35배 (연계) */
@@ -746,7 +768,7 @@ export const WEAPON_SKILLS = {
   "rpg:hundun_scythe": [
     { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다." },
     { id: "w_hd_2", key: 2, name: "혼돈 · 낫 끌어오기", short: "끌어오기", lv: 1, mp: 14, cd: 7, pow: 1, run: hd_hook, pre: hd_hook_pre, desc: "낫을 회전시켜 던져(14칸) 걸린 적을 끌어온다. 끌려오는 동안·직후 ② 나 ① 을 다시 누르면 몸을 부딪쳐 크게 날려 보내는 연계, 아니면 도착하며 넉백으로 밀려난다." },
-    { id: "w_hd_3", key: 3, name: "혼돈 · 입체 기동", short: "기동", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "사슬이 앞쪽 좌·우 벽·나무(없으면 허공 높이)에 자동으로 걸리고 둥글게 휘돌아(그네 호) 앞으로 날아간다. 날아가는 방향은 시선으로 조종, 위를 보면 더 높이. 점프할 때마다 반대쪽에 다음 사슬 (모두 5번, ③ 다시 눌러도 됨). 앞이 막히면 벽 차기(횟수 1 돌려받음), 지나가며 베기(빠를수록 셈), 착지 구르기. ④ = 선풍 낙뢰 연계. 다 쓰거나 10초 지나면 8초 대기." },
+    { id: "w_hd_3", key: 3, name: "혼돈 · 입체 기동", short: "기동", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "보이는 벽·나무·지형·적(앞쪽 56칸 안)에 사슬이 자동으로 박히고 둥글게 휘돌아 앞으로 날아간다. 움직임은 설계한 둥근 호와 박힌 곳을 축으로 한 진짜 진자를 반반 섞고 줄 길이로 묶어서, 박힌 구조물에 맞춰 휜다. 시선으로 조종, 위를 보면 더 높이. 점프할 때마다 반대쪽에 다음 사슬 (모두 5번, ③ 다시도 됨). 벽 차기(횟수 1 돌려받음) · 지나가며 베기 · 착지 구르기. ④ = 선풍 낙뢰 연계. 다 쓰거나 12초 지나면 8초 대기." },
     { id: "w_hd_4", key: 4, name: "혼돈 · 선풍 낙뢰", short: "낙뢰", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_plunge, desc: "회오리를 두르고 사슬 낫을 돌리며 낙뢰처럼 그대로 내리꽂힌다(아래를 보면 시선이 닿는 곳으로). 땅에서 쓰면 먼저 솟구친다. ③ 사슬 기동 중 공중에서 쓰면 바로 강하하는 연계기(위력 1.35배). 착지하면 충격파 · 주변 낙뢰 · 거대한 낫 한 바퀴." },
   ],
   "rpg:qiongqi_claws": [
