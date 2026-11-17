@@ -222,8 +222,9 @@ system.runInterval(() => {
 const GAUGE = [0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0];
 const gaugePos = (t) => Math.floor(t / 2) % GAUGE.length; // 2틱마다 한 칸
 function gaugeText(pos) {
-  const full = ["§7", "§6", "§c"], empty = ["§8", "§6", "§4"];
-  return GAUGE.map((z, i) => (i <= pos ? `${full[z]}█` : `${empty[z]}▯`)).join("");
+  // 찬 칸·빈 칸 모두 같은 글자(▮)로 크기를 맞추고, 밝기로만 구분 (찬 칸 = 밝게, 빈 칸 = 어둡게)
+  const full = ["§f", "§e", "§c"], empty = ["§8", "§6", "§4"];
+  return GAUGE.map((z, i) => `${i <= pos ? full[z] : empty[z]}▮`).join("");
 }
 const aiming = new Map(); // pid -> release(zone) 함수
 /** 3단 조준 중 다시 클릭하면 쏨 (skills.js 가 쿨다운 전에 먼저 부름) */
