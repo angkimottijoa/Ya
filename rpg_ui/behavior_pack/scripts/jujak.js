@@ -222,8 +222,8 @@ system.runInterval(() => {
 
 /** 타이밍 게이지 (HP 바처럼 왼쪽부터 참): 0 = 빗나감(회색), 1 = 좋음(금색, 피해 ×1), 2 = 완벽(빨강, 피해 ×1.5)
  *  다 차면 비우고 다시 참. 다시 클릭한 순간 채워진 끝이 놓인 칸으로 결정 */
-const GAUGE = [0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 0];
-const gaugePos = (t) => Math.floor(t / 2) % GAUGE.length; // 2틱마다 한 칸
+const GAUGE = [0, 0, ...Array(14).fill(1), ...Array(6).fill(2), ...Array(4).fill(1), 0, 0]; // 28칸
+const gaugePos = (t) => t % GAUGE.length; // 1틱마다 한 칸 (다 차는 데 1.4초)
 function gaugeText(pos) {
   // 찬 칸·빈 칸 모두 같은 글자(▮)로 크기를 맞추고, 밝기로만 구분 (찬 칸 = 밝게, 빈 칸 = 어둡게)
   const full = ["§f", "§e", "§c"], empty = ["§8", "§6", "§4"];
@@ -288,8 +288,8 @@ function bigShot(ctx, done) {
     if (t % 2 === 0) {
       const pos = gaugePos(t), q = pos / (GAUGE.length - 1);
       M.sound(p, "note.pling", 0.35 + q * 0.45, 0.6 + q * 1.4);              // 점점 고조
-      if (z === 2 && GAUGE[pos - 1] !== 2) M.sound(p, "note.bell", 0.9, 1.6); // 빨강(완벽) 칸 진입
-      if (pos === GAUGE.length - 1) M.sound(p, "random.fizz", 0.5, 0.6);      // 끝까지 차면 '치익' 하고 다시
+      if (z === 2 && GAUGE[pos - 2] !== 2) M.sound(p, "note.bell", 0.9, 1.6); // 빨강(완벽) 칸 진입
+      if (pos >= GAUGE.length - 2) M.sound(p, "random.fizz", 0.5, 0.6);      // 끝까지 차면 '치익' 하고 다시
       if (pos === 0 && t > 2) M.sound(p, "note.bass", 0.5, 0.6);
     }
     say(p, `${["§7", "§6", "§c§l"][z]}${["빗나감", "좋음 ×1", "완벽 ×1.5"][z]}§r  ${gaugeText(gaugePos(t))}  §7다시 클릭!`);

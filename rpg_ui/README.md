@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V7.9.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V8.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V8.0 변경
+- 주작 3단 게이지 칸 2배(14 → 28칸, 구간 비율 그대로), 한 칸씩 더 빠르게 차서 전체 시간은 1.4초 그대로
 
 ## V7.9 변경
 - 주작 3단 게이지는 한 번만 터치: 게이지가 뜬 뒤 0.3초 동안의 터치는 무시(연타·꾹 누름 방지), 한 번 누르면 큰 화살이 터질 때까지 추가 터치·다른 스킬 무시
