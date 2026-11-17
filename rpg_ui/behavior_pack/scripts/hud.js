@@ -7,7 +7,8 @@ import { CLASSES } from "./classes.js";
 import { getQuest, objLine, priority, navTarget, navText, qtype } from "./quests.js";
 import { partyOf, memberIds } from "./party.js";
 import { combatStats } from "./combat.js";
-import { currentSkillInfo } from "./skills.js";
+import { currentSkillInfo, heldWeaponSkills } from "./skills.js";
+import { ammoLine, BOW_ID } from "./jujak.js";
 import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
@@ -33,6 +34,7 @@ function skillLines(items, holding) {
   return [items.slice(0, 2).join("§r "), items.slice(2).join("§r ") + tail];
 }
 
+const heldBow = (p) => { try { return p.getComponent("minecraft:inventory").container.getItem(p.selectedSlotIndex)?.typeId === BOW_ID; } catch { return false; } };
 export function card(p) {
   const d = data(p);
   if (!d.set.card) return "[CARD]";
@@ -47,6 +49,7 @@ export function card(p) {
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
     `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
     ...skillLines(info.list.map(sk).filter(Boolean), info.holding),
+    heldBow(p) ? ammoLine(p) : "",
     d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,

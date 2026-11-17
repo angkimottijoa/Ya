@@ -6,7 +6,7 @@
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
 //      3단: 주작의 활(사용자 그림 점 찍기)이 손 앞에 나타나 시선을 따라다니며 2초 동안 시위를 당김
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
-//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로, 6발 쏘면 장전 동작(1.5초)
+//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발, 7초 동안 안 쏘면 자동 장전
 // 파티클: gen_jujak.py (jj_bow, jj_bigarrow, jj_ember, jj_trail, jj_boom, jj_ring)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
@@ -122,27 +122,32 @@ function fireArrow(ctx, from, dir, o = {}) {
 
 // ───────── 3단: 주작의 활 · 큰 불화살 ─────────
 const BOW = JJ.BOW, AR = JJ.ARROW;
-/** 활·시위·화살을 플레이어 손 앞에 그림 (매 2틱, 시선을 따라감). k = 당긴 정도 0~1 */
-function drawBow(p, k, withArrow = true) {
-  const dim = p.dimension, v = viewOf(p), eye = eyeOf(p);
-  const right = norm(cross(v, UP).x || cross(v, UP).z ? cross(v, UP) : { x: 1, y: 0, z: 0 });
-  const upv = norm(cross(right, v));
-  // 활 면: 앞과 오른쪽 사이로 비스듬히 → 1인칭에서도 활 모양이 보임
-  const u = norm(add(scl(v, 0.55), right, 0.85));
-  const SB = 0.034, H = add(add(add(eye, v, 1.35), upv, -0.3), right, -0.15);
-  const toW = (ix, iy) => add(add(H, u, (ix - BOW.cx) * SB), upv, (BOW.cy - iy) * SB);
+/** 활·시위·화살: 플레이어 앞 바닥에 크게(높이 약 5블록) 세움. k = 당긴 정도 0~1. drawBody 일 때만 활 몸을 그림 (3틱마다) */
+function drawBow(p, k, withArrow = true, drawBody = true) {
+  const dim = p.dimension, v = viewOf(p), yw = yawOf(p), f = fwdOf(yw), right = rightOf(yw);
+  // 활 면: 대부분 옆을 향하게 (뒤·1인칭에서도 활 모양이 보임), 활 배(그림 오른쪽)는 앞쪽
+  const u = norm(add(scl(f, 0.35), right, 0.94));
+  const SB = 0.068, H = add(up(p.location, (BOW.ih - BOW.cy) * SB + 0.1), f, 2.2);
+  const toW = (ix, iy) => add(add(H, u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
   const tipT = toW(BOW.top[0], BOW.top[1]), tipB = toW(BOW.bot[0], BOW.bot[1]);
-  const rest = scl(add(tipT, tipB), 0.5), nock = add(rest, v, -1.1 * k);
-  pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u, v: upv, scale: SB, n: Math.round((BOW.filled * 0.95) / BOW.fill), life: 0.13, size: 1 });
-  trail(dim, tipT, nock, { size: 1.1, life: 0.13, n: 26, tone: 0.3 });
-  trail(dim, tipB, nock, { size: 1.1, life: 0.13, n: 26, tone: 0.3 });
+  const rest = scl(add(tipT, tipB), 0.5), nock = add(rest, f, -1.8 * k);
+  if (drawBody) pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u, v: UP, scale: SB, n: Math.round((BOW.filled * 0.9) / BOW.fill), life: 0.3, size: 1 });
+  trail(dim, tipT, nock, { size: 1.5, life: 0.12, n: 34, tone: 0.3 });
+  trail(dim, tipB, nock, { size: 1.5, life: 0.12, n: 34, tone: 0.3 });
+  let aim = v;
   if (withArrow) {
-    const SA = 4.5 / AR.iw;
-    pt(dim, "jj_bigarrow", nock, { cx: AR.cx, cy: AR.cy, u: v, v: upv, scale: SA, n: Math.round((AR.filled * 0.9) / AR.fill), life: 0.13, size: 1 });
-    ember(dim, add(nock, v, 3.6), { n: 4, r: 0.2, spd: 1, life: 0.5, tone: 0 });
+    const SA = 4.5 / AR.iw, side = norm(cross(aim, UP).x || cross(aim, UP).z ? cross(aim, UP) : right), av = norm(cross(side, aim));
+    pt(dim, "jj_bigarrow", nock, { cx: AR.cx, cy: AR.cy, u: aim, v: av, scale: SA, n: Math.round((AR.filled * 1.1) / AR.fill), life: 0.12, size: 1.2 });
+    ember(dim, add(nock, aim, 3.6), { n: 5, r: 0.2, spd: 1, life: 0.5, tone: 0 });
   }
-  return { nock, v, upv };
+  return { nock, v: aim, upv: norm(cross(norm(cross(aim, UP).x || cross(aim, UP).z ? cross(aim, UP) : right), aim)) };
 }
+function flashScreen(p, r, g, b, t = 0.3) {
+  try { p.camera.fade({ fadeTime: { fadeInTime: 0.04, holdTime: 0.02, fadeOutTime: t }, fadeColor: { red: r, green: g, blue: b } }); } catch {
+    try { p.runCommand(`camera @s fade time 0.04 0.02 ${t} color ${Math.round(r * 255)} ${Math.round(g * 255)} ${Math.round(b * 255)}`); } catch {}
+  }
+}
+const vanilla = (dim, id, at) => { try { dim.spawnParticle(id, at); } catch {} };
 function bigShot(ctx, done) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "bow_draw");
@@ -151,11 +156,25 @@ function bigShot(ctx, done) {
   M.sound(p, "mob.blaze.breathe", 1, 0.7);
   ember(dim, up(p.location, 1.4), { n: 30, r: 1, spd: 2, life: 1 });
   say(p, "§6주작의 활 §f— 시선으로 조준!");
-  const DRAW = 40; // 2초
-  for (let t = 2; t <= DRAW; t += 2) later(t, () => {
+  const DRAW = 40; // 2초 동안 기를 모음
+  for (let t = 1; t <= DRAW; t++) later(t, () => {
     if (!p.isValid()) return;
-    drawBow(p, ease(t / DRAW));
+    const k = ease(t / DRAW), L = p.location;
+    drawBow(p, k, true, t % 3 === 1);
+    // 기 모으기: 불티가 몸으로 빨려 들어옴, 발밑 불 고리가 솟음, 불꽃, 게이지, 점점 세지는 떨림
+    if (t % 2 === 0) for (let j = 0; j < 3; j++) {
+      const a = Math.random() * Math.PI * 2, r = 2.5 + Math.random() * 1.5, q = { x: L.x + Math.cos(a) * r, y: L.y + 0.3 + Math.random() * 2.5, z: L.z + Math.sin(a) * r };
+      pt(dim, "jj_trail", q, { u: norm(sub(up(L, 1.2), q)), r: r * 0.8, n: 10, size: 0.9, life: 0.25, tone: 0.1 });
+    }
+    if (t % 4 === 0) {
+      pt(dim, "jj_ring", up(L, 0.1), { n: 22, r: 2.4 - k, spd: 0.4, size: 1 + k * 0.6, life: 0.5, tone: 0.15 });
+      for (let j = 0; j < 4; j++) { const a = (j / 4) * Math.PI * 2 + t * 0.3; vanilla(dim, "minecraft:basic_flame_particle", { x: L.x + Math.cos(a) * 1.8, y: L.y + 0.2, z: L.z + Math.sin(a) * 1.8 }); }
+      const bars = Math.round(k * 10);
+      say(p, `§6기 모으는 중 §c${"▮".repeat(bars)}§8${"▮".repeat(10 - bars)}`);
+    }
+    if (t % 8 === 0) try { p.runCommand(`camerashake add @s ${(0.04 + k * 0.18).toFixed(2)} 0.3 positional`); } catch {}
     if (t % 10 === 0) M.sound(p, "random.bow", 0.4, 0.5 + t * 0.012);
+    if (t === DRAW) { flashScreen(p, 1, 0.5, 0.12, 0.35); M.sound(p, "mob.blaze.shoot", 0.8, 0.5); ember(dim, up(L, 1.2), { n: 50, r: 1.2, spd: 4, life: 0.9, tone: 0 }); }
   });
   // 발사: 그 순간 바라보는 방향으로 곧게 날아감 → 맞거나 막히면 큰 폭발
   later(DRAW + 1, () => {
@@ -192,6 +211,18 @@ function bigShot(ctx, done) {
     fireBoom(dim, at, { n: 14, r: 1, spd: 4, size: 2.4, life: 1.3, tone: 0.35 });
     ember(dim, at, { n: 90, r: 1.2, spd: 9, life: 1.3 });
     for (const [d, spd, tone] of [[0, 8, 0], [3, 12, 0.2], [6, 16, 0.35], [10, 20, 0.5]]) later(d + 1, () => pt(dim, "jj_ring", up(at, -0.6), { n: 64, r: 0.5, spd, size: 2.2, life: 0.75, tone }));
+    // 불기둥 6개 + 용암 방울 + 2초 동안 땅에 남는 불 고리
+    for (let j = 0; j < 6; j++) later(j, () => {
+      const a = (j / 6) * Math.PI * 2, q = { x: at.x + Math.cos(a) * 3, y: at.y - 1, z: at.z + Math.sin(a) * 3 };
+      pt(dim, "jj_trail", q, { u: UP, r: 5, n: 50, size: 2.2, life: 0.6, tone: 0 });
+      ember(dim, up(q, 1), { n: 20, r: 0.5, spd: 5, life: 1, tone: 0 });
+    });
+    for (let j = 0; j < 12; j++) vanilla(dim, "minecraft:lava_particle", add(at, { x: Math.random() - 0.5, y: 0, z: Math.random() - 0.5 }, 3));
+    for (let t = 4; t <= 40; t += 4) later(t, () => {
+      pt(dim, "jj_ring", up(at, -0.8), { n: 30, r: 4, spd: 0.3, size: 1.4, life: 0.5, tone: 0.2 });
+      for (let j = 0; j < 6; j++) { const a = Math.random() * Math.PI * 2; vanilla(dim, "minecraft:basic_flame_particle", { x: at.x + Math.cos(a) * 4, y: at.y - 0.8, z: at.z + Math.sin(a) * 4 }); }
+    });
+    flashScreen(p, 1, 0.55, 0.15, 0.4);
     shake(dim, at, 0.9, 0.7);
     M.sound(p, "random.explode", 1.6, 0.8);
     M.sound(p, "mob.blaze.death", 0.9, 1.3);
@@ -202,33 +233,36 @@ function bigShot(ctx, done) {
 // ───────── ① 주작 · 화시 (3단 콤보, 6발 장전) ─────────
 const AMMO = 6;
 const combo = new Map(); // pid -> { stage, until, busy, ammo, reload }
-function reload(p, st) {
-  const dim = p.dimension;
-  st.reload = system.currentTick + 60; // 장전 3초
+const REFILL = 140; // 7초 동안 안 쓰면 다시 채워짐
+function refill(p, st) {
+  if (st.ammo >= AMMO || system.currentTick - st.last < REFILL) return;
+  st.ammo = AMMO;
   M.anim(p, "reload");
-  say(p, "§6장전 중...");
-  M.sound(p, "armor.equip_leather", 1, 0.8);
-  for (let t = 2; t <= 56; t += 3) later(t, () => {
-    const hand = add(up(p.location, 1.5), fwdOf(yawOf(p)), 0.4);
-    ember(dim, hand, { n: 6, r: 0.6, spd: -1.5, life: 0.5, tone: 0 }); // 불티가 손으로 모여듦
-  });
-  later(60, () => {
-    st.ammo = AMMO;
-    say(p, `§6장전 완료 §f🔥 ${AMMO}/${AMMO}`);
-    M.sound(p, "random.bow", 0.8, 1.6);
-    fireBoom(p.dimension, up(p.location, 1.3), { n: 6, r: 0.4, spd: 2, size: 1.2 });
-  });
+  M.sound(p, "random.bow", 0.8, 1.6);
+  const dim = p.dimension;
+  for (let t = 2; t <= 20; t += 3) later(t, () => ember(dim, add(up(p.location, 1.5), fwdOf(yawOf(p)), 0.4), { n: 6, r: 0.6, spd: -1.5, life: 0.5, tone: 0 }));
+  fireBoom(dim, up(p.location, 1.3), { n: 6, r: 0.4, spd: 2, size: 1.2 });
+}
+/** 정보창에 늘 보이는 줄: 남은 화살·콤보 단계 (주작의 활을 들고 있을 때) */
+export function ammoLine(p) {
+  let st = combo.get(p.id);
+  if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, last: 0 }; combo.set(p.id, st); }
+  refill(p, st);
+  const now = system.currentTick, stage = now > st.until ? 0 : st.stage;
+  const left = st.ammo < AMMO ? Math.max(0, Math.ceil((REFILL - (now - st.last)) / 20)) : 0;
+  return `§6🔥 §f${"|".repeat(st.ammo)}§8${"|".repeat(AMMO - st.ammo)} §f${st.ammo}/${AMMO}` + (stage ? `  §c${stage + 1}단` : "") + (left && st.ammo < AMMO ? `  §7장전 ${left}s` : "");
 }
 function flameShot(ctx) {
   const { p } = ctx, now = system.currentTick;
   let st = combo.get(p.id);
-  if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, reload: 0 }; combo.set(p.id, st); }
-  if (now < st.reload) { say(p, "§7장전 중..."); return; }
+  if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, last: 0 }; combo.set(p.id, st); }
+  refill(p, st);
+  if (st.ammo <= 0) { say(p, `§7화살이 없습니다 — ${Math.ceil((REFILL - (now - st.last)) / 20)}초 뒤 자동 장전`); return; }
   if (now < st.busy) return; // 3단 조준 중
   if (now > st.until) st.stage = 0;
   const eye = eyeOf(p), v = viewOf(p), start = add(eye, v, 1);
-  const next = (stage, msg) => { st.stage = stage; st.until = system.currentTick + 120; say(p, msg + `  §f🔥 ${st.ammo}/${AMMO}`); M.sound(p, "random.orb", 0.6, 0.8 + stage * 0.3); };
-  const used = () => { st.ammo--; if (st.ammo <= 0) later(st.stage === 2 ? 44 : 6, () => reload(p, st)); else say(p, `§6주작 · 화시 §f🔥 ${st.ammo}/${AMMO}`); };
+  const next = (stage, msg) => { st.stage = stage; st.until = system.currentTick + 120; say(p, msg); M.sound(p, "random.orb", 0.6, 0.8 + stage * 0.3); };
+  const used = () => { st.ammo--; st.last = system.currentTick; };
   if (st.stage === 0) {
     M.anim(p, "shoot");
     M.sound(p, "random.bow", 1, 1.2);

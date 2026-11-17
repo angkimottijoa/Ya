@@ -65,24 +65,42 @@ def shrink(im, target_w):
     return small, n
 
 
-def save_tex(small, name):
-    small.resize((small.size[0] * CELL, small.size[1] * CELL), Image.NEAREST).save(TEXD / f"{name}.png")
+def save_tex(small, name, smoke=False):
+    if smoke:  # 연기 점: 픽셀마다 듬성듬성한 뭉치(4종), 칸 8
+        import random
+        rnd = random.Random(9)
+        clumps = []
+        for _ in range(4):
+            clumps.append([(i, j) for j in range(8) for i in range(8) if rnd.random() < max(0.0, 1.0 - (((i - 3.5) ** 2 + (j - 3.5) ** 2) ** 0.5) * 0.2)])
+        big = Image.new("RGBA", (small.size[0] * 8, small.size[1] * 8), (0, 0, 0, 0))
+        bp, sp = big.load(), small.load()
+        for y in range(small.size[1]):
+            for x in range(small.size[0]):
+                c = sp[x, y]
+                if c[3]:
+                    for i, j in clumps[(x * 7 + y * 13) % 4]:
+                        bp[x * 8 + i, y * 8 + j] = c
+        big.save(TEXD / f"{name}.png")
+    else:
+        small.resize((small.size[0] * CELL, small.size[1] * CELL), Image.NEAREST).save(TEXD / f"{name}.png")
     prev = Image.new("RGBA", small.size, (60, 70, 90, 255)); prev.alpha_composite(small)
     prev.resize((small.size[0] * 5, small.size[1] * 5), Image.NEAREST).save(ROOT / "docs" / f"{name}_preview.png")
 
 
-def img_part(name, tex, IW, IH):
+def img_part(name, tex, IW, IH, smoke=False):
+    C = 8 if smoke else CELL
     bx, by = f"math.floor({R1} * {IW})", f"math.floor({R2} * {IH})"
     lx, ly = f"(({bx} - variable.cx) * variable.scale)", f"((variable.cy - {by}) * variable.scale)"
     part(name, {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
-        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly}" for c in "xyz"], "direction": [f"({R3} - 0.5)", 1, f"({R1} - 0.5)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
-        "minecraft:particle_initial_speed": 0,
-        "minecraft:particle_motion_dynamic": {},
-        "minecraft:particle_appearance_billboard": {"size": ["variable.scale * 1.5 * variable.size", "variable.scale * 1.5 * variable.size"], "facing_camera_mode": "lookat_xyz",
-            "uv": {"texture_width": IW * CELL, "texture_height": IH * CELL, "uv": [f"{bx} * {CELL}", f"{by} * {CELL}"], "uv_size": [CELL, CELL]}},
+        # 연기 점이면 천천히 피어오르며 커짐
+        "minecraft:particle_initial_speed": f"0.05 + {R3} * 0.15" if smoke else 0,
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.35, 0], "linear_drag_coefficient": 1.5} if smoke else {},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * (1.9 if smoke else 1.5) * variable.size * (0.9 + {AGE} * 0.3)".replace("(1.9 if smoke else 1.5)", "1.9" if smoke else "1.5")] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": IW * C, "texture_height": IH * C, "uv": [f"{bx} * {C}", f"{by} * {C}"], "uv_size": [C, C]}},
     }, tex=f"textures/particle/{tex}")
 
 
@@ -160,7 +178,7 @@ def main():
                 px[x, y] = (0, 0, 0, 0)
     im = im.crop(im.getbbox())
     small, n = shrink(im, 72)
-    save_tex(small, "rpg_jj_bow")
+    save_tex(small, "rpg_jj_bow", smoke=True)
     sp = small.load(); IW, IH = small.size
     op_ = [(x, y) for y in range(IH) for x in range(IW) if sp[x, y][3]]
     top = min(op_, key=lambda p: (p[1], p[0])); bot = max(op_, key=lambda p: (p[1], -p[0]))
@@ -171,7 +189,7 @@ def main():
     hx = sum(p[0] for p in mid) / len(mid)
     meta["BOW"] = {"iw": IW, "ih": IH, "cx": round(hx), "cy": IH // 2, "filled": n, "fill": round(n / (IW * IH), 3),
                    "top": list(top), "bot": list(bot)}
-    img_part("jj_bow", "rpg_jj_bow", IW, IH)
+    img_part("jj_bow", "rpg_jj_bow", IW, IH, smoke=True)
     # 아이콘 (32x32): 활 그림
     ic = small.copy(); ic.thumbnail((32, 32), Image.LANCZOS)
     icon = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); icon.paste(ic, ((32 - ic.size[0]) // 2, (32 - ic.size[1]) // 2))
