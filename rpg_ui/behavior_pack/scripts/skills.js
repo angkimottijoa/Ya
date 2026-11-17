@@ -17,7 +17,8 @@ import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js"
 import * as HM from "./hyeonmu.js";
 import { WR } from "./warrior.js";
 import { MG } from "./mage.js";
-const RUN = { ...WR, ...MG }; // 직업 스킬 (전사 · 마법사 계열)
+import { RP } from "./reaper.js";
+const RUN = { ...WR, ...MG, ...RP }; // 직업 스킬 (전사 · 마법사 계열 · 히든 영혼 수확자)
 import { isSkillLocked } from "./skill_lock.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS };
 

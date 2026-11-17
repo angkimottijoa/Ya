@@ -384,7 +384,10 @@ export function giveTool(p, path) {
 function nextAdvances(p) {
   const d = data(p);
   const cur = J.currentPath(d);
-  return (J.PATHS[cur]?.next ?? []).map((id) => {
+  const ids = [...(J.PATHS[cur]?.next ?? [])];
+  // 히든: 영혼 수확자 (조건을 채우면 2차·3차 어디서나 나타남)
+  if (d.reaperOpen && (J.PATHS[cur]?.tier ?? 0) >= 2 && cur !== "soul_reaper") ids.push("soul_reaper");
+  return ids.map((id) => {
     const t = J.PATHS[id];
     const why = d.lv < (t.lv ?? 1) ? `Lv.${t.lv} 필요` : d.gold < (t.cost ?? 0) ? `${t.cost}G 필요` : "";
     return { id, t, ok: !why, why };

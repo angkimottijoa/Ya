@@ -21,6 +21,7 @@ PAL = {
     "archer": ((120, 84, 44), (176, 132, 80), (70, 46, 24), (90, 210, 90)),
     "mage": ((70, 60, 120), (150, 130, 230), (60, 40, 30), (90, 200, 255)),
     "cleric": ((214, 178, 70), (255, 236, 150), (120, 90, 50), (255, 250, 220)),
+    "hidden": ((70, 40, 96), (190, 150, 255), (34, 22, 40), (90, 255, 200)),
 }
 TIER_GEM = {1: None, 2: (170, 90, 255), 3: (255, 200, 40)}
 STRING = (235, 235, 220)
@@ -95,6 +96,13 @@ def draw(shape, pal, tier):
             line(d, [(12, 7), (15, 4)], m)
             line(d, [(9, 4), (12, 7)], hi)
         d.point((10, 6), fill=tg)
+    elif shape == "scythe":  # 낫: 긴 자루 + 위에서 왼쪽으로 크게 휜 날 + 영혼빛 보석
+        line(d, [(3, 15), (11, 2)], grip, 1)
+        line(d, [(4, 15), (12, 2)], (grip[0] + 25, grip[1] + 20, grip[2] + 30))
+        d.arc([1, 0, 15, 10], 190, 290, fill=m, width=2)
+        d.arc([2, 1, 14, 9], 200, 280, fill=hi, width=1)
+        d.point((11, 3), fill=gem); d.point((12, 3), fill=gem)
+        d.point((3, 15), fill=gem)
     else:  # staff / orbstaff / scepter
         line(d, [(2, 15), (11, 6)], grip, 1)
         line(d, [(3, 15), (11, 7)], (grip[0] + 20, grip[1] + 15, grip[2] + 10))
@@ -123,7 +131,7 @@ def main():
         icon = f"rpg_jt_{path}"
         draw(shape, PAL[base], tier).save(ICONS / f"jt_{path}.png")
         atlas["texture_data"][icon] = {"textures": f"textures/items/rpg/jt_{path}"}
-        color = {"warrior": "§c", "archer": "§a", "mage": "§b", "cleric": "§e"}[base]
+        color = {"warrior": "§c", "archer": "§a", "mage": "§b", "cleric": "§e", "hidden": "§5"}[base]
         item = {
             "format_version": "1.21.40",
             "minecraft:item": {

@@ -112,6 +112,9 @@
     },
     "rpg_hyeonmu_shield": {
       "textures": "textures/items/rpg/hyeonmu_shield"
+    },
+    "rpg_jt_soul_reaper": {
+      "textures": "textures/items/rpg/jt_soul_reaper"
     }
   }
 }

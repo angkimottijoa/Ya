@@ -1,0 +1,72 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:sr_wisp",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_sr"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "(variable.particle_random_1 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_2 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_3 - 0.5) * 2 * variable.r"
+    ],
+    "direction": [
+     "variable.vd.x",
+     "variable.vd.y",
+     "variable.vd.z"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life"
+   },
+   "minecraft:particle_initial_speed": "variable.vs * (1 - (variable.particle_random_4 * variable.particle_random_4 * 0.5))",
+   "minecraft:particle_motion_dynamic": {},
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (0.26 - (variable.particle_random_4 * variable.particle_random_4 * 0.5) * 0.35) * (0.8 + 0.2 * math.sin(variable.particle_age * 900 + variable.particle_random_1 * 360))",
+     "variable.size * (0.26 - (variable.particle_random_4 * variable.particle_random_4 * 0.5) * 0.35) * (0.8 + 0.2 * math.sin(variable.particle_age * 900 + variable.particle_random_1 * 360))"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      "(variable.particle_random_4 < 0.25 ? 8 : 0)",
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(0.62 + (variable.particle_random_4 * variable.particle_random_4 * 0.5) * 0.7 + variable.tone, 0.6, 1)",
+     "gradient": {
+      "0.0": "#FFF4EAFF",
+      "0.15": "#FFC9A6FF",
+      "0.3": "#FF8A4CE8",
+      "0.45": "#FF4A1A9A",
+      "0.55": "#FF120618",
+      "0.6": "#FFE8FFF6",
+      "0.72": "#FF8CFFE0",
+      "0.86": "#FF2EC8A0",
+      "1.0": "#C00A4A3A"
+     }
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,75 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:sr_chain",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_sr"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "variable.u.x * math.floor(variable.particle_random_1 * variable.r * 3) / 3 + variable.v.x * (variable.particle_random_2 - 0.5) * 0.05",
+     "variable.u.y * math.floor(variable.particle_random_1 * variable.r * 3) / 3 + variable.v.y * (variable.particle_random_2 - 0.5) * 0.05",
+     "variable.u.z * math.floor(variable.particle_random_1 * variable.r * 3) / 3 + variable.v.z * (variable.particle_random_2 - 0.5) * 0.05"
+    ],
+    "direction": [
+     0,
+     1,
+     0
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life"
+   },
+   "minecraft:particle_initial_speed": 0,
+   "minecraft:particle_motion_dynamic": {},
+   "minecraft:particle_initial_spin": {
+    "rotation": "math.mod(math.floor(variable.particle_random_1 * variable.r * 3), 2) * 90 + 45"
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (math.mod(math.floor(variable.particle_random_1 * variable.r * 3), 2) > 0 ? 0.26 : 0.2) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))",
+     "variable.size * (math.mod(math.floor(variable.particle_random_1 * variable.r * 3), 2) > 0 ? 0.26 : 0.2) * (1 - math.pow((variable.particle_age / variable.particle_lifetime), 3))"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      16,
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(0.12 + variable.particle_random_3 * 0.15 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFF4EAFF",
+      "0.15": "#FFC9A6FF",
+      "0.3": "#FF8A4CE8",
+      "0.45": "#FF4A1A9A",
+      "0.55": "#FF120618",
+      "0.6": "#FFE8FFF6",
+      "0.72": "#FF8CFFE0",
+      "0.86": "#FF2EC8A0",
+      "1.0": "#C00A4A3A"
+     }
+    }
+   }
+  }
+ }
+}

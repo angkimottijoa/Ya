@@ -27,6 +27,9 @@ export const PATHS = {
   stormcaller: { tool: { name: "뇌전의 창", shape: "spear", dmg: 8 }, name: "뇌전술사", tier: 2, base: "mage", lv: 20, cost: 1000, weapons: ["staff", "spear"], next: ["stormlord"], icon: "spear", color: "§b", bonus: { int: 5, dex: 2 }, desc: "번개를 창처럼 다룬다." },
   stormlord: { tool: { name: "폭풍의 삼지창", shape: "trident", dmg: 11 }, name: "폭풍의 군주", tier: 3, base: "mage", lv: 40, cost: 5000, weapons: ["staff", "spear"], next: [], icon: "spear", color: "§b", bonus: { int: 10, dex: 4 }, desc: "하늘의 분노 그 자체." },
 
+  // 히든 3차 (reaper.js): 2차 이상 · Lv.40 이상으로 밤에 몬스터 300마리를 쓰러뜨리면 승급 목록에 나타남 (아무 2차·3차에서나)
+  soul_reaper: { tool: { name: "영혼 수확자의 낫", shape: "scythe", dmg: 15 }, name: "영혼 수확자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "class", color: "§5", bonus: { str: 9, int: 6, dex: 5 }, hidden: true, desc: "떠도는 영혼을 거두는 자. 근처에서 쓰러진 적의 영혼을 모아 낫에 담고, 모은 영혼으로 적을 거둔다." },
+
   cleric: { tool: { name: "성직자의 철퇴", shape: "mace", dmg: 6 }, name: "성직자", tier: 1, base: "cleric", weapons: ["mace", "staff"], next: ["priest", "paladin"], icon: "cleric", color: "§e", desc: "빛의 가호로 동료를 지키는 치유사." },
   priest: { tool: { name: "도사의 부채", shape: "staff", dmg: 6 }, name: "사제", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["staff"], next: ["archbishop"], icon: "cleric", color: "§e", bonus: { int: 4, vit: 4 }, desc: "더 강한 치유와 정화." },
   archbishop: { tool: { name: "물의 성홀", shape: "scepter", dmg: 7 }, name: "대주교", tier: 3, base: "cleric", lv: 40, cost: 5000, weapons: ["staff"], next: [], icon: "cleric", color: "§e", bonus: { int: 8, vit: 8 }, desc: "기적을 행하는 자." },
@@ -39,7 +42,7 @@ export const PATH_PAL = {
   novice: "cloud", warrior: "steel", swordmaster: "steel", sword_emperor: "steel", berserker: "blood", destroyer: "blood",
   archer: "forest", sniper: "forest", hawkeye: "forest", hunter: "forest", beastlord: "forest",
   mage: "moon", elementalist: "ember", archmage: "ember", stormcaller: "storm", stormlord: "storm",
-  cleric: "holy", priest: "holy", archbishop: "holy", paladin: "holy", crusader: "holy",
+  cleric: "holy", priest: "holy", archbishop: "holy", paladin: "holy", crusader: "holy", soul_reaper: "moon",
 };
 
 export const TIER_NAMES = ["", "1차", "2차", "3차"];
@@ -81,6 +84,11 @@ export const JOB_SKILLS = [
   { id: "j_beastlord_1", key: 1, path: "beastlord", name: "도살", lv: 40, mp: 20, cd: 10, kind: "melee", pow: 1, ms: "도살자RCaera1", anim: "spin", desc: "도살자의 원형 베기." },
   { id: "j_beastlord_2", key: 2, path: "beastlord", name: "살점 폭발", lv: 55, mp: 45, cd: 30, kind: "melee", pow: 1, ms: "도살자SRCaera1", anim: "smash", desc: "3색 구가 퍼지며 주변을 약화·침묵시킨다." },
   { id: "j_beastlord_3", key: 3, path: "beastlord", name: "학살", lv: 45, mp: 50, cd: 40, kind: "melee", pow: 1, ms: "도살자SLCMultiM", anim: "slash", desc: "붙잡은 적을 수십 번 베고 큰 피의 회오리로 끝낸다." },
+  // ── 히든: 영혼 수확자 (V11.4, reaper.js) ──
+  { id: "jr_soul_reaper_1", key: 1, path: "soul_reaper", name: "사신의 낫질", lv: 45, mp: 7, cd: 0.5, kind: "melee", pow: 1, wr: "rp_combo", desc: "3타: 낫을 크게 휘두름 → 반대로 → 한 바퀴 돌며 주변 적을 끌어당겨 거둠(영혼 조각). 마지막 뒤 8초 대기." },
+  { id: "jr_soul_reaper_2", key: 2, path: "soul_reaper", name: "영혼 사슬", lv: 45, mp: 24, cd: 12, kind: "melee", pow: 1, wr: "rp_chain", desc: "앞 14칸 최대 네 명에게 영혼 사슬을 던져 2초 묶고 끌어당긴다. 사슬에 묶인 적에게 낙인(영혼 수확 피해 1.5배)." },
+  { id: "jr_soul_reaper_3", key: 3, path: "soul_reaper", name: "망령 행진", lv: 45, mp: 28, cd: 15, kind: "melee", pow: 1, wr: "rp_wraith", desc: "망령이 되어 주변 적 사이를 세 번 꿰뚫고 지나가며 벤다. 영혼 3개마다 한 번 더 (최대 6개 사용)." },
+  { id: "jr_soul_reaper_4", key: 4, path: "soul_reaper", name: "영혼 수확", lv: 50, mp: 60, cd: 45, kind: "melee", pow: 1, wr: "rp_ult", desc: "발밑에 죽음의 진, 등 뒤에 거대한 낫. 주변 적의 영혼을 뽑아 낫에 모은 뒤 크게 한 바퀴 베어 거둔다. 체력 25% 이하 몹은 처형, 모은 영혼만큼 피해·회복 증가." },
   // ── 마법사 계열 (V11.2, mage.js · 마법진 캐스터) ──
   { id: "jm_mage_1", key: 1, path: "mage", name: "마력탄", lv: 1, mp: 4, cd: 0.5, kind: "magic", pow: 1, wr: "mg_bolt", desc: "3연: 손끝 작은 마법진에서 조준한 곳으로 마력탄. 3번째는 큰 마력탄(주변 폭발). 마지막 뒤 8초 대기." },
   { id: "jm_mage_2", key: 2, path: "mage", name: "비전 폭발", lv: 8, mp: 16, cd: 10, kind: "magic", pow: 1, wr: "mg_burst", desc: "발밑에 마법진을 그리고 0.6초 뒤 비전 폭발, 주변 적을 밀어낸다." },
