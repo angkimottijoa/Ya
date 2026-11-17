@@ -277,7 +277,7 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
 function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
   const N = norm(sub(N0, scl(D, dot3(N0, D)))), S = cross(D, N);
   const P = (d, n, s) => add(add(add(W, D, d * k), N, n * k), S, s * k);
-  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 9, size: 1.45, life: 0.09, ...o, ...(o.dens ? { dens: o.dens * 0.33 } : {}) });
+  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 8, size: 1.5, life: 0.13, ...o, ...(o.dens ? { dens: o.dens * 0.33 } : {}) });
   const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.05, r, r, o); };
   // 팔뚝: 짧게 (손 위주로 보이게), 고리 줄무늬
   seg(P(-2.1, -0.1, 0), P(-0.9, 0, 0), 0.72, { stripe: 1.6, ao: 0.1 });
@@ -286,7 +286,6 @@ function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
   // 손바닥 (위는 흰 털, 아래는 큰 발바닥 살)
   B(P(0.7, -0.05, 0), D, 0.8, 0.52, 1.08, { ao: 0.05 });
   B(P(0.72, 0.42, 0), D, 0.48, 0.16, 0.6, { tone: 0.72, dens: 40 });                 // 큰 발바닥 살 (세 갈래 모양)
-  for (const s of [-1, 1]) B(P(0.62, 0.4, s * 0.4), D, 0.28, 0.14, 0.24, { tone: 0.72, dens: 40 });
   // 발가락 4개 (가운데 둘이 더 앞), 관절 두 마디, 발가락 살, 발톱
   const toes = [-0.78, -0.27, 0.27, 0.78];
   toes.forEach((sx, i) => {
@@ -296,21 +295,19 @@ function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
     B(base, D, 0.34, 0.32, 0.3, { dens: 34 });                                      // 둥글고 짧은 발가락
     seg(mid, tip, 0.27, { dens: 34 });
     B(add(tip, N, 0.14 * k), D, 0.2, 0.1, 0.18, { tone: 0.72, dens: 50 });           // 발가락 살
-    B(add(base, N, -0.18 * k), D, 0.18, 0.12, 0.16, { dens: 40 });                   // 발가락 위 털 뭉치
     // 발톱: 발가락 끝에서 나와 손바닥 쪽으로 갈고리처럼 휨 (spread 만큼 꺼냄), 뿌리는 밝고 끝은 검게
     const L = (0.55 + spread * 0.75) * k;
     let prev = add(tip, D, 0.1 * k);
-    for (let j = 1; j <= 5; j++) {
-      const q = j / 5, ang = q * 1.1;
-      const cur = add(add(prev, D, (L / 5) * Math.cos(ang)), N, (L / 5) * Math.sin(ang));
+    for (let j = 1; j <= 3; j++) {
+      const q = j / 3, ang = q * 1.1;
+      const cur = add(add(prev, D, (L / 3) * Math.cos(ang)), N, (L / 3) * Math.sin(ang));
       seg(prev, cur, Math.max(0.035, 0.11 * (1 - q * 0.85)), { tone: 0.35 + q * 0.6, dens: 70 });
       prev = cur;
     }
   });
   // 며느리발톱 (안쪽 손목 위)
   const dw = P(0.15, 0.25, -0.95);
-  B(dw, D, 0.2, 0.15, 0.15, { dens: 40 });
-  seg(add(dw, D, 0.15 * k), add(add(dw, D, 0.5 * k), N, 0.35 * k), 0.06, { tone: 0.85, dens: 70 });
+  seg(dw, add(add(dw, D, 0.5 * k), N, 0.35 * k), 0.07, { tone: 0.85, dens: 70 });
 }
 const glow = (dim, at, size) => pt(dim, "cr_glow", at, { n: 2, r: 0, size, tone: 0.45, life: 0.13 });
 const line = (dim, a, b, tone = 0.2) => {
@@ -378,19 +375,19 @@ function apex(ctx) {
     return { W: add(add(E0, strikeDir, -3.4), UP, e * e * 3), D: strikeDir, k: K, spread: 1 - e * 0.3 };
   };
   const frame = (t) => { const st = pawState(t); SINK = []; try { drawPaw(dim, st.W, st.D, palm, st.k, st.spread, t); } catch {} const l = SINK; SINK = null; return { l, st }; };
-  for (let t = T0; t <= TE; t++) later(t, () => {
-    const cur = frame(t), nxt = frame(t + 1);
+  for (let t = T0; t <= TE; t += 2) later(t, () => { // 2틱마다 그리고, 그 사이는 다음 위치로 미끄러지게 (부하 절반)
+    const cur = frame(t), nxt = frame(t + 2);
     cur.l.forEach((it, i) => {
       const n2 = nxt.l[i];
       if (n2 && n2.name === it.name) {
-        const v = scl(sub(n2.loc, it.loc), 20), sp = Math.hypot(v.x, v.y, v.z);
+        const v = scl(sub(n2.loc, it.loc), 10), sp = Math.hypot(v.x, v.y, v.z);
         if (sp > 0.01) { it.o.vd = scl(v, 1 / sp); it.o.vs = sp; }
       }
       pt(dim, it.name, it.loc, it.o);
     });
     const W = cur.st.W;
     if (t === T0) { M.sound(p, "mob.ravager.roar", 1.7, 0.5); smoke(dim, W, { n: 14, r: 3, spd: 2, size: 2.4, life: 1.2 }); }
-    if (t > T0 + 8 && t <= T0 + 12) { // 내리칠 때 바람 줄기
+    if (t > T0 + 7 && t <= T0 + 12) { // 내리칠 때 바람 줄기
       for (let j = 0; j < 2; j++) {
         const o2 = add(add(W, camRight, (Math.random() - 0.5) * 6), UP, (Math.random() - 0.5) * 4);
         pt(dim, "bh_line", o2, { u: scl(strikeDir, -1), v: UP, r: 7, h: 0, n: 30, tone: 0, life: 0.18, size: 1.3, thick: j });
@@ -453,8 +450,8 @@ function apex(ctx) {
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
     // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 8초 동안 박혀 연기를 피워 올림 (5틱마다 다시 그림)
-    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15, 1400));
-    for (let t = 3; t < 163; t += 5) later(t, () => axeAt(H, 0, 0.9, 1500));
+    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15, 2600));
+    for (let t = 3; t < 163; t += 6) later(t, () => axeAt(H, 0, 1.05, 3000)); // 점을 많이 → 또렷하게
     later(3, () => boom(dim, up(H, 0.5), true));
     // 연쇄 폭발: 박힌 곳에서 바깥으로 두 바퀴
     for (let k = 0; k < 6; k++) {
