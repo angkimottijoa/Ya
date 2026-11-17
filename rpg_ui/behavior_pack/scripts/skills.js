@@ -15,6 +15,7 @@ import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
 import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
 import * as HM from "./hyeonmu.js";
+import { WR } from "./warrior.js";
 import { isSkillLocked } from "./skill_lock.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS };
 
@@ -120,7 +121,8 @@ export function currentSkillInfo(p) {
   if (ws) return { path: null, holding: true, list: [...ws].sort((a, b) => a.key - b.key).map((s) => ({ key: s.key, s, left: readyIn(p, s.id), ok: true })) };
   const held = heldPath(p);
   const path = held ?? J.currentPath(d);
-  const list = [1, 2, 3].map((key) => {
+  const keys = J.skillAt(path, 4) ? [1, 2, 3, 4] : [1, 2, 3];
+  const list = keys.map((key) => {
     const s = J.skillAt(path, key);
     return { key, s, left: s ? readyIn(p, s.id) : 0, ok: s ? d.lv >= s.lv : false };
   });
@@ -231,6 +233,7 @@ export function castWeaponSkill(p, id) {
 // ───────── 효과: spellbook.js (MagicSpells 이식 엔진) ─────────
 function runEffect(p, s, dmg) {
   const d = data(p);
+  if (s.wr && WR[s.wr]) { WR[s.wr]({ p, dmg, data: d, s }); return; } // 전사 계열 (warrior.js)
   if (s.ms) {
     // 자바 MagicSpells 원본 실행: 원본 피해 수치 × (스킬 위력 / 25)
     anim(p, s.anim ?? "slash");
@@ -324,6 +327,7 @@ function doubleSneakTick(p, sneak) {
     sneakEdge.set(p.id, -99);
     const ws = heldWeaponSkills(p);
     if (ws?.some((s) => s.key === 4)) castKey(p, 4);
+    else { const path = heldPath(p); if (path && J.skillAt(path, 4)) castKey(p, 4); } // 3차 직업 궁극기
   }
 }
 /** 매 틱: 직업 도구를 들고 쉬프트 중 점프를 '새로' 누르면 ③ */

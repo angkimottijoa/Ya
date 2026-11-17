@@ -1,0 +1,70 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:wr_arc",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/rpg_wr"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "(variable.u.x * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.x * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.thick * variable.particle_random_2 * (1)) + variable.w.x * (variable.particle_random_3 - 0.5) * variable.h",
+     "(variable.u.y * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.y * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.thick * variable.particle_random_2 * (1)) + variable.w.y * (variable.particle_random_3 - 0.5) * variable.h",
+     "(variable.u.z * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.z * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1))) * (variable.r - variable.thick * variable.particle_random_2 * (1)) + variable.w.z * (variable.particle_random_3 - 0.5) * variable.h"
+    ],
+    "direction": [
+     "(variable.u.x * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.x * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)))",
+     "(variable.u.y * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.y * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)))",
+     "(variable.u.z * math.cos((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)) + variable.v.z * math.sin((variable.a0 + (variable.a1 - variable.a0) * variable.particle_random_1)))"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "(variable.particle_random_1 * variable.dur) + variable.life * (0.7 + variable.particle_random_4 * 0.3)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * variable.particle_random_4",
+   "minecraft:particle_motion_dynamic": {
+    "linear_drag_coefficient": 3
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.particle_age < (variable.particle_random_1 * variable.dur) ? 0 : variable.size * (0.12 + (1 - variable.particle_random_2) * 0.08) * (1 - math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1))",
+     "variable.particle_age < (variable.particle_random_1 * variable.dur) ? 0 : variable.size * (0.12 + (1 - variable.particle_random_2) * 0.08) * (1 - math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1))"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      0,
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(variable.particle_random_2 * 0.85 + math.clamp((variable.particle_age - (variable.particle_random_1 * variable.dur)) / variable.life, 0, 1) * 0.3 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFFFFF",
+      "0.2": "#FFE4ECF2",
+      "0.5": "#FF9AA6B2",
+      "0.8": "#FF56606C",
+      "1.0": "#FF2A3038"
+     }
+    }
+   }
+  }
+ }
+}

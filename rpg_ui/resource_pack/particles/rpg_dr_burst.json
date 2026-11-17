@@ -1,0 +1,76 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:dr_burst",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_dr"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "math.cos((variable.particle_random_1 * 360)) * variable.r * variable.particle_random_2",
+     "variable.particle_random_3 * 0.3",
+     "math.sin((variable.particle_random_1 * 360)) * variable.r * variable.particle_random_2"
+    ],
+    "direction": [
+     "math.cos((variable.particle_random_1 * 360)) * (1 - variable.h)",
+     "0.35 + variable.h * 1.6 + variable.particle_random_3 * 0.5",
+     "math.sin((variable.particle_random_1 * 360)) * (1 - variable.h)"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life * (0.6 + variable.particle_random_4 * 0.6)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * (0.5 + variable.particle_random_4 * 0.7)",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     3,
+     0
+    ],
+    "linear_drag_coefficient": 2
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (0.4 + variable.particle_random_4 * 0.35) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.6)",
+     "variable.size * (0.4 + variable.particle_random_4 * 0.35) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.6)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      8,
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp((variable.particle_age / variable.particle_lifetime) * 0.85 + variable.particle_random_2 * 0.15 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFF8D8",
+      "0.18": "#FFFFD25A",
+      "0.4": "#FFFF8A1E",
+      "0.62": "#FFD2361A",
+      "0.82": "#FF6A0E0E",
+      "1.0": "#FF1E0606"
+     }
+    }
+   }
+  }
+ }
+}

@@ -369,7 +369,7 @@ export function openQuests(p, cat = "active", sel, page = 0) {
 
 // ═════════ 직업·스킬 (승급 단계별 탭 / 직업 정보 / 승급 / 스킬 장착) ═════════
 const tName = (t) => t.tool?.name ?? "-";
-const keyLine = (path) => [1, 2, 3].map((k) => { const s = J.skillAt(path, k); return `§e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]} §f${s ? `${s.name} §7(Lv.${s.lv})` : "-"}`; }).join("\n");
+const keyLine = (path) => (J.skillAt(path, 4) ? [1, 2, 3, 4] : [1, 2, 3]).map((k) => { const s = J.skillAt(path, k); return `§e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]} §f${s ? `${s.name} §7(Lv.${s.lv})` : "-"}`; }).join("\n");
 
 /** 직업 전용 도구 지급 (이미 가지고 있으면 생략) */
 export function giveTool(p, path) {
