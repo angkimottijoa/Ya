@@ -46,7 +46,7 @@ function pt(dim, name, loc, o = {}, prio = 1) {
 /** 기둥: from 에서 dir 방향 길이 L (불기둥 · 얼음 가시 · 빛줄기) */
 const column = (dim, name, from, dir, L, thick, o = {}) => { const u = norm(dir), b = perp(u); pt(dim, name, from, { u, v: b.v, w: b.w, r: L, thick, n: o.n ?? Math.round(L * thick * 60 + 20), life: o.life ?? 0.8, size: o.size ?? 1, tone: o.tone ?? 0 }, o.prio ?? 0); };
 /** 번개 줄기 a → b */
-const bolt = (dim, a, b, o = {}) => { const d = sub(b, a), L = len(d) || 0.1, u = norm(d), q = perp(u); pt(dim, "lt_bolt", a, { u, v: q.v, w: q.w, r: L, h: o.h ?? Math.min(1.2, 0.25 + L * 0.06), seed: Math.random() * 100, n: o.n ?? Math.round(L * 12 + 10), life: o.life ?? 0.28, size: o.size ?? 1.2, tone: o.tone ?? 0 }, o.prio ?? 0); };
+const bolt = (dim, a, b, o = {}) => { const d = sub(b, a), L = len(d) || 0.1, u = norm(d), q = perp(u); pt(dim, "lt_bolt", a, { u, v: q.v, w: q.w, r: L, h: o.h ?? Math.min(1.2, 0.25 + L * 0.06), seed: Math.random() * 100, n: o.n ?? Math.round(L * 7 + 8), life: o.life ?? 0.28, size: o.size ?? 1.2, tone: o.tone ?? 0 }, o.prio ?? 0); };
 
 // ───────── 판정 · 조준 ─────────
 function hitter(ctx) {
@@ -277,16 +277,16 @@ function am_ult(ctx) { // 천체 붕괴
   drawMagic(dim, up(g, 0.1), UP, [{ t: "ring", r: 1, w: 0.04 }, { t: "rune", r: 0.9, m: 40, spin: -6 }, { t: "poly", r: 0.82, m: 7, k: 3, spin: 6 }], { R: 6, color: C.violet, life: 4.2, draw: 0.6 });
   snd(p, "ambient.weather.thunder", 0.5, 1.6); snd(p, "beacon.activate", 1, 0.6);
   // 별 운석 열네 개
-  for (let k = 0; k < 14; k++) later(22 + k * 3, () => {
+  for (let k = 0; k < 10; k++) later(22 + k * 4, () => {
     const a = Math.random() * Math.PI * 2, rr = Math.random() * R * 0.8, from = { x: sky.x + Math.cos(a) * rr, y: sky.y, z: sky.z + Math.sin(a) * rr };
     const b = Math.random() * Math.PI * 2, br = Math.random() * 7, to = groundAt(dim, { x: g.x + Math.cos(b) * br, y: g.y + 1, z: g.z + Math.sin(b) * br });
-    shoot(ctx, hit, "as_proj", from, to, { n: 50, r: 0.35, size: 1.6, spd: 30, mul: 0, hitR: 0.1 });
+    shoot(ctx, hit, "as_proj", from, to, { n: 32, r: 0.35, size: 1.8, spd: 30, mul: 0, hitR: 0.1 });
     later(Math.ceil((len(sub(to, from)) / 30) * 20), () => { pt(dim, "as_burst", up(to, 0.3), { n: 26, r: 0.3, spd: 5, life: 0.7 }, 1); for (const e of foes(dim, to, 2.3)) hit(e, 0.45, 6); if (k % 3 === 0) snd(p, "random.explode", 0.4, 1.5); });
   });
   // 마지막: 하늘의 마법진 한가운데서 거대한 빛기둥
   later(72, () => {
-    column(dim, "as_beam", sky, DOWN, sky.y - g.y, 3, { life: 1, n: 700, size: 1.6 });
-    column(dim, "as_beam", sky, DOWN, sky.y - g.y, 1.4, { life: 1.1, n: 300, size: 1.2, tone: 0 });
+    column(dim, "as_beam", sky, DOWN, sky.y - g.y, 3, { life: 1, n: 320, size: 2 });
+    column(dim, "as_beam", sky, DOWN, sky.y - g.y, 1.4, { life: 1.1, n: 140, size: 1.4, tone: 0 });
     pt(dim, "as_burst", up(g, 1), { n: 140, r: 2, spd: 11, life: 1.1, size: 1.6 }, 0);
     pt(dim, "as_dust", up(g, 3), { n: 50, r: 6, spd: 1, life: 1.6 }, 2);
     try { dim.spawnParticle("minecraft:huge_explosion_emitter", up(g, 1)); } catch {}
@@ -363,7 +363,7 @@ function sl_storm(ctx) { // 폭풍 영역: 여러 마법진이 흩어져 돌며 
   const spots = kinds.map((k, i) => { const a = (i / kinds.length) * Math.PI * 2 + 0.3, rr = i === 0 ? 0 : 5; return { k, at: groundAt(dim, { x: g.x + Math.cos(a) * rr, y: g.y + 1, z: g.z + Math.sin(a) * rr }), R: i === 0 ? 3.2 : 2.2 }; });
   spots.forEach((s, i) => later(i * 3, () => drawMagic(dim, up(s.at, 0.1), UP, s.k, { R: s.R, color: C.volt, life: 4.2 - i * 0.15, draw: 0.3, yaw: i * 40, spin: i % 2 ? -1 : 1 })));
   snd(p, "ambient.weather.thunder", 0.6, 1.4);
-  for (let t = 14; t < 86; t += 6) later(t, () => {
+  for (let t = 14; t < 86; t += 8) later(t, () => {
     const s = spots[Math.floor(Math.random() * spots.length)];
     const inside = foes(dim, s.at, s.R + 0.5);
     const at = inside.length ? { ...inside[0].location } : { x: s.at.x + (Math.random() - 0.5) * s.R, y: s.at.y, z: s.at.z + (Math.random() - 0.5) * s.R };
@@ -383,7 +383,7 @@ function sl_cannon(ctx) { // 뇌신포
   snd(p, "beacon.power_select", 0.8, 1.8);
   later(14, () => {
     const vv = viewOf(p), L = 22, end = add(at, vv, L);
-    for (let k = 0; k < 6; k++) bolt(dim, at, end, { size: 1.6, life: 0.35, h: 0.6 + k * 0.15, prio: k < 2 ? 0 : 1 });
+    for (let k = 0; k < 3; k++) bolt(dim, at, end, { size: 1.9, life: 0.35, h: 0.6 + k * 0.25, prio: k < 1 ? 0 : 1 });
     for (let d = 2; d < L; d += 2.5) pt(dim, "lt_burst", add(at, vv, d), { n: 10, r: 0.5, spd: 3, life: 0.4 }, 2);
     for (const e of foes(dim, add(at, vv, L / 2), L / 2 + 2)) { const q = sub(center(e), at), al = q.x * vv.x + q.y * vv.y + q.z * vv.z; if (al < -0.5 || al > L) continue; const off = len(sub(q, { x: vv.x * al, y: vv.y * al, z: vv.z * al })); if (off < 2.2 && hit(e, 1.6, 1)) { try { e.applyKnockback(vv.x, vv.z, 1.2, 0.3); } catch {} } }
     flash(p, 0.7, 1, 1, 0.3);
@@ -402,15 +402,15 @@ function sl_ult(ctx) { // 만뢰
   drawMagic(dim, up(sky, 0.6), UP, [{ t: "ring", r: 1.1, seg: 5, gap: 0.35, spin: 14 }, { t: "ring", r: 1.18, seg: 3, gap: 0.5, spin: -10 }], { R, color: C.volt, life: 4.4, draw: 0.8 });
   drawMagic(dim, up(g, 0.1), UP, "seal", { R: 6, color: C.volt, life: 4.4, draw: 0.6 });
   snd(p, "ambient.weather.thunder", 1, 0.8);
-  for (let t = 20; t < 66; t++) later(t, () => { // 번개 비
+  for (let t = 20; t < 66; t += 2) later(t, () => { // 번개 비
     const a = Math.random() * Math.PI * 2, rr = Math.random() * (R - 1), at = groundAt(dim, { x: g.x + Math.cos(a) * rr, y: g.y + 1, z: g.z + Math.sin(a) * rr });
     bolt(dim, { x: at.x, y: sky.y, z: at.z }, at, { size: 1.2, life: 0.25, prio: t % 2 ? 1 : 0 });
     if (t % 2 === 0) pt(dim, "lt_burst", up(at, 0.3), { n: 12, r: 0.2, spd: 4, life: 0.4 }, 2);
-    for (const e of foes(dim, at, 1.8)) hit(e, 0.25, 10);
+    for (const e of foes(dim, at, 2)) hit(e, 0.3, 10);
     if (t % 8 === 0) snd(p, "ambient.weather.lightning.impact", 0.6, 1 + Math.random() * 0.4);
   });
   later(72, () => { // 마지막 일격
-    for (let k = 0; k < 4; k++) bolt(dim, sky, g, { size: 2.2, life: 0.45, h: 1 + k * 0.3 });
+    for (let k = 0; k < 2; k++) bolt(dim, sky, g, { size: 2.4, life: 0.45, h: 1 + k * 0.5 });
     try { dim.spawnEntity("minecraft:lightning_bolt", g); } catch {}
     pt(dim, "lt_burst", up(g, 1), { n: 140, r: 1.5, spd: 12, life: 0.9, size: 1.6 }, 0);
     pt(dim, "lt_spark", up(g, 1), { n: 60, r: 2, spd: 10, life: 0.6 }, 2);

@@ -112,12 +112,15 @@ export const PRESET = {
 /** 마법진 그리기. layers 는 프리셋 이름이나 레이어 배열 */
 export function drawMagic(dim, c, normal, layers, o = {}) {
   const R = o.R ?? 4, { u, v } = basis(normal, o.yaw ?? 0), col = o.color ?? [0.45, 0.85, 1];
-  const life = o.life ?? 3, draw = o.draw ?? 0.6, spinMul = o.spin ?? 1, dens = o.dens ?? 13, size = o.size ?? 1.3;
+  const life = o.life ?? 3, draw = o.draw ?? 0.6, spinMul = o.spin ?? 1, size = (o.size ?? 1.3) * 1.25;
+  // 렉 줄이기: 점 간격을 넓히고(점은 조금 크게), 큰 마법진일수록 더 성기게 (반지름 4 넘으면 4/R 배)
+  const dens = (o.dens ?? 7) * Math.min(1, 4 / Math.max(4, R));
   const L = typeof layers === "string" ? PRESET[layers]() : layers;
   const walk = (list, cx, cy, sc, depth) => list.forEach((ly, i) => {
     const s = sc * (ly.scale ?? 1), at = ly.at ? [cx + ly.at[0] * sc, cy + ly.at[1] * sc] : [cx, cy];
     if (ly.t === "sub") return walk(ly.layers, at[0], at[1], s, depth + 1);
     const pos = add(add(c, u, at[0] * R), v, at[1] * R);
+    if (depth >= 2 && R > 6) return; // 큰 마법진의 아주 작은 문양은 생략
     const r = (ly.r ?? 1) * s * R, base = { u, v, life, fade: o.fade ?? 0.5, draw: ly.draw ?? draw * (0.5 + (0.5 * i) / Math.max(1, list.length)), cr: col[0] * (ly.tone ?? 1), cg: col[1] * (ly.tone ?? 1), cb: col[2] * (ly.tone ?? 1), a: ly.a ?? 1, size: size * (ly.size ?? 1) * (depth ? 0.85 : 1), spin: (ly.spin ?? 0) * spinMul, rot: ly.rot ?? 0, prio: depth ? 2 : 1 };
     if (ly.t === "ring") {
       const frac = (((ly.a1 ?? 360) - (ly.a0 ?? 0)) / 360) * (1 - (ly.gap ?? 0));
@@ -130,7 +133,7 @@ export function drawMagic(dim, c, normal, layers, o = {}) {
       const r2 = (ly.r2 ?? 1) * s * R;
       emit(dim, "mc_spoke", pos, { ...base, r, r2, m: ly.m, w: (ly.w ?? 0.05) * R * s, n: Math.max(8, Math.round(ly.m * Math.abs(r2 - r) * dens * 1.6)) });
     } else if (ly.t === "rune") {
-      emit(dim, "mc_rune", pos, { ...base, r, m: ly.m, seed: ly.seed ?? (i * 5) % 16, n: ly.m * 3, size: base.size * Math.min(1.6, Math.max(0.6, (r * 2 * Math.PI) / ly.m / 0.55)) });
+      emit(dim, "mc_rune", pos, { ...base, r, m: ly.m, seed: ly.seed ?? (i * 5) % 16, n: Math.round(ly.m * 2), size: base.size * Math.min(1.6, Math.max(0.6, (r * 2 * Math.PI) / ly.m / 0.55)) });
     } else if (ly.t === "line") {
       const a = ly.from, b = ly.to, p0 = add(add(c, u, (cx + a[0] * sc) * R), v, (cy + a[1] * sc) * R);
       const dx = (b[0] - a[0]) * sc * R, dy = (b[1] - a[1]) * sc * R, Ln = Math.hypot(dx, dy) || 0.01;

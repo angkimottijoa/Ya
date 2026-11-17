@@ -4,7 +4,7 @@
 import { system } from "@minecraft/server";
 
 export const CAP = 150000;
-const SOFT = 120000, DECOR = 90000;
+const SOFT = 45000, DECOR = 28000; // 휴대폰 기준: 장식은 일찍부터 줄임
 const RING = 600; // 30초까지 기록
 const bucket = new Float64Array(RING);
 let alive = 0, lastTick = -1;
