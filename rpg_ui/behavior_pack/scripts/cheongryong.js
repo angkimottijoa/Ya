@@ -281,6 +281,7 @@ const headDir = (prev, cur) => {
 // ───────── 실감나는 3D 청룡 (③ 강림) ─────────
 const add = (a, b, k = 1) => ({ x: a.x + b.x * k, y: a.y + b.y * k, z: a.z + b.z * k });
 const sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
+const scl = (a, k) => ({ x: a.x * k, y: a.y * k, z: a.z * k });
 const mix = (...vs) => norm(vs.reduce((acc, [v, k]) => add(acc, v, k), { x: 0, y: 0, z: 0 }));
 /** 경로 위 tt 지점의 몸 좌표계: d = 진행, u = 옆, v = 등(위) */
 function frame(path, tt) {
@@ -790,19 +791,35 @@ function dragonDiveMain(ctx, hit) {
   //   그림과 같은 면 위에서 S자로 꿈틀(물결이 꼬리 쪽으로 흐름), 꼬리로 갈수록 가늘어짐
   let tick0 = 0;
   const SEGS = 14, PX = 0.048, NECK_X = -180 * PX, NECK_Y = 24 * PX, STRIP = 24 * PX;
+  // 몸통 = 밧줄처럼 이어진 사슬: 0번(목)은 머리에 붙고, 나머지 마디는 앞 마디를 따라감(길이 고정) + 원래 S자 모양으로 천천히 돌아감
+  //   → 앞으로 가면 몸이 지나온 길을 따라 이어지고, 내리꽂을 때 머리부터 꺾이고 몸이 자연스럽게 따라옴
+  let chain = null;
   const tail = (at, pitch, grow, life) => {
     const sc = 1.1 * grow, hd = { yaw: yawS, pitch }, tt = tick0;
+    // 원래 모양(쉴 때 S자): 머리 그림 면 위의 점들
+    const rest = [], lens = [];
     let x = NECK_X, y = NECK_Y, dist = 0;
+    rest.push(headPt(at, hd, x, y, 0, sc));
     for (let k = 0; k < SEGS; k++) {
-      const taper = 1 - (k / SEGS) * 0.72, len = STRIP * taper * 0.8; // 토막 길이 = 그 굵기의 목 토막 너비 (살짝 겹침)
-      // 몸 곡선의 기울기: 뒤로 갈수록 크게 출렁이는 S자, 시간이 지나며 꼬리 쪽으로 흐름
+      const taper = 1 - (k / SEGS) * 0.72, ln = STRIP * taper * 0.8;
       const env = Math.min(1, dist / 2.5);
       const slope = Math.sin(((dist * 26) - tt * 24) * Math.PI / 180) * 0.55 * env;
-      const nx = x - len * Math.cos(slope), ny = y + len * Math.sin(slope);
-      const cx = (x + nx) / 2, cy = (y + ny) / 2;
-      const ang = (Math.atan2(y - ny, x - nx) * 180) / Math.PI; // 토막의 +x(머리 쪽)가 앞 토막을 향하게
-      pt(dim, "cr_bigbody", headPt(at, hd, cx, cy, 0, sc), { yaw: yawS, pitch, a0: ang, scale: sc * taper, n: Math.round(115 * taper + 25), life: life * 3 }); // 잔류 시간 길게 → 잔상
-      x = nx; y = ny; dist += len;
+      x -= ln * Math.cos(slope); y += ln * Math.sin(slope); dist += ln;
+      rest.push(headPt(at, hd, x, y, 0, sc));
+      lens.push(ln * sc);
+    }
+    if (!chain) chain = rest.map((q) => ({ ...q }));
+    chain[0] = rest[0];
+    for (let k = 1; k <= SEGS; k++) {
+      const pull = 0.1 + (k / SEGS) * 0.05; // 원래 모양으로 천천히 (꼬리일수록 조금 더)
+      let q = add(chain[k], sub(rest[k], chain[k]), pull);
+      const d = sub(q, chain[k - 1]), L = Math.hypot(d.x, d.y, d.z) || 0.001;
+      chain[k] = add(chain[k - 1], d, lens[k - 1] / L); // 앞 마디와 거리 고정
+    }
+    for (let k = 1; k <= SEGS; k++) {
+      const a2 = chain[k - 1], b2 = chain[k], d = norm(sub(a2, b2)), taper = 1 - ((k - 1) / SEGS) * 0.72;
+      const sy = (Math.atan2(-d.x, d.z) * 180) / Math.PI, sp = (Math.asin(Math.max(-1, Math.min(1, d.y))) * 180) / Math.PI;
+      pt(dim, "cr_bigbody", scl(add(a2, b2), 0.5), { yaw: sy, pitch: sp, a0: 0, scale: sc * taper, n: Math.round(115 * taper + 25), life: life * 3 });
     }
   };
   const draw = (at, pitch, grow, life = 0.2) => {
@@ -846,11 +863,11 @@ function dragonDiveMain(ctx, hit) {
         at = anchor(yawS, 1.4 - (1 - grow) * 4);
         if (t === 0) { M.sound(p, "mob.enderdragon.growl", 1.3, 1); snow(dim, at, 14, 4); }
       } else { // 내리꽂기: 수평 → 머리를 아래로 (6틱에 걸쳐)
-        const k = ease(Math.min(1, diveT / 6));
+        const k = ease(Math.min(1, diveT / 12)); // 머리를 천천히 숙임 (0.6초)
         pitch = 6 * Math.sin(t / 5) * (1 - k) - 58 * k;
         at = anchor(yawS, 1.4 - k * 1.2);
       }
-      pitchS += (pitch - pitchS) * 0.5;
+      pitchS += (pitch - pitchS) * 0.25;
       draw(at, pitchS, grow);
       if (t % 3 === 0) cluster(dim, at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
       if (t % 6 === 0) snow(dim, at, 4, 4);
@@ -862,7 +879,7 @@ function dragonDiveMain(ctx, hit) {
       }
     } else { // 땅에 닿은 뒤: 용 머리가 그대로 땅속으로 파고들며 사라짐
       const k = landT / 7;
-      pitchS += (-70 - pitchS) * 0.4;
+      pitchS += (-70 - pitchS) * 0.18;
       const f = fwdOf(yawS), rx = -Math.cos((yawS * Math.PI) / 180), rz = -Math.sin((yawS * Math.PI) / 180);
       const at = { x: G.x + f.x * (1.2 + k * 1.2) + rx * SIDE * (1 - k * 0.5), y: G.y + 0.2 - k * 2.5, z: G.z + f.z * (1.2 + k * 1.2) + rz * SIDE * (1 - k * 0.5) };
       draw(at, pitchS, 1, 0.16);

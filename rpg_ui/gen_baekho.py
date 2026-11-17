@@ -144,6 +144,19 @@ def main():
             "uv": {"texture_width": AWT * 4, "texture_height": AHT * 4,
                    "uv": [f"(variable.x0 + {bx}) * 4", f"(variable.y0 + {by}) * 4"], "uv_size": [4, 4]}},
     }, tex="textures/particle/rpg_bh_art_solid")
+    # 4-3) 떨어지는 도끼: 선명한 점이 스스로 낙하 속도(vd·vs)로 움직임 → 다음 그림까지 미끄러져 프레임 끊김 없음
+    part("bh_art_fall", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_initial_speed": "variable.vs",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": ["variable.vd.x * variable.va", "variable.vd.y * variable.va", "variable.vd.z * variable.va"]},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.scale * 1.5 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": AWT * 4, "texture_height": AHT * 4,
+                   "uv": [f"(variable.x0 + {bx}) * 4", f"(variable.y0 + {by}) * 4"], "uv_size": [4, 4]}},
+    }, tex="textures/particle/rpg_bh_art_solid")
     # 5) 땅이 갈라지며 퍼지는 파문: 반지름이 시간에 따라 커지는 고리에서 흙덩이·먼지가 튀어 오름
     ra = f"({R1} * 360)"
     rr_ = "(variable.r + variable.emitter_age * variable.spd)"

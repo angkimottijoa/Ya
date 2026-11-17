@@ -116,7 +116,7 @@ export const heldWeaponSkills = (p) => WEAPON_SKILLS[heldStack(p)?.typeId] ?? nu
 export function currentSkillInfo(p) {
   const d = data(p);
   const ws = heldWeaponSkills(p);
-  if (ws) return { path: null, holding: true, list: ws.map((s) => ({ key: s.key, s, left: readyIn(p, s.id), ok: true })) };
+  if (ws) return { path: null, holding: true, list: [...ws].sort((a, b) => a.key - b.key).map((s) => ({ key: s.key, s, left: readyIn(p, s.id), ok: true })) };
   const held = heldPath(p);
   const path = held ?? J.currentPath(d);
   const list = [1, 2, 3].map((key) => {

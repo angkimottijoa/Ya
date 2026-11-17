@@ -20,7 +20,7 @@ const fwdOf = (yaw) => ({ x: -Math.sin(rad(yaw)), y: 0, z: Math.cos(rad(yaw)) })
 const rightOf = (yaw) => ({ x: -Math.cos(rad(yaw)), y: 0, z: -Math.sin(rad(yaw)) });
 const add = (a, b, k = 1) => ({ x: a.x + b.x * k, y: a.y + b.y * k, z: a.z + b.z * k });
 
-const DEF = { n: 10, r: 1, spd: 1, tone: 0, size: 1, thick: 0.5, h: 0, dur: 0.1, dots: 4, life: 0.5, x0: 0, y0: 0, iw: 1, ih: 1, cx: 0, cy: 0, scale: 0.05, depth: 0, vs: 0 };
+const DEF = { n: 10, r: 1, spd: 1, tone: 0, size: 1, thick: 0.5, h: 0, dur: 0.1, dots: 4, life: 0.5, x0: 0, y0: 0, iw: 1, ih: 1, cx: 0, cy: 0, scale: 0.05, depth: 0, vs: 0, va: 0 };
 let SINK = null; // 설정되면 파티클을 뿌리지 않고 목록에 모음 (백호 다음 프레임 미리 계산용)
 const sub = (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z });
 const norm = (v) => { const l = Math.hypot(v.x, v.y, v.z) || 1; return { x: v.x / l, y: v.y / l, z: v.z / l }; };
@@ -450,43 +450,74 @@ function apex(ctx) {
     dust(dim, W, { n: 24, r: 3, spd: 3, tone: 0.9 });
     smoke(dim, W, { n: 12, r: 2.5, spd: 2, size: 2.2, life: 1.2 });
   });
-  // 공중에 잠시 머문 뒤 함께 떨어지며 내리찍기
-  later(TE + 6, () => {
-    M.anim(p, "smash");
-    for (const e of [p, ...crowd]) {
-      try { e.removeEffect("levitation"); e.removeEffect("slow_falling"); } catch {}
-      try { e.applyKnockback(0, 0, 0, e === p ? -3 : -2); } catch {}
-    }
-    M.sound(p, "mob.enderdragon.flap", 1, 0.7);
-  });
   // 도끼: 사진 색 연기 뭉치 점으로 크게, 45도 (날 = 앞 아래로 땅에 박힘). 점이 피어오르며 커짐. 쥐는 곳 기준, 날이 H 지점 땅속에
   const AXS = 0.085, back = scl(f, -1);
   const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 };
+  const gripOf = (H, drop) => add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
   const axeAt = (H, drop, life = 0.4, n = 1500, solid = false) => {
-    const grip = add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
+    const grip = gripOf(H, drop);
     if (solid) pt(dim, "bh_art_solid", grip, { ...AXE_ART, u: back, v: UP, w: rt, scale: AXS, depth: 0.6, n, life, size: 1 });
     else art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n, life });
   };
-  let tt = 0, landed = false;
-  const fall = () => {
-    if (!p.isValid() || landed) return;
-    tt++;
-    let g = false;
-    try { g = p.isOnGround; } catch {}
-    if ((tt > 3 && g) || tt > 40) { landed = true; impact(); return; }
-    later(1, fall);
-  };
-  later(TE + 7, fall);
+  // 도끼가 박힐 땅 (솟구치기 전 자리 앞 6칸)
+  const H = add(o, f, 6);
+  try { const top = dim.getTopmostBlock({ x: Math.floor(H.x), z: Math.floor(H.z) }); if (top && Math.abs(top.location.y + 1 - o.y) < 4) H.y = top.location.y + 1; } catch {}
+  // 할퀸 뒤 뜸: 공중에 더 머묾 (천천히 내려옴)
+  later(TE + 2, () => { for (const e of [p, ...crowd]) { M.potion(e, "slow_falling", 1, 2.4); M.potion(e, "levitation", 1, 0.5); } });
+  const SUM = TE + 10, HOV = SUM + 10, WIND = HOV + 14, FALL0 = WIND + 4, FT = 9, SKY = 17;
+  // 1) 소환: 하늘 높은 곳에 흑백 기운이 모이며 도끼가 점점 짙어짐 (0.5초)
+  later(SUM - 2, () => { M.sound(p, "mob.wither.spawn", 0.5, 1.6); M.sound(p, "item.trident.thunder", 0.8, 0.6); });
+  for (let t = SUM; t < HOV; t += 2) later(t, () => {
+    const q = (t - SUM) / 10, g = gripOf(H, SKY);
+    axeAt(H, SKY, 0.25, Math.round(600 + q * 1800));
+    if (q > 0.4) axeAt(H, SKY, 0.14, Math.round(q * 1500), true);
+    for (let j = 0; j < 3; j++) { const a = Math.random() * Math.PI * 2; smoke(dim, add(g, { x: Math.cos(a) * 6, y: (Math.random() - 0.5) * 5, z: Math.sin(a) * 6 }), { n: 3, r: 0.5, spd: 1, size: 2, life: 0.6 }); }
+    if (t % 4 === 0) M.sound(p, "beacon.ambient", 1, 0.6 + q * 0.6);
+  });
+  // 2) 공중에서 뜸: 천천히 위아래로 떠 있으며 연기를 피움, 우르릉
+  for (let t = HOV; t < WIND; t += 2) later(t, () => {
+    const bob = Math.sin((t - HOV) * 0.35) * 0.4;
+    axeAt(H, SKY + bob, 0.14, 2200, true);
+    if (t % 4 === 0) axeAt(H, SKY + bob, 0.5, 1400);
+    if (t === HOV) { M.sound(p, "ambient.weather.thunder", 0.7, 0.6); shake(dim, H, 0.25, 0.7); dust(dim, gripOf(H, SKY), { n: 30, r: 4, spd: 3, tone: 0.9 }); }
+  });
+  // 3) 들어올림(예비 동작): 살짝 위로 치켜든 뒤
+  for (let t = WIND; t < FALL0; t++) later(t, () => {
+    const q = (t - WIND + 1) / 4, lift = SKY + ease(q) * 1.6;
+    axeAt(H, lift, 0.08, 2200, true);
+    if (t === WIND) { M.sound(p, "mob.ravager.roar", 1.2, 0.9); M.sound(p, "item.trident.riptide_3", 1, 0.6); }
+  });
+  // 4) 낙하: 점점 빨라지며 내리꽂힘. 점 자체가 낙하 속도로 움직여 프레임 사이가 이어짐 + 낙하 잔상 줄기
+  const top0 = SKY + 1.6, dropAt = (t) => top0 * (1 - Math.pow(t / FT, 2)); // t = 0..FT
+  const vAt = (t) => (2 * top0 * t / (FT * FT)) * 20; // 블록/초
+  for (let t = 0; t < FT; t++) later(FALL0 + t, () => {
+    pt(dim, "bh_art_fall", gripOf(H, dropAt(t)), { ...AXE_ART, u: back, v: UP, w: rt, scale: AXS, depth: 0.6, n: 2400, life: 0.08, size: 1, vd: { x: 0, y: -1, z: 0 }, vs: vAt(t), va: (2 * top0 / (FT * FT)) * 400 });
+    if (t % 2 === 0) for (let j = 0; j < 4; j++) {
+      const s0 = add(gripOf(H, dropAt(t) + 3), rt, (j - 1.5) * 1.6);
+      pt(dim, "bh_line", s0, { u: UP, v: rt, r: 4 + t, h: 0, n: 24, tone: j % 2 ? 0.85 : 0, life: 0.15, size: 1.2, thick: j });
+    }
+    if (t === 0) {
+      M.anim(p, "smash");
+      for (const e of [p, ...crowd]) {
+        try { e.removeEffect("levitation"); e.removeEffect("slow_falling"); } catch {}
+        try { e.applyKnockback(0, 0, 0, e === p ? -3 : -2); } catch {}
+      }
+      M.sound(p, "mob.enderdragon.flap", 1.3, 0.6);
+      M.sound(p, "mob.phantom.swoop", 1.4, 0.6);
+    }
+    if (t === 4) M.sound(p, "item.trident.riptide_3", 1.2, 0.8);
+  });
+  // 도끼가 땅에 닿기 3틱 전에 착지 충격 시작 → 도끼 박힘과 맞물림
+  later(FALL0 + FT - 3, () => impact());
   const impact = () => {
-    const G = { ...p.location }, H = add(G, f, 6);
+    const G = { ...p.location };
     // 내리꽂는 바로 그 순간: 발밑에서 폭발 파동이 즉시 퍼짐 + 폭발 원이 작게 시작해 점점 커짐 (도끼가 박힐 때도 한 번 더)
     boom(dim, up(G, 0.4), true);
-    later(3, () => boomRings(dim, add(G, f, 6), { n: 56, size: 2.6, rings: [[0, 9, 0], [3, 14, 0.85], [6, 19, 0], [10, 24, 0.85]] }));
+    later(3, () => boomRings(dim, H, { n: 56, size: 2.6, rings: [[0, 9, 0], [3, 14, 0.85], [6, 19, 0], [10, 24, 0.85]] }));
     pt(dim, "bh_shock", up(G, 0.15), { n: 160, spd: 22, size: 1.6 });
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
-    // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 8초 동안 박혀 연기를 피워 올림 (5틱마다 다시 그림)
-    for (let t = 0; t < 3; t++) later(t, () => { axeAt(H, (3 - t) * 8, 0.15, 2200); axeAt(H, (3 - t) * 8, 0.15, 2200, true); });
+    // 도끼가 박혀 8초 동안 연기를 피워 올림
     // 반은 선명한 점 (한 번 그려 8초 그대로), 반은 연기 점 (6틱마다 피어오름)
     later(3, () => axeAt(H, 0, 8, 4500, true));
     for (let t = 3; t < 163; t += 6) later(t, () => axeAt(H, 0, 1.05, 3200));
@@ -512,10 +543,12 @@ function apex(ctx) {
       shake(dim, H, 1.2, 1.2);
       M.sound(p, "random.explode", 1.8, 0.55);
       M.sound(p, "random.anvil_land", 1.3, 0.5);
+      M.sound(p, "item.trident.thunder", 1.2, 0.5);
+      M.sound(p, "mob.ravager.bite", 1.4, 0.4);
     });
     later(40, () => camClear(p));
   };
-  later(200, () => camClear(p)); // 안전장치
+  later(240, () => camClear(p)); // 안전장치
 }
 
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
