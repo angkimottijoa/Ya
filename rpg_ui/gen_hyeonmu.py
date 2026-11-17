@@ -322,6 +322,30 @@ def main():
         **look(f"variable.size * (0.4 + {R4} * 0.35) * (0.7 + {AGE} * 0.8)", 5, INK, AGE),
     }, material="particles_blend")
 
+    # hm_dome: 반구 등껍질 돔 (반지름 r, 육각 한 변 scale) — 육각 무늬를 (둘레 길이, 높이 길이) 면에 그려 반구로 감쌈
+    i2 = f"math.floor({R1} * variable.r * 4.19 / {s})"  # 열: 둘레 2πr / 1.5s
+    j2 = f"math.floor({R2} * variable.r * 0.907 / {s})"  # 행: (π/2 r) / 1.732s
+    hx = f"({i2} * 1.5 * {s} + {s} * (math.cos({a0}) * (1 - {R4}) + math.cos({a0} + 60) * {R4}))"
+    hy = f"((({j2} + math.mod({i2}, 2) * 0.5) * 1.732 * {s}) + {s} * (math.sin({a0}) * (1 - {R4}) + math.sin({a0} + 60) * {R4}))"
+    az, el = f"({hx} / variable.r * 57.2958)", f"math.clamp({hy} / variable.r * 57.2958, 0, 90)"
+    part("hm_dome", {
+        **once(),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({el}) * math.cos({az}) * variable.r", f"math.sin({el}) * variable.r", f"math.cos({el}) * math.sin({az}) * variable.r"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R3} * 0.3)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        **look(f"variable.size * 0.13 * (1 - {AGE} * 0.4)", 0, JADE, f"math.clamp(variable.tone + {R3} * 0.2 + {AGE} * 0.3, 0, 1)"),
+    }, material="particles_blend")
+    az2, el2 = f"({R1} * 360)", f"(math.asin({R2}) )"
+    part("hm_domefill", {
+        **once(),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({el2}) * math.cos({az2}) * variable.r", f"math.sin({el2}) * variable.r", f"math.cos({el2}) * math.sin({az2}) * variable.r"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        **look(f"variable.size * (0.6 + {R3} * 0.4)", 0, FILL, f"math.clamp({AGE} * 0.7 + {R4} * 0.3, 0, 1)"),
+    }, material="particles_blend")
+
     # hm_fog: 낮게 깔리는 짙은 초록 독 안개
     part("hm_fog", {
         **once(),
