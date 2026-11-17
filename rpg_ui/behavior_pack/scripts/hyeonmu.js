@@ -9,7 +9,7 @@
 //          벽에 닿는 투사체는 부서져 사라짐, 벽에 붙은 적은 밀려남
 //   ① 클릭  귀갑타: 3타 콤보 (방패 밀치기 → 뱀 꼬리 휘두르기 → 내리찍어 균열·띄우기) · 현무 기운 1개당 +15%
 //   ② 쉬프트+클릭  사신독굴: 뱀이 내 둘레를 돌며 지킴(물기·투사체 쳐냄) → 땅속으로 파고들어 적마다 발밑에서 튀어나와 묾 → 독 안개
-//   ④ 쉬프트 두 번  현무 강림: 일곱 별 + 거대한 검은 뱀 + 반지름 8 등껍질 돔(바깥 공격 무시) → 뱀의 사냥 → 별 잇기·운석 → 돔 산산조각
+//   ④ 쉬프트 두 번  현무 · 천수진: 진 + 후광 방패 + 뱀 → 등껍질 파동 3번(밀어내기) → 돔 5초(아군 보호, 바깥 독비, 뱀 순찰) → 돔 폭발·바위 울타리
 //   ③ 쉬프트+점프  현무붕지 (+ 큰 현무진 4초): 거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄움
 //          → 끝(또는 처음 맞은 적)에서 흑요석빛 비취 바위 기둥 다발이 솟고 검은 뱀이 감아 오름 · 현무 기운을 모두 써서 강해짐
 // 파티클: gen_hyeonmu.py
@@ -615,186 +615,157 @@ function earthbreak(ctx) {
   later(30, () => skillLock.delete(p.id));
 }
 
-// ───────── ④ 현무 강림 (쉬프트 두 번) ─────────
-// 소환: 먹구름 소용돌이 + 하늘에 북방 일곱 별이 하나씩 켜짐 + 내 뒤 땅을 가르고 거대한 검은 뱀이 솟음
-// → 반지름 8 거대 거북 등껍질 돔이 쿵 내려앉음: 돔 안 나·아군은 바깥에서 오는 모든 공격 무시(투사체 부숨), 돔 안 적은 짓눌려 느려짐
-// → 거대한 뱀이 돔을 감고 돌며 0.6초마다 안의 적(센 적 먼저)을 내리꽂아 묾 (6번, 현무 기운 1개당 +2번), 빠져나가려는 적은 안으로 튕김
-// → 뱀이 하늘로 솟아 일곱 별을 차례로 이음 → 별마다 흑요석 운석이 돔 안으로 떨어짐
-// → 뱀이 마지막 별에서 돔 한가운데로 내리꽂혀 땅속에서 솟구치며 모두 크게 띄움 + 돔이 비취 파편 비로 산산조각 + 바위 기둥 다발
-const DIPPER = [[0, 0], [1.0, 0.18], [1.95, 0.08], [2.85, -0.12], [3.15, 0.9], [4.25, 1.05], [4.35, 0.02]];
+// ───────── ④ 현무 · 천수진 (쉬프트 두 번) — 지키고 밀어내는 궁극기 ─────────
+// 1) 방패를 땅에 박음: 발밑에 반지름 10 진(陣)이 돌며 그려지고, 먹구름이 몰려오고, 등 뒤로 12블록 거대한 현무 방패가 후광처럼 솟으며 거대한 검은 뱀이 감아 오름
+// 2) 등껍질 파동 3번: 육각 충격파가 퍼지며 둘레 12칸의 적을 멀리 밀어내고 투사체를 부숨
+// 3) 반지름 9 등껍질 돔 5초: 안의 나·아군은 바깥 공격 무시 + 흡수 보호막 · 재생, 돔에 다가오는 적은 튕겨 나감
+//    먹구름에서 돔 바깥(9~18칸)에만 독비가 쏟아짐 → 독 · 느려짐, 땅에 독 안개
+//    거대한 뱀이 돔 바깥을 돌며 지키다가 꼬리로 크게 휩쓸어 밀어냄
+// 4) 마무리: 뱀이 돔 위로 감아 오르고 후광 방패가 돔으로 내려와 합쳐짐 → 돔이 바깥으로 폭발: 20칸 충격파로 모두 밀어냄,
+//    돔 둘레에 바위 기둥 울타리가 바깥쪽으로 솟고, 마지막 독비 폭우, 안의 아군은 큰 보호막 · 재생
+//    현무 기운 1개당 돔 +1초 · 밀어내기 강해짐
 function descent(ctx) {
   st(ctx.p).dmg = ctx.dmg;
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  const n = takeStacks(p), R = 8, STRIKES = 6 + n * 2;
+  const n = takeStacks(p), R = 9, OUT = 18, push = 1 + n * 0.15;
   const yaw0 = yawOf(p), f0 = fwdOf(yaw0), r0 = rightOf(yaw0);
   const C = { ...p.location };
   try { const top = dim.getTopmostBlock({ x: Math.floor(C.x), z: Math.floor(C.z) }); if (top && Math.abs(top.location.y + 1 - C.y) < 3) C.y = top.location.y + 1; } catch {}
-  const SKY = 14;
-  const stars = DIPPER.map(([x, y]) => add(add(up(C, SKY + y * 1.4), r0, (x - 2.2) * 3.1), f0, (y - 0.5) * 1.6 + 2));
-  const SUM = 20, DROP = 26, HUNT0 = 30, GAP = 12, HUNT1 = HUNT0 + STRIKES * GAP, CONNECT = HUNT1 + 10, METEOR = CONNECT + 16, FINAL = METEOR + 18, END = FINAL + 14;
+  const PRE = 24, HOLD = 100 + n * 20, FIN = PRE + HOLD, BURST = FIN + 20, END = BURST + 30;
+  const HALO = add(C, f0, -3.5), HALO_H = 12;
+  const insideAllies = () => { try { return dim.getPlayers({ location: C, maxDistance: R }); } catch { return [p]; } };
   skillLock.add(p.id);
-  later(DROP + 2, () => skillLock.delete(p.id));
-  M.potion(p, "resistance", 3, 1.5);
-  M.anim(p, "raise");
-  snd(p, "mob.ravager.roar", 1.2, 0.5);
-  snd(p, "ambient.weather.thunder", 0.8, 0.6);
+  later(PRE + 2, () => skillLock.delete(p.id));
+  M.potion(p, "resistance", 4, PRE / 20 + 0.3);
+  M.anim(p, "smash");
   if (n) notify(p, `§2§l현무 기운 ${n}개 해방!`);
-  // 먹구름 소용돌이 (돔이 있는 동안 계속)
+  snd(p, "random.anvil_land", 1.3, 0.4);
+  snd(p, "ambient.weather.thunder", 0.9, 0.5);
+  try { dim.playSound("block.bell.resonate", C, { volume: 1.5, pitch: 0.6 }); } catch {}
+  shake(dim, C, 0.5, 0.5);
+  // 박힌 방패 + 발밑 진 (계속 돌며 빛남)
+  shieldArt(dim, up(add(C, f0, 0.9), 0.8), scl(r0, -1), norm(add(UP, f0, 0.25)), 1.8, { n: 700, life: (END - 6) / 20 });
+  for (let t = 0; t < END; t += 3) later(t, () => {
+    const k = Math.min(1, (t + 3) / 16), rot = t * 2.2;
+    pt(dim, "hm_rune", up(C, 0.08), { r: R * k, h: rot, n: Math.round(150 * k + 30), size: 1.2, life: 0.2, tone: t >= FIN ? 0 : 0.08 });
+    if (t % 9 === 0) pt(dim, "hm_rune", up(C, 0.1), { r: R * 0.45 * k, h: -rot * 1.6, n: 60, size: 1, life: 0.2, tone: 0.15 });
+  });
+  // 먹구름 (돔 위 하늘, 바깥까지 넓게)
   for (let t = 0; t < END; t += 4) later(t, () => {
-    for (let k = 0; k < 3; k++) { const a = t * 0.08 + k * 2.09, rr = 6 + Math.sin(t * 0.05 + k) * 3; smoke(dim, add(up(C, SKY + 1.5), { x: Math.cos(a) * rr, y: 0, z: Math.sin(a) * rr }), { n: 3, r: 1.2, spd: 0.4, size: 3, life: 2 }); }
+    for (let k = 0; k < 4; k++) { const a = t * 0.06 + k * 1.57, rr = 7 + ((t * 0.37 + k * 3) % 10); smoke(dim, add(up(C, 15), { x: Math.cos(a) * rr, y: (Math.random() - 0.5), z: Math.sin(a) * rr }), { n: 3, r: 1.5, spd: 0.3, size: 3.4, life: 2.2 }); }
   });
-  // 방패를 하늘로 치켜듦 + 하늘에 육각 무늬
-  for (let t = 0; t < SUM; t += 2) later(t, () => shieldArt(dim, add(up(p.location, 2.6 + (t / SUM) * 1.2), f0, 0.3), scl(r0, -1), UP, 2.2, { n: 700, life: 0.12 }));
-  later(4, () => pt(dim, "hm_hex", up(C, SKY + 2), { u: r0, v: f0, w: UP, r: 22, h: 14, scale: 0.9, thick: 0, n: 500, size: 2, life: 1.2, tone: 0.1 }));
-  // 일곱 별: 하나씩 켜지고 끝까지 반짝임
-  const starLit = new Array(7).fill(-1);
-  stars.forEach((sp, i) => later(2 + i * 2, () => { starLit[i] = system.currentTick; pt(dim, "hm_flash", sp, { n: 2, spd: 0.4, size: 3, life: 0.5 }); glow(dim, sp, { n: 14, spd: 2, size: 1.2, tone: 0 }); snd(p, "note.chime", 0.8, 0.8 + i * 0.12); }));
-  for (let t = 4; t < FINAL + 4; t += 3) later(t, () => stars.forEach((sp, i) => { if (starLit[i] >= 0) { pt(dim, "hm_glow", sp, { n: 3, r: 0.15, spd: 0.2, size: 2.2, life: 0.2, tone: 0 }); } }));
-  // 거대한 검은 뱀: 내 뒤 땅을 가르고 솟아 고개를 쳐듦
-  const behind = add(C, f0, -R - 2);
-  for (let t = 4; t < SUM + 6; t++) later(t, () => {
-    const q = ease(Math.min(1, (t - 4) / 14)), pts = [];
-    for (let i = 0; i <= 30; i++) { const s2 = i / 30, h = (1 - s2) * 11 * q - 1.5 * s2, sw = Math.sin(s2 * 7 + t * 0.25) * 1.2 * s2; pts.push(add(add(up(behind, h), r0, sw), f0, -s2 * 4 + (1 - s2) * 1.5 * q)); }
-    serpent(dim, pts, { thick: 0.8, life: 0.08, tone: 0.18, size: 1.6, dens: 0.5 });
-    if (t === 4) { rocks(dim, behind, { n: 40, r: 2, spd: 9 }); smoke(dim, behind, { n: 12, r: 2, size: 2.4 }); for (let k = 0; k < 6; k++) crack(dim, behind, { x: Math.cos(k), y: 0, z: Math.sin(k) }, 4, { life: 3 }); snd(p, "random.explode", 1, 0.5); shake(dim, C, 0.5, 0.6); }
-    if (t === 16) snd(p, "mob.ravager.roar", 1.2, 0.8);
+  // 후광: 등 뒤로 거대한 현무 방패가 솟아 떠 있음 (마무리 때 돔으로 내려옴)
+  const haloAt = (t) => {
+    if (t < PRE) return up(HALO, -HALO_H / 2 + ease(t / PRE) * (HALO_H / 2 + 4));
+    if (t < FIN) return up(HALO, 4 + Math.sin(t * 0.08) * 0.3);
+    const k = ease(Math.min(1, (t - FIN) / 18));
+    return add(up(HALO, 4 - k * 2), sub(C, HALO), k);
+  };
+  for (let t = 0; t < BURST; t += 3) later(t, () => {
+    const c = up(haloAt(t), HALO_H / 2), k = t >= FIN ? 1 - Math.min(1, (t - FIN) / 18) * 0.6 : 1;
+    shieldArt(dim, c, scl(r0, -1), UP, HALO_H * k, { n: 1150, life: 0.17, dome: 1.6 * k, size: 1.25 });
+    if (t % 6 === 0) glow(dim, c, { n: 8, r: 3, spd: 0.8, size: 1.3, life: 0.8 });
   });
-  // 등껍질 돔이 내려앉음
-  let dome = null;
-  for (let t = SUM; t < DROP; t++) later(t, () => { const k = (t - SUM + 1) / (DROP - SUM); pt(dim, "hm_dome", up(C, (1 - k * k) * 12), { r: R, scale: 0.9, n: 380, size: 1.6, life: 0.08, tone: 0.05 }); });
-  later(DROP, () => {
-    dome = { dome: true, C, R, owner: p.id, until: system.currentTick + (END - DROP) };
-    walls.push(dome);
-    ring(dim, C, { r: R - 0.5, n: 140, spd: 4, size: 2, life: 0.8 });
-    for (let k = 0; k < 16; k++) { const a = (k / 16) * Math.PI * 2; rocks(dim, add(C, { x: Math.cos(a) * R, y: 0, z: Math.sin(a) * R }), { n: 6, r: 0.6, spd: 6 }); }
-    smoke(dim, C, { n: 16, r: R * 0.7, spd: 1.2, size: 2.4 });
-    pt(dim, "hm_flash", up(C, R * 0.6), { n: 4, spd: 1, size: 5, life: 0.4 });
-    shake(dim, C, 1, 0.8);
-    snd(p, "random.explode", 1.4, 0.4);
-    snd(p, "random.anvil_land", 1.4, 0.3);
-    for (const e of foesAround(dim, p, C, R)) if (hit(e, 1.0, 1)) M.potion(e, "slowness", 4, 2);
-  });
-  // 돔 유지: 그림 + 안의 적 짓누름 + 빠져나가는 적 되돌림 + 투사체 부숨
-  for (let t = DROP + 1; t < FINAL + 6; t += 3) later(t, () => {
-    pt(dim, "hm_dome", C, { r: R, scale: 0.9, n: 340, size: 1.4, life: 0.18, tone: 0.08 });
-    if (t % 6 === 0) pt(dim, "hm_domefill", C, { r: R, n: 90, size: 1.6, life: 0.32 });
-    for (const e of foesAround(dim, p, C, R + 1.5)) {
-      const d = Math.hypot(e.location.x - C.x, e.location.z - C.z);
-      if (d < R) M.potion(e, "slowness", 3, 0.3);
-      if (d > R - 1.4 && d < R + 0.2) { const dx = C.x - e.location.x, dz = C.z - e.location.z, l = Math.hypot(dx, dz) || 1; try { e.applyKnockback(dx / l, dz / l, 0.7, 0.2); } catch {} glow(dim, center(e), { n: 5, spd: 2 }); }
-    }
-    try {
-      for (const e of dim.getEntities({ location: C, maxDistance: R + 3 })) {
-        if (!PROJ.has(e.typeId) || !e.isValid()) continue;
-        let own = null; try { own = e.getComponent("minecraft:projectile")?.owner; } catch {}
-        if (own?.typeId === "minecraft:player") continue;
-        const d = len(sub(e.location, C));
-        if (d > R - 1.5 && d < R + 2) { glow(dim, e.location, { n: 10, spd: 3 }); e.remove(); }
-      }
-    } catch {}
-  });
-  // 뱀의 사냥: 돔을 감고 돌다가 0.6초마다 안의 적을 내리꽂아 묾
-  let strike = null; // { e, t0 }
-  const ringPt = (a, h) => ({ x: C.x + Math.cos(a) * (R + 1.4), y: C.y + h, z: C.z + Math.sin(a) * (R + 1.4) });
-  let headA = rad(yaw0 + 90) + Math.PI;
-  for (let t = HUNT0 - 4; t < CONNECT; t++) later(t, () => {
-    headA += 0.13;
+  // 거대한 검은 뱀: 처음엔 후광을 감아 오르고 → 돔 바깥을 돌며 지킴 → 마무리 때 돔 위로 감아 오름
+  let ang = rad(yaw0 - 90);
+  const ringPt = (a, h, rr = R + 2.2) => ({ x: C.x + Math.cos(a) * rr, y: C.y + h, z: C.z + Math.sin(a) * rr });
+  const sweeps = [];
+  for (let t = 0; t < BURST; t += 2) later(t, () => {
     const pts = [];
-    for (let i = 0; i <= 34; i++) pts.push(ringPt(headA - i * 0.12, 2.2 + Math.sin(i * 0.5 + t * 0.3) * 0.6 + i * 0.03));
-    if (strike && strike.e.isValid()) { // 머리가 원에서 떨어져 나와 적에게 호를 그리며 내리꽂힘
-      const k = (t - strike.t0) / 8, tg = center(strike.e), from = pts[3], q = Math.sin(Math.min(1, k) * Math.PI);
-      const headPos = add(add(from, sub(tg, from), Math.min(1, k * 1.6) * q + (k > 0.5 ? 0 : 0)), UP, Math.sin(Math.min(1, k) * Math.PI) * 3);
-      const arc = [];
-      for (let i = 0; i <= 6; i++) { const s2 = i / 6; arc.push(add(add(headPos, sub(from, headPos), s2), UP, Math.sin(s2 * Math.PI) * 1.5)); }
-      serpent(dim, arc.concat(pts.slice(4)), { thick: 0.75, life: 0.08, tone: 0.18, size: 1.5, dens: 0.5 });
-      if (t - strike.t0 === 4) {
-        if (hit(strike.e, 1.1, 1)) { knockUp(strike.e, 0.6, 1); M.potion(strike.e, "poison", 2, 3); }
-        glow(dim, tg, { n: 20, spd: 5, tone: 0.1 });
-        pt(dim, "hm_flash", tg, { n: 1, spd: 0, size: 2.2, life: 0.25 });
-        rocks(dim, strike.e.location, { n: 10, r: 0.6, spd: 5 });
-        snd(p, "mob.ravager.bite", 1.2, 1.1);
-        shake(dim, tg, 0.35, 0.25);
-      }
-      if (t - strike.t0 >= 8) strike = null;
-    } else {
-      strike = null;
-      serpent(dim, pts, { thick: 0.75, life: 0.08, tone: 0.18, size: 1.5, dens: 0.5 });
+    if (t < PRE + 6) { // 후광을 나선으로 감아 오름
+      const hc = haloAt(Math.min(t, PRE)), q = Math.min(1, t / (PRE + 4));
+      for (let i = 0; i <= 34; i++) { const s2 = q * 34 - i; if (s2 < 0) break; const a = s2 * 0.42, y = s2 * 0.33; pts.push(add(add(up(hc, y), r0, Math.cos(a) * 4.2), f0, Math.sin(a) * 1.4)); }
+    } else if (t < FIN) { // 돔 바깥 순찰 (꼬리 휩쓸기 때 크게 흔듦)
+      ang += 0.2;
+      const sw = sweeps.some((s0) => t - s0 < 10) ? 2.2 : 0;
+      for (let i = 0; i <= 34; i++) pts.push(ringPt(ang - i * 0.11, 2 + Math.sin(i * 0.45 + t * 0.2) * 0.7, R + 2.2 + (sw * i) / 34));
+    } else { // 돔 위로 감아 오름
+      const k = Math.min(1, (t - FIN) / 18);
+      for (let i = 0; i <= 34; i++) { const a = ang + t * 0.15 - i * 0.18, e = Math.min(1.5, (k * 34 - i) * 0.05 + 0.2); if (e < 0) break; const rr = (R + 1) * Math.cos(e); pts.push({ x: C.x + Math.cos(a) * rr, y: C.y + (R + 1) * Math.sin(e), z: C.z + Math.sin(a) * rr }); }
     }
-    if (t % 10 === 0) snd(p, "mob.phantom.swoop", 0.6, 0.7);
+    if (pts.length > 1) serpent(dim, pts, { thick: 0.85, life: 0.13, tone: 0.18, size: 1.6, dens: 0.55 });
+    if (t === 6) { rocks(dim, HALO, { n: 30, r: 2, spd: 8 }); snd(p, "mob.ravager.roar", 1.2, 0.6); }
   });
-  for (let k = 0; k < STRIKES; k++) later(HUNT0 + k * GAP, () => {
-    const inside = foesAround(dim, p, C, R).filter((e) => Math.hypot(e.location.x - C.x, e.location.z - C.z) < R);
-    if (!inside.length) return;
-    inside.sort((a, b) => maxHpOf(b) - maxHpOf(a));
-    strike = { e: inside[k % inside.length], t0: system.currentTick };
+  // 등껍질 파동 3번: 밀어내기 + 투사체 부숨
+  const pulse = (k) => {
+    const big = k === 2;
+    ring(dim, C, { r: 1, n: 160, spd: 18 + k * 3, size: 2.2, life: 0.75, tone: 0.05 });
+    pt(dim, "hm_hex", up(C, 0.15), { u: r0, v: f0, w: UP, r: 22, h: 14, scale: 0.75, thick: 0, n: 360, size: 1.4, life: 0.5, tone: 0.05 });
+    pt(dim, "hm_dome", C, { r: 3 + k * 2.5, scale: 0.8, n: 260, size: 1.6, life: 0.25, tone: 0 });
+    pt(dim, "hm_flash", up(C, 1.5), { n: 3, spd: 1, size: 4, life: 0.3 });
+    rocks(dim, C, { n: 24, r: 4, spd: 8 });
+    shake(dim, C, big ? 0.8 : 0.5, 0.5);
+    snd(p, "random.explode", 1, 0.6 + k * 0.15);
+    snd(p, "item.trident.thunder", 0.6, 0.7 + k * 0.2);
+    for (const e of foesAround(dim, p, C, 12)) { hit(e, 0.4, 1); M.toss(C, e, (16 + k * 4) * push, 4); glow(dim, center(e), { n: 6, spd: 3 }); }
+    try { for (const e of dim.getEntities({ location: C, maxDistance: 14 })) if (PROJ.has(e.typeId) && e.isValid()) { glow(dim, e.location, { n: 8, spd: 3 }); e.remove(); } } catch {}
+  };
+  [PRE, PRE + 10, PRE + 20].forEach((t, k) => later(t, () => pulse(k)));
+  // 돔이 땅에서 솟음
+  let dome = null;
+  for (let t = PRE; t < PRE + 6; t++) later(t, () => pt(dim, "hm_dome", C, { r: R * ((t - PRE + 1) / 6), scale: 0.9, n: 380, size: 1.6, life: 0.08, tone: 0 }));
+  later(PRE + 6, () => {
+    dome = { dome: true, C, R, owner: p.id, until: system.currentTick + (FIN - PRE + 14) };
+    walls.push(dome);
+    for (const a of insideAllies()) { M.potion(a, "absorption", 2, HOLD / 20 + 2); M.potion(a, "regeneration", 1, HOLD / 20); glow(dim, center(a), { n: 16, spd: 2, tone: 0 }); }
+    snd(p, "beacon.activate", 1.2, 0.7);
   });
-  // 별 잇기: 뱀이 하늘로 솟아 일곱 별을 차례로 지나며 별자리 선을 그림
-  for (let t = HUNT1; t < METEOR; t++) later(t, () => {
-    const k = (t - HUNT1) / (METEOR - HUNT1), pos = k * 7, idx = Math.min(6, Math.floor(pos));
-    const head = idx < 6 ? add(stars[idx], sub(stars[idx + 1], stars[idx]), pos - idx) : stars[6];
-    const start = ringPt(headA, 2.5), pts = [];
-    const rise = Math.min(1, (t - HUNT1) / 6);
-    const h0 = rise < 1 ? add(start, sub(stars[0], start), rise) : head;
-    for (let i = 0; i <= 24; i++) { const back = Math.max(0, pos - i * 0.18), bi = Math.min(6, Math.floor(back)); pts.push(rise < 1 ? add(h0, sub(start, h0), i / 24) : (bi < 6 ? add(stars[bi], sub(stars[bi + 1], stars[bi]), back - bi) : stars[6])); }
-    serpent(dim, pts, { thick: 0.7, life: 0.08, tone: 0.18, size: 1.4, dens: 0.5 });
-    if (rise >= 1 && idx < 6 && Math.floor(pos * 2) % 2 === 0) { const a = stars[idx], b = stars[idx + 1], d = sub(b, a), L = len(d), u = scl(d, 1 / L), bs = basis(u); pt(dim, "hm_line", a, { u, v: bs.v, r: L, h: 0.05, n: Math.round(L * 12), size: 1.4, life: 2.5, tone: 0 }); }
-    if (t === CONNECT) snd(p, "mob.ravager.roar", 1, 1.2);
+  // 돔 유지: 그림 · 다가오는 적 튕김 · 투사체 부숨 · 아군 보호
+  for (let t = PRE + 6; t < FIN + 16; t += 3) later(t, () => {
+    pt(dim, "hm_dome", C, { r: R, scale: 0.9, n: 330, size: 1.5, life: 0.18, tone: t >= FIN ? 0 : 0.08 });
+    if (t % 6 === 0) pt(dim, "hm_domefill", C, { r: R, n: 100, size: 1.7, life: 0.32 });
+    for (const e of foesAround(dim, p, C, R + 2.5)) {
+      const d = Math.hypot(e.location.x - C.x, e.location.z - C.z);
+      if (d < R + 2.2) { M.toss(C, e, 11 * push, 3); if (hit(e, 0.25, 15)) { const q = add(C, flat(sub(e.location, C)), R); pt(dim, "hm_flash", up(q, 1.2), { n: 1, spd: 0, size: 2, life: 0.2 }); glow(dim, up(q, 1.2), { n: 10, spd: 3 }); snd(p, "item.shield.block", 0.7, 0.9); } }
+    }
+    try { for (const e of dim.getEntities({ location: C, maxDistance: R + 4 })) { if (!PROJ.has(e.typeId) || !e.isValid()) continue; let own = null; try { own = e.getComponent("minecraft:projectile")?.owner; } catch {} if (own?.typeId === "minecraft:player") continue; if (len(sub(e.location, C)) > R - 2) { glow(dim, e.location, { n: 10, spd: 3 }); e.remove(); } } } catch {}
   });
-  // 운석: 별마다 흑요석 바위가 돔 안 적(없으면 아무 곳)에게 떨어짐
-  stars.forEach((sp, i) => later(METEOR + i * 2, () => {
-    const inside = foesAround(dim, p, C, R).filter((e) => Math.hypot(e.location.x - C.x, e.location.z - C.z) < R);
-    const tgt = inside.length ? inside[i % inside.length] : null;
-    const land0 = tgt ? { ...tgt.location } : add(C, { x: Math.cos(i * 0.9) * R * 0.6, y: 0, z: Math.sin(i * 0.9) * R * 0.6 });
-    snd(p, "mob.blaze.shoot", 0.7, 0.5);
-    for (let k = 1; k <= 6; k++) later(k, () => {
-      const q = k / 6, pos = add(sp, sub(land0, sp), q * q), d = norm(sub(land0, sp));
-      spike(dim, add(pos, d, -1.8), d, 1.8, 0.5, { life: 0.08, tone: -0.05 });
-      glow(dim, add(pos, d, -2), { n: 6, r: 0.3, spd: 1, size: 1, life: 0.5 });
-      smoke(dim, add(pos, d, -2.5), { n: 2, r: 0.3, spd: 0.3, size: 1.4, life: 0.8 });
-      if (k === 6) {
-        rocks(dim, land0, { n: 18, r: 0.8, spd: 7 });
-        ring(dim, land0, { n: 40, spd: 7, size: 1.3 });
-        for (let j = 0; j < 4; j++) { const a = j * 1.57 + i; spike(dim, add(land0, { x: Math.cos(a) * 0.5, y: -0.2, z: Math.sin(a) * 0.5 }), { x: Math.cos(a) * 0.6, y: 1, z: Math.sin(a) * 0.6 }, 1.6 + Math.random(), 0.32, { life: 1.6 }); }
-        for (const e of foesAround(dim, p, land0, 2.6)) if (hit(e, 1.2, 1)) knockUp(e, 0.5, 0.8);
-        shake(dim, land0, 0.4, 0.3);
-        snd(p, "random.explode", 0.9, 0.8 + i * 0.05);
-      }
-    });
-  }));
-  // 마무리: 뱀이 마지막 별에서 돔 한가운데로 내리꽂힘 → 땅속에서 솟구침 + 돔 산산조각 + 바위 기둥 다발
-  for (let t = METEOR + 12; t < FINAL; t++) later(t, () => {
-    const k = (t - METEOR - 12) / (FINAL - METEOR - 12), head = add(stars[6], sub(up(C, -1), stars[6]), k * k), pts = [];
-    for (let i = 0; i <= 24; i++) pts.push(add(head, sub(stars[6], head), Math.min(1, i / 16)));
-    serpent(dim, pts.filter((q) => q.y > C.y - 0.5), { thick: 0.8, life: 0.08, tone: 0.18, size: 1.5, dens: 0.5 });
+  // 독비: 먹구름에서 돔 바깥 고리(9~18칸)에만 쏟아짐 + 땅에 독 안개 + 독 피해
+  for (let t = PRE + 4; t < BURST + 10; t += 2) later(t, () => {
+    const heavy = t >= FIN && t < BURST + 10;
+    pt(dim, "hm_rain", C, { r: R + 0.6, thick: OUT, h: 13, n: heavy ? 150 : 80, spd: 20, size: 1.2, life: 1.2 });
+    if (t % 6 === 0) for (let k = 0; k < 4; k++) { const a = Math.random() * Math.PI * 2, rr = R + 1 + Math.random() * (OUT - R - 1); pt(dim, "hm_fog", add(C, { x: Math.cos(a) * rr, y: 0, z: Math.sin(a) * rr }), { n: 4, r: 1.4, spd: 0.4, size: 1.8, life: 1.6 }); }
+    if (t % 10 === 0) { for (const e of foesAround(dim, p, C, OUT + 1)) { const d = Math.hypot(e.location.x - C.x, e.location.z - C.z); if (d < R) continue; M.potion(e, "poison", 2, 1.6); M.potion(e, "slowness", 2, 0.8); hit(e, 0.18, 10); } if (t % 20 === 0) snd(p, "ambient.weather.rain", 0.8, 0.8); }
   });
-  later(FINAL, () => {
+  // 꼬리 휩쓸기: 2초마다 뱀이 꼬리로 바깥을 크게 쓸어 밀어냄
+  for (let t = PRE + 30; t < FIN; t += 40) later(t, () => {
+    sweeps.push(t);
+    ring(dim, C, { r: R + 1.5, n: 120, spd: 10, size: 1.8, life: 0.6, tone: 0.15 });
+    smoke(dim, C, { n: 10, r: R + 2, spd: 1.2, size: 2 });
+    for (const e of foesAround(dim, p, C, R + 8)) { const d = Math.hypot(e.location.x - C.x, e.location.z - C.z); if (d > R && hit(e, 0.5, 5)) { M.toss(C, e, 14 * push, 4); M.potion(e, "poison", 1, 2); } }
+    snd(p, "mob.phantom.swoop", 1.2, 0.5);
+    snd(p, "mob.ravager.bite", 0.8, 0.8);
+  });
+  // 마무리: 돔이 바깥으로 폭발
+  later(FIN, () => { snd(p, "mob.ravager.roar", 1.3, 0.5); snd(p, "beacon.power_select", 1.2, 0.6); });
+  for (let t = FIN; t < BURST; t += 4) later(t, () => glow(dim, add(C, { x: (Math.random() - 0.5) * R, y: Math.random() * R * 0.8, z: (Math.random() - 0.5) * R }), { n: 10, r: 0.5, spd: -3, size: 1.2, life: 0.5, tone: 0 }));
+  later(BURST, () => {
     const i = walls.indexOf(dome); if (i >= 0) walls.splice(i, 1);
-    // 돔 산산조각: 비취 파편 비
-    for (let k = 0; k < 24; k++) { const a = Math.random() * Math.PI * 2, el = Math.random() * 1.3, q = add(C, { x: Math.cos(el) * Math.cos(a) * R, y: Math.sin(el) * R, z: Math.cos(el) * Math.sin(a) * R }); glow(dim, q, { n: 8, r: 0.3, spd: 3, size: 1.2, life: 1.4 }); }
-    pt(dim, "hm_dome", C, { r: R, scale: 0.9, n: 700, size: 2, life: 0.35, tone: 0 });
-    pt(dim, "hm_flash", up(C, 2), { n: 6, spd: 1.5, size: 6, life: 0.45 });
+    try { dim.spawnParticle("minecraft:huge_explosion_emitter", up(C, 2)); } catch {}
+    pt(dim, "hm_flash", up(C, 3), { n: 8, spd: 2, size: 8, life: 0.5 });
+    pt(dim, "hm_dome", C, { r: R, scale: 0.9, n: 800, size: 2.2, life: 0.4, tone: 0 });
+    for (let k = 0; k < 30; k++) { const a = Math.random() * Math.PI * 2, el = Math.random() * 1.3, d = { x: Math.cos(el) * Math.cos(a), y: Math.sin(el), z: Math.cos(el) * Math.sin(a) }; glow(dim, add(C, d, R), { n: 6, r: 0.2, spd: 9, size: 1.3, life: 1.2 }); }
+    for (const [d, spd, tone] of [[0, 22, 0], [4, 16, 0.15], [8, 11, 0.3]]) later(d, () => ring(dim, C, { r: R * 0.5, n: 200, spd, size: 2.4, life: 0.9, tone }));
+    pt(dim, "hm_hex", up(C, 0.2), { u: r0, v: f0, w: UP, r: 34, h: 22, scale: 0.75, thick: 0, n: 600, size: 1.6, life: 0.8, tone: 0 });
+    rocks(dim, C, { n: 60, r: R * 0.8, spd: 11 });
+    smoke(dim, C, { n: 24, r: R, spd: 3, size: 3, life: 2 });
+    shake(dim, C, 1.4, 1.1);
+    snd(p, "random.explode", 1.8, 0.45);
     snd(p, "random.glass", 1.5, 0.5);
-    snd(p, "random.explode", 1.6, 0.45);
-    snd(p, "mob.ravager.roar", 1.3, 0.7);
-    shake(dim, C, 1.2, 1);
-    ring(dim, C, { n: 160, spd: 16, size: 2.2, life: 0.8 });
-    rocks(dim, C, { n: 50, r: 3, spd: 11 });
-    smoke(dim, C, { n: 20, r: 3, spd: 2.5, size: 2.6, life: 1.8 });
-    // 뱀이 땅속에서 솟구쳐 하늘로
-    for (let t = 0; t < 10; t++) later(t, () => { const pts = []; for (let k2 = 0; k2 <= 26; k2++) { const s2 = k2 * 0.5; const h = t * 1.6 - s2; pts.push({ x: C.x + Math.sin(s2 * 0.6) * 0.8, y: C.y + Math.max(-0.5, h), z: C.z + Math.cos(s2 * 0.6) * 0.8 }); } serpent(dim, pts.filter((q) => q.y > C.y - 0.4), { thick: 0.8, life: 0.08, tone: 0.18, size: 1.5, dens: 0.5 }); });
-    // 바위 기둥 다발 (현무 기운 3개면 세 곳)
-    const spots = n >= 3 ? [C, add(C, f0, R * 0.55), add(add(C, f0, -R * 0.3), r0, R * 0.5)] : [C];
-    for (const at of spots) {
-      const sp = [];
-      for (let k = 0; k < 7; k++) { const a = (k / 7) * Math.PI * 2 + Math.random() * 0.4, tl = 0.35 + Math.random() * 0.35; sp.push({ base: add(at, { x: Math.cos(a) * 0.9, y: -0.3, z: Math.sin(a) * 0.9 }), dir: norm({ x: Math.cos(a) * tl, y: 1, z: Math.sin(a) * tl }), L: 3.6 + Math.random() * 2.6, th: 0.6 + Math.random() * 0.3 }); }
-      sp.push({ base: up(at, -0.3), dir: UP, L: 7, th: 0.95 });
-      for (let t = 0; t < 6; t++) later(t, () => { const k = ease((t + 1) / 6); for (const s2 of sp) spike(dim, s2.base, s2.dir, s2.L * k, s2.th, { life: 0.1 }); });
-      later(6, () => { for (const s2 of sp) spike(dim, s2.base, s2.dir, s2.L, s2.th, { life: 3 }); });
-      later(66, () => { for (const s2 of sp) rocks(dim, add(s2.base, s2.dir, s2.L * 0.6), { n: 10, r: 0.5, spd: 4, tone: 0.2 }); snd(p, "random.glass", 0.9, 0.5); });
-    }
-    for (const e of foesAround(dim, p, C, R + 0.5)) if (hit(e, 2.0, 1)) knockUp(e, 1.25, 1.6);
+    snd(p, "item.trident.thunder", 1.2, 0.5);
+    // 바위 기둥 울타리: 돔 둘레에 바깥쪽으로 비스듬히 솟음 (3초 뒤 부서짐)
+    const pal = [];
+    for (let k = 0; k < 18; k++) { const a = (k / 18) * Math.PI * 2 + Math.random() * 0.1, rr = R + 0.5 + (k % 2) * 0.9; pal.push({ base: { x: C.x + Math.cos(a) * rr, y: C.y - 0.3, z: C.z + Math.sin(a) * rr }, dir: norm({ x: Math.cos(a) * 0.55, y: 1, z: Math.sin(a) * 0.55 }), L: 3 + Math.random() * 2.2 + (k % 2) * 0.8, th: 0.5 + Math.random() * 0.25 }); }
+    for (let t = 0; t < 6; t++) later(t, () => { const k = ease((t + 1) / 6); for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L * k, s2.th, { life: 0.1 }); });
+    later(6, () => { for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L, s2.th, { life: 3 }); });
+    later(66, () => { for (const s2 of pal) rocks(dim, add(s2.base, s2.dir, s2.L * 0.5), { n: 6, r: 0.4, spd: 4, tone: 0.2 }); snd(p, "random.glass", 1, 0.5); });
+    // 뱀이 돔 꼭대기에서 한가운데로 내리꽂혀 사라짐
+    for (let t = 0; t < 8; t++) later(t, () => { const pts = []; for (let k2 = 0; k2 <= 24; k2++) { const y = R + 2 - t * 1.6 + k2 * 0.5; if (y < 0) continue; pts.push({ x: C.x + Math.sin(k2 * 0.4) * 0.6, y: C.y + y, z: C.z + Math.cos(k2 * 0.4) * 0.6 }); } if (pts.length > 1) serpent(dim, pts, { thick: 0.85, life: 0.1, tone: 0.18, size: 1.6, dens: 0.55 }); });
+    // 모두 멀리 밀어냄 + 아군 큰 보호막
+    for (const e of foesAround(dim, p, C, 20)) { hit(e, 1.6, 1); M.toss(C, e, 24 * push, 6); M.potion(e, "poison", 2, 3); }
+    for (const a of insideAllies()) { M.potion(a, "absorption", 3, 8); M.potion(a, "regeneration", 2, 4); glow(dim, center(a), { n: 20, spd: 3, tone: 0 }); }
   });
-  later(END + 80, () => { const i = walls.indexOf(dome); if (i >= 0) walls.splice(i, 1); skillLock.delete(p.id); }); // 안전장치
+  later(END + 60, () => { const i = walls.indexOf(dome); if (i >= 0) walls.splice(i, 1); skillLock.delete(p.id); }); // 안전장치
 }
 
 /** 무기 스킬 표 */
@@ -803,6 +774,6 @@ export const WEAPON_SKILLS = {
     { id: "w_hm_1", key: 1, name: "현무 · 귀갑타", short: "귀갑타", lv: 1, mp: 5, cd: 0.35, pow: 1, run: bash, desc: "3타 콤보: 방패 밀치기 → 뱀 꼬리 휘두르기(독) → 내리찍어 균열·바위 기둥·띄우기. 현무 기운 1개당 +15%. 우클릭을 길게 누르면 막기, 맞기 직전 0.3초 안에 누르면 완벽 패링." },
     { id: "w_hm_2", key: 2, name: "현무 · 사신독굴", short: "독굴", lv: 1, mp: 22, cd: 12, pow: 1, run: serpentDen, desc: "큰 뱀이 2.5초 동안 내 둘레를 돌며 닿는 적을 물어 튕기고 날아오는 투사체를 쳐낸 뒤, 땅속으로 파고들어 앞 14칸의 적(최대 5)마다 발밑에서 튀어나와 물고(띄우기·독) 지나간 자리에 3초 동안 독 안개를 남긴다." },
     { id: "w_hm_3", key: 3, name: "현무 · 붕지", short: "붕지", lv: 1, mp: 50, cd: 26, pow: 1, run: earthbreak, desc: "거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄우고, 끝에서 흑요석빛 바위 기둥 다발이 솟는다. 박힌 방패 앞에는 4초 동안 큰 현무진(벽 뒤는 앞쪽 공격 무시, 끝날 때 파편 폭발). 현무 기운을 모두 써서 넓고 강해지며, 3개면 두 갈래로 갈라진다." },
-    { id: "w_hm_4", key: 4, name: "현무 · 강림", short: "강림", lv: 1, mp: 60, cd: 40, pow: 1, run: descent, desc: "먹구름 속 일곱 별이 켜지고 거대한 검은 뱀이 솟은 뒤, 반지름 8칸 거북 등껍질 돔이 내려앉는다. 돔 안의 아군은 바깥 공격을 받지 않고 적은 짓눌린다. 뱀이 돔을 돌며 적을 물어뜯고(현무 기운 1개당 +2번), 일곱 별을 이어 운석을 떨어뜨린 뒤 한가운데로 내리꽂혀 모두 띄우며 돔이 산산조각 난다." },
+    { id: "w_hm_4", key: 4, name: "현무 · 천수진", short: "천수진", lv: 1, mp: 60, cd: 40, pow: 1, run: descent, desc: "방패를 박으면 발밑에 진이 그려지고 등 뒤로 거대한 현무 방패와 검은 뱀이 솟는다. 등껍질 파동 3번으로 적을 멀리 밀어낸 뒤 5초 동안 돔이 아군을 지키며(보호막·재생, 바깥 공격 무시) 돔 바깥엔 독비가 쏟아지고 뱀이 다가오는 적을 쓸어낸다. 마지막에 돔이 폭발해 20칸을 밀어내고 바위 기둥 울타리가 솟는다. 현무 기운 1개당 돔 +1초." },
   ],
 };

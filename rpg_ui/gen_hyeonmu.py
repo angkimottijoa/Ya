@@ -20,6 +20,7 @@ JADE = {"0.0": "#FFF0FFF4", "0.18": "#FFB4F5D2", "0.4": "#FF4FC488", "0.65": "#F
 ROCK = {"0.0": "#FF58665C", "0.35": "#FF333D37", "0.7": "#FF1A211D", "1.0": "#FF0A0D0B"}
 SPIKE = {"0.0": "#FFD6FFE8", "0.18": "#FF7FE0AE", "0.4": "#FF2F8F5E", "0.62": "#FF17482F", "0.82": "#FF0B1A12", "1.0": "#FF030504"}
 SNAKE = {"0.0": "#FFD2E6A4", "0.25": "#FF8DB65A", "0.5": "#FF3E7436", "0.75": "#FF1B3A1F", "1.0": "#FF07120A"}
+RAIN = {"0.0": "#FFD8FFB0", "0.3": "#FF8FEA60", "0.7": "#EE3FA83A", "1.0": "#AA1B5A22"}
 POISON = {"0.0": "#9978C850", "0.4": "#7740862E", "1.0": "#00102A10"}
 INK = {"0.0": "#CC33493B", "0.45": "#99162219", "1.0": "#00040705"}
 FILL = {"0.0": "#702F8F5E", "0.6": "#401E5A3C", "1.0": "#000B1A12"}
@@ -344,6 +345,38 @@ def main():
         "minecraft:particle_initial_speed": 0,
         "minecraft:particle_motion_dynamic": {},
         **look(f"variable.size * (0.6 + {R3} * 0.4)", 0, FILL, f"math.clamp({AGE} * 0.7 + {R4} * 0.3, 0, 1)"),
+    }, material="particles_blend")
+
+    # hm_rain: 독비 (안쪽 반지름 r ~ 바깥 반지름 thick 고리 위, 높이 h 에서 떨어지는 빗줄기, 땅에 닿으면 사라짐)
+    ra = f"({R1} * 360)"
+    rr = f"math.sqrt(variable.r * variable.r + {R2} * (variable.thick * variable.thick - variable.r * variable.r))"
+    part("hm_rain", {
+        **once(),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ra}) * {rr}", f"variable.h + {R3} * 4", f"math.sin({ra}) * {rr}"], "direction": [f"({R4} - 0.5) * 0.08", -1, 0.03]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.85 + {R4} * 0.3)",
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_motion_collision": {"collision_radius": 0.05, "expire_on_contact": True},
+        "minecraft:particle_appearance_billboard": {"size": ["variable.size * 0.05", "variable.size * 0.55"], "facing_camera_mode": "lookat_direction",
+                                                    "direction": {"mode": "derive_from_velocity", "min_speed_threshold": 0.01},
+                                                    "uv": {"texture_width": 64, "texture_height": 64, "uv": [SPR, 0], "uv_size": [SPR, SPR]}},
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"{R3}", "gradient": RAIN}},
+    }, material="particles_blend")
+    # hm_rune: 땅에 그리는 진(陣): 바깥 원 · 안쪽 원 · 12개 눈금 · 육각형, h = 돌아간 각도(도), r = 반지름
+    sel = R1
+    q = R2
+    ox = (f"({sel} < 0.4 ? math.cos({q} * 360 + variable.h) * variable.r : "
+          f"({sel} < 0.62 ? math.cos({q} * 360 - variable.h) * variable.r * 0.82 : "
+          f"({sel} < 0.8 ? math.cos(math.floor({R3} * 12) * 30 + variable.h) * variable.r * (0.82 + {q} * 0.18) : "
+          f"math.cos(math.floor({R3} * 6) * 60 - variable.h) * variable.r * 0.82 * (1 - {q}) + math.cos(math.floor({R3} * 6) * 60 + 60 - variable.h) * variable.r * 0.82 * {q})))")
+    oz = ox.replace("math.cos", "math.sin")
+    part("hm_rune", {
+        **once(),
+        "minecraft:emitter_shape_point": {"offset": [ox, f"{R4} * 0.06", oz], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R4} * 0.3)"},
+        "minecraft:particle_initial_speed": f"{R4} * 0.15",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.4, 0]},
+        **look(f"variable.size * 0.12 * (1 - {AGE} * 0.5)", 0, JADE, f"math.clamp(variable.tone + {R4} * 0.25 + {AGE} * 0.3, 0, 1)"),
     }, material="particles_blend")
 
     # hm_fog: 낮게 깔리는 짙은 초록 독 안개
