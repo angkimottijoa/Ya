@@ -98,6 +98,17 @@ function fireArrow(ctx, from, dir, o = {}) {
       if (near.length) { done = true; burst(c, near); o.onHit?.(near[0]); return; }
     }
     trail(dim, pos, next, { size: 1.4, life: 0.32, n: 24 });
+    // 작은 나선 검기: 두 가닥 불꽃이 화살 길을 감으며 따라감
+    { const side = norm(Math.abs(dir.y) > 0.95 ? cross(dir, { x: 1, y: 0, z: 0 }) : cross(dir, UP)), upv = cross(side, dir);
+      for (const ph of [0, Math.PI]) {
+        let prevQ = null;
+        for (let j = 0; j <= 3; j++) {
+          const s2 = (t - 1 + j / 3) * speed, ang = s2 * 1.6 + ph;
+          const q = add(add(add(pos, dir, (j / 3) * speed), side, Math.cos(ang) * 0.38), upv, Math.sin(ang) * 0.38);
+          if (prevQ) trail(dim, prevQ, q, { size: 0.8, life: 0.35, n: 6, tone: ph ? 0.3 : 0.05 });
+          prevQ = q;
+        }
+      } }
     trail(dim, add(next, dir, -0.7), next, { size: 0.9, life: 0.08, n: 10, tone: -0.2 });
     if (t % 2 === 0) ember(dim, pos, { n: 3, r: 0.1, spd: 0.6, life: 0.6 });
     pos = next;

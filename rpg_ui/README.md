@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V7.1.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V7.2.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V7.2 변경
+- 주작 1·2단 일반 불화살에도 작은 두 가닥 불꽃 나선(검기처럼)이 화살 길을 감으며 따라감
 
 ## V7.1 변경
 - 주작 3단 조준 중 시점: 오른쪽 어깨 바로 위·살짝 뒤에서 시선 방향을 봄, 매 틱 시선을 따라가서 그대로 조준 가능, 쏜 뒤 0.6초 유지 후 원래 시점
