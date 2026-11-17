@@ -201,108 +201,160 @@ function findAnchors(p) {
   for (const [dy, dp] of [[0, 8], [0, 35], [0, 60]]) { const r = ray(dirOf(dy, dp)); if (r && len(sub(r.at, eye)) > 2.5) return [r]; }
   return null;
 }
+// 입체 기동 물리 (모드 분석 → 직접 다시 짬): 틱마다
+//   v' = v·0.98 + 당김(줄 방향) + 공전(줄 방향 × 위, 좌우 키) + 상승(갈고리보다 아래일 때)
+//   당김 0.12 · 두 줄 ×2.4(부스트 ×1.5까지) → 2초에 걸쳐 갈고리 쪽 성분만 남김(어뢰) · 한 줄 공전 중엔 공전속도×1.8
+//   공전 0.08 · 두 줄+공전 ×1.5 · 두 줄 ×0.4 · 부스트 ×2.5까지 · 상승 0.05(부스트 ×2)
+//   가스 부스트(점프 누르고 있기) 0.0588 차오름 / 0.0125 식음
+//   한 줄 + 부스트·공전 없음 = 진자(줄 길이 제약: 바깥 속도 제거 + 늘어난 만큼 ×0.5 당김, 공중 조향 0.02)
+//   느릴 때 수직 감쇠(매달림) · 공기 저항 1/(1+0.02·속도) · 놓은 뒤 4.5초 관성 유지
+const ODM = { pull: 0.12, dualPull: 2.4, dualBoostPull: 1.5, orbit: 0.08, dualOrbit: 0.4, orbitPull: 1.8, boostOrbit: 2.5, lift: 0.05, ramp: 0.0588, decay: 0.0125, ease: 40, drag: 0.02, keep: 90 };
+const inputOf = (p) => { let mv = null, jump = false; try { mv = p.inputInfo?.getMovementVector?.(); } catch {} try { jump = !!p.isJumping; } catch {} return { sx: mv?.x ?? 0, fy: mv?.y ?? 0, jump }; };
+const steerVec = (p, inp) => { const l = Math.hypot(inp.sx, inp.fy); if (l < 0.01) return { x: 0, y: 0, z: 0 }; const k = 0.02 / Math.max(1, l), f = fwdOf(yawOf(p)), r = rightOf(yawOf(p)); return { x: (f.x * inp.fy - r.x * inp.sx) * k, y: 0, z: (f.z * inp.fy - r.z * inp.sx) * k }; };
 function hd_swing_start(p, ctx) {
   const s = st(p), dim = p.dimension, As = findAnchors(p);
   if (!As) { notify(p, "§7걸 곳이 없다 (벽 · 나무 · 천장 · 적 근처에서)"); return false; }
   const hit = hitter(ctx), dual = As.length > 1;
-  const C = () => { const pts = As.map((a) => (a.ent?.isValid() ? center(a.ent) : a.at)); return pts.length > 1 ? scl2(add(pts[0], pts[1]), 0.5) : pts[0]; };
-  let L = Math.max(3, len(sub(C(), up(p.location, 1))) * 0.95);
-  const sw = { As, t: 0, done: false, kick: 0, boost: 0, lift: 0, orbit: 0, v: { x: 0, y: 0, z: 0 } };
+  const at = (a) => (a.ent?.isValid() ? center(a.ent) : a.at);
+  const C = () => (dual ? scl2(add(at(As[0]), at(As[1])), 0.5) : at(As[0]));
+  // 사슬은 허리 장치(좌우 엉덩이)에서 나감
+  const hip = (i) => add(up(p.location, 0.9), rightOf(yawOf(p)), dual ? (i ? 0.3 : -0.3) : 0.3);
+  const sw = { As, t: 0, done: false, kick: 0, boost: s.boostCarry ?? 0, L: null, anim: "", animT: 0, v: { x: 0, y: 0, z: 0 } };
   if (s.swing) s.swing.done = true;
   s.swing = sw;
   M.anim(p, "gear_fire");
-  later(5, () => { if (!sw.done) M.anim(p, dual ? "gear_swing" : "gear_orbit"); });
-  // 쇠사슬이 손에서 박힐 곳까지 날아감 (3틱) → 박힘
-  const hand = (i) => add(up(p.location, 1.2), rightOf(yawOf(p)), dual ? (i ? 0.4 : -0.4) : 0);
-  for (let k = 1; k <= 3; k++) later(k - 1, () => As.forEach((a, i) => { const h = hand(i); chain(dim, h, add(h, sub(a.at, h), k / 3), 0.1); }));
-  later(3, () => As.forEach((a) => hookHit(dim, a.at)));
+  // 사슬이 3틱(0.15초) 동안 날아가 박힘 → 그때부터 당김
+  for (let k = 1; k <= 3; k++) later(k - 1, () => As.forEach((a, i) => { const h = hip(i); chain(dim, h, add(h, sub(at(a), h), k / 3), 0.1); }));
+  later(3, () => As.forEach((a) => hookHit(dim, at(a))));
   snd(p, "item.armor.equip_chain", 1, 1.4); later(3, () => { snd(p, "item.trident.hit_ground", 0.7, 1.3); snd(p, "random.chestclosed", 0.5, 1.8); });
-  // 박히는 순간 가스를 뿜으며 당겨 올림
-  try { const c = C(), d = sub(c, p.location), h = Math.hypot(d.x, d.z) || 1; p.applyKnockback(d.x / h, d.z / h, 0.6, 0.55); } catch {}
-  gas(dim, up(p.location, 1), scl2(viewOf(p), -1), { n: 10, spd: 5, life: 0.8, prio: 1 });
+  const play = (name) => { if (sw.anim !== name || sw.t - sw.animT >= 16) { sw.anim = name; sw.animT = sw.t; M.anim(p, name); } };
   const tick = () => {
     if (!p.isValid() || sw.done || s.swing !== sw) return;
     sw.t++;
-    const c = C(), P = up(p.location, 1);
+    const T = C(), P = p.location, toHook = sub(T, up(P, 0.9)), dist = len(toHook) || 0.01, dir = scl2(toHook, 1 / dist);
     let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
-    const look = viewOf(p);
-    const d = sub(P, c), dist = len(d) || 0.01, n = scl2(d, 1 / dist);
-    // 가스 부스트: 처음 ~17틱 차오르고, 이후 식음
-    sw.boost = sw.t < 18 ? Math.min(1, sw.boost + 0.0588) : Math.max(0, sw.boost - 0.0125);
-    v = scl2(v, 0.98); // 공기 저항
-    v = add(v, look, 0.035 * (1 + 1.5 * sw.boost)); // 보는 방향 추진
-    v.y -= 0.06;
-    if (dual) { // 두 줄: 가운데로 쭉 (어뢰) + 빠르게 감김
-      v = add(v, n, -0.05 * (1 + sw.boost)); L = Math.max(2.2, L - 0.2);
-    } else { // 한 줄: 줄 둘레를 휘돌며(공전) 떠오름 — 보는 쪽으로 돎
-      const tg = norm(crs(n, UP)), sg = tg.x * look.x + tg.z * look.z >= 0 ? 1 : -1;
-      sw.orbit = sg;
-      sw.lift = Math.min(1, sw.lift + 0.2 / 3);
-      v = add(v, tg, sg * 0.08 * (1 + sw.boost)); v.y += 0.045 * sw.lift;
-      L = Math.max(2.6, L - 0.1);
+    let g = false; try { g = p.isOnGround; } catch {}
+    const inp = inputOf(p), boosting = inp.jump && sw.t > 4; // 시전 점프 직후는 제외
+    sw.boost = boosting ? Math.min(1, sw.boost + ODM.ramp) : Math.max(0, sw.boost - ODM.decay);
+    const b = sw.boost;
+    // 공전 방향: 좌우 키 (A=왼쪽 → -1) · 한 줄인데 키가 없으면 보는 쪽으로 자동
+    let orbitDir = inp.sx > 0.3 ? -1 : inp.sx < -0.3 ? 1 : 0;
+    const right = (() => { const r = crs(dir, UP); return len(r) < 0.1 ? norm(crs(dir, { x: 1, y: 0, z: 0 })) : norm(r); })();
+    if (!orbitDir && !dual) { const lk = viewOf(p), d = right.x * lk.x + right.z * lk.z; if (Math.abs(d) > 0.35) orbitDir = d > 0 ? 1 : -1; }
+    const orbiting = orbitDir !== 0, climbing = inp.fy > 0.5 && boosting;
+    let orbitSpd = ODM.orbit * (dual ? (orbiting ? 1.5 : ODM.dualOrbit) : 1);
+    if (b > 0.01) orbitSpd *= 1 + (ODM.boostOrbit - 1) * b;
+    let pullSpd;
+    if (orbiting && !dual) pullSpd = orbitSpd * ODM.orbitPull;
+    else { pullSpd = ODM.pull; if (dual) { pullSpd *= ODM.dualPull; if (b > 0.01) pullSpd *= 1 + (ODM.dualBoostPull - 1) * b; } }
+    const lift = ODM.lift * (1 + b);
+    let pull = scl2(dir, pullSpd); if (P.y + 0.9 < T.y) pull.y += lift;
+    let orbitF = orbiting ? scl2(right, orbitDir * orbitSpd) : { x: 0, y: 0, z: 0 };
+    if (climbing) { const upT = sub(UP, scl2(dir, dir.y)), c = add(orbitF, upT, orbitSpd), cl = len(c); orbitF = cl > orbitSpd ? scl2(c, orbitSpd / cl) : c; }
+    let nv;
+    const pendulum = !dual && !boosting && !orbiting && !g;
+    if (pendulum) { // 진자: 줄 길이 제약 + 공중 조향 (조금씩 감김)
+      if (sw.L == null) sw.L = dist;
+      sw.L = Math.max(1.5, Math.min(sw.L - 0.04, dist));
+      nv = scl2(v, 0.99);
+      const out = scl2(dir, -1), nxt = len(sub(add(up(P, 0.9), nv), T));
+      if (nxt > sw.L) { const o = nv.x * out.x + nv.y * out.y + nv.z * out.z; if (o > 0) nv = add(nv, out, -o); }
+      const st2 = dist - sw.L; if (st2 > 0) nv = add(nv, out, -Math.min(st2, 0.5) * 0.5);
+      nv = add(nv, steerVec(p, inp));
+    } else {
+      sw.L = dist;
+      nv = add(add(scl2(v, 0.98), pull), orbitF);
+      if (dual && !orbiting) { // 어뢰: 2초에 걸쳐 갈고리 쪽 성분만 남김
+        const k = Math.min(1, sw.t / ODM.ease), tw = Math.max(0, v.x * dir.x + v.y * dir.y + v.z * dir.z), direct = add(scl2(dir, tw * 0.98), pull);
+        nv = { x: nv.x + (direct.x - nv.x) * k, y: nv.y + (direct.y - nv.y) * k, z: nv.z + (direct.z - nv.z) * k };
+      }
+      const sp0 = len(nv); if (!g && !boosting && !orbiting && sp0 < 0.3) nv.y *= 0.3 + 0.7 * (sp0 / 0.3); // 매달림
     }
-    // 부드러운 줄 탄성 (늘어나면 바깥 속도 지우고 줄 길이로 당김) + 흔들림 감쇠
-    if (dist >= L) { const vr = v.x * n.x + v.y * n.y + v.z * n.z; if (vr > 0) v = add(v, n, -vr); v = add(v, n, -(dist - L) * 0.5); v = scl2(v, 0.99); }
-    const sp = len(v); if (sp > 2.4) v = scl2(v, 2.4 / sp);
-    // 벽 자동 차기
-    const hdir = Math.hypot(v.x, v.z);
-    if (hdir > 0.2 && sw.t - sw.kick > 6) {
-      const fx = { x: P.x + (v.x / hdir) * 0.9, y: P.y, z: P.z }, fz = { x: P.x, y: P.y, z: P.z + (v.z / hdir) * 0.9 };
+    const ds = len(nv); if (ds > 1e-4) nv = scl2(nv, 1 / (1 + ODM.drag * ds));
+    { const cs = len(nv); if (cs > 3) nv = scl2(nv, 3 / cs); } // 베드락에서 벽 뚫림 방지
+    // 벽 자동 차기 (기존 유지) — 부스트 재충전
+    const hdir = Math.hypot(nv.x, nv.z), PP = up(P, 1);
+    if (hdir > 0.25 && sw.t - sw.kick > 6 && sw.t > 4) {
+      const fx = { x: PP.x + (nv.x / hdir) * 0.9, y: PP.y, z: PP.z }, fz = { x: PP.x, y: PP.y, z: PP.z + (nv.z / hdir) * 0.9 };
       const bx = solid(dim, fx) || solid(dim, up(fx, -0.6)), bz = solid(dim, fz) || solid(dim, up(fz, -0.6));
       if (bx || bz) {
         sw.kick = sw.t; sw.boost = Math.min(1, sw.boost + 0.4);
-        if (bx) v.x = -v.x * 0.6; if (bz) v.z = -v.z * 0.6;
-        v.y = Math.max(v.y, 0.55);
-        v = add(v, look, 0.35);
-        gas(dim, P, norm({ x: bx ? -v.x : 0, y: -0.3, z: bz ? -v.z : 0 }), { n: 12, spd: 4, life: 0.7, prio: 1 });
-        pt(dim, "hd_burst", P, { n: 6, r: 0.3, spd: 2, life: 0.35 }, 2);
-        M.anim(p, "gear_kick");
+        if (bx) nv.x = -nv.x * 0.6; if (bz) nv.z = -nv.z * 0.6;
+        nv.y = Math.max(nv.y, 0.55); nv = add(nv, viewOf(p), 0.35);
+        gas(dim, PP, norm({ x: bx ? -nv.x : 0, y: -0.3, z: bz ? -nv.z : 0 }), { n: 12, spd: 4, life: 0.7, prio: 1 });
+        pt(dim, "hd_burst", PP, { n: 6, r: 0.3, spd: 2, life: 0.35 }, 2);
+        M.anim(p, "gear_kick"); sw.anim = "gear_kick"; sw.animT = sw.t;
         snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
         notify(p, "§5벽 차기!");
       }
     }
-    sw.v = v;
-    const h = Math.hypot(v.x, v.z);
-    try { p.applyKnockback(h > 0.001 ? v.x / h : 0, h > 0.001 ? v.z / h : 0, h, v.y); } catch {}
-    // 자세: 두 줄 = 그네, 한 줄 = 줄 쪽으로 몸을 기울여 공전
-    if (sw.t % 16 === 5 && sw.t - sw.kick > 6) M.anim(p, dual ? "gear_swing" : sw.orbit > 0 ? "gear_orbit" : "gear_orbit_l");
-    // 연출: 쇠사슬(양손에서), 등 뒤 가스 분사(부스트만큼), 빠르면 속도선, 사슬 따라 감겨 오는 불티
-    if (sw.t % 2 === 0) {
-      const yw = yawOf(p), rr = rightOf(yw);
-      sw.As.forEach((a, i) => { const A2 = a.ent?.isValid() ? center(a.ent) : a.at, H = add(up(p.location, 1.2), rr, dual ? (i ? 0.4 : -0.4) : 0); chain(dim, A2, H, 0.12); if (sw.t % 6 === 0) { const dd = sub(H, A2); pt(dim, "hd_reelspark", A2, { u: norm(dd), r: len(dd), spd: 12, n: 3, life: Math.min(0.5, len(dd) / 14), size: 1 }, 2); } });
-      const back = add(up(p.location, 0.9), fwdOf(yw), -0.4), bd = norm(add(scl2(norm(v), -1), UP, -0.2));
-      gas(dim, back, bd, { n: Math.round(2 + sw.boost * 5), spd: 3 + sw.boost * 3, life: 0.6 + sw.boost * 0.3 });
+    sw.v = nv; s.momentum = nv;
+    if (sw.t > 3) { const h = Math.hypot(nv.x, nv.z); try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, h, nv.y); } catch {} } // 박히기 전(3틱)엔 그대로
+    // 자세 (상태 기계): 두 줄 = 공전 좌/우 · 어뢰 · 부스트 비행 / 한 줄 = 공전 좌/우(부스트) · 진자는 그네 / 땅 = 줄 쏘기
+    if (sw.t - sw.kick > 7) {
+      const spd = len(nv);
+      if (g) play("gear_fire");
+      else if (orbiting) play(orbitDir > 0 ? "gear_orbit" : "gear_orbit_l");
+      else if (dual && spd > 1.1) play("gear_torpedo");
+      else play("gear_swing");
     }
-    if (sp > 0.8 && sw.t % 2 === 1) speedLines(dim, P, v, { n: Math.round(4 + (sp - 0.8) * 6) });
-    if (sw.boost > 0.5 && sw.t % 4 === 0) snd(p, "random.fizz", 0.25, 1.6);
+    // 연출: 쇠사슬(허리에서), 부스트 중 등 뒤 가스(속도 반대쪽), 빠르면 속도선, 사슬 따라 불티
+    if (sw.t % 2 === 0) {
+      sw.As.forEach((a, i) => { const A2 = at(a), H = hip(i); chain(dim, A2, H, 0.12); if (sw.t % 6 === 0) { const dd = sub(H, A2); pt(dim, "hd_reelspark", A2, { u: norm(dd), r: len(dd), spd: 12, n: 3, life: Math.min(0.5, len(dd) / 14), size: 1 }, 2); } });
+    }
+    if (b > 0.1) { const back = add(up(P, 0.5), norm(nv), -0.5); gas(dim, back, scl2(norm(nv), -1), { n: Math.round(2 + b * 4), r: 0.2, spd: 1 + b * 2, life: 0.6 + b * 0.3 }); if (sw.t % 4 === 0) snd(p, "random.fizz", 0.2 + b * 0.2, 1.6); }
+    if (sw.t % 5 === 0 && sw.t - sw.kick > 10) { const n = Math.round(b * 8), c = s.combo3?.left ?? 0; notify(p, `§5가스 §f${"▮".repeat(n)}§8${"▯".repeat(8 - n)} §7${pendulum ? "진자" : orbiting ? (orbitDir > 0 ? "공전 ▶" : "◀ 공전") : dual ? "어뢰" : "당김"} §5사슬 §d${"◆".repeat(c)} §8(점프: 가스 · A/D: 공전 · W+점프: 상승)`); }
+    const sp = len(nv); if (sp > 0.8 && sw.t % 2 === 1) speedLines(dim, PP, nv, { n: Math.round(4 + Math.min(3, sp - 0.8) * 4) });
     // 지나가며 자동 베기
-    for (const e of foes(dim, p.location, 2.4)) if (hit(e, 0.55, 10)) { const cc = up(p.location, 1); M.anim(p, "gear_spin"); later(7, () => { if (!sw.done) M.anim(p, dual ? "gear_swing" : "gear_orbit"); }); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.7, 1.2); }
-    // 착지: 구르기
-    let g = false; try { g = p.isOnGround; } catch {}
-    if ((g && sw.t > 6) || sw.t > 60) {
+    for (const e of foes(dim, P, 2.4)) if (hit(e, 0.55, 10)) { const cc = up(P, 1); M.anim(p, "gear_spin"); sw.anim = "gear_spin"; sw.animT = sw.t; sw.kick = sw.t; scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.7, 1.2); }
+    // 끝: 착지(구르기) · 갈고리 거의 닿음 · 시간 초과 → 사슬 되감기
+    if ((g && sw.t > 8) || dist < 1.6 || sw.t > 80) {
       sw.done = true; if (s.swing === sw) s.swing = null;
-      // 사슬이 손으로 되감겨 돌아옴
-      sw.As.forEach((a) => { const A2 = a.ent?.isValid() ? center(a.ent) : a.at; for (let k = 1; k <= 3; k++) later(k, () => { const H = up(p.location, 1.2); chain(dim, H, add(H, sub(A2, H), 1 - k / 3), 0.08); }); });
+      s.boostCarry = g ? 0 : sw.boost;
+      for (let k = 1; k <= 4; k++) later(k, () => sw.As.forEach((a, i) => { const H = hip(i); chain(dim, H, add(H, sub(at(a), H), 1 - k / 4), 0.08); }));
       snd(p, "item.armor.equip_chain", 0.8, 1.8);
-      if (g) { const f = flatN(v.x || v.z ? v : viewOf(p)); try { p.applyKnockback(f.x, f.z, 0.9, 0.05); } catch {} gas(dim, up(p.location, 0.2), { x: -f.x, y: 0.1, z: -f.z }, { n: 10, spd: 2.5, life: 0.7 }); M.anim(p, "gear_roll"); snd(p, "step.grass", 1, 0.8); }
+      if (g) { const f = flatN(nv.x || nv.z ? nv : viewOf(p)); try { p.applyKnockback(f.x, f.z, 0.9, 0.05); } catch {} gas(dim, up(P, 0.2), { x: -f.x, y: 0.1, z: -f.z }, { n: 10, spd: 2.5, life: 0.7 }); M.anim(p, "gear_roll"); snd(p, "step.grass", 1, 0.8); }
+      else hd_keep(p);
       return;
     }
     later(1, tick);
   };
-  later(3, tick);
+  later(1, tick);
   return true;
 }
 const scl2 = (a, k) => ({ x: a.x * k, y: a.y * k, z: a.z * k });
-/** 날아가는 중 ③ 다시: 줄을 놓으며 가스 폭발 가속(속도 보존) → 바로 다음 줄 */
+/** 놓은 뒤 4.5초 동안 관성 유지 (수평 속도에 남은 관성을 조금씩 더함), 떨어질 때 자세 */
+function hd_keep(p) {
+  const s = st(p), mom = s.momentum; if (!mom) return;
+  const id = (s.keepId = (s.keepId ?? 0) + 1);
+  let t = 0;
+  const step = () => {
+    if (!p.isValid() || s.keepId !== id || s.swing) return;
+    let g = false; try { g = p.isOnGround; } catch {}
+    if (g) { M.anim(p, "gear_roll"); s.boostCarry = 0; return; }
+    t++;
+    if (t > ODM.keep) return;
+    const bl = 1 - t / ODM.keep;
+    let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
+    const nx = v.x + mom.x * bl * 0.02, nz = v.z + mom.z * bl * 0.02, h = Math.hypot(nx, nz);
+    try { p.applyKnockback(h > 0.001 ? nx / h : 0, h > 0.001 ? nz / h : 0, h, v.y); } catch {}
+    if (t % 16 === 1) M.anim(p, v.y >= 0 ? "gear_launch" : "gear_fall");
+    later(1, step);
+  };
+  later(1, step);
+}
+/** 날아가는 중 ③ 다시: 사슬을 놓으며 가스 폭발 가속(관성 보존) → 바로 다음 사슬 */
 function hd_swing_launch(p) {
   const s = st(p), sw = s.swing;
   if (!sw || sw.done) return false;
-  sw.done = true; s.swing = null;
+  sw.done = true; s.swing = null; s.boostCarry = Math.min(1, sw.boost + 0.3);
   let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
   const look = viewOf(p), nv = add(add(scl2(v, 1.1), look, 0.9), UP, 0.35), h = Math.hypot(nv.x, nv.z);
   try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, Math.min(2.6, h), Math.min(1.4, nv.y)); } catch {}
+  s.momentum = nv;
   M.anim(p, "gear_launch");
   const dim = p.dimension, P = up(p.location, 1);
+  sw.As.forEach((a) => { const A2 = a.ent?.isValid() ? center(a.ent) : a.at; for (let k = 1; k <= 3; k++) later(k, () => { const H = up(p.location, 0.9); chain(dim, H, add(H, sub(A2, H), 1 - k / 3), 0.08); }); });
   gas(dim, P, scl2(look, -1), { n: 18, r: 0.3, spd: 7, life: 0.9, prio: 1 });
   speedLines(dim, P, nv, { n: 14, spd: 18 });
   darc(dim, up(p.location, 1.1), yawOf(p), { r: 2.6, sweep: 200, n: 120, life: 0.4 });
@@ -339,6 +391,7 @@ function hd_plunge(ctx) {
   if (s.swing) { s.swing.done = true; s.swing = null; }
   if (s.combo3) hd_comboEnd(p);
   const bonus = linked ? 1.35 : 1;
+  s.keepId = (s.keepId ?? 0) + 1;
   M.invuln(p, 3);
   const swirlAt = (at, o = {}) => pt(dim, "hd_swirl", at, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: o.vs ?? 0, r: o.r ?? 2.2, spin: o.spin ?? 900, n: o.n ?? 60, life: o.life ?? 0.35, size: o.size ?? 1 }, o.prio ?? 1);
   const start = () => {
