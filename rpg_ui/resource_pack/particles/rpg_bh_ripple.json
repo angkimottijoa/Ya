@@ -1,0 +1,80 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:bh_ripple",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/particles"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_steady": {
+    "spawn_rate": "variable.n",
+    "max_particles": 900
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": "variable.life"
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "math.cos((variable.particle_random_1 * 360)) * (variable.r + variable.emitter_age * variable.spd)",
+     "variable.particle_random_2 * 0.3",
+     "math.sin((variable.particle_random_1 * 360)) * (variable.r + variable.emitter_age * variable.spd)"
+    ],
+    "direction": [
+     "math.cos((variable.particle_random_1 * 360)) * 0.4",
+     "1",
+     "math.sin((variable.particle_random_1 * 360)) * 0.4"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "0.4 + variable.particle_random_4 * 0.5"
+   },
+   "minecraft:particle_initial_speed": "2.5 + variable.particle_random_3 * 4",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     -16,
+     0
+    ],
+    "linear_drag_coefficient": 0.8
+   },
+   "minecraft:particle_motion_collision": {
+    "collision_radius": 0.1,
+    "expire_on_contact": true
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (0.12 + variable.particle_random_3 * 0.14) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.4)",
+     "variable.size * (0.12 + variable.particle_random_3 * 0.14) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.4)"
+    ],
+    "facing_camera_mode": "rotate_xyz",
+    "uv": {
+     "texture_width": 16,
+     "texture_height": 16,
+     "uv": [
+      "math.floor(variable.particle_random_3 * 4) + 3",
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(0.55 + variable.particle_random_2 * 0.45 - (variable.particle_random_4 > 0.8 ? 0.6 : 0), 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFFFFF",
+      "0.42": "#FFF2F2F2",
+      "0.55": "#FF3A3A3A",
+      "0.75": "#FF141414",
+      "1.0": "#FF000000"
+     }
+    }
+   }
+  }
+ }
+}

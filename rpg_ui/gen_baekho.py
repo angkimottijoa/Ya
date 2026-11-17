@@ -82,24 +82,97 @@ def main():
         "minecraft:particle_appearance_billboard": pix(f"variable.size * (0.12 + {R3} * 0.08) * (1 - {AGE} * 0.7)"),
         "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp({R2} + {AGE} * 0.2, 0, 1)", "gradient": BW}},
     })
+    # 4) 그림 점 찍기 (백호 머리 · 도끼): 텍스처 rpg_bh_art 의 (x0,y0,iw,ih) 영역을 픽셀마다 점으로
+    #   u = 그림 가로, v = 그림 세로(위), w = 그림 앞(볼록하게 튀어나옴 depth → 입체), 기준점 (cx, cy), scale = 픽셀당 블록
+    CELL = 4
+    _art = Image.open(ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png")
+    AWT, AHT = _art.size[0] // CELL, _art.size[1] // CELL
+    bx, by = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
+    fx_ = f"({R1} * variable.iw - {bx} - 0.5)"
+    lx = f"(({bx} - variable.cx + {fx_} * 0.6) * variable.scale)"
+    ly = f"((variable.cy - {by}) * variable.scale)"
+    d2 = f"(math.pow(({bx} - variable.iw / 2) / (variable.iw / 2), 2) + math.pow(({by} - variable.ih / 2) / (variable.ih / 2), 2))"
+    lz = f"(math.sqrt(math.max(0, 1 - {d2})) * variable.depth + ({R3} - 0.5) * variable.scale * 2)"
+    part("bh_art", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.scale * 0.75 * variable.size * (1 - {AGE} * {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
+                   "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
+    }, tex="textures/particle/rpg_bh_art")
+    # 5) 땅이 갈라지며 퍼지는 파문: 반지름이 시간에 따라 커지는 고리에서 흙덩이·먼지가 튀어 오름
+    ra = f"({R1} * 360)"
+    rr_ = "(variable.r + variable.emitter_age * variable.spd)"
+    part("bh_ripple", {
+        "minecraft:emitter_rate_steady": {"spawn_rate": "variable.n", "max_particles": 900},
+        "minecraft:emitter_lifetime_once": {"active_time": "variable.life"},
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ra}) * {rr_}", f"{R2} * 0.3", f"math.sin({ra}) * {rr_}"],
+                                          "direction": [f"math.cos({ra}) * 0.4", "1", f"math.sin({ra}) * 0.4"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"0.4 + {R4} * 0.5"},
+        "minecraft:particle_initial_speed": f"2.5 + {R3} * 4",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, -16, 0], "linear_drag_coefficient": 0.8},
+        "minecraft:particle_motion_collision": {"collision_radius": 0.1, "expire_on_contact": True},
+        "minecraft:particle_appearance_billboard": pix(f"variable.size * (0.12 + {R3} * 0.14) * (1 - {AGE} * 0.4)"),
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(0.55 + {R2} * 0.45 - ({R4} > 0.8 ? 0.6 : 0), 0, 1)", "gradient": BW}},
+    })
+    # 6) 선 (땅 갈라짐 · 잔상 줄): u 방향 길이 r, 들쭉날쭉, tone 0 흰 ~ 1 검정
+    part("bh_line", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r + variable.v.{c} * math.sin({R1} * 900 + variable.thick * 77) * 0.18 * variable.h" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": pix(f"variable.size * (0.1 + {R3} * 0.06) * (1 - {R1} * 0.6) * (1 - {AGE} * 0.5)"),
+        "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"math.clamp(variable.tone + ({R2} - 0.5) * 0.3, 0, 1)", "gradient": BW}},
+    })
+    # 7) 검은 연기 (잔상 · 폭발 연기)
+    part("bh_smoke", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_sphere": {"radius": "variable.r", "direction": "outwards"},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.5)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.3 + {R1} * 0.7)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.6, 0], "linear_drag_coefficient": 2.5},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.5 + {R3} * 0.5) * (0.6 + {AGE} * 0.9)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R2} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": [f"0.05 + {R1} * 0.12", f"0.05 + {R1} * 0.12", f"0.07 + {R1} * 0.12", f"0.85 - {AGE} * 0.8"]},
+    }, material="particles_blend")
+    # 8) 3D 백호 몸 덩어리: 타원체 겉면 (u 긴 축, v 위, w 옆 — 벡터 길이 = 반지름)
+    #    흰 털 + 위에서 빛 받는 음영 + 검은 줄무늬(thick = 줄 빈도, 0 이면 없음, 배 쪽은 줄 없음), tone 1 = 검정 부위
+    FUR = {"0.0": "#FFFFFFFF", "0.18": "#FFE8EAF0", "0.32": "#FFC4C8D2", "0.55": "#FF5C5E66", "0.8": "#FF1E1E22", "1.0": "#FF070707"}
+    zz_ = f"({R1} * 2 - 1)"
+    rr2 = f"math.sqrt(math.max(0, 1 - {zz_} * {zz_}))"
+    yy_ = f"({rr2} * math.cos({R2} * 360))"
+    ss_ = f"({rr2} * math.sin({R2} * 360))"
+    kk_ = f"(0.86 + {R4} * 0.14)"
+    stripe = f"(variable.thick > 0 && {yy_} > -0.3 && math.sin({zz_} * variable.thick * 180 + {ss_} * 50 + {yy_} * 30 + variable.h) > 0.6)"
+    part("bh_blob", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"(variable.u.{c} * {zz_} + variable.v.{c} * {yy_} + variable.w.{c} * {ss_}) * {kk_}" for c in "xyz"], "direction": [0, 1, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R3} * 0.3)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.size * (0.13 + {R3} * 0.07) * (1 - {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+        "minecraft:particle_appearance_tinting": {"color": {
+            "interpolant": f"{stripe} ? 0.96 : math.clamp(variable.tone + (1 - variable.tone) * (0.16 - {yy_} * 0.16) + ({R3} - 0.5) * 0.06, 0, 1)", "gradient": FUR}},
+    })
     item()
     print("baekho particles + item ok")
 
 
 def item():
-    """백호의 도끼: 흰 도끼날(검은 줄무늬) + 어두운 자루 아이콘"""
-    im = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    white, grey, black, wood = (245, 245, 245, 255), (175, 175, 182, 255), (18, 18, 20, 255), (60, 52, 50, 255)
-    d.line([(3, 14), (11, 4)], fill=wood, width=2)                   # 자루
-    d.polygon([(8, 1), (14, 3), (15, 8), (12, 9), (9, 5)], fill=white)  # 도끼날
-    d.line([(14, 3), (15, 8)], fill=grey)
-    d.line([(11, 2), (12, 5)], fill=black)                            # 호랑이 줄무늬
-    d.line([(13, 3), (13, 7)], fill=black)
-    d.polygon([(8, 1), (14, 3), (15, 8), (12, 9), (9, 5)], outline=black)
-    im.putpixel((2, 15), black)
-    out = ROOT / "resource_pack" / "textures" / "items" / "rpg"
-    im.save(out / "baekho_axe.png")
+    """백호의 도끼 아이템 JSON + 아이콘 등록"""
+    # 아이콘은 gen_baekho_art.py 가 사용자 그림으로 만듦 (textures/items/rpg/baekho_axe.png)
     atlas_p = ROOT / "resource_pack" / "textures" / "item_texture.json"
     atlas = json.loads(atlas_p.read_text())
     atlas["texture_data"].pop("rpg_baekho_claw", None)
