@@ -650,6 +650,28 @@ function descent(ctx) {
     pt(dim, "hm_rune", up(C, 0.08), { r: R * k, h: rot, n: Math.round(150 * k + 30), size: 1.2, life: 0.2, tone: t >= FIN ? 0 : 0.08 });
     if (t % 9 === 0) pt(dim, "hm_rune", up(C, 0.1), { r: R * 0.45 * k, h: -rot * 1.6, n: 60, size: 1, life: 0.2, tone: 0.15 });
   });
+  // 발밑에서 뱀 여덟 마리가 땅을 타고 사방으로 뻗어 나감 → 지나간 자리마다 가시가 솟음, 닿은 적은 물려 밀려남
+  const ARMS = 8, REACH = 14;
+  for (let k = 0; k < ARMS; k++) {
+    const a0 = rad(yaw0) + (k / ARMS) * Math.PI * 2, dir = { x: Math.cos(a0), y: 0, z: Math.sin(a0) }, side = { x: -dir.z, y: 0, z: dir.x }, ph = k * 1.3;
+    const at = (d) => add(add(C, dir, d), side, Math.sin(d * 0.9 + ph) * 0.9);
+    const bitten = new Set();
+    for (let t = 1; t <= 22; t += 1) later(2 + t, () => {
+      const head = Math.min(REACH, t * 0.75), pts = [];
+      for (let i = 0; i <= 14; i++) { const d = head - i * 0.45; if (d < 0) break; pts.push(up(at(d), 0.25 + Math.max(0, 0.3 - i * 0.02))); }
+      if (pts.length > 1 && t % 2 === 0) serpent(dim, pts, { thick: 0.3, life: 0.12, tone: 0.12, dens: 0.6 });
+      if (t % 2 === 1 && head < REACH) { // 지나간 자리에 가시 + 균열
+        const q = at(Math.max(0.5, head - 1.2)), out = norm(add(add(dir, side, (Math.random() - 0.5) * 0.8), UP, 1.4));
+        spike(dim, up(q, -0.2), out, 0.9 + Math.random() * 1.1 + head * 0.06, 0.18 + head * 0.012, { life: 2.2 + Math.random() });
+        crack(dim, q, dir, 0.9, { h: 0.12, n: 12, life: 2.4 });
+        if (t % 4 === 1) rocks(dim, q, { n: 4, r: 0.3, spd: 3.5, life: 0.9 });
+      }
+      for (const e of foesAround(dim, p, at(head), 1.6)) { if (bitten.has(e.id)) continue; bitten.add(e.id); if (hit(e, 0.35, 1)) { M.toss(C, e, 10, 3); M.potion(e, "poison", 1, 2); glow(dim, center(e), { n: 8, spd: 3 }); } }
+      if (t === 22) { const end = at(REACH); spike(dim, up(end, -0.3), norm(add(dir, UP, 2)), 2.4, 0.4, { life: 3 }); rocks(dim, end, { n: 8, r: 0.5, spd: 5 }); }
+    });
+  }
+  later(3, () => { snd(p, "mob.phantom.swoop", 1.2, 0.5); snd(p, "random.fizz", 1, 0.5); });
+  later(10, () => snd(p, "dig.stone", 1.2, 0.6));
   // 먹구름 (돔 위 하늘, 바깥까지 넓게)
   for (let t = 0; t < END; t += 4) later(t, () => {
     for (let k = 0; k < 4; k++) { const a = t * 0.06 + k * 1.57, rr = 7 + ((t * 0.37 + k * 3) % 10); smoke(dim, add(up(C, 15), { x: Math.cos(a) * rr, y: (Math.random() - 0.5), z: Math.sin(a) * rr }), { n: 3, r: 1.5, spd: 0.3, size: 3.4, life: 2.2 }); }
@@ -694,6 +716,13 @@ function descent(ctx) {
     pt(dim, "hm_dome", C, { r: 3 + k * 2.5, scale: 0.8, n: 260, size: 1.6, life: 0.25, tone: 0 });
     pt(dim, "hm_flash", up(C, 1.5), { n: 3, spd: 1, size: 4, life: 0.3 });
     rocks(dim, C, { n: 24, r: 4, spd: 8 });
+    // 파동마다 가시 고리가 솟음 (점점 바깥으로, 3초 남음)
+    const rr = 3.5 + k * 2.2, cnt = 10 + k * 4;
+    for (let j = 0; j < cnt; j++) {
+      const a = (j / cnt) * Math.PI * 2 + k * 0.4, b = { x: C.x + Math.cos(a) * rr, y: C.y - 0.2, z: C.z + Math.sin(a) * rr };
+      const d = norm({ x: Math.cos(a) * 0.7, y: 1, z: Math.sin(a) * 0.7 });
+      for (let g = 0; g < 2; g++) later(g * 2, () => spike(dim, b, d, (1.2 + (j % 3) * 0.5) * (g ? 1 : 0.5), 0.24, { life: g ? 3 : 0.12 }));
+    }
     shake(dim, C, big ? 0.8 : 0.5, 0.5);
     snd(p, "random.explode", 1, 0.6 + k * 0.15);
     snd(p, "item.trident.thunder", 0.6, 0.7 + k * 0.2);
@@ -755,9 +784,11 @@ function descent(ctx) {
     snd(p, "item.trident.thunder", 1.2, 0.5);
     // 바위 기둥 울타리: 돔 둘레에 바깥쪽으로 비스듬히 솟음 (3초 뒤 부서짐)
     const pal = [];
-    for (let k = 0; k < 18; k++) { const a = (k / 18) * Math.PI * 2 + Math.random() * 0.1, rr = R + 0.5 + (k % 2) * 0.9; pal.push({ base: { x: C.x + Math.cos(a) * rr, y: C.y - 0.3, z: C.z + Math.sin(a) * rr }, dir: norm({ x: Math.cos(a) * 0.55, y: 1, z: Math.sin(a) * 0.55 }), L: 3 + Math.random() * 2.2 + (k % 2) * 0.8, th: 0.5 + Math.random() * 0.25 }); }
-    for (let t = 0; t < 6; t++) later(t, () => { const k = ease((t + 1) / 6); for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L * k, s2.th, { life: 0.1 }); });
-    later(6, () => { for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L, s2.th, { life: 3 }); });
+    for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2 + Math.random() * 0.08, rr = R + 0.4 + (k % 2) * 1.1; pal.push({ base: { x: C.x + Math.cos(a) * rr, y: C.y - 0.3, z: C.z + Math.sin(a) * rr }, dir: norm({ x: Math.cos(a) * (0.45 + (k % 2) * 0.25), y: 1, z: Math.sin(a) * (0.45 + (k % 2) * 0.25) }), L: 3 + Math.random() * 2.4 + (k % 2) * 1.2, th: 0.45 + Math.random() * 0.25 }); }
+    for (let k = 0; k < 24; k++) { const a = Math.random() * Math.PI * 2, rr = R + 3 + Math.random() * 6; pal.push({ base: { x: C.x + Math.cos(a) * rr, y: C.y - 0.3, z: C.z + Math.sin(a) * rr }, dir: norm({ x: Math.cos(a) * 0.8 + (Math.random() - 0.5) * 0.4, y: 1, z: Math.sin(a) * 0.8 + (Math.random() - 0.5) * 0.4 }), L: 1.4 + Math.random() * 1.6, th: 0.25 + Math.random() * 0.12 }); } // 바깥 들판에 흩어진 작은 가시
+    for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2 + 0.5; pal.push({ base: { x: C.x + Math.cos(a) * 2, y: C.y - 0.3, z: C.z + Math.sin(a) * 2 }, dir: norm({ x: Math.cos(a) * 0.3, y: 1, z: Math.sin(a) * 0.3 }), L: 4.5 + Math.random() * 1.5, th: 0.6 }); } // 가운데 큰 가시 다발
+    for (let t = 0; t < 2; t++) later(t * 2, () => { const k = ease((t + 1) / 3); for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L * k, s2.th, { life: 0.12, n: 40 }); });
+    later(4, () => { for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L, s2.th, { life: 3 }); });
     later(66, () => { for (const s2 of pal) rocks(dim, add(s2.base, s2.dir, s2.L * 0.5), { n: 6, r: 0.4, spd: 4, tone: 0.2 }); snd(p, "random.glass", 1, 0.5); });
     // 뱀이 돔 꼭대기에서 한가운데로 내리꽂혀 사라짐
     for (let t = 0; t < 8; t++) later(t, () => { const pts = []; for (let k2 = 0; k2 <= 24; k2++) { const y = R + 2 - t * 1.6 + k2 * 0.5; if (y < 0) continue; pts.push({ x: C.x + Math.sin(k2 * 0.4) * 0.6, y: C.y + y, z: C.z + Math.cos(k2 * 0.4) * 0.6 }); } if (pts.length > 1) serpent(dim, pts, { thick: 0.85, life: 0.1, tone: 0.18, size: 1.6, dens: 0.55 }); });
