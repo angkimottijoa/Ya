@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.0.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.1.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,16 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.1 변경
+- 혼돈의 낫 입체 기동 전용 플레이어 애니메이션 6종 추가
+  - gear_fire: 두 팔을 앞 위로 뻗어 줄 발사 (몸 반동)
+  - gear_swing: 줄을 잡고 몸을 앞으로 기울인 그네 자세 (흔들림, 반복 재생)
+  - gear_launch: 줄을 놓으며 몸을 쭉 펴고 날아가는 자세
+  - gear_kick: 다리를 굽혔다가 벽을 힘차게 차는 동작
+  - gear_spin: 지나가며 베는 공중 회전 베기
+  - gear_roll: 착지 시 앞구르기 후 일어서기
+- ③ 쉬점 / ④ 클릭 끌어당기기 / ④ 도착 베기에 연결
 
 ## V12.0 변경
 - 혼돈의 낫 ③ 낫 그네를 **입체 기동**으로 새로 만듦

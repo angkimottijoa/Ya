@@ -201,7 +201,8 @@ function hd_swing_start(p, ctx) {
   const sw = { As, t: 0, done: false, kick: 0 };
   if (s.swing) s.swing.done = true;
   s.swing = sw;
-  M.anim(p, "shoot_up");
+  M.anim(p, "gear_fire");
+  later(5, () => { if (!sw.done) M.anim(p, "gear_swing"); });
   for (const a of As) { planted(dim, a.at, 2.4); pt(dim, "hd_burst", a.at, { n: 10, r: 0.2, spd: 3, life: 0.4 }, 2); }
   snd(p, "item.trident.hit_ground", 0.7, 1.3); snd(p, "random.chestclosed", 0.5, 1.8);
   // 줄을 박는 순간 살짝 당겨 올림
@@ -229,6 +230,7 @@ function hd_swing_start(p, ctx) {
         v.y = Math.max(v.y, 0.55);
         v = add(v, look, 0.35);
         flame(dim, P, { n: 14, r: 0.4, spd: 2.5, life: 0.6, prio: 1 });
+        M.anim(p, "gear_kick");
         snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
         notify(p, "§5벽 차기!");
       }
@@ -236,16 +238,17 @@ function hd_swing_start(p, ctx) {
     const h = Math.hypot(v.x, v.z);
     try { p.applyKnockback(h > 0.001 ? v.x / h : 0, h > 0.001 ? v.z / h : 0, h, v.y); } catch {}
     // 연출: 두 줄(양손에서), 등 뒤 보랏빛 연기 분사, 손에 든 낫이 돌아감
+    if (sw.t % 16 === 5 && sw.t - sw.kick > 6) M.anim(p, "gear_swing"); // 그네 자세 유지 (흔들림)
     if (sw.t % 2 === 0) {
       const yw = yawOf(p), rr = rightOf(yw);
       sw.As.forEach((a, i) => tether(dim, a.ent?.isValid() ? center(a.ent) : a.at, add(up(p.location, 1.2), rr, sw.As.length > 1 ? (i ? 0.4 : -0.4) : 0), 0.12));
       flame(dim, add(up(p.location, 1), fwdOf(yw), -0.5), { n: 4, r: 0.15, spd: 2.2, life: 0.6, vd: scl2(norm(v), -1.5), prio: 2 });
     }
     // 지나가며 자동 베기 (가까운 적)
-    for (const e of foes(dim, p.location, 2.4)) if (hit(e, 0.55, 10)) { const cc = up(p.location, 1); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.7, 1.2); }
+    for (const e of foes(dim, p.location, 2.4)) if (hit(e, 0.55, 10)) { const cc = up(p.location, 1); M.anim(p, "gear_spin"); later(7, () => { if (!sw.done) M.anim(p, "gear_swing"); }); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.7, 1.2); }
     // 착지: 구르기 (앞으로 짧게 + 연기)
     let g = false; try { g = p.isOnGround; } catch {}
-    if ((g && sw.t > 6) || sw.t > 60) { sw.done = true; if (s.swing === sw) s.swing = null; if (g) { const f = flatN(v.x || v.z ? v : viewOf(p)); try { p.applyKnockback(f.x, f.z, 0.9, 0.05); } catch {} flame(dim, up(p.location, 0.3), { n: 10, r: 0.5, spd: 1.2, life: 0.7, prio: 2 }); M.anim(p, "dash"); } return; }
+    if ((g && sw.t > 6) || sw.t > 60) { sw.done = true; if (s.swing === sw) s.swing = null; if (g) { const f = flatN(v.x || v.z ? v : viewOf(p)); try { p.applyKnockback(f.x, f.z, 0.9, 0.05); } catch {} flame(dim, up(p.location, 0.3), { n: 10, r: 0.5, spd: 1.2, life: 0.7, prio: 2 }); M.anim(p, "gear_roll"); snd(p, "step.grass", 1, 0.8); } return; }
     later(1, tick);
   };
   later(1, tick);
@@ -260,7 +263,7 @@ function hd_swing_launch(p) {
   let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
   const look = viewOf(p), nv = add(add(scl2(v, 1.1), look, 0.9), UP, 0.35), h = Math.hypot(nv.x, nv.z);
   try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, Math.min(2.6, h), Math.min(1.4, nv.y)); } catch {}
-  M.anim(p, "dash");
+  M.anim(p, "gear_launch");
   darc(p.dimension, up(p.location, 1.1), yawOf(p), { r: 2.6, sweep: 200, n: 140, life: 0.4 });
   flame(p.dimension, up(p.location, 1), { n: 14, r: 0.4, spd: 3, life: 0.7, vd: scl2(look, -2) });
   snd(p, "mob.phantom.swoop", 1, 1.5);
@@ -301,6 +304,7 @@ function hd_reel(p) {
   const dim = p.dimension, hit = hitter(s.ctx), id = (g.reel = (g.reel ?? 0) + 1);
   if (s.swing) { s.swing.done = true; s.swing = null; }
   planted(dim, A.at, 0.6);
+  M.anim(p, "gear_fire"); later(5, () => M.anim(p, "gear_launch"));
   snd(p, "random.chestclosed", 0.6, 1.6); snd(p, "mob.phantom.swoop", 0.7, 1.3);
   let k = 0;
   const pull = () => {
@@ -312,6 +316,7 @@ function hd_reel(p) {
     if (L < 2.6 || k > 14) {
       if (A.ent) { // 도착: 낫 회전 베기
         const c = up(p.location, 1);
+        M.anim(p, "gear_spin");
         scythe(dim, c, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 900, life: 0.3, scale: 0.05 });
         darc(dim, c, yawOf(p), { sweep: 380, r: 3, dur: 0.2, n: 220, life: 0.45 });
         for (const e of foes(dim, c, 3.4)) if (hit(e, 0.85, 1)) { flame(dim, center(e), { n: 10, r: 0.3, spd: 3 }); try { e.applyKnockback(d.x / (h || 1), d.z / (h || 1), 0.8, 0.4); } catch {} }
