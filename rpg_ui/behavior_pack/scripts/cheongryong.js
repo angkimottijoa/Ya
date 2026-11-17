@@ -791,25 +791,28 @@ function dragonDiveMain(ctx, hit) {
   const SEGS = 24, PX = 0.048, NECK_X = -180 * PX, NECK_Y = 24 * PX, STRIP = 24 * PX;
   // 몸통 = 밧줄처럼 이어진 사슬: 0번(목)은 머리에 붙고, 나머지 마디는 앞 마디를 따라감(길이 고정) + 원래 S자 모양으로 천천히 돌아감
   //   → 앞으로 가면 몸이 지나온 길을 따라 이어지고, 내리꽂을 때 머리부터 꺾이고 몸이 자연스럽게 따라옴
-  let chain = null;
+  let chain = null, follow = 0; // follow: 1 = 몸이 머리가 지나간 길을 그대로 따라감
   const tail = (at, pitch, grow, life) => {
-    const sc = 1.1 * grow, hd = { yaw: yawS, pitch }, tt = tick0;
-    // 원래 모양(쉴 때 S자): 머리 그림 면 위의 점들
+    const sc = 1.1 * grow, tt = tick0;
+    // 원래 모양(쉴 때 S자): 목은 머리에 붙지만, 몸 방향은 머리가 아래를 봐도 거의 수평으로 유지
+    //   (머리 각도를 그대로 쓰면 내리꽂을 때 몸이 머리 뒤로 수직으로 들려 버림)
+    const hd = { yaw: yawS, pitch: Math.max(-12, Math.min(20, pitch)) };
+    const neck = headPt(at, { yaw: yawS, pitch }, NECK_X, NECK_Y, 0, sc), off = sub(neck, headPt(at, hd, NECK_X, NECK_Y, 0, sc));
     const rest = [], lens = [];
     let x = NECK_X, y = NECK_Y, dist = 0;
-    rest.push(headPt(at, hd, x, y, 0, sc));
+    rest.push(neck);
     for (let k = 0; k < SEGS; k++) {
       const taper = 1 - (k / SEGS) * 0.72, ln = STRIP * taper * 0.8;
       const env = Math.min(1, dist / 2.5);
       const slope = Math.sin(((dist * 26) - tt * 24) * Math.PI / 180) * 0.55 * env;
       x -= ln * Math.cos(slope); y += ln * Math.sin(slope); dist += ln;
-      rest.push(headPt(at, hd, x, y, 0, sc));
+      rest.push(add(headPt(at, hd, x, y, 0, sc), off));
       lens.push(ln * sc);
     }
     if (!chain) chain = rest.map((q) => ({ ...q }));
     chain[0] = rest[0];
     for (let k = 1; k <= SEGS; k++) {
-      const pull = 0.1 + (k / SEGS) * 0.05; // 원래 모양으로 천천히 (꼬리일수록 조금 더)
+      const pull = (0.1 + (k / SEGS) * 0.05) * (1 - follow * 0.75); // 원래 모양으로 천천히 (내리꽂는 중엔 거의 길만 따라감)
       let q = add(chain[k], sub(rest[k], chain[k]), pull);
       const d = sub(q, chain[k - 1]), L = Math.hypot(d.x, d.y, d.z) || 0.001;
       chain[k] = add(chain[k - 1], d, lens[k - 1] / L); // 앞 마디와 거리 고정
@@ -872,6 +875,7 @@ function dragonDiveMain(ctx, hit) {
         at = add(anchor(yawS, 1.4 + lift * 1.2 - k * 1.6), fwdOf(yawS), k * 1.5);
       }
       pitchS += (pitch - pitchS) * 0.2;
+      if (diveT >= 0) follow = Math.min(1, follow + 0.1);
       draw(at, pitchS, grow);
       if (t % 3 === 0) cluster(dim, at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
       if (t % 6 === 0) snow(dim, at, 4, 4);
