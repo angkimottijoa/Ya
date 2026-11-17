@@ -255,6 +255,7 @@ const refillDelay = (st) => (st.ammo <= 0 ? REFILL_EMPTY : REFILL_PART);
 function refill(p, st) {
   if (st.ammo >= AMMO || system.currentTick - st.last < refillDelay(st)) return;
   st.ammo = AMMO;
+  say(p, `§6§l장전 완료! §r§f🔥 ${AMMO}/${AMMO}`);
   M.anim(p, "reload");
   M.sound(p, "random.bow", 0.8, 1.6);
   const dim = p.dimension;
@@ -268,7 +269,8 @@ export function ammoLine(p) {
   refill(p, st);
   const now = system.currentTick, stage = now > st.until ? 0 : st.stage;
   const left = st.ammo < AMMO ? Math.max(0, Math.ceil((refillDelay(st) - (now - st.last)) / 20)) : 0;
-  return `§6🔥 §f${"|".repeat(st.ammo)}§8${"|".repeat(AMMO - st.ammo)} §f${st.ammo}/${AMMO}` + (stage ? `  §c${stage + 1}단` : "") + (left && st.ammo < AMMO ? `  §7장전 ${left}s` : "");
+  const reloadTxt = st.ammo <= 0 ? `  §c§l장전 중... §r§f${left}s` : st.ammo < AMMO ? `  §7자동 장전까지 §f${left}s` : "";
+  return `§6🔥 §f${"|".repeat(st.ammo)}§8${"|".repeat(AMMO - st.ammo)} §f${st.ammo}/${AMMO}` + (stage ? `  §c${stage + 1}단` : "") + reloadTxt;
 }
 function flameShot(ctx) {
   const { p } = ctx, now = system.currentTick;
