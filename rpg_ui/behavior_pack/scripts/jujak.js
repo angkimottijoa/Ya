@@ -483,7 +483,7 @@ system.runInterval(() => {
 }, 5);
 
 // ───────── ② 주작 · 연사 (쉬프트+클릭) ─────────
-// 뒤로 물러서며 등에 3D 불 날개 → 바닥에 눕힌 거대한 활로 연속 사격 → 날개가 하늘로 솟아 흩어지며 깃털 하나하나가 불화살 비가 됨
+// 뒤로 물러서며 등에 3D 불 날개 → 등 뒤 양옆 활 6개가 목표를 향해 세 번 일제 사격 → 날개가 하늘로 솟아 흩어지며 깃털 하나하나가 불화살 비가 됨
 /** 3D 불 날개 깃털 목록 (새 날개 구조): 어깨 → 팔꿈치 → 손목 뼈대를 따라
  *  칼깃(손목에서 바깥·아래로 긴 깃) · 둘째깃(팔을 따라 아래·뒤로) · 덮깃(팔 위 짧은 깃), 모두 살짝 뒤로 젖혀 입체감
  *  flap = 날갯짓(라디안, 어깨를 축으로 위아래), open = 펼침 정도 */
@@ -540,18 +540,44 @@ function rapidFire(ctx) {
     if (t % 6 === 0) ember(dim, back(), { n: 6, r: 0.8, spd: 1, life: 0.6, tone: 0.1 });
     if (t % 10 === 0) M.sound(p, "mob.enderdragon.flap", 0.5, 1.6);
   });
-  // 6~27: 바닥에 눕힌 거대한 활로 8발 연속 사격
-  for (let t = 6; t <= 30; t += 3) later(t, () => {
-    const L = p.location, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), v = viewOf(p);
-    const SB = 0.05, H = add(up(L, 0.15), f, 1.6);
-    pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u: f, v: r, scale: SB, n: Math.round((BOW.filled * 0.8) / BOW.fill), life: 0.25, size: 1 });
-    if (t <= 27) {
-      M.anim(p, "shoot");
-      const start = add(eyeOf(p), v, 1), d = norm(add(v, add(scl(r, (Math.random() - 0.5) * 0.12), UP, (Math.random() - 0.5) * 0.06), 1));
-      fireArrow(ctx, start, d, { mul: 0.55, radius: 1.5, speed: 2.6, onHit: (e) => { impact = { ...e.location }; } });
-      M.sound(p, "random.bow", 0.8, 1.3 + Math.random() * 0.3);
-      ember(dim, add(start, v, 0.5), { n: 4, r: 0.15, spd: 1.5, life: 0.4, tone: 0 });
-    }
+  // 4~24: 등 뒤 양옆에 활 6개가 펼쳐져 목표를 겨눔 → 세 번 한꺼번에 일제 사격
+  const tgt0 = (() => { try { const h = p.getEntitiesFromViewDirection({ maxDistance: 40 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id); if (h) return h; } catch {} return null; })();
+  const aimPoint = () => (tgt0?.isValid() ? center(tgt0) : add(eyeOf(p), viewOf(p), 22));
+  const bowSpots = () => {
+    const L = p.location, yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), out = [];
+    for (const s2 of [-1, 1]) for (const [side, h, bk] of [[1.7, 1.1, 1.3], [2.8, 2.1, 1.7], [1.5, 3.0, 1.1]]) out.push(add(add(add(L, r, s2 * side), UP, h), f, -bk));
+    return out;
+  };
+  const SBs = 0.03;
+  const drawSideBow = (H, aim, k) => {
+    const u = aim, v0 = norm(cross(cross(aim, UP), aim));
+    const vv = len(v0) > 0.1 ? v0 : UP; // 그림 위쪽 = 하늘 쪽
+    const toW = (ix, iy) => add(add(H, u, (ix - BOW.cx) * SBs), vv, (BOW.cy - iy) * SBs);
+    const tipT = toW(BOW.top[0], BOW.top[1]), tipB = toW(BOW.bot[0], BOW.bot[1]);
+    const nock = add(scl(add(tipT, tipB), 0.5), aim, -0.7 * k);
+    return { tipT, tipB, nock, u, vv };
+  };
+  for (let t = 4; t <= 26; t += 2) later(t, () => {
+    const ap = aimPoint(), k = ((t - 4) % 6) / 5; // 쏠 때마다 시위를 다시 당김
+    bowSpots().forEach((H, i) => {
+      const aim = norm(sub(ap, H)), b = drawSideBow(H, aim, k);
+      if (t % 4 === 0) pt(dim, "jj_bow", H, { cx: BOW.cx, cy: BOW.cy, u: b.u, v: b.vv, scale: SBs, n: 1400, life: 0.3, size: 1.2 });
+      trail(dim, b.tipT, b.nock, { size: 0.7, life: 0.12, n: 12, tone: 0.3 });
+      trail(dim, b.tipB, b.nock, { size: 0.7, life: 0.12, n: 12, tone: 0.3 });
+      if (t === 4) ember(dim, H, { n: 12, r: 0.5, spd: 1.5, life: 0.6, tone: 0 });
+    });
+    if (t === 4) M.sound(p, "mob.blaze.shoot", 0.8, 1.4);
+  });
+  for (const t of [10, 16, 22]) later(t, () => { // 일제 사격
+    M.anim(p, "shoot");
+    const ap = aimPoint();
+    bowSpots().forEach((H) => {
+      const aim = norm(sub(ap, H)), b = drawSideBow(H, aim, 1);
+      fireArrow(ctx, add(b.nock, aim, 0.4), aim, { mul: 0.45, radius: 1.5, speed: 2.6, onHit: (e) => { impact = { ...e.location }; } });
+      ember(dim, b.nock, { n: 4, r: 0.15, spd: 1.5, life: 0.4, tone: 0 });
+    });
+    M.sound(p, "random.bow", 1.2, 1.1);
+    M.sound(p, "mob.blaze.shoot", 0.6, 1.3);
   });
   // 32~44: 날개가 크게 펼쳐지며 하늘로 솟음 → 44: 흩어짐, 깃털 하나하나가 불화살이 되어 떨어짐
   const base0 = { v: null };
@@ -608,6 +634,6 @@ function rapidFire(ctx) {
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
-    { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러섰다가 바닥에 눕힌 거대한 활로 불화살 8발 연속 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
+    { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러서면 등 뒤 양옆에 활 6개가 나타나 목표를 향해 세 번 일제 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
   ],
 };
