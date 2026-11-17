@@ -487,24 +487,24 @@ system.runInterval(() => {
 /** 3D 불 날개 깃털 목록 (새 날개 구조): 어깨 → 팔꿈치 → 손목 뼈대를 따라
  *  칼깃(손목에서 바깥·아래로 긴 깃) · 둘째깃(팔을 따라 아래·뒤로) · 덮깃(팔 위 짧은 깃), 모두 살짝 뒤로 젖혀 입체감
  *  flap = 날갯짓(라디안, 어깨를 축으로 위아래), open = 펼침 정도 */
-function wingFeathers(base, yaw, flap = 0, open = 1) {
+function wingFeathers(base, yaw, flap = 0, open = 1, k = 1) {
   const f = fwdOf(yaw), r = rightOf(yaw), out = [];
   for (const s2 of [-1, 1]) {
     const rr = scl(r, s2);
     // 날갯짓: (바깥, 위) 평면에서 어깨를 축으로 회전
     const rot = (v) => { const x = v.x * rr.x + v.z * rr.z, y = v.y, fb = v.x * f.x + v.z * f.z, c = Math.cos(flap), sn = Math.sin(flap);
       const nx = x * c - y * sn, ny = x * sn + y * c; return add(add(scl(rr, nx), UP, ny), f, fb); };
-    const S0 = add(base, rr, 0.2);
-    const E = add(S0, rot(add(add(scl(rr, 0.9 * open), UP, 0.55), f, -0.1)), 1);
-    const W = add(E, rot(add(add(scl(rr, 0.95 * open), UP, 0.12), f, -0.18)), 1);
-    const push = (root, d, l, tone) => { const dir = norm(rot(d)); out.push({ root, dir, bend: norm(cross(dir, f)), len: l, tone, tip: add(root, dir, l) }); };
+    const S0 = add(base, rr, 0.2 * k);
+    const E = add(S0, rot(add(add(scl(rr, 0.9 * open), UP, 0.55), f, -0.1)), k);
+    const W = add(E, rot(add(add(scl(rr, 0.95 * open), UP, 0.12), f, -0.18)), k);
+    const push = (root, d, l, tone) => { const dir = norm(rot(d)), L2 = l === len(sub(E, S0)) || l === len(sub(W, E)) ? l : l * k; out.push({ root, dir, bend: norm(cross(dir, f)), len: L2, tone, tip: add(root, dir, L2) }); };
     // 뼈대(굵은 앞깃)
     push(S0, sub(E, S0), len(sub(E, S0)), 0.05);
     push(E, sub(W, E), len(sub(W, E)), 0.05);
     // 칼깃 5: 손목에서 바깥 → 아래로 펼쳐짐
     for (let i = 0; i < 5; i++) {
       const q = i / 4, a = rad(12 - q * 62);
-      push(add(W, rr, -q * 0.35), add(add(scl(rr, Math.cos(a)), UP, Math.sin(a)), f, -0.45), (2.5 - q * 0.6) * (0.7 + open * 0.3), 0.15);
+      push(add(W, rr, -q * 0.35 * k), add(add(scl(rr, Math.cos(a)), UP, Math.sin(a)), f, -0.45), (2.5 - q * 0.6) * (0.7 + open * 0.3), 0.15);
     }
     // 둘째깃 5: 팔을 따라 아래·뒤로
     for (let i = 0; i < 5; i++) {
@@ -527,7 +527,7 @@ function rapidFire(ctx) {
   M.potion(p, "resistance", 3, 4);
   const yw0 = yawOf(p), f0 = fwdOf(yw0);
   M.anim(p, "dash");
-  try { p.applyKnockback(-f0.x, -f0.z, 1.1, 0.35); } catch {}
+  try { p.applyKnockback(-f0.x, -f0.z, 2.2, 0.5); } catch {} // 뒤로 크게 밀려남
   M.sound(p, "mob.blaze.breathe", 0.8, 1.3);
   M.sound(p, "mob.enderdragon.flap", 0.8, 1.4);
   ember(dim, up(p.location, 0.3), { n: 20, r: 0.6, spd: 2, life: 0.8 });
@@ -630,10 +630,122 @@ function rapidFire(ctx) {
   });
 }
 
+// ───────── ③ 주작 · 비상 (쉬프트+점프) ─────────
+// 뒤로 크게 도약 → 공중에 멈춤(시선 자유) → 등의 불 날개를 크게 세 번 퍼덕여 앞쪽에 불비 → 주작에 빙의해 함께 날아 돌진(지나는 곳마다 폭발) → 큰 폭발
+/** 주작(불새): 몸통 깃털 · 머리(고리 + 부리 + 볏) · 크게 날갯짓하는 날개 · 물결치는 긴 꼬리깃 */
+function phoenix(dim, c, yaw, t, k = 1.4) {
+  const f = fwdOf(yaw), r = rightOf(yaw), flap = Math.sin(t * 0.55) * 0.75; // 진짜 나는 듯한 큰 날갯짓
+  const bob = up(c, Math.sin(t * 0.55 + 1.2) * 0.25);
+  for (const [dy, side] of [[0.25, 0], [0, 0.22], [0, -0.22], [-0.2, 0]]) // 몸통
+    feather(dim, add(add(add(bob, f, 1.3 * k), UP, dy), r, side), scl(f, -1), UP, { len: 2.8 * k, h: 0.06, thick: 0.45, n: 50, life: 0.16, tone: 0.05 });
+  const head = add(add(bob, f, 1.65 * k), UP, 0.45 * k);
+  ring(dim, head, f, UP, 0.32 * k, { life: 0.16, tone: 0, n: 26 });
+  trail(dim, add(head, f, 0.3 * k), add(add(head, f, 0.85 * k), UP, -0.12), { size: 0.9, life: 0.16, n: 10, tone: 0.25 }); // 부리
+  for (const a of [70, 95, 120]) { const d = norm(add(scl(f, Math.cos(rad(a))), UP, Math.sin(rad(a)))); feather(dim, add(head, UP, 0.2 * k), norm(add(d, f, -0.6)), f, { len: 0.9 * k, n: 14, life: 0.16, tone: 0 }); } // 볏
+  ember(dim, add(add(head, f, 0.15), r, 0.2), { n: 1, r: 0, spd: 0, life: 0.12, tone: -0.3 });
+  drawWings(dim, wingFeathers(up(bob, 0.35), yaw, flap, 1.25, k * 1.25), 0.16, 1.1);
+  for (let i = -2; i <= 2; i++) { // 긴 꼬리깃
+    const d = norm(add(add(scl(f, -1), r, i * 0.22), UP, Math.sin(t * 0.4 + i) * 0.25 - 0.1));
+    feather(dim, add(bob, f, -1.4 * k), d, norm(cross(d, f)), { len: (3.4 - Math.abs(i) * 0.4) * k, h: 0.15, n: 40, life: 0.16, tone: 0.15 });
+  }
+}
+function soar(ctx) {
+  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
+  M.potion(p, "resistance", 5, 4.5);
+  M.potion(p, "fire_resistance", 1, 6);
+  skillLock.add(p.id);
+  const f0 = fwdOf(yawOf(p));
+  M.anim(p, "dash");
+  try { p.applyKnockback(-f0.x, -f0.z, 2.0, 1.05); } catch {} // 뒤로 크게 도약
+  M.sound(p, "mob.enderdragon.flap", 1.2, 1.1);
+  ember(dim, up(p.location, 0.2), { n: 30, r: 0.8, spd: 3, life: 0.8 });
+  const back = () => add(up(p.location, 1.4), fwdOf(yawOf(p)), -0.35);
+  let hold = null;
+  // 1~31: 날개, 8부터 공중에 멈춤 (몸은 고정, 시선은 자유)
+  for (let t = 1; t <= 31; t++) later(t, () => {
+    if (t >= 8) {
+      if (!hold) hold = { ...p.location };
+      try { p.applyKnockback(0, 0, 0, 0.03); } catch {}
+      try { const pl = p.location; if (Math.hypot(pl.x - hold.x, pl.y - hold.y, pl.z - hold.z) > 1.2) p.teleport(hold, { keepVelocity: false }); } catch {}
+    }
+    if (t % 2 === 0) {
+      const flap = t < 10 ? Math.sin(t * 0.35) * 0.2 : Math.sin((t - 10) * 0.39) * 0.75; // 멈춘 뒤엔 크게 퍼덕임
+      drawWings(dim, wingFeathers(back(), yawOf(p), flap, 1.2, 1.25), 0.16, 1.1);
+    }
+  });
+  // 크게 세 번 퍼덕일 때마다 앞쪽에 불비
+  for (const t of [14, 22, 30]) later(t, () => {
+    const L = p.location, v = viewOf(p), c = add({ x: L.x, y: L.y, z: L.z }, { x: v.x, y: 0, z: v.z }, 11);
+    let gy = L.y; try { const top = dim.getTopmostBlock({ x: Math.floor(c.x), z: Math.floor(c.z) }); if (top) gy = top.location.y + 1; } catch {}
+    M.sound(p, "mob.enderdragon.flap", 1.4, 0.8);
+    shake(dim, L, 0.25, 0.25);
+    for (let i = 0; i < 10; i++) later(i % 5, () => {
+      const a = Math.random() * Math.PI * 2, rr = Math.random() * 5;
+      const land = { x: c.x + Math.cos(a) * rr, y: gy, z: c.z + Math.sin(a) * rr };
+      const from = add(back(), { x: (Math.random() - 0.5) * 4, y: 1 + Math.random() * 2, z: (Math.random() - 0.5) * 4 });
+      const d = norm(sub(land, from)), dist = len(sub(land, from));
+      let pos = from, k = 0;
+      const fall = () => {
+        k++;
+        const next = add(pos, d, Math.max(2, dist / 6));
+        trail(dim, pos, next, { size: 1.2, life: 0.3, n: 14 });
+        pos = next;
+        if (len(sub(pos, from)) >= dist - 0.2 || k > 9) {
+          fireBoom(dim, up(land, 0.3), { n: 4, r: 0.3, spd: 2.5, size: 1.3 });
+          ember(dim, up(land, 0.3), { n: 8, r: 0.3, spd: 3, life: 0.7 });
+          for (const e of enemiesNear(dim, p, up(land, 0.5), 2.2, 1)) hit(e, 0.45, 3);
+          return;
+        }
+        later(1, fall);
+      };
+      fall();
+    });
+  });
+  // 32: 주작에 빙의 → 34~49: 함께 날아 돌진
+  later(32, () => {
+    flashScreen(p, 1, 0.5, 0.1, 0.35);
+    M.sound(p, "mob.blaze.shoot", 1.5, 0.5);
+    M.sound(p, "mob.enderdragon.growl", 0.7, 1.8);
+    fireBoom(dim, up(p.location, 1), { n: 16, r: 1, spd: 4, size: 2 });
+    pt(dim, "jj_ring", p.location, { n: 50, r: 0.5, spd: 9, size: 1.6, life: 0.5, tone: 0 });
+  });
+  for (let t = 32; t <= 50; t++) later(t, () => {
+    const yw = yawOf(p), v = viewOf(p), L = p.location;
+    if (t >= 34 && t <= 48) {
+      const d = norm({ x: v.x, y: Math.max(-0.35, Math.min(0.25, v.y)), z: v.z });
+      try { p.applyKnockback(d.x, d.z, 1.7, d.y * 1.5 + 0.05); } catch {}
+      if (t % 2 === 0) {
+        fireBoom(dim, up(L, 0.8), { n: 5, r: 0.6, spd: 2.5, size: 1.6, tone: 0.1 });
+        pt(dim, "jj_ring", up(L, 0.1), { n: 24, r: 0.4, spd: 6, size: 1.2, life: 0.4, tone: 0.2 });
+        try { dim.spawnParticle("minecraft:large_explosion", up(L, 0.6)); } catch {}
+        for (const e of enemiesNear(dim, p, up(L, 0.9), 3.4, 1.5)) { hit(e, 0.8, 4); M.toss(L, e, 1.2, 2); }
+        if (t % 4 === 0) M.sound(p, "random.explode", 0.6, 1.3);
+      }
+    }
+    if (t % 2 === 0) phoenix(dim, up(L, 0.9), yw, t);
+    ember(dim, up(L, 0.8), { n: 4, r: 0.5, spd: 1, life: 0.6 });
+  });
+  // 51: 큰 폭발
+  later(51, () => {
+    const L = p.location;
+    try { dim.spawnParticle("minecraft:huge_explosion_emitter", up(L, 0.5)); } catch {}
+    fireBoom(dim, up(L, 0.8), { n: 28, r: 1.6, spd: 7, size: 3, life: 1.1 });
+    ember(dim, up(L, 0.8), { n: 70, r: 1, spd: 8, life: 1.2 });
+    for (const [d, spd, tone] of [[0, 8, 0], [3, 13, 0.2], [6, 18, 0.4]]) later(d, () => pt(dim, "jj_ring", L, { n: 60, r: 0.5, spd, size: 2.1, life: 0.7, tone }));
+    for (const e of enemiesNear(dim, p, up(L, 0.8), 6, 2)) { hit(e, 2.2, 6); M.toss(L, e, 1.8, 3); }
+    flashScreen(p, 1, 0.55, 0.15, 0.4);
+    shake(dim, L, 0.8, 0.6);
+    M.sound(p, "random.explode", 1.5, 0.8);
+    skillLock.delete(p.id);
+  });
+  later(80, () => skillLock.delete(p.id)); // 안전장치
+}
+
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
+    { id: "w_jj_3", key: 3, name: "주작 · 비상", short: "비상", lv: 1, mp: 40, cd: 18, pow: 1, run: soar, desc: "뒤로 크게 도약해 공중에 멈춘 뒤 불 날개를 세 번 퍼덕여 불비를 내리고, 주작에 빙의해 함께 날아 돌진하며 폭발." },
     { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러서면 등 뒤 양옆에 활 6개가 나타나 목표를 향해 세 번 일제 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
   ],
 };
