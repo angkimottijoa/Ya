@@ -738,18 +738,13 @@ function soar(ctx) {
   };
   const SAm = 2.6 / AR.iw, SBg = 0.15; // 곁 화살 2.6블록, 거대한 활 길이 약 11블록
   const yawTo = (d) => (Math.atan2(-d.x, d.z) * 180) / Math.PI;
-  let ground = null; // 활을 눕힐 땅 높이 (처음 한 번 정함)
   const giant = (k) => {
     const eye = eyeOf(p), tgt = aimAt(), d = norm(sub(tgt, eye));
     const side = norm(len(cross(d, UP)) > 0.1 ? cross(d, UP) : rightOf(yawOf(p))), upv = norm(cross(side, d));
     const around = [90, 210, 330].map((deg) => add(add(eye, side, Math.cos(rad(deg)) * 1.7), upv, Math.sin(rad(deg)) * 1.7));
-    // 거대한 활: 플레이어 앞 땅바닥에 눕혀 놓음 (활 배 = 조준 방향(수평), 활 위아래 끝 = 좌우)
+    // 거대한 활: 땅이 아니라 공중에 떠 있는 플레이어 자리에 눕혀 놓음 (허리 높이 수평면, 활 배 = 조준 방향, 활 위아래 끝 = 좌우)
     const dh = norm({ x: d.x, y: 0, z: d.z }), sh = norm(cross(dh, UP));
-    if (ground == null) {
-      ground = p.location.y - 3;
-      try { const L = p.location, top = dim.getTopmostBlock({ x: Math.floor(L.x + dh.x * 5), z: Math.floor(L.z + dh.z * 5) }); if (top && top.location.y < L.y + 2) ground = top.location.y + 1.15; } catch {}
-    }
-    const H = { x: p.location.x + dh.x * 5.5, y: ground, z: p.location.z + dh.z * 5.5 };
+    const H = { x: p.location.x + dh.x * 1.6, y: p.location.y + 0.9, z: p.location.z + dh.z * 1.6 };
     const rel = (ix, iy) => add(scl(dh, (ix - BOW.cx) * SBg), sh, (BOW.cy - iy) * SBg);
     const tipT = add(H, rel(BOW.top[0], BOW.top[1])), tipB = add(H, rel(BOW.bot[0], BOW.bot[1]));
     const nock = add(scl(add(tipT, tipB), 0.5), dh, -4.2 * k);
@@ -765,7 +760,7 @@ function soar(ctx) {
     if (t === 32) for (let j = 0; j < 8; j++) { const a = (j / 8) * Math.PI * 2; ember(dim, add(G.H, { x: Math.cos(a) * 5, y: 0.2, z: Math.sin(a) * 5 }), { n: 6, r: 0.5, spd: 1.5, life: 0.8, tone: 0 }); }
     trail(dim, G.tipT, G.nock, { size: 2.2, life: 0.16, n: 60, tone: 0.3 });
     trail(dim, G.tipB, G.nock, { size: 2.2, life: 0.16, n: 60, tone: 0.3 });
-    phoenix(dim, up(add(G.nock, G.dh, 1.5), 0.8), yawTo(G.dh), t * 0.5, 0.7 + k * 0.6); // 땅에 눕힌 활 시위에 걸린 주작이 점점 커짐
+    phoenix(dim, up(add(G.nock, G.dh, 1.5), 0.8), yawTo(G.dh), t * 0.5, 0.7 + k * 0.6); // 플레이어 자리에 눕힌 활 시위에 걸린 주작이 점점 커짐
     if (t % 4 === 0) M.sound(p, "note.pling", 0.6 + k * 0.4, 0.6 + k * 1.2);
     if (t === 32) { M.sound(p, "mob.blaze.shoot", 1.3, 0.6); flashScreen(p, 1, 0.55, 0.15, 0.25); ember(dim, G.H, { n: 40, r: 2, spd: 2, life: 0.8, tone: 0 }); }
   });

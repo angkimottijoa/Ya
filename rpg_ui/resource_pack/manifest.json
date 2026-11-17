@@ -1,10 +1,10 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Arcania RPG V10.4",
+    "name": "Arcania RPG V10.5",
     "description": "RPG UI: 메뉴, 배낭, 퀘스트, 파티, 직업, 상점 + 테마",
     "uuid": "2dced61c-c268-4bce-aa75-5833232c5d9e",
-    "version": [4, 10, 4],
+    "version": [4, 10, 5],
     "min_engine_version": [
       1,
       21,
@@ -15,13 +15,13 @@
     {
       "type": "resources",
       "uuid": "d9ae8774-36d8-44cc-b96c-09951f34d1a1",
-      "version": [4, 10, 4]
+      "version": [4, 10, 5]
     }
   ],
   "dependencies": [
     {
       "uuid": "b30c3da6-e088-486a-8bfb-89a22c7d48d2",
-      "version": [4, 10, 4]
+      "version": [4, 10, 5]
     }
   ]
 }
