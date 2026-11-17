@@ -136,6 +136,14 @@ def main():
         # 60% 는 연기 뭉치(크게, 천천히 부풂), 나머지는 불티
         "minecraft:particle_appearance_billboard": bb(f"variable.size * ({R4} < 0.6 ? (0.42 + {R4} * 0.35) * (0.6 + {AGE} * 0.7) : (0.14 + {R4} * 0.1) * (1 - {AGE} * 0.8))", f"({R4} < 0.6 ? {3 * SPR} : 0)"),
         **tint(FLAME, f"math.clamp({AGE} * 0.75 + {R2} * 0.2 + ({R4} < 0.6 ? 0.18 : 0) + variable.tone, 0, 1)")})
+    # 낫 줄(그네 · 감기): u 방향 길이 r, 보랏빛 연기 줄 + 일렁임
+    part("hd_line", "rpg_hd", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {R1} * variable.r + ({R2} - 0.5) * 0.12" for c in "xyz"], "direction": [f"({R3} - 0.5)", 0.3, f"({R2} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.5)"},
+        "minecraft:particle_initial_speed": f"0.4 * {R4}",
+        "minecraft:particle_motion_dynamic": {"linear_drag_coefficient": 2},
+        "minecraft:particle_appearance_billboard": bb(f"variable.size * ({R4} < 0.35 ? 0.26 : 0.1) * (1 - {AGE} * 0.6)", f"({R4} < 0.35 ? {3 * SPR} : 0)"),
+        **tint(FLAME, f"math.clamp(0.25 + {R2} * 0.3 + {AGE} * 0.3, 0, 1)")})
     # 보랏빛 낫 호 (불꽃 잔영이 뒤로 흩날림)
     sq = R1
     sth = f"(variable.a0 + (variable.a1 - variable.a0) * {sq})"
