@@ -87,7 +87,7 @@ function boomRings(dim, at, o = {}) {
   const rings = o.rings ?? [[0, 7, 0], [3, 11, 0.85], [6, 15, 0], [10, 19, 0.85]]; // [지연, 퍼지는 속도, 색]
   for (const [d, spd, tone] of rings) later(d + 1, () => {
     pt(dim, "bh_boomring", up(at, 0.2), { n: o.n ?? 70, r: 0.6, spd, size: o.size ?? 1.9, life: o.life ?? 0.75, tone });
-    pt(dim, "bh_boomring", up(at, 0.9), { n: Math.round((o.n ?? 70) * 0.5), r: 0.4, spd: spd * 0.85, size: (o.size ?? 1.9) * 0.8, life: (o.life ?? 0.75) * 0.9, tone: tone ? 0 : 0.85 });
+    if (d === 0) pt(dim, "bh_boomring", up(at, 0.9), { n: Math.round((o.n ?? 70) * 0.5), r: 0.4, spd: spd * 0.85, size: (o.size ?? 1.9) * 0.8, life: (o.life ?? 0.75) * 0.9, tone: tone ? 0 : 0.85 });
   });
 }
 /** 땅을 타고 번지는 폭발 고리 */
@@ -277,7 +277,7 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
 function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
   const N = norm(sub(N0, scl(D, dot3(N0, D)))), S = cross(D, N);
   const P = (d, n, s) => add(add(add(W, D, d * k), N, n * k), S, s * k);
-  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 26, ...o });
+  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 14, size: 1.4, ...o, ...(o.dens ? { dens: o.dens * 0.5 } : {}) });
   const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.05, r, r, o); };
   // 팔뚝: 굵은 근육 + 가는 고리 줄무늬, 털이 손목 쪽으로 뻗침
   const flex = Math.sin(t * 0.8) * 0.05;
@@ -349,16 +349,15 @@ function apex(ctx) {
   M.sound(p, "mob.ravager.roar", 1.4, 0.7);
   M.sound(p, "random.explode", 1.2, 0.8);
   boom(dim, up(o, 0.4), true);
-  boomWave(dim, o, { r: 0.5, spd: 14, n: 220, dur: 0.5, size: 2.2 });
-  later(4, () => boomWave(dim, o, { r: 0.5, spd: 8, n: 120, dur: 0.4, size: 1.6, tone: 0.85 }));
-  pt(dim, "bh_shock", up(o, 0.15), { n: 240, spd: 14, size: 1.3 });
+  boomRings(dim, o, { n: 50, size: 2, rings: [[0, 8, 0], [4, 13, 0.85]] });
+  pt(dim, "bh_shock", up(o, 0.15), { n: 140, spd: 14, size: 1.4 });
   shake(dim, o, 0.7, 0.6);
   for (const e of [p, ...crowd]) {
     try { e.applyKnockback(0, 0, 0, e === p ? 2.3 : 2.0); } catch {}
     later(7, () => { M.potion(e, "levitation", 1, 1.0); M.potion(e, "slow_falling", 1, 3.2); });
     later(24, () => M.potion(e, "levitation", 1, 0.6)); // 공중에 오래 머묾
     // 솟구치는 동안 몸에서 폭발 뭉게 꼬리
-    for (let t = 1; t <= 8; t += 2) later(t, () => { if (e.isValid()) pt(dim, "bh_boom", e.location, { n: 3, r: 0.3, spd: 0.8, size: 1.2, life: 0.7, tone: t % 4 === 1 ? 0 : 0.85 }); });
+    if (e === p) for (let t = 1; t <= 8; t += 2) later(t, () => { if (e.isValid()) pt(dim, "bh_boom", e.location, { n: 3, r: 0.3, spd: 0.8, size: 1.2, life: 0.7, tone: t % 4 === 1 ? 0 : 0.85 }); });
   }
   // 8~30: 화면 오른쪽 위에 거대한 백호 앞발이 나타나 → 발톱을 꺼내며 뒤로 치켜듦 → 옆으로 크게 긁어 내림(오른쪽 → 왼쪽) → 흩어짐
   const E0 = add(L, UP, 1.2), T0 = 8, TE = T0 + 22;
@@ -394,7 +393,7 @@ function apex(ctx) {
     const W = cur.st.W;
     if (t === T0) { M.sound(p, "mob.ravager.roar", 1.7, 0.5); smoke(dim, W, { n: 14, r: 3, spd: 2, size: 2.4, life: 1.2 }); }
     if (t > T0 + 8 && t <= T0 + 14) { // 긁을 때 바람 줄기
-      for (let j = 0; j < 4; j++) {
+      for (let j = 0; j < 2; j++) {
         const o2 = add(add(W, camRight, (Math.random() - 0.5) * 6), UP, (Math.random() - 0.5) * 4);
         pt(dim, "bh_line", o2, { u: camRight, v: UP, r: 7, h: 0, n: 30, tone: 0, life: 0.18, size: 1.3, thick: j });
       }
@@ -405,10 +404,11 @@ function apex(ctx) {
     const u = norm(add(side, UP, -0.15)), v = norm(cross(toCam, u)), c = add(E0, toCam, 1.5);
     clawAt(dim, c, u, v, toCam, { r: 15, dots: 4, thick: 1.8, size: 3, n: 1800, dur: 0.22, life: 0.95, h: 70 });
     boom(dim, E0, true);
-    boomWave(dim, add(E0, UP, -1), { r: 0.5, spd: 14, n: 160, dur: 0.4, size: 2 });
+    boomWave(dim, add(E0, UP, -1), { r: 0.5, spd: 14, n: 90, dur: 0.35, size: 2.2 });
+    let nb = 0;
     for (const e of [...crowd, ...M.around(dim, E0, 10)]) {
       hit(e, 2.8);
-      if (e.isValid()) { later(2, () => boom(dim, up(e.location, 1))); try { e.applyKnockback(side.x, side.z, 1.2, 0.2); } catch {} }
+      if (e.isValid()) { if (nb++ < 5) later(2, () => boom(dim, up(e.location, 1))); try { e.applyKnockback(side.x, side.z, 1.2, 0.2); } catch {} }
     }
     shake(dim, E0, 0.9, 0.6);
     M.sound(p, "mob.ravager.bite", 1.6, 0.6);
@@ -434,7 +434,7 @@ function apex(ctx) {
   const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 };
   const axeAt = (H, drop, life = 0.4) => {
     const grip = add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
-    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n: 2600, life });
+    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n: 1700, life });
   };
   let tt = 0, landed = false;
   const fall = () => {
@@ -450,34 +450,29 @@ function apex(ctx) {
     const G = { ...p.location }, H = add(G, f, 6);
     // 내리꽂는 바로 그 순간: 발밑에서 폭발 파동이 즉시 퍼짐 + 폭발 원이 작게 시작해 점점 커짐 (도끼가 박힐 때도 한 번 더)
     boom(dim, up(G, 0.4), true);
-    boomRings(dim, G, { n: 80, size: 2.1 });
-    later(3, () => boomRings(dim, add(G, f, 6), { n: 90, size: 2.4, rings: [[0, 9, 0], [3, 14, 0.85], [6, 19, 0], [10, 24, 0.85], [15, 28, 0]] }));
-    boomWave(dim, G, { r: 0.4, spd: 26, n: 380, dur: 0.45, size: 2.4 });
-    pt(dim, "bh_shock", up(G, 0.15), { n: 260, spd: 22, size: 1.5 });
-    pt(dim, "bh_ripple", G, { r: 0.5, spd: 22, n: 360, life: 0.4, size: 1.3 });
+    later(3, () => boomRings(dim, add(G, f, 6), { n: 56, size: 2.6, rings: [[0, 9, 0], [3, 14, 0.85], [6, 19, 0], [10, 24, 0.85]] }));
+    pt(dim, "bh_shock", up(G, 0.15), { n: 160, spd: 22, size: 1.6 });
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
     // 하늘에서 거대한 빨간 연기 도끼가 떨어져 내리꽂힘 (3틱) → 4초 동안 박혀 연기를 피워 올림
     for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15));
-    for (let t = 3; t < 163; t += 3) later(t, () => axeAt(H, 0, 0.6)); // 8초 동안 박혀 있음
+    for (let t = 3; t < 163; t += 4) later(t, () => axeAt(H, 0, 0.75)); // 8초 동안 박혀 있음
     later(3, () => boom(dim, up(H, 0.5), true));
     // 연쇄 폭발: 박힌 곳에서 바깥으로 두 바퀴
-    for (let k = 0; k < 12; k++) {
-      const a = (k / 12) * Math.PI * 2, r = k % 2 ? 4 : 7;
-      later(4 + k, () => boom(dim, up(add(H, { x: Math.cos(a), y: 0, z: Math.sin(a) }, r), 0.4), k % 4 === 0));
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * Math.PI * 2, r = k % 2 ? 4 : 7;
+      later(4 + k * 2, () => boom(dim, up(add(H, { x: Math.cos(a), y: 0, z: Math.sin(a) }, r), 0.4), false));
     }
-    later(3, () => pt(dim, "bh_shock", up(H, 0.15), { n: 300, spd: 18, size: 1.5 }));
-    for (const [d, spd] of [[0, 16], [5, 12], [10, 9]]) later(d + 3, () => pt(dim, "bh_ripple", H, { r: 0.8, spd, n: 320, life: 0.5, size: 1.2 }));
-    later(3, () => boomWave(dim, H, { r: 0.8, spd: 20, n: 340, dur: 0.6, size: 2.6 }));
-    later(9, () => boomWave(dim, H, { r: 0.8, spd: 13, n: 240, dur: 0.55, size: 2.1, tone: 0.85 }));
-    later(15, () => boomWave(dim, H, { r: 0.8, spd: 8, n: 160, dur: 0.5, size: 1.7 }));
-    later(22, () => boomWave(dim, H, { r: 0.8, spd: 5, n: 100, dur: 0.45, size: 1.4, tone: 0.85 }));
+    later(3, () => pt(dim, "bh_shock", up(H, 0.15), { n: 180, spd: 18, size: 1.6 }));
+    for (const [d, spd] of [[0, 16], [8, 10]]) later(d + 3, () => pt(dim, "bh_ripple", H, { r: 0.8, spd, n: 200, life: 0.5, size: 1.3 }));
+    later(3, () => boomWave(dim, H, { r: 0.8, spd: 20, n: 160, dur: 0.5, size: 2.8 }));
+    later(12, () => boomWave(dim, H, { r: 0.8, spd: 10, n: 90, dur: 0.45, size: 2, tone: 0.85 }));
     // 땅 갈라짐: 바깥으로 뻗는 검은 금 (4초)
-    for (let k = 0; k < 16; k++) {
-      const a = (k / 16) * Math.PI * 2 + Math.random() * 0.3, dir = { x: Math.cos(a), y: 0, z: Math.sin(a) }, len = 5 + Math.random() * 5;
-      later(3, () => pt(dim, "bh_line", up(H, 0.06), { u: dir, v: { x: -dir.z, y: 0, z: dir.x }, r: len, h: 1, n: Math.round(len * 16), tone: 0.95, life: 4, size: 1.5, thick: k * 3.7 }));
+    for (let k = 0; k < 10; k++) {
+      const a = (k / 10) * Math.PI * 2 + Math.random() * 0.3, dir = { x: Math.cos(a), y: 0, z: Math.sin(a) }, len = 5 + Math.random() * 5;
+      later(3, () => pt(dim, "bh_line", up(H, 0.06), { u: dir, v: { x: -dir.z, y: 0, z: dir.x }, r: len, h: 1, n: Math.round(len * 8), tone: 0.95, life: 3, size: 2, thick: k * 3.7 }));
     }
-    for (let k = 0; k < 12; k++) later(3, () => dust(dim, up(add(H, { x: Math.random() - 0.5, y: 0, z: Math.random() - 0.5 }, 6), 0.3), { n: 10, r: 0.4, spd: 7, tone: 0.9, size: 1.7 }));
+    for (let k = 0; k < 5; k++) later(3, () => dust(dim, up(add(H, { x: Math.random() - 0.5, y: 0, z: Math.random() - 0.5 }, 6), 0.3), { n: 10, r: 0.4, spd: 7, tone: 0.9, size: 1.7 }));
     later(3, () => {
       for (const e of M.around(dim, H, 10)) { hit(e, 3); M.toss(H, e, 2.6, 4.5); }
       for (const e of crowd) if (e.typeId === "minecraft:player") try { e.applyKnockback(0, 0, 0, 0.6); } catch {}

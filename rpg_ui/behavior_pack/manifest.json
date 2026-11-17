@@ -1,10 +1,10 @@
 {
   "format_version": 2,
   "header": {
-    "name": "Arcania RPG V5.5 (BP)",
+    "name": "Arcania RPG V5.6 (BP)",
     "description": "RPG 시스템: 레벨/직업/스킬/파티/퀘스트/상점/NPC/제작자 도구",
     "uuid": "b30c3da6-e088-486a-8bfb-89a22c7d48d2",
-    "version": [4, 5, 5],
+    "version": [4, 5, 6],
     "min_engine_version": [
       1,
       21,
@@ -17,13 +17,13 @@
       "language": "javascript",
       "uuid": "dc813b9f-f3e6-475d-bef2-cfb28bdb497c",
       "entry": "scripts/main.js",
-      "version": [4, 5, 5]
+      "version": [4, 5, 6]
     }
   ],
   "dependencies": [
     {
       "uuid": "2dced61c-c268-4bce-aa75-5833232c5d9e",
-      "version": [4, 5, 5]
+      "version": [4, 5, 6]
     },
     {
       "module_name": "@minecraft/server",
