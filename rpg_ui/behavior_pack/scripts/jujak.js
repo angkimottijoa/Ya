@@ -712,8 +712,27 @@ function soar(ctx) {
     });
   });
   // 32~46: 주위에 불화살 셋 + 날개 앞에 거대한 활 소환 → 시위에 주작을 걸고 조준 지점을 겨눠 당김
+  // 조준한 적: 시선에 걸린 적, 없으면 시선 방향 좁은 원뿔(약 10도) 안에서 가장 가까운 적 → 한 번 잡으면 기억
+  let lockOn = null;
+  const findAim = () => {
+    try { const h = p.getEntitiesFromViewDirection({ maxDistance: 60 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id); if (h) return h; } catch {}
+    try {
+      const eye = eyeOf(p), v = viewOf(p);
+      let best = null, bd = 1e9;
+      for (const e of M.around(dim, add(eye, v, 30), 31)) {
+        if (e.id === p.id || !e.isValid()) continue;
+        const d = sub(center(e), eye), L = len(d);
+        if (L < 2 || L > 60 || (d.x * v.x + d.y * v.y + d.z * v.z) / L < 0.985) continue;
+        if (L < bd) { bd = L; best = e; }
+      }
+      return best;
+    } catch { return null; }
+  };
   const aimAt = () => {
-    try { const h = p.getEntitiesFromViewDirection({ maxDistance: 45 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id); if (h) return center(h); } catch {}
+    const h = findAim();
+    if (h) lockOn = h;
+    if (lockOn && !lockOn.isValid()) lockOn = null;
+    if (lockOn) return center(lockOn);
     try { const bh = p.getBlockFromViewDirection({ maxDistance: 45 }); if (bh) return add(bh.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {}
     return add(eyeOf(p), viewOf(p), 30);
   };
@@ -760,35 +779,67 @@ function soar(ctx) {
     trail(dim, G.tipT, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
     trail(dim, G.tipB, scl(add(G.tipT, G.tipB), 0.5), { size: 2, life: 0.3, n: 50, tone: 0.2 });
     fireBoom(dim, G.nock, { n: 14, r: 1, spd: 4, size: 2 });
-    // 조준 지점에서 멈추지 않고 조준 방향으로 오래(약 5초) 날아감 → 사거리 약 65칸, 마지막에 땅으로 내리꽂혀 폭발
-    const start = up(add(G.nock, G.dh, 1.5), 0.8), T = 100, RANGE = 65;
-    const dir3 = norm(add(G.dh, UP, Math.max(-0.25, Math.min(0.3, G.d.y))));
-    const endAir = add(start, dir3, RANGE);
-    let groundY = endAir.y - 4;
-    try { const top = dim.getTopmostBlock({ x: Math.floor(endAir.x), z: Math.floor(endAir.z) }); if (top) groundY = top.location.y + 1; } catch {}
-    const goal = { x: endAir.x, y: groundY, z: endAir.z };
-    const side = G.sh, DIVE = 0.8; // 마지막 20% 동안 내리꽂힘
+    // 조준한 적이 있으면: 크게 솟구쳐 호를 그리며 날다가 점점 그 적을 쫓아가(유도) 들이받고 폭발 → 맞은 적에게 큰 피해
+    // 없으면: 조준 방향으로 오래(약 5초, 사거리 약 65칸) 날아가 마지막에 땅으로 내리꽂힘
+    const start = up(add(G.nock, G.dh, 1.5), 0.8), side = G.sh;
+    const target = lockOn && lockOn.isValid() ? lockOn : null;
     let t2 = 0, prev = start, yawF = yawTo(G.dh);
     const angLerp = (a2, b2, k2) => a2 + ((((b2 - a2) % 360) + 540) % 360 - 180) * k2;
-    const fly = () => {
-      t2++;
-      const q = t2 / T;
-      const w = q < DIVE ? 0 : ease((q - DIVE) / (1 - DIVE)); // 내리꽂기 정도
-      // 일정한 속도로 앞으로, 처음엔 활에서 떠올라 4칸 위로, 좌우로 크게 휘며 출렁임
-      const cruise = add(start, dir3, RANGE * q);
-      const lift = 4 * ease(Math.min(1, q / 0.15)) + Math.sin(q * Math.PI * 6) * 0.6;
-      const wob = Math.sin(q * Math.PI * 4) * 1.8;
-      let pos = add(add(cruise, side, wob * (1 - w)), UP, lift * (1 - w));
-      pos = { x: pos.x, y: pos.y + (goal.y - pos.y) * w, z: pos.z };
+    const fx = (pos) => {
       const dir = norm(sub(pos, prev));
       yawF = angLerp(yawF, yawTo(len(dir) > 0.01 ? dir : G.d), 0.25); // 몸 방향도 부드럽게 돌림
       phoenix(dim, pos, yawF, t2 * 0.32, 1.9, 0.07); // 매 틱 그림 + 작은 위상 → 끊김 없는 날갯짓
       trail(dim, prev, pos, { size: 2.6, life: 0.9, n: 24 });
       if (t2 % 2 === 0) ember(dim, pos, { n: 12, r: 1.4, spd: 1.2, life: 1 });
       if (t2 % 6 === 0) { fireBoom(dim, pos, { n: 4, r: 0.8, spd: 1.5, size: 1.8, tone: 0.1 }); for (const e2 of enemiesNear(dim, p, pos, 3.4, 1.5)) hit(e2, 0.7, 4); }
+      // 화려하게: 지나간 자리에 남는 잔불 폭발 · 불 고리 · 깃털 불티 · 가끔 터지는 폭죽 같은 폭발
+      if (t2 % 3 === 1) fireBoom(dim, prev, { n: 3, r: 0.6, spd: 0.6, size: 2.2, life: 1.4, tone: 0.2 });
+      if (t2 % 10 === 5) { pt(dim, "jj_ring", pos, { n: 40, r: 0.6, spd: 9, size: 1.8, life: 0.5, tone: 0.15 }); M.sound(p, "firework.blast", 0.6, 0.8); }
+      if (t2 % 4 === 2) ember(dim, add(pos, { x: (Math.random() - 0.5) * 4, y: Math.random() * 2, z: (Math.random() - 0.5) * 4 }), { n: 10, r: 0.3, spd: 3.5, life: 1.2, tone: 0.35 });
+      if (t2 % 14 === 7) { const q2 = add(prev, { x: (Math.random() - 0.5) * 5, y: (Math.random() - 0.5) * 3, z: (Math.random() - 0.5) * 5 }); later(3, () => { try { dim.spawnParticle("minecraft:large_explosion", q2); } catch {} fireBoom(dim, q2, { n: 10, r: 0.6, spd: 4, size: 2 }); ember(dim, q2, { n: 20, r: 0.4, spd: 6, life: 0.9 }); M.sound(p, "firework.large_blast", 0.8, 1); }); }
       if (t2 % 20 === 4) M.sound(p, "mob.enderdragon.flap", 0.9, 1.2);
-      if (t2 === Math.round(T * DIVE)) M.sound(p, "mob.enderdragon.growl", 1, 1.5);
       prev = pos;
+    };
+    if (target) {
+      // 유도 비행: 속도 0.75칸/틱, 처음엔 위·옆으로 크게 돌다가 회전력이 점점 세져 적에게 꽂힘
+      let pos = start, vel = scl(norm(add(add(G.dh, UP, 0.9), side, 0.5)), 0.75);
+      const fly = () => {
+        t2++;
+        const goal = target.isValid() ? center(target) : prev;
+        const to = sub(goal, pos), dist = len(to);
+        if (dist < 1.8 || t2 > 120) { // 명중
+          if (target.isValid()) { hit(target, 2.4, 6); M.toss(pos, target, 1.6, 3); }
+          finish(goal); return;
+        }
+        const turn = t2 < 20 ? 0.03 : Math.min(0.35, 0.05 + (t2 - 20) * 0.012); // 점점 정확하게
+        const want = scl(norm(to), 0.75 + Math.min(0.35, t2 * 0.006));
+        vel = add(vel, sub(want, vel), turn);
+        pos = add(pos, vel);
+        fx(pos);
+        if (t2 === 30) M.sound(p, "mob.enderdragon.growl", 1, 1.5);
+        later(1, fly);
+      };
+      fly();
+      return;
+    }
+    const T = 100, RANGE = 65;
+    const dir3 = norm(add(G.dh, UP, Math.max(-0.25, Math.min(0.3, G.d.y))));
+    const endAir = add(start, dir3, RANGE);
+    let groundY = endAir.y - 4;
+    try { const top = dim.getTopmostBlock({ x: Math.floor(endAir.x), z: Math.floor(endAir.z) }); if (top) groundY = top.location.y + 1; } catch {}
+    const goal = { x: endAir.x, y: groundY, z: endAir.z };
+    const DIVE = 0.8; // 마지막 20% 동안 내리꽂힘
+    const fly = () => {
+      t2++;
+      const q = t2 / T;
+      const w = q < DIVE ? 0 : ease((q - DIVE) / (1 - DIVE));
+      const cruise = add(start, dir3, RANGE * q);
+      const lift = 4 * ease(Math.min(1, q / 0.15)) + Math.sin(q * Math.PI * 6) * 0.6;
+      const wob = Math.sin(q * Math.PI * 4) * 1.8;
+      let pos = add(add(cruise, side, wob * (1 - w)), UP, lift * (1 - w));
+      pos = { x: pos.x, y: pos.y + (goal.y - pos.y) * w, z: pos.z };
+      fx(pos);
+      if (t2 === Math.round(T * DIVE)) M.sound(p, "mob.enderdragon.growl", 1, 1.5);
       if (t2 >= T) { finish(goal); return; }
       later(1, fly);
     };
@@ -797,15 +848,57 @@ function soar(ctx) {
   // 공중 정지 풀기 (주작이 날아간 뒤)
   later(49, () => { M.potion(p, "slow_falling", 1, 2); skillLock.delete(p.id); }); // 주작이 날아가는 동안엔 다른 스킬 사용 가능
   const finish = (L) => {
+    // 1) 중심 대폭발 + 화면 번쩍
     try { dim.spawnParticle("minecraft:huge_explosion_emitter", L); } catch {}
-    fireBoom(dim, L, { n: 30, r: 1.8, spd: 7.5, size: 3.2, life: 1.1 });
-    ember(dim, L, { n: 80, r: 1, spd: 8.5, life: 1.2 });
-    for (const [d, spd, tone] of [[0, 8, 0], [3, 13, 0.2], [6, 18, 0.4]]) later(d, () => pt(dim, "jj_ring", up(L, -0.6), { n: 60, r: 0.5, spd, size: 2.2, life: 0.7, tone }));
-    for (let j = 0; j < 6; j++) later(j, () => { const a = (j / 6) * Math.PI * 2; pt(dim, "jj_trail", { x: L.x + Math.cos(a) * 3, y: L.y - 1, z: L.z + Math.sin(a) * 3 }, { u: UP, r: 5, n: 40, size: 2, life: 0.6, tone: 0 }); });
+    fireBoom(dim, L, { n: 40, r: 2, spd: 9, size: 3.6, life: 1.3 });
+    ember(dim, L, { n: 120, r: 1, spd: 11, life: 1.4 });
+    flashScreen(p, 1, 0.6, 0.15, 0.5);
+    shake(dim, L, 1.1, 0.9);
+    M.sound(p, "random.explode", 1.8, 0.7);
+    M.sound(p, "mob.enderdragon.growl", 1.2, 1.4);
+    M.sound(p, "firework.large_blast", 1.5, 0.6);
     for (const e of enemiesNear(dim, p, L, 6.5, 2)) { hit(e, 2.6, 6); M.toss(L, e, 1.8, 3); }
-    flashScreen(p, 1, 0.55, 0.15, 0.4);
-    shake(dim, L, 0.9, 0.6);
-    M.sound(p, "random.explode", 1.6, 0.8);
+    // 2) 불 고리 5겹이 땅을 타고 번짐
+    for (const [d, spd, tone] of [[0, 8, 0], [3, 13, 0.2], [6, 18, 0.4], [10, 24, 0.1], [14, 30, 0.3]]) later(d, () => pt(dim, "jj_ring", up(L, -0.6), { n: 70, r: 0.5, spd, size: 2.4, life: 0.8, tone }));
+    // 3) 둘레에 불기둥 8개가 차례로 솟음
+    for (let j = 0; j < 8; j++) later(2 + j, () => {
+      const a = (j / 8) * Math.PI * 2, q = { x: L.x + Math.cos(a) * 4.5, y: L.y - 1, z: L.z + Math.sin(a) * 4.5 };
+      pt(dim, "jj_trail", q, { u: UP, r: 9, n: 60, size: 2.4, life: 0.8, tone: 0 });
+      fireBoom(dim, up(q, 1), { n: 8, r: 0.5, spd: 3, size: 2 });
+      for (const e of enemiesNear(dim, p, q, 2, 1)) hit(e, 0.8, 4);
+    });
+    // 4) 깃털이 사방으로 터져 나가 꽃처럼 퍼짐
+    for (let j = 0; j < 16; j++) {
+      const a = (j / 16) * Math.PI * 2, d = norm({ x: Math.cos(a), y: 0.35 + (j % 2) * 0.3, z: Math.sin(a) });
+      feather(dim, up(L, 0.5), d, UP, { len: 3.4, n: 30, life: 0.7, tone: 0.1, size: 1.3 });
+    }
+    // 5) 연쇄 폭발: 바깥 두 바퀴 (폭죽처럼 하나씩)
+    for (let j = 0; j < 10; j++) later(6 + j * 2, () => {
+      const a = (j / 10) * Math.PI * 2 + (j % 2) * 0.3, r = j % 2 ? 7 : 5;
+      const q = { x: L.x + Math.cos(a) * r, y: L.y + 0.5, z: L.z + Math.sin(a) * r };
+      try { dim.spawnParticle("minecraft:large_explosion", q); } catch {}
+      fireBoom(dim, q, { n: 12, r: 0.8, spd: 5, size: 2.4 });
+      ember(dim, q, { n: 24, r: 0.4, spd: 7, life: 1, tone: 0.2 });
+      for (const e of enemiesNear(dim, p, q, 2.8, 1.5)) hit(e, 0.9, 4);
+      if (j % 2 === 0) M.sound(p, "firework.blast", 1, 0.7 + j * 0.05);
+    });
+    // 6) 마지막 큰 불꽃 버섯: 위로 솟는 불티 분수 + 두 번째 폭발
+    later(26, () => {
+      try { dim.spawnParticle("minecraft:huge_explosion_emitter", up(L, 1)); } catch {}
+      pt(dim, "jj_trail", L, { u: UP, r: 14, n: 90, size: 3, life: 1, tone: 0.1 });
+      fireBoom(dim, up(L, 12), { n: 30, r: 2.5, spd: 6, size: 3.4, life: 1.2 });
+      ember(dim, up(L, 12), { n: 100, r: 2, spd: 9, life: 1.6, tone: 0.3 });
+      for (const e of enemiesNear(dim, p, L, 7, 2)) hit(e, 0.9, 6);
+      shake(dim, L, 0.8, 0.6);
+      M.sound(p, "random.explode", 1.5, 0.6);
+      M.sound(p, "firework.twinkle", 1.5, 0.8);
+    });
+    // 7) 잔불: 2초 동안 바닥 여기저기 불꽃이 터짐
+    for (let j = 0; j < 10; j++) later(30 + j * 4, () => {
+      const a = Math.random() * Math.PI * 2, r = Math.random() * 6, q = { x: L.x + Math.cos(a) * r, y: L.y, z: L.z + Math.sin(a) * r };
+      fireBoom(dim, q, { n: 4, r: 0.4, spd: 1.5, size: 1.8, life: 1 });
+      ember(dim, q, { n: 8, r: 0.3, spd: 2.5, life: 1 });
+    });
     skillLock.delete(p.id);
   };
   later(170, () => skillLock.delete(p.id)); // 안전장치
