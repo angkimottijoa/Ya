@@ -257,7 +257,7 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
   const vv = Math.hypot(vU.x, vU.y, vU.z) > 0.1 ? vU : norm(cross(d, { x: 1, y: 0, z: 0 }));
   const ww = cross(d, vv);
   const area = 4.2 * (a * b + b * cc + cc * a);
-  pt(dim, "bh_blob", c, { u: scl(d, a), v: scl(vv, b), w: scl(ww, cc), n: Math.min(900, Math.round(area * (o.dens ?? 19) + 14)), life: o.life ?? 0.11, size: o.size ?? 1.3, tone: o.tone ?? 0, thick: o.stripe ?? 0, h: o.ph ?? 0, vd: o.vd, vs: o.vs ?? 0 });
+  pt(dim, "bh_blob", c, { u: scl(d, a), v: scl(vv, b), w: scl(ww, cc), n: Math.min(1500, Math.round(area * (o.dens ?? 34) + 16)), life: o.life ?? 0.11, size: o.size ?? 1.05, tone: o.tone ?? 0, thick: o.stripe ?? 0, h: o.ph ?? 0, depth: o.ao ?? 0, vd: o.vd, vs: o.vs ?? 0 });
 }
 /**
  * 거대한 3D 백호. 자세(pose)로 움직임:
@@ -269,27 +269,32 @@ function drawTiger(dim, c, F0, k, pose = {}) {
   const pr = rad(pitch), F = norm(add(scl(F0, Math.cos(pr)), U0, Math.sin(pr))), U = cross(S, F);
   const ph = t * 1.15, flex = Math.sin(ph) * gait; // 질주: 등이 접혔다 펴짐
   const P = (f, u, s) => add(add(add(c, F, f * k), U, u * k), S, s * k);
-  const B = (pos, d, a, b, cc, o) => blob(dim, pos, d, a * k, b * k, cc * k, U, o);
+  // ws: 몸 전체에 이어지는 줄무늬 (등뼈 방향 위치 기준, 1블록당 빈도) → 겹치는 덩어리끼리 줄이 맞음
+  const B = (pos, d, a, b, cc, o = {}) => {
+    if (o.ws) { const al = dot3(sub(pos, c), F); o = { ...o, stripe: a * k * dot3(d, F) * o.ws, ph: al * o.ws * 180 }; }
+    blob(dim, pos, d, a * k, b * k, cc * k, U, o);
+  };
   const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.06, r, r, o); };
   // 몸: 길고 근육질, 어깨 근육
   // 앞몸·뒷몸을 따로: 등이 S자로 출렁이고(옆으로 흔들림), 앞뒤가 엇박자로 움직임
   const sway = Math.sin(ph * 0.5) * 0.22 * gait;
   const chest = P(1.55 - flex * 0.35, 0.1 + flex * 0.18, sway), hips = P(-1.7 + flex * 0.35, 0.15 - flex * 0.12, -sway * 0.8);
   const mid = P(0, 0.08 + Math.sin(ph + 0.6) * 0.22 * gait, 0);
-  B(add(mid, sub(chest, mid), 0.45), norm(sub(chest, mid)), 1.25, 0.9, 0.86, { stripe: 3.4 });
-  B(add(mid, sub(hips, mid), 0.45), norm(sub(mid, hips)), 1.2, 0.86, 0.83, { stripe: 3.6, ph: 40 });
-  B(chest, F, 1.05, 1.08, 1.0, { stripe: 2.2 });
-  B(hips, F, 0.95, 0.9, 0.9, { stripe: 2.6, ph: 60 });
-  for (const s of [-1, 1]) B(add(chest, S, s * 0.55 * k), F, 0.6, 0.7, 0.35, { stripe: 2, ph: 30 });
+  B(add(mid, sub(chest, mid), 0.45), norm(sub(chest, mid)), 1.25, 0.9, 0.86, { ws: 1.35 });
+  B(add(mid, sub(hips, mid), 0.45), norm(sub(mid, hips)), 1.2, 0.88, 0.84, { ws: 1.35, ao: 0.15 });
+  B(chest, F, 1.1, 1.2, 1.02, { ws: 1.35 });
+  B(add(chest, U, -0.55 * k), F, 0.85, 0.55, 0.8, { ao: 0.25 }); // 깊은 가슴
+  B(hips, F, 1.0, 0.95, 0.92, { ws: 1.35, ao: 0.2 });
+  for (const s of [-1, 1]) B(add(chest, S, s * 0.58 * k), F, 0.7, 0.8, 0.38, { ws: 1.35 });
   // 머리: 크고 둥근 호랑이 머리 (넓은 볼털, 짧고 넓은 주둥이, 앞을 보는 눈), 질주에 맞춰 흔들림
   const nod = Math.sin(ph + 1) * 0.15 * gait + Math.sin(t * 0.45) * 0.08;
   const hy = swipe >= 0 ? 0.15 : Math.sin(t * 0.37 + 0.5) * 0.35;             // 고개를 좌우로 돌림 (몸과 따로)
   const PH = (f, u, s) => P(f, u, s + hy * (f - 2.3) * 0.35);
   const Hc = PH(3.2, 0.75 + nod, 0), Hd = norm(add(add(F, U, -0.12), S, hy * 0.35));
-  B(PH(2.45, 0.55, 0), norm(add(F, U, 0.4)), 0.85, 0.8, 0.78, { stripe: 2.6 });     // 굵은 목
-  B(Hc, Hd, 0.86, 0.82, 0.92, { stripe: 2.2, ph: 90, dens: 26 });                  // 머리통
+  B(PH(2.45, 0.6, 0), norm(add(F, U, 0.4)), 0.95, 0.9, 0.86, { stripe: 4.2 });     // 굵은 목
+  B(Hc, Hd, 0.86, 0.82, 0.92, { stripe: 2.4, ph: 90, dens: 44 });                  // 머리통
   for (const s of [-1, 1]) {
-    B(PH(3.15, 0.35 + nod, s * 0.78), norm(add(scl(S, s), F, -0.6)), 0.55, 0.5, 0.3, { stripe: 3.4, dens: 26 }); // 옆으로 뻗친 볼털
+    B(PH(3.15, 0.35 + nod, s * 0.78), norm(add(scl(S, s), F, -0.6)), 0.55, 0.5, 0.3, { stripe: 5, dens: 44 }); // 옆으로 뻗친 볼털
     B(PH(2.9, 1.48 + nod, s * 0.55), norm(add(U, F, -0.3)), 0.22, 0.24, 0.09, { dens: 40 });                     // 둥근 귀
     B(PH(2.84, 1.5 + nod, s * 0.55), norm(add(U, F, -0.3)), 0.2, 0.22, 0.05, { tone: 1, dens: 40 });            // 귀 뒤 검정
     B(PH(3.86, 1.08 + nod, s * 0.36), norm(add(F, S, s * 0.5)), 0.3, 0.06, 0.12, { tone: 1, dens: 50 });        // 찌푸린 눈썹
@@ -323,24 +328,24 @@ function drawTiger(dim, c, F0, k, pose = {}) {
       const dir = norm(add(scl(F, Math.sin(aF)), U, -Math.cos(aF)));
       el = add(add(sh, dir, 1.0 * k), F, -0.25 * k); paw = add(sh, dir, 2.05 * k);
     }
-    seg(sh, el, 0.38, { stripe: 3.4 });
-    seg(el, paw, 0.29, { stripe: 3.4, ph: 45 });
-    B(paw, F, 0.4, 0.27, 0.36, { dens: 24 });
+    seg(sh, el, 0.46, { stripe: 3.2, ao: 0.35 });
+    seg(el, paw, 0.34, { stripe: 3.2, ph: 45, ao: 0.5 });
+    B(paw, F, 0.48, 0.3, 0.44, { dens: 40, ao: 0.35 });
     const clawDir = s > 0 && swipe >= 0 ? norm(sub(paw, el)) : F;
     for (let j = -1.5; j <= 1.5; j++) line(dim, add(paw, S, j * 0.17 * k), add(add(add(paw, clawDir, 0.75 * k), U, -0.25 * k), S, j * 0.24 * k), 0.95); // 검고 긴 발톱
     const hp = add(hips, add(scl(U, -0.4), scl(S, s * 0.6)), k);
     const hd = norm(add(scl(F, Math.sin(aH)), U, -Math.cos(aH)));
     const kn = add(add(hp, hd, 1.05 * k), F, 0.3 * k), ft = add(hp, hd, 2.1 * k);
-    seg(hp, kn, 0.42, { stripe: 3.4 });
-    seg(kn, ft, 0.27, { stripe: 3.4, ph: 45 });
-    B(ft, F, 0.36, 0.22, 0.3, { dens: 24 });
+    seg(hp, kn, 0.5, { stripe: 3.2, ao: 0.4 });
+    seg(kn, ft, 0.32, { stripe: 3.2, ph: 45, ao: 0.55 });
+    B(ft, F, 0.44, 0.27, 0.4, { dens: 40, ao: 0.45 });
   }
   // 꼬리: 채찍처럼 휘둘림
   let prev = add(hips, F, -0.9 * k);
   for (let j = 1; j <= 8; j++) {
     const q = j / 8, wv = Math.sin(t * 0.9 - q * 3) * (0.6 + gait * 0.6);
     const cur = add(add(add(prev, F, -0.42 * k), U, (0.28 - q * 0.35 + wv * 0.25) * k), S, wv * 0.35 * k);
-    seg(prev, cur, 0.26 - q * 0.1, { tone: j === 8 ? 1 : j % 2 ? 0 : 0.96, dens: 22 });
+    seg(prev, cur, 0.24 - q * 0.08, { tone: j === 8 ? 1 : 0, stripe: 3, ph: j * 70, dens: 40 });
     prev = cur;
   }
   // 검은 기운

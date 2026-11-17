@@ -172,18 +172,25 @@ def main():
     }, material="particles_blend")
     # 8) 3D 백호 몸 덩어리: 타원체 겉면 (u 긴 축, v 위, w 옆 — 벡터 길이 = 반지름)
     #    흰 털 + 위에서 빛 받는 음영 + 검은 줄무늬(thick = 줄 빈도, 0 이면 없음, 배 쪽은 줄 없음), tone 1 = 검정 부위
-    FUR = {"0.0": "#FFFFFFFF", "0.15": "#FFEDEEF2", "0.3": "#FFC9CCD6", "0.45": "#FF8E929E", "0.62": "#FF4A4C54", "0.8": "#FF1C1C20", "1.0": "#FF060606"}
+    FUR = {"0.0": "#FFF6F6F8", "0.12": "#FFE6E7EB", "0.25": "#FFCDCFD5", "0.38": "#FFAEB1BA", "0.52": "#FF868A94", "0.66": "#FF5B5E67", "0.8": "#FF2E3036", "0.9": "#FF141417", "1.0": "#FF050505"}
     zz_ = f"({R1} * 2 - 1)"
     rr2 = f"math.sqrt(math.max(0, 1 - {zz_} * {zz_}))"
     yy_ = f"({rr2} * math.cos({R2} * 360))"
     ss_ = f"({rr2} * math.sin({R2} * 360))"
     kk_ = f"(0.86 + {R4} * 0.14)"
     # 줄무늬: 긴 축을 따라 세로 띠, 등에서 굵고 배 쪽으로 갈수록 가늘어져 끊김, 가장자리 들쭉날쭉
-    stripe = f"(variable.thick > 0 && {yy_} > -0.45 && math.sin({zz_} * variable.thick * 180 + {ss_} * 25 * {yy_} + math.sin({R2} * 1440) * 8 + variable.h) > 0.42 + (0.5 - {yy_} * 0.5) * 0.4)"
+    sv = f"(math.sin({zz_} * variable.thick * 180 + {ss_} * 30 * {yy_} + {yy_} * 25 + math.sin({yy_} * 260 + {zz_} * 150) * 9 + variable.h) - (0.72 + (0.5 - {yy_} * 0.5) * 0.24))"
+    stripe = f"(variable.thick != 0 && {yy_} > -0.45 && {sv} > 0)"
+    stripe_edge = f"(variable.thick != 0 && {yy_} > -0.45 && {sv} > -0.05)"  # 줄무늬 가장자리는 회색으로 번짐
     # 명암: 겉면 법선(대략 중심→점 방향)과 빛 방향(위·약간 앞옆)의 내적. 1 = 밝음, -1 = 그늘
     nvec = [f"(variable.u.{c} * {zz_} + variable.v.{c} * {yy_} + variable.w.{c} * {ss_})" for c in "xyz"]
     nlen = f"math.sqrt({nvec[0]} * {nvec[0]} + {nvec[1]} * {nvec[1]} + {nvec[2]} * {nvec[2]} + 0.0001)"
     light = f"(({nvec[0]} * 0.35 + {nvec[1]} * 0.85 + {nvec[2]} * 0.4) / {nlen})"
+    # 명암 합치기: 빛(밝은 면 0 ~ 그늘 0.62) + 맞닿는 곳·배 쪽 그늘(AO) + 부위 그늘(depth) + 털결 + 윗면 반사광
+    ao = f"(math.pow(math.abs({zz_}), 6) * 0.2 + math.max(0, -{yy_}) * 0.16 + variable.depth * 0.18)"
+    fur = f"(({R3} - 0.5) * 0.07 + math.sin({zz_} * 1100 + {ss_} * 420) * 0.035)"
+    rim = f"({light} > 0.82 ? -0.12 : 0)"
+    shade = f"(variable.tone + (1 - variable.tone) * (0.31 - {light} * 0.31 + {ao} + {fur} + {rim}))"
     part("bh_blob", {
         "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
@@ -192,10 +199,10 @@ def main():
         "minecraft:particle_initial_speed": "variable.vs",
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.size * (0.13 + {R3} * 0.07) * (1 - {AGE} * 0.3)"] * 2, "facing_camera_mode": "lookat_xyz",
-            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 6", 0], "uv_size": [1, 1]}},
+            "size": [f"variable.size * (0.1 + {R3} * 0.05) * (1 - {AGE} * 0.25)"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": 16, "texture_height": 16, "uv": [f"math.floor({R3} * 2) + 5", 0], "uv_size": [1, 1]}},
         "minecraft:particle_appearance_tinting": {"color": {
-            "interpolant": f"{stripe} ? 0.96 : math.clamp(variable.tone + (1 - variable.tone) * (0.2 - {light} * 0.26) + ({R3} - 0.5) * 0.05, 0, 1)", "gradient": FUR}},
+            "interpolant": f"{stripe} ? 0.94 + {R4} * 0.06 : math.clamp({stripe_edge} ? 0.62 + {R4} * 0.1 : ({shade}), 0, 1)", "gradient": FUR}},
     })
     # 9) 폭발 뭉게: 플립북 (둥글게 부풀었다 구멍 나며 사라짐), tone 0 흰 ~ 1 검정
     flip = {"texture_width": 128, "texture_height": 16, "uv": [0, 0], "uv_size": [16, 16],
