@@ -232,6 +232,19 @@ def main():
         "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.6 + {R3} * 0.7) * (0.75 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz", "uv": flip},
         "minecraft:particle_appearance_tinting": {"color": [boom_col, boom_col, f"{boom_col} * 1.02", 1]},
     }, tex="textures/particle/rpg_bh_boom")
+    # 11) 폭발 고리: 폭발 뭉게를 원 위에 한꺼번에 놓고 바깥으로 밀어 → 작은 원이 점점 커지는 강타 이펙트
+    ra2 = f"({R1} * 360)"
+    part("bh_boomring", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ra2}) * variable.r", f"{R2} * 0.3", f"math.sin({ra2}) * variable.r"],
+                                          "direction": [f"math.cos({ra2})", f"0.06 + {R3} * 0.08", f"math.sin({ra2})"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R2} * 0.3)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.94 + {R4} * 0.12)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.6, 0], "linear_drag_coefficient": 0.9},
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.8 + {R3} * 0.5) * (0.8 + {AGE} * 0.5)"] * 2, "facing_camera_mode": "lookat_xyz", "uv": flip},
+        "minecraft:particle_appearance_tinting": {"color": [boom_col, boom_col, f"{boom_col} * 1.02", 1]},
+    }, tex="textures/particle/rpg_bh_boom")
     item()
     print("baekho particles + item ok")
 

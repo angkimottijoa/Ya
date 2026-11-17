@@ -65,7 +65,7 @@ def main():
     w, h = axe.size
     small = axe.resize((TARGET_W, max(1, round(h * TARGET_W / w))), Image.LANCZOS)
     n = clean(small)
-    # 빨간 연기 점: 픽셀마다 듬성듬성한 연기 뭉치(4종), 밝기에 따라 짙은 빨강 → 빨강 → 연한 빨강
+    # 연기 점: 픽셀마다 듬성듬성한 연기 뭉치(4종), 색은 사진 그대로
     import random
     rnd = random.Random(5)
     clumps = []
@@ -84,16 +84,7 @@ def main():
             r, g, b, a = sp0[x, y]
             if not a:
                 continue
-            lum = (r + g + b) / 765
-            gold = r > 180 and g > 140 and b < 110
-            if gold:
-                col = (255, 190, 120)
-            elif lum < 0.25:
-                col = (215, 12, 14)                            # 진한 빨강
-            elif lum < 0.6:
-                col = (255, 30, 26)                            # 선명한 빨강
-            else:
-                col = (255, 92 + int((lum - 0.6) * 120), 80 + int((lum - 0.6) * 100))  # 밝은 빨강
+            col = (r, g, b)  # 사진 색 그대로 (검정·흰 불꽃·금빛)
             for i, j in clumps[(x * 7 + y * 13) % 4]:
                 bp[x * CELL + i, y * CELL + j] = col + (255,)
     OUT.parent.mkdir(parents=True, exist_ok=True)
