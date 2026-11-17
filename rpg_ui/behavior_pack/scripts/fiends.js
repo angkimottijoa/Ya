@@ -236,7 +236,7 @@ function autoAnchor(p, side) {
 function hd_mode_start(p, ctx) {
   const s = st(p), dim = p.dimension, hit = hitter(ctx);
   if (s.swing) s.swing.done = true;
-  const m = { t: 0, until: now() + MODE_T, done: false, left: HOPS, side: 1, arc: null, jumpPrev: true, lastHop: -99, fast: false, v: { x: 0, y: 0, z: 0 }, air: false };
+  const m = { t: 0, until: now() + MODE_T, done: false, left: HOPS, side: 1, arc: null, jumpPrev: true, sneakPrev: true, lastHop: -99, fast: false, v: { x: 0, y: 0, z: 0 }, air: false };
   s.swing = m;
   const hip = (sd) => add(up(p.location, 0.9), rightOf(yawOf(p)), sd * 0.3);
   const anc = (A) => (A.ent ? (A.ent.isValid() ? add(A.ent.location, A.off) : null) : A.at);
@@ -283,7 +283,7 @@ function hd_mode_start(p, ctx) {
     for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = hip(sd), q = anc(A) ?? A.at; chain(dim, h, add(h, sub(q, h), k / fly), 0.1); });
     later(fly, () => { const q = anc(A) ?? A.at; hookHit(dim, q); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { flame(dim, q, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
     m.arc.fly = fly;
-    notify(p, `§5사슬혼돈 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · ${m.arcKind} §8(점프: 다음 사슬 · 클릭: 회전 도약)`);
+    notify(p, `§5사슬혼돈 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · ${m.arcKind} §8(점프: 다음 사슬 · 클릭/쉬프트: 회전 도약)`);
     return true;
   };
   /** 클릭: 몸을 돌리며 위로 도약 (사슬 놓음), 둘레 베기 */
@@ -292,7 +292,7 @@ function hd_mode_start(p, ctx) {
     m.lastLeap = m.t;
     if (m.arc) { release(m.arc); m.arc = null; }
     let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
-    const f = fwdOf(yawOf(p)), nv = { x: v.x * 0.6 + f.x * 0.45, y: 0.95, z: v.z * 0.6 + f.z * 0.45 }, h = Math.hypot(nv.x, nv.z);
+    const f = fwdOf(yawOf(p)), nv = { x: v.x * 0.6 + f.x * 0.45, y: 1.1, z: v.z * 0.6 + f.z * 0.45 }, h = Math.hypot(nv.x, nv.z);
     try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, h, nv.y); } catch {}
     m.v = nv;
     play("gear_leap");
@@ -310,6 +310,9 @@ function hd_mode_start(p, ctx) {
     m.t++;
     let g = false; try { g = p.isOnGround; } catch {}
     let jump = false; try { jump = !!p.isJumping; } catch {}
+    let sneak = false; try { sneak = !!p.isSneaking; } catch {}
+    if (sneak && !m.sneakPrev && !g) m.leap(); // 공중에서 쉬프트 = 회전 도약 (곧바로 한 번 더 = ④ 사신무 연계)
+    m.sneakPrev = sneak;
     if (jump && !m.jumpPrev) m.hop();
     m.jumpPrev = jump;
     const P = p.location, PP = up(P, 1), H = up(P, 0.9);
@@ -402,6 +405,12 @@ function hd_swing(ctx) { // ③ 입체 기동 시작 (첫 사슬)
   ctx.setCd?.(99); // 기동 중엔 ③ = 다음 사슬, 끝나면 8초
   if (!hd_mode_start(p, ctx)) ctx.setCd?.(0.5);
 }
+// 사슬혼돈 중 왼클릭(때리기)으로 블록·적을 쳐도 회전 도약 (허공 휘두르기는 이 API 버전에서 감지 불가)
+try {
+  const onSwing = (p) => { if (p?.typeId !== "minecraft:player") return; const m = st(p).swing; if (m && !m.done && m.leap) m.leap(); };
+  try { world.afterEvents.entityHitEntity.subscribe((e) => onSwing(e.damagingEntity)); } catch {}
+  try { world.afterEvents.entityHitBlock.subscribe((e) => onSwing(e.damagingEntity)); } catch {}
+} catch {}
 const hd_leap = (p) => { const m = st(p).swing; if (!m || m.done || !m.leap) return false; m.leap(); return true; };
 const hd_swing_pre = (p) => { const m = st(p).swing; if (!m || m.done) return false; m.hop(); return true; };
 /** ④ 혼돈 · 사신무 (청룡 와선창처럼 7동작): 거대한 혼돈의 낫(그림 파티클)을 돌리며
@@ -833,7 +842,7 @@ function tt_ult(ctx) {
 }
 export const fiendLine = (p) => {
   const id = heldId(p);
-  if (id === "rpg:hundun_scythe") { const s = st(p); if (s.hook && now() <= s.hook.until) return "§5§l걸렸다! §r§7② · ① 다시: 부딪치기"; if (s.swing && !s.swing.done) return `§5§l사슬혼돈 §r§d${"◆".repeat(s.swing.left)}§8${"◇".repeat(5 - s.swing.left)} §7점프: 사슬 · 클릭: 도약 · ④ 사신무`; return "§5혼돈의 낫"; }
+  if (id === "rpg:hundun_scythe") { const s = st(p); if (s.hook && now() <= s.hook.until) return "§5§l걸렸다! §r§7② · ① 다시: 부딪치기"; if (s.swing && !s.swing.done) return `§5§l사슬혼돈 §r§d${"◆".repeat(s.swing.left)}§8${"◇".repeat(5 - s.swing.left)} §7점프: 사슬 · 클릭/쉬프트: 도약 · ④ 사신무`; return "§5혼돈의 낫"; }
   if (id === "rpg:taotie_maw") { const h = Math.floor(HUNGER.get(p.id) ?? 0), b = Math.round(h / 10); return `§2허기 ${h >= 100 ? "§c" : "§a"}${"■".repeat(b)}§8${"■".repeat(10 - b)} §7${h}`; }
   if (id === "rpg:taowu_hammer") { const m = Math.floor(MOM.get(p.id) ?? 0), b = Math.round(m / 10); return `§6가속 §e${"■".repeat(b)}§8${"■".repeat(10 - b)} §7${m}`; }
   if (id === "rpg:qiongqi_claws") { const n = [...MARK.values()].filter((m) => m.pid === p.id && m.until > now() && m.e.isValid()).length; return `§c표식 §f${n}`; }
@@ -843,7 +852,7 @@ export const fiendLine = (p) => {
 /** 무기 스킬 표 (사신수와 같은 모양, pre = 재입력·모드 중 입력: true 면 쿨타임·마나 없이 처리) */
 export const WEAPON_SKILLS = {
   "rpg:hundun_scythe": [
-    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_leap(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다. 사슬혼돈 중에는 클릭 = 몸을 돌리며 위로 도약(둘레 베기)." },
+    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_leap(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다. 사슬혼돈 중에는 클릭·공중에서 쉬프트·때리기 = 몸을 돌리며 위로 도약(둘레 베기), 쉬프트 두 번이면 도약 → ④ 사신무로 이어짐." },
     { id: "w_hd_2", key: 2, name: "혼돈 · 낫 끌어오기", short: "끌어오기", lv: 1, mp: 14, cd: 7, pow: 1, run: hd_hook, pre: hd_hook_pre, desc: "낫을 회전시켜 던져(14칸) 걸린 적을 끌어온다. 끌려오는 동안·직후 ② 나 ① 을 다시 누르면 몸을 부딪쳐 크게 날려 보내는 연계, 아니면 도착하며 넉백으로 밀려난다." },
     { id: "w_hd_3", key: 3, name: "혼돈 · 사슬혼돈", short: "사슬혼돈", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "보이는 벽·나무·지형·적(앞쪽 56칸 안)에 사슬이 자동으로 박히고 둥글게 휘돌아 앞으로 날아간다. 구조에 맞춰 바뀜: 높은 벽·나무는 위로 올라타 넘고, 천장은 밑으로 크게 휘돌고, 앞이 막히면 그 앞까지만, 땅 밑으로 처지지 않음. 움직임은 설계한 호와 박힌 곳 축 진자를 반반 섞어 줄 길이로 묶음. 시선으로 조종. 점프할 때마다 반대쪽에 다음 사슬(모두 5번, ③ 다시도 됨), 클릭 = 몸을 돌리며 위로 도약(둘레 베기). 벽 차기 · 지나가며 베기 · 착지 구르기. ④ = 사신무 연계. 다 쓰거나 12초 지나면 8초 대기." },
     { id: "w_hd_4", key: 4, name: "혼돈 · 사신무", short: "사신무", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_reap, desc: "거대한 혼돈의 낫을 돌리며 7동작: 낫을 앞에서 빙빙 돌리며 돌진 → 오른쪽 반 바퀴 → 왼쪽 올려 베기 반 바퀴 → 뛰어올라 공중 한 바퀴 → 땅에 내리꽂아 보랏빛 불기둥 · 충격파 → 물러서며 머리 위로 낫을 돌려 혼돈을 모음 → 거대한 낫 한 바퀴 돌진 + 날아가는 낫 · 균열 길. ③ 사슬혼돈 중 공중에서 쓰면 공중 한 바퀴부터 바로 이어짐(위력 1.35배)." },
