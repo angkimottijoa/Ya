@@ -654,20 +654,36 @@ function descent(ctx) {
   const ARMS = 8, REACH = 14;
   for (let k = 0; k < ARMS; k++) {
     const a0 = rad(yaw0) + (k / ARMS) * Math.PI * 2, dir = { x: Math.cos(a0), y: 0, z: Math.sin(a0) }, side = { x: -dir.z, y: 0, z: dir.x }, ph = k * 1.3;
-    const at = (d) => add(add(C, dir, d), side, Math.sin(d * 0.9 + ph) * 0.9);
-    const bitten = new Set();
-    for (let t = 1; t <= 22; t += 1) later(2 + t, () => {
-      const head = Math.min(REACH, t * 0.75), pts = [];
-      for (let i = 0; i <= 14; i++) { const d = head - i * 0.45; if (d < 0) break; pts.push(up(at(d), 0.25 + Math.max(0, 0.3 - i * 0.02))); }
-      if (pts.length > 1 && t % 2 === 0) serpent(dim, pts, { thick: 0.3, life: 0.12, tone: 0.12, dens: 0.6 });
-      if (t % 2 === 1 && head < REACH) { // 지나간 자리에 가시 + 균열
+    // 1.5초 동안 기어 나감 → 3.5초 동안 그 자리에서 길게 몸을 꿈틀대며 지킴(다가온 적을 물어 밀어냄) → 땅속으로 스며듦
+    const TR = 30, STAY = 100, SINK = 12;
+    const at = (d, t = 0) => add(add(C, dir, d), side, Math.sin(d * 0.9 + ph - t * 0.22) * 0.9);
+    let bitten = new Set();
+    for (let t = 1; t <= STAY + SINK; t += 1) later(2 + t, () => {
+      const head = Math.min(REACH, t * (REACH / TR)), sink = t > STAY ? (t - STAY) / SINK : 0, pts = [];
+      const SEG = 0.6, N = Math.min(24, Math.round(head / SEG));
+      for (let i = 0; i <= N; i++) {
+        const d = head - i * SEG; if (d < 0) break;
+        const lift = i < 3 && t > TR ? (0.9 - i * 0.3) * (0.8 + Math.sin(t * 0.3) * 0.2) : 0; // 다 뻗은 뒤엔 머리를 살짝 쳐듦
+        pts.push(up(at(d, t), 0.25 + lift + Math.max(0, 0.3 - i * 0.02) - sink * 1.6));
+      }
+      const vis = pts.filter((q) => q.y > C.y - 0.2);
+      const every = t <= TR ? 2 : 3; // 다 뻗은 뒤엔 3틱마다 (부하 줄임)
+      if (vis.length > 1 && t % every === 0) serpent(dim, vis, { thick: 0.3, life: every === 2 ? 0.12 : 0.17, tone: 0.12, dens: 0.5, head: sink < 0.3 });
+      if (t % 2 === 1 && head < REACH) { // 지나간 자리에 가시 + 균열 (오래 남음)
         const q = at(Math.max(0.5, head - 1.2)), out = norm(add(add(dir, side, (Math.random() - 0.5) * 0.8), UP, 1.4));
-        spike(dim, up(q, -0.2), out, 0.9 + Math.random() * 1.1 + head * 0.06, 0.18 + head * 0.012, { life: 2.2 + Math.random() });
-        crack(dim, q, dir, 0.9, { h: 0.12, n: 12, life: 2.4 });
+        spike(dim, up(q, -0.2), out, 0.9 + Math.random() * 1.1 + head * 0.06, 0.18 + head * 0.012, { life: 5 + Math.random() });
+        crack(dim, q, dir, 0.9, { h: 0.12, n: 12, life: 5.5 });
         if (t % 4 === 1) rocks(dim, q, { n: 4, r: 0.3, spd: 3.5, life: 0.9 });
       }
-      for (const e of foesAround(dim, p, at(head), 1.6)) { if (bitten.has(e.id)) continue; bitten.add(e.id); if (hit(e, 0.35, 1)) { M.toss(C, e, 10, 3); M.potion(e, "poison", 1, 2); glow(dim, center(e), { n: 8, spd: 3 }); } }
-      if (t === 22) { const end = at(REACH); spike(dim, up(end, -0.3), norm(add(dir, UP, 2)), 2.4, 0.4, { life: 3 }); rocks(dim, end, { n: 8, r: 0.5, spd: 5 }); }
+      if (t > TR && t % 10 === 0 && sink === 0) { glow(dim, up(at(REACH * Math.random(), t), 0.4), { n: 3, spd: 0.8, size: 0.8, life: 0.6 }); }
+      if (t % 20 === 0) bitten = new Set(); // 1초마다 다시 물 수 있음
+      if (sink === 0) for (let d = Math.max(0, head - 2); d >= 0; d -= 2.5) for (const e of foesAround(dim, p, at(d, t), 1.5)) {
+        if (bitten.has(e.id)) continue; bitten.add(e.id);
+        if (hit(e, t <= TR ? 0.35 : 0.2, 1)) { M.toss(C, e, 10, 3); M.potion(e, "poison", 1, 2); glow(dim, center(e), { n: 8, spd: 3 }); }
+      }
+      if (t === TR) { const end = at(REACH); spike(dim, up(end, -0.3), norm(add(dir, UP, 2)), 2.4, 0.4, { life: 5 }); rocks(dim, end, { n: 8, r: 0.5, spd: 5 }); }
+      if (t === STAY + 1 && k === 0) snd(p, "dig.grass", 1, 0.6);
+      if (t === STAY + 1) rocks(dim, at(REACH * 0.5, t), { n: 6, r: 1.5, spd: 3 });
     });
   }
   later(3, () => { snd(p, "mob.phantom.swoop", 1.2, 0.5); snd(p, "random.fizz", 1, 0.5); });
