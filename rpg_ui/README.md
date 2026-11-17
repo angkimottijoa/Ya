@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V6.3.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V6.4.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,10 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V6.4 변경
+- 와선창의 창을 사용자 그림(art/cheongryong_spear_ref.png) 그대로 점 찍기 (gen_spear.py → 파티클 rpg:cr_spear, 쥐는 곳 cr_spear_meta.js)
+  - 그림 면이 창 축을 중심으로 돌아 늘 플레이어 시선 쪽을 봄 → 휘두르거나 찌를 때도 납작하게 안 보임, 길이 약 4.4블록
 
 ## V6.3 변경
 - 청룡 ② 와선 → **와선창**: 파티클로 그린 창(짙은 남색 자루 + 흰·하늘 잎 모양 창날 + 물빛 술)

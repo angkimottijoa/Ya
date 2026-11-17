@@ -8,6 +8,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
+import { SPEAR } from "./cr_spear_meta.js";
 
 export const SWORD_ID = "rpg:cheongryong_sword";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -109,21 +110,20 @@ function flowingWater(ctx) {
 }
 
 // ② 와선창: 창을 들고 돌진하며 오른쪽 반 바퀴 → 왼쪽 반 바퀴 휘두름 → 앞으로 찌르기 → 살짝 물러섰다가 → 돌진 찌르기 + 앞으로 번개
-/** 파티클 창: 손(origin)에서 dir 쪽으로. 자루(짙은 남색) + 잎 모양 창날(흰·하늘) + 창날 밑 물빛 술 */
+/** 파티클 창: 사용자 그림을 점으로 찍음. 손(origin) = 쥐는 곳, dir = 창날 방향.
+ *  그림 면은 창 축을 중심으로 돌려 플레이어 시선 쪽을 보게 함 (휘두르거나 찌를 때도 납작하게 안 보임) */
+const SPEAR_SCALE = 0.034;
 function spear(dim, origin, dir, o = {}) {
-  const len = o.len ?? 3.4, life = o.life ?? 0.1;
-  const side = norm(Math.abs(dir.y) > 0.9 ? cross(dir, { x: 1, y: 0, z: 0 }) : cross(dir, { x: 0, y: 1, z: 0 }));
-  const butt = add(origin, dir, -1.1), neck = add(origin, dir, len - 1.1), tip = add(neck, dir, 1.05);
-  line(dim, butt, neck, { tone: 0.82, n: 34, thick: 0.1, size: 1.5, life });                        // 자루
-  for (const s2 of [-1, 1]) {                                                                          // 잎 모양 창날
-    const wing = add(add(neck, dir, 0.32), side, s2 * 0.24);
-    line(dim, neck, wing, { tone: 0.1, n: 8, thick: 0.2, size: 1.6, life });
-    line(dim, wing, tip, { tone: 0.02, n: 14, thick: 0.6, size: 1.5, life });
-  }
-  line(dim, neck, tip, { tone: 0.0, n: 12, thick: 0.5, size: 1.1, life });                            // 창날 가운데 흰 줄
-  cluster(dim, add(neck, dir, -0.15), { n: 3, r: 0.15, spd: 0.6, tone: 0.35 });                         // 물빛 술
-  return tip;
+  let look = o.look ?? { x: 0, y: 1, z: 0 };
+  let v = cross(dir, look);
+  if (Math.hypot(v.x, v.y, v.z) < 0.15) v = cross(dir, { x: 0, y: 1, z: 0 });
+  if (Math.hypot(v.x, v.y, v.z) < 0.15) v = { x: 1, y: 0, z: 0 };
+  v = norm(v);
+  const n = Math.round((SPEAR.filled * 1.15) / SPEAR.fill);
+  pt(dim, "cr_spear", origin, { u: dir, v, scale: SPEAR_SCALE * (o.size ?? 1), n, life: o.life ?? 0.1 });
+  return add(origin, dir, (SPEAR.iw - SPEAR.gx) * SPEAR_SCALE * (o.size ?? 1));
 }
+const viewOf = (p) => { try { return p.getViewDirection(); } catch { return fwdOf(yawOf(p)); } };
 function whirlpool(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.potion(p, "resistance", 4, 2.5);
@@ -143,7 +143,7 @@ function whirlpool(ctx) {
       if (k < 6) try { p.applyKnockback(f.x, f.z, 0.75, 0.02); } catch {}
       const deg = h.from + ((h.to - h.from) * k) / 6;                    // 창이 몸 옆을 반 바퀴 돎
       const hand = add(up(p.location, 1.1), rot(yw, h.side * -90), 0.35);
-      const tip = spear(dim, hand, rot(yw, deg), { len: 3.4 }); // 오른쪽: 180→90→0, 왼쪽: -180→-90→0
+      const tip = spear(dim, hand, rot(yw, deg), { look: viewOf(p) }); // 오른쪽: 180→90→0, 왼쪽: -180→-90→0
       if (k % 2 === 0) snow(dim, tip, 1, 0.4);
       for (const e of M.around(dim, up(p.location, 0), 3.6)) hit(e, 0.45);
     });
@@ -152,7 +152,7 @@ function whirlpool(ctx) {
   later(16, () => {
     M.anim(p, "thrust");
     const yw = yawOf(p), f = fwdOf(yw), hand = up(p.location, 1.15);
-    for (let k = 0; k < 4; k++) later(k, () => spear(dim, add(hand, f, k * 0.4), f, { len: 3.6 }));
+    for (let k = 0; k < 4; k++) later(k, () => spear(dim, add(hand, f, k * 0.4), f, { look: viewOf(p) }));
     const tip = add(hand, f, 4.6);
     pt(dim, "cr_arc", p.location, { yaw: yw, a0: -12, a1: 12, r: 4.5, thick: 0.6, h: 1.1, dur: 0.06, n: 120 });
     cluster(dim, tip, { n: 22, r: 0.4, spd: 3.5, tone: 0.3 });
@@ -163,7 +163,7 @@ function whirlpool(ctx) {
   later(21, () => {
     const yw = yawOf(p), f = fwdOf(yw);
     try { p.applyKnockback(-f.x, -f.z, 0.6, 0.12); } catch {}
-    for (let k = 0; k < 6; k++) later(k, () => { spear(dim, add(up(p.location, 1.15), fwdOf(yawOf(p)), -0.6), fwdOf(yawOf(p)), { len: 3.4 }); bodyVolts(dim, p.location, 1, 0.9); });
+    for (let k = 0; k < 6; k++) later(k, () => { spear(dim, add(up(p.location, 1.15), fwdOf(yawOf(p)), -0.6), fwdOf(yawOf(p)), { look: viewOf(p) }); bodyVolts(dim, p.location, 1, 0.9); });
     M.sound(p, "random.fizz", 0.8, 1.6);
   });
   // 5) 돌진 찌르기 + 앞으로 번개
@@ -175,7 +175,7 @@ function whirlpool(ctx) {
     M.sound(p, "ambient.weather.lightning.impact", 1, 1.5);
     for (let k = 0; k < 6; k++) later(k, () => {
       const L = p.location, ff = fwdOf(yawOf(p));
-      const tip = spear(dim, add(up(L, 1.15), ff, 0.6), ff, { len: 3.8 });
+      const tip = spear(dim, add(up(L, 1.15), ff, 0.6), ff, { look: viewOf(p), size: 1.1 });
       cluster(dim, tip, { n: 6, r: 0.3, spd: 2, tone: 0.2 });
       for (const e of M.around(dim, add(L, ff, 2.5), 2.6)) hit(e, 1.3);
     });
