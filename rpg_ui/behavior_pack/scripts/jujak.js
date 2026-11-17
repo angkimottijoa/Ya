@@ -219,8 +219,15 @@ function bigShot(ctx, done) {
       pt(dim, "jj_ring", up(L, 0.05), { n: 22, r: 2.6 - k * 0.8, spd: 0.25, size: 0.9 + k * 0.5, life: 0.45, tone: 0.15 });
       for (let j = 0; j < 3; j++) { const a = (j / 3) * Math.PI * 2 + t * 0.3; vanilla(dim, "minecraft:basic_flame_particle", { x: L.x + Math.cos(a) * 2, y: L.y + 0.1, z: L.z + Math.sin(a) * 2 }); }
     }
-    // 타이밍 게이지 (화면 아래)
+    // 타이밍 게이지 (화면 아래) + 칸이 찰 때마다 점점 높아지는 소리
     const z = GAUGE[gaugePos(t)];
+    if (t % 2 === 0) {
+      const pos = gaugePos(t), q = pos / (GAUGE.length - 1);
+      M.sound(p, "note.pling", 0.35 + q * 0.45, 0.6 + q * 1.4);              // 점점 고조
+      if (z === 2 && GAUGE[pos - 1] !== 2) M.sound(p, "note.bell", 0.9, 1.6); // 빨강(완벽) 칸 진입
+      if (pos === GAUGE.length - 1) M.sound(p, "random.fizz", 0.5, 0.6);      // 끝까지 차면 '치익' 하고 다시
+      if (pos === 0 && t > 2) M.sound(p, "note.bass", 0.5, 0.6);
+    }
     say(p, `${["§7", "§6", "§c§l"][z]}${["빗나감", "좋음 ×1", "완벽 ×1.5"][z]}§r  ${gaugeText(gaugePos(t))}  §7다시 클릭!`);
     if (t === 20) { flashScreen(p, 1, 0.5, 0.12, 0.25); M.sound(p, "mob.blaze.shoot", 0.7, 0.5); }
     if (t % 8 === 0) try { p.runCommand(`camerashake add @s ${(0.03 + k * 0.08).toFixed(2)} 0.25 positional`); } catch {}

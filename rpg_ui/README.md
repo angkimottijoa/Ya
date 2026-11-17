@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V7.4.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V7.5.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V7.5 변경
+- 주작 3단 게이지 소리: 칸이 찰 때마다 음이 점점 높아지고 커짐, 빨강(완벽) 칸에 들어설 때 종소리, 끝까지 차면 '치익' 소리 후 낮은 음으로 다시 시작
 
 ## V7.4 변경
 - 주작 3단 조준하는 동안 몸 투명화(투명 효과, 쏘고 0.6초 뒤 해제) → 어깨 시점에서 몸이 시야를 가리지 않음
