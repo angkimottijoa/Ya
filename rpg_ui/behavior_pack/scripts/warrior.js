@@ -120,8 +120,11 @@ function rageCtx(ctx) {
 function w_bash(ctx) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx), yw = yawOf(p), n = step(p, "w1", 2);
   M.anim(p, "slash");
+  if (n === 1) ctx.setCd?.(8);
   const c = up(p.location, 1.1);
-  arc(dim, "wr_arc", c, yw, n ? { tilt: 35, dir: -1, r: 2.6, n: 110 } : { r: 2.5, n: 100 });
+  arc(dim, "wr_arc", c, yw, n ? { tilt: 35, dir: -1, r: 2.6, n: 150 } : { r: 2.5, n: 130 });
+  arc(dim, "wr_arc", c, yw, { ...(n ? { tilt: 35, dir: -1 } : {}), r: n ? 2.85 : 2.75, thick: 0.12, n: 50, life: 0.25, size: 0.8, prio: 1 }); // 칼날 빛
+  later(1, () => pt(dim, "wr_spark", add(c, fwdOf(yw), 2), { n: 10, r: 1, spd: 5, life: 0.5 }, 2));
   later(2, () => {
     for (const e of cone(dim, p, 3.2)) if (hit(e, n ? 0.65 : 0.55)) pt(dim, "wr_spark", center(e), { n: 6, r: 0.3, spd: 4, life: 0.5 });
     snd(p, "random.anvil_land", 0.25, 1.9);
@@ -164,38 +167,59 @@ function w_slam(ctx) {
 }
 
 // ═════════════ 2차 검성 / 3차 검황 (달빛) ═════════════
-/** 날아가는 달빛 검기: 파티클은 한 번만 뿌리고(스스로 날아감), 판정만 2틱마다 */
+/** 날아가는 달빛 검기: 파티클은 한 번만 뿌리고(스스로 날아감), 판정만 2틱마다. 별가루 꼬리는 4틱마다 (장식) */
 function moonWave(ctx, hit, o) {
   const { p } = ctx, dim = p.dimension, yw = yawOf(p), pl = plane(yw, o.tilt ?? 0);
   const start = add(up(p.location, 1.1), pl.u, 0.8), L = o.len ?? 9, spd = o.spd ?? 20, life = L / spd;
-  pt(dim, "mn_wave", start, { u: o.full ? pl.v : pl.u, v: o.full ? UP : pl.v, vd: pl.u, vs: spd, r: o.r ?? 2.2, thick: o.thick ?? 0.7, a0: o.full ? 0 : -75, a1: o.full ? 360 : 75, n: o.n ?? 160, life, size: o.size ?? 1.2, tone: o.tone ?? 0 }, 0);
-  if (o.stars) pt(dim, "mn_star", start, { n: 12, r: 0.8, spd: 2, life: 0.8, size: 1 });
+  const wave = (r, n, tone, size, delay, prio) => later(delay, () => pt(dim, "mn_wave", start, { u: o.full ? pl.v : pl.u, v: o.full ? UP : pl.v, vd: pl.u, vs: spd, r, thick: o.thick ?? 0.7, a0: o.full ? 0 : -75, a1: o.full ? 360 : 75, n, life, size, tone }, prio));
+  wave(o.r ?? 2.2, o.n ?? 220, o.tone ?? 0, o.size ?? 1.3, 0, 0);
+  wave((o.r ?? 2.2) * 0.8, Math.round((o.n ?? 220) * 0.45), 0.35, (o.size ?? 1.3) * 0.9, 2, 1); // 따라오는 잔상 검기
+  if (o.full) wave((o.r ?? 2.2) * 0.55, 110, 0.15, 1.1, 0, 1); // 보름달: 안쪽 고리
+  pt(dim, "mn_star", start, { n: 18, r: 0.9, spd: 3, life: 0.9, size: 1.1 }, 1);
   const ticks = Math.ceil(life * 20);
   for (let t = 0; t <= ticks; t += 2) later(t + 1, () => {
     const c = add(start, pl.u, (t / 20) * spd);
-    for (const e of foes(dim, c, o.hitR ?? 2)) if (hit(e, o.mul, 20)) { pt(dim, "mn_star", center(e), { n: 6, r: 0.3, spd: 2, life: 0.6 }, 2); if (o.onHit) o.onHit(e); }
+    if (t % 4 === 0) pt(dim, "mn_star", c, { n: o.full ? 10 : 6, r: (o.r ?? 2.2) * 0.5, spd: 0.6, life: 0.9 }, 2);
+    for (const e of foes(dim, c, o.hitR ?? 2)) if (hit(e, o.mul, 20)) { pt(dim, "mn_star", center(e), { n: 10, r: 0.3, spd: 3, life: 0.7 }, 1); pt(dim, "mn_glyph", center(e), { u: pl.v, v: UP, r: 0.7, h: 0, n: 40, life: 0.4, size: 0.8 }, 2); if (o.onHit) o.onHit(e); }
   });
 }
-function sm_combo(ctx, emp) { // 검성 ① 월광 연참 (3타) / 검황 ① 만월 연참 (4타)
+/** 달빛 베기 한 번: 굵은 호 + 바깥 얇은 빛 테두리 + 잔상 두 겹 + 칼끝 별가루 */
+function moonSlash(dim, c, yw, o, emp) {
+  arc(dim, "mn_arc", c, yw, { ...o, n: emp ? 220 : 170, life: 0.45 });
+  arc(dim, "mn_arc", c, yw, { ...o, r: (o.r ?? 2.7) + 0.25, thick: 0.15, n: emp ? 90 : 70, life: 0.3, size: 0.8, prio: 1 }); // 빛 테두리
+  later(2, () => arc(dim, "mn_arc", c, yw, { ...o, r: (o.r ?? 2.7) - 0.3, n: 70, life: 0.5, tone: 0.35, prio: 1 }));
+  later(4, () => arc(dim, "mn_arc", c, yw, { ...o, r: (o.r ?? 2.7) - 0.6, n: 50, life: 0.5, tone: 0.5, prio: 2 }));
+  const pl = plane(yw, o.tilt ?? 0), tip = (deg) => add(c, add(scl(pl.u, Math.cos(rad(deg))), pl.v, Math.sin(rad(deg))), o.r ?? 2.7);
+  const d = o.dir ?? 1;
+  later(2, () => pt(dim, "mn_star", tip(-d * 70), { n: emp ? 16 : 10, r: 0.5, spd: 2.5, life: 0.8 }, 1));
+  if (emp) pt(dim, "mn_star", add(c, fwdOf(yw), 1.5), { n: 14, r: 1.4, spd: 1.5, life: 1 }, 2);
+}
+function sm_combo(ctx, emp) { // 검성 ① 월광 연참 (3타) / 검황 ① 만월 연참 (4타) → 마지막 타 뒤 8초 대기
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx), yw = yawOf(p);
   const max = emp ? 4 : 3, n = step(p, emp ? "se1" : "sm1", max);
   const c = up(p.location, 1.1), last = n === max - 1;
   M.anim(p, last ? "slash_down" : "slash");
   if (!last) {
     const o = [{ r: 2.7 }, { tilt: 40, dir: -1, r: 2.8 }, { tilt: -35, r: 2.8 }][n];
-    arc(dim, "mn_arc", c, yw, { ...o, n: emp ? 130 : 110, life: 0.4 });
-    later(2, () => arc(dim, "mn_arc", c, yw, { ...o, r: (o.r ?? 2.7) - 0.25, n: 50, life: 0.5, tone: 0.35, prio: 1 })); // 잔상
-    if (emp) pt(dim, "mn_star", add(c, fwdOf(yw), 1.5), { n: 10, r: 1.2, spd: 1.5, life: 0.9 }, 2);
-    later(2, () => { for (const e of cone(dim, p, 3.3)) hit(e, emp ? 0.62 : 0.5); snd(p, "game.player.attack.sweep", 0.8, 1.2 + n * 0.08); snd(p, "random.orb", 0.25, 1.8); });
-  } else if (!emp) { // 3타: 초승달 검기
-    arc(dim, "mn_arc", c, yw, { r: 2.6, tilt: 15, n: 100 });
-    moonWave(ctx, hit, { len: 9, r: 2.2, n: 150, mul: 0.75 });
+    moonSlash(dim, c, yw, o, emp);
+    later(2, () => { for (const e of cone(dim, p, 3.4)) if (hit(e, emp ? 0.62 : 0.5)) pt(dim, "mn_star", center(e), { n: 8, r: 0.3, spd: 3, life: 0.6 }, 1); snd(p, "game.player.attack.sweep", 0.8, 1.2 + n * 0.08); snd(p, "random.orb", 0.3, 1.6 + n * 0.1); });
+    return;
+  }
+  ctx.setCd?.(8);
+  if (!emp) { // 3타: 초승달 검기
+    moonSlash(dim, c, yw, { r: 2.6, tilt: 15 }, false);
+    pt(dim, "mn_glyph", up(p.location, 0.08), { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: 2.2, h: 0, n: 140, life: 0.9, size: 1 }, 2);
+    moonWave(ctx, hit, { len: 10, r: 2.3, n: 240, mul: 0.75 });
     snd(p, "mob.phantom.swoop", 0.9, 1.5);
-  } else { // 4타: 보름달 검기 (둥근 원이 날아감)
-    arc(dim, "mn_arc", c, yw, { r: 2.6, tilt: 90, n: 110 });
-    moonWave(ctx, hit, { len: 13, r: 1.6, thick: 0.5, n: 200, full: true, mul: 0.9, spd: 18, stars: true, hitR: 2.3 });
+    snd(p, "random.orb", 0.5, 0.9);
+  } else { // 4타: 보름달 검기 (둥근 원 + 안쪽 고리 + 별가루 꼬리)
+    moonSlash(dim, c, yw, { r: 2.6, tilt: 90 }, true);
+    pt(dim, "mn_glyph", up(p.location, 0.08), { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: 3, h: 0, n: 220, life: 1.2, size: 1.2 }, 1);
+    pt(dim, "mn_glyph", add(c, fwdOf(yw), 1.2), { u: rightOf(yw), v: UP, r: 1.6, h: 0, n: 160, life: 0.5, size: 1.1 }, 1); // 손끝에 떠오른 달
+    later(3, () => moonWave(ctx, hit, { len: 14, r: 1.7, thick: 0.55, n: 300, full: true, mul: 0.9, spd: 18, hitR: 2.4 }));
     snd(p, "mob.phantom.swoop", 1, 1.2);
-    snd(p, "random.orb", 0.5, 0.6);
+    snd(p, "random.orb", 0.6, 0.5);
+    snd(p, "beacon.power_select", 0.5, 1.6);
   }
 }
 function sm_flash(ctx, emp) { // 검성 ② 섬월 / 검황 ② 월영 섬
@@ -203,52 +227,67 @@ function sm_flash(ctx, emp) { // 검성 ② 섬월 / 검황 ② 월영 섬
   const o = { ...p.location }, L = emp ? 12 : 10, MAX = emp ? 5 : 3;
   M.anim(p, "dash");
   M.potion(p, "resistance", 2, 0.6);
-  // 앞 L칸 안, 경로에서 1.8칸 안의 적 (가까운 순)
   const marks = foes(dim, add(o, f, L / 2), L / 2 + 2).filter((e) => { const d = sub(e.location, o), al = d.x * f.x + d.z * f.z; return al > 0 && al < L + 1 && Math.abs(d.x * r.x + d.z * r.z) < 1.8; })
     .sort((a, b) => len(sub(a.location, o)) - len(sub(b.location, o))).slice(0, MAX);
+  // 출발: 발밑 작은 달 + 별가루
+  pt(dim, "mn_glyph", up(o, 0.08), { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: 1.4, h: 0, n: 90, life: 0.7, size: 0.9 }, 1);
+  pt(dim, "mn_star", up(o, 1), { n: 14, r: 0.6, spd: 2, life: 0.8 }, 1);
   try { p.applyKnockback(f.x, f.z, emp ? 3.2 : 2.8, 0.05); } catch {}
-  pt(dim, "mn_line", up(o, 1), { u: f, v: r, w: UP, r: L, n: Math.round(L * 10), life: 0.6, size: 1.2 }, 0);
-  if (emp) pt(dim, "mn_line", up(o, 1.2), { u: f, v: r, w: UP, r: L, n: Math.round(L * 5), life: 0.9, size: 0.9, tone: 0.3 }, 1);
+  // 지나간 자리: 굵은 빛줄기 + 양옆 잔상 줄기 + 별가루 꼬리
+  pt(dim, "mn_line", up(o, 1), { u: f, v: r, w: UP, r: L, n: Math.round(L * 16), life: 0.7, size: 1.4 }, 0);
+  for (const sd of emp ? [-0.5, 0.5, 0] : [-0.4, 0.4]) pt(dim, "mn_line", add(up(o, 1 + (sd ? 0.3 : 0.6)), r, sd), { u: f, v: r, w: UP, r: L, n: Math.round(L * 6), life: 0.9, size: 0.9, tone: 0.35 }, 1);
+  pt(dim, "mn_star", add(up(o, 1), f, L / 2), { n: emp ? 30 : 20, r: L / 2, spd: 0.5, life: 1.1 }, 2);
   snd(p, "mob.phantom.swoop", 1, 1.6);
+  snd(p, "random.orb", 0.4, 1.9);
   for (const e of marks) hit(e, 0.35);
-  // 지나간 뒤 X자 베기 자국이 터짐
+  // 지나간 뒤 X자 베기 자국이 터짐 (적마다 작은 달 + 별)
   later(10, () => {
     for (const e of marks) {
       if (!e.isValid()) continue;
       const c = center(e);
-      arc(dim, "mn_arc", c, yw + 90, { tilt: 45, r: 1.3, thick: 0.4, n: 50, sweep: 120, life: 0.35 });
-      arc(dim, "mn_arc", c, yw + 90, { tilt: -45, r: 1.3, thick: 0.4, n: 50, sweep: 120, dir: -1, life: 0.35 });
-      if (hit(e, emp ? 0.85 : 0.8, 1)) pt(dim, "mn_star", c, { n: 8, r: 0.3, spd: 3, life: 0.6 }, 2);
+      arc(dim, "mn_arc", c, yw + 90, { tilt: 45, r: 1.5, thick: 0.45, n: 80, sweep: 130, life: 0.4 });
+      arc(dim, "mn_arc", c, yw + 90, { tilt: -45, r: 1.5, thick: 0.45, n: 80, sweep: 130, dir: -1, life: 0.4 });
+      pt(dim, "mn_glyph", c, { u: r, v: UP, r: 0.9, h: 0, n: 60, life: 0.5, size: 0.9 }, 2);
+      if (hit(e, emp ? 0.85 : 0.8, 1)) pt(dim, "mn_star", c, { n: 14, r: 0.3, spd: 4, life: 0.7 }, 1);
     }
-    if (marks.length) snd(p, "random.orb", 0.6, 1.7);
+    if (marks.length) { snd(p, "random.orb", 0.7, 1.7); snd(p, "game.player.attack.sweep", 0.8, 1.4); }
   });
   // 검황: 지나간 자리에 남은 달그림자 분신이 한 번 더 벰
   if (emp) later(18, () => {
     for (const e of marks) {
       if (!e.isValid()) continue;
       const c = center(e), back = add(c, f, -1.6);
-      pt(dim, "mn_line", up(back, -0.6), { u: UP, v: r, w: f, r: 1.8, n: 30, life: 0.5, size: 1.4, tone: 0.4 }, 1); // 서 있는 그림자
-      arc(dim, "mn_arc", c, yw, { r: 1.6, n: 60, sweep: 160, tone: 0.3, life: 0.4 });
+      pt(dim, "mn_line", up(back, -0.9), { u: UP, v: r, w: f, r: 2, n: 50, life: 0.6, size: 1.5, tone: 0.45 }, 1); // 서 있는 그림자
+      pt(dim, "mn_line", add(up(back, -0.9), r, 0.3), { u: UP, v: r, w: f, r: 1.8, n: 30, life: 0.6, size: 1.1, tone: 0.55 }, 2);
+      moonSlash(dim, c, yw, { r: 1.7, sweep: 160 }, true);
       hit(e, 0.5, 1);
     }
-    if (marks.length) snd(p, "game.player.attack.sweep", 0.7, 0.8);
+    if (marks.length) { snd(p, "game.player.attack.sweep", 0.7, 0.8); snd(p, "random.orb", 0.5, 1.2); }
   });
 }
 function sm_spin(ctx, emp) { // 검성 ③ 만월 회전 / 검황 ③ 월식 회전
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx), yw = yawOf(p), g = { ...p.location };
   M.anim(p, "spin");
-  const turns = emp ? 2 : 1, R = emp ? 4 : 3.5;
+  const turns = emp ? 2 : 1, R = emp ? 4 : 3.5, flat = { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 } };
   for (let k = 0; k < turns; k++) later(k * 6, () => {
-    arc(dim, "mn_arc", up(p.location, 1), yawOf(p), { r: R, sweep: 359, dur: 0.22, n: emp ? 200 : 170, life: 0.45, thick: 0.8, tone: emp && k ? 0.8 : 0 });
-    later(3, () => { for (const e of foes(dim, p.location, R + 0.5)) { if (hit(e, emp ? 0.7 : 0.85, 4)) { const d = sub(p.location, e.location), l = Math.hypot(d.x, d.z) || 1; try { e.applyKnockback(d.x / l, d.z / l, 0.35, 0.1); } catch {} } } });
+    const ecl = emp && k === 1;
+    arc(dim, "mn_arc", up(p.location, 1), yawOf(p), { r: R, sweep: 359, dur: 0.22, n: emp ? 280 : 240, life: 0.5, thick: 0.9, tone: ecl ? 0.8 : 0 });
+    arc(dim, "mn_arc", up(p.location, 1.05), yawOf(p), { r: R + 0.3, sweep: 359, dur: 0.22, n: 100, life: 0.35, thick: 0.15, size: 0.8, tone: ecl ? 0.95 : 0, prio: 1 }); // 빛 테두리
+    later(3, () => arc(dim, "mn_arc", up(p.location, 0.9), yawOf(p), { r: R - 0.5, sweep: 359, dur: 0.22, n: 90, life: 0.5, tone: ecl ? 0.85 : 0.35, prio: 2 })); // 잔상
+    later(3, () => { for (const e of foes(dim, p.location, R + 0.5)) { if (hit(e, emp ? 0.7 : 0.85, 4)) { const d = sub(p.location, e.location), l = Math.hypot(d.x, d.z) || 1; try { e.applyKnockback(d.x / l, d.z / l, 0.35, 0.1); } catch {} pt(dim, "mn_star", center(e), { n: 8, r: 0.3, spd: 3, life: 0.6 }, 2); } } });
     snd(p, "game.player.attack.sweep", 1, 0.8 + k * 0.15);
   });
-  // 바닥 문양: 검성 = 만월(초승달), 검황 = 월식(검게 가려진 달 + 붉은 테)
-  pt(dim, "mn_glyph", up(g, 0.08), { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: R, h: emp ? 1 : 0, n: emp ? 260 : 200, life: 2, size: 1.2 }, 1);
-  pt(dim, "mn_star", up(g, 1), { n: 14, r: R * 0.7, spd: 1, life: 1.2 }, 2);
-  if (emp) later(14, () => { // 월식이 끝나며 붉은 테 고리가 터짐
-    arc(dim, "mn_arc", up(g, 0.5), 0, { r: R + 0.5, sweep: 359, dur: 0.05, n: 180, life: 0.5, tone: 0.9, spd: 6, h: 0.4 });
+  // 바닥 문양 두 겹 (바깥 큰 달 + 안쪽 작은 달), 별가루가 고리를 따라 솟음
+  pt(dim, "mn_glyph", up(g, 0.08), { ...flat, r: R, h: emp ? 1 : 0, n: emp ? 380 : 300, life: 2.2, size: 1.3 }, 1);
+  pt(dim, "mn_glyph", up(g, 0.1), { ...flat, r: R * 0.45, h: 0, n: 110, life: 2, size: 1 }, 2);
+  for (let k = 0; k < 3; k++) later(k * 8, () => pt(dim, "mn_star", up(g, 0.5), { n: 16, r: R * 0.8, spd: 1.2, life: 1.3 }, 2));
+  snd(p, "random.orb", 0.4, 1.4);
+  if (emp) later(14, () => { // 월식이 끝나며 붉은 테 고리가 퍼지며 터짐
+    arc(dim, "mn_arc", up(g, 0.5), 0, { r: R + 0.5, sweep: 359, dur: 0.05, n: 240, life: 0.6, tone: 0.9, spd: 8, h: 0.5 });
+    arc(dim, "mn_arc", up(g, 1.3), 0, { r: R, sweep: 359, dur: 0.05, n: 140, life: 0.5, tone: 0.82, spd: 5, h: 0.3, prio: 1 });
+    pt(dim, "mn_star", up(g, 1), { n: 24, r: R * 0.7, spd: 4, life: 1, tone: 0.9 }, 2);
     for (const e of foes(dim, g, R + 1)) if (hit(e, 0.9, 1)) knockUp(e, 0.35);
+    shake(p, 0.3, 0.3);
     snd(p, "random.explode", 0.5, 1.6);
     snd(p, "random.orb", 0.6, 0.5);
   });
@@ -262,23 +301,30 @@ function se_ult(ctx) { // 검황 ④ 월하 일섬
   try { p.camera.fade({ fadeTime: { fadeInTime: 0.3, holdTime: 0.5, fadeOutTime: 0.5 }, fadeColor: { red: 0.02, green: 0.03, blue: 0.12 } }); } catch {}
   snd(p, "ambient.weather.thunder", 0.4, 1.6);
   snd(p, "beacon.power_select", 0.8, 0.5);
-  // 하늘(앞 18칸, 높이 10)에 거대한 달이 떠오름
+  // 하늘(앞 18칸, 높이 10)에 거대한 달 + 둘레 별무리, 발밑에 달 문양, 칼집 끝으로 별빛이 모여듦
   const moonC = add(up(o, 10), f, 18);
-  for (let t = 0; t < 3; t++) later(t * 8, () => pt(dim, "mn_glyph", moonC, { u: r, v: UP, r: 7, h: 0, n: 260, life: 0.5, size: 2.4 }, t ? 2 : 1));
-  for (let t = 0; t < 12; t += 4) later(t, () => pt(dim, "mn_star", add(up(o, 1), f, 2), { n: 8, r: 1.5, spd: -2, life: 0.5 }, 2));
+  for (let t = 0; t < 3; t++) later(t * 7, () => { pt(dim, "mn_glyph", moonC, { u: r, v: UP, r: 7, h: 0, n: 420, life: 0.45, size: 2.6 }, t ? 1 : 0); pt(dim, "mn_glyph", moonC, { u: r, v: UP, r: 8.5, h: 0, n: 120, life: 0.45, size: 1.6 }, 2); });
+  later(1, () => pt(dim, "mn_star", moonC, { n: 60, r: 12, spd: 0.3, life: 1.5, size: 1.4 }, 2));
+  pt(dim, "mn_glyph", up(o, 0.08), { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: 3.5, h: 0, n: 260, life: 1.4, size: 1.2 }, 1);
+  for (let t = 0; t < 12; t += 3) later(t, () => pt(dim, "mn_star", add(up(o, 1), f, 2.5), { n: 12, r: 2, spd: -3, life: 0.5 }, 2));
   // 발도: 앞쪽 전체를 가르는 일섬
   later(14, () => {
     skillLock.delete(p.id);
     M.anim(p, "iai_dash");
     try { p.applyKnockback(f.x, f.z, 2.2, 0.05); } catch {}
     try { p.camera.fade({ fadeTime: { fadeInTime: 0.02, holdTime: 0.03, fadeOutTime: 0.4 }, fadeColor: { red: 0.85, green: 0.92, blue: 1 } }); } catch {}
-    pt(dim, "mn_line", up(o, 1.1), { u: r, v: f, w: UP, r: 24, n: 240, life: 0.8, size: 1.6 }, 0);
-    pt(dim, "mn_line", add(up(o, 1.1), r, -24), { u: r, v: f, w: UP, r: 24, n: 240, life: 0.8, size: 1.6 }, 0);
-    arc(dim, "mn_arc", add(up(o, 1.1), f, -2), yw, { r: 14, sweep: 120, thick: 1.2, dur: 0.06, n: 320, life: 0.6, size: 1.6 });
-    // 달이 갈라짐: 위아래 반쪽이 벌어짐 (두 번 그려 벌어지는 느낌)
-    pt(dim, "mn_line", moonC, { u: r, v: UP, w: f, r: 9, n: 90, life: 1, size: 1.6, tone: 0.9 }, 1);
-    pt(dim, "mn_line", add(moonC, r, -9), { u: r, v: UP, w: f, r: 9, n: 90, life: 1, size: 1.6, tone: 0.9 }, 1);
-    for (const [dy, t] of [[0.6, 2], [1.4, 8]]) later(t, () => { pt(dim, "mn_glyph", up(moonC, dy), { u: r, v: UP, r: 7, h: 0, n: 120, life: 0.4, size: 2.2 }, 2); pt(dim, "mn_glyph", up(moonC, -dy), { u: r, v: UP, r: 7, h: 0, n: 120, life: 0.4, size: 2.2 }, 2); });
+    for (const [dy, n, tone, size] of [[1.1, 300, 0, 1.8], [1.5, 120, 0.35, 1.1], [0.7, 120, 0.35, 1.1]]) {
+      pt(dim, "mn_line", up(o, dy), { u: r, v: f, w: UP, r: 24, n, life: 0.9, size, tone }, tone ? 1 : 0);
+      pt(dim, "mn_line", add(up(o, dy), r, -24), { u: r, v: f, w: UP, r: 24, n, life: 0.9, size, tone }, tone ? 1 : 0);
+    }
+    arc(dim, "mn_arc", add(up(o, 1.1), f, -2), yw, { r: 14, sweep: 120, thick: 1.4, dur: 0.06, n: 420, life: 0.7, size: 1.8 });
+    arc(dim, "mn_arc", add(up(o, 1.1), f, -2), yw, { r: 15, sweep: 120, thick: 0.2, dur: 0.06, n: 160, life: 0.45, size: 1, prio: 1 });
+    later(3, () => arc(dim, "mn_arc", add(up(o, 1.1), f, -2), yw, { r: 12.5, sweep: 120, thick: 1, dur: 0.06, n: 160, life: 0.7, tone: 0.4, prio: 2 }));
+    // 달이 갈라짐: 가운데 빛줄기 → 위아래 반쪽이 벌어지며 별가루가 쏟아짐
+    pt(dim, "mn_line", moonC, { u: r, v: UP, w: f, r: 10, n: 140, life: 1.2, size: 1.8, tone: 0.9 }, 1);
+    pt(dim, "mn_line", add(moonC, r, -10), { u: r, v: UP, w: f, r: 10, n: 140, life: 1.2, size: 1.8, tone: 0.9 }, 1);
+    for (const [dy, t] of [[0.5, 2], [1.2, 6], [2, 10]]) later(t, () => { for (const sg of [1, -1]) pt(dim, "mn_glyph", up(moonC, sg * dy), { u: r, v: UP, r: 7, h: 0, n: 160, life: 0.35, size: 2.2 }, 2); });
+    later(6, () => pt(dim, "mn_star", moonC, { n: 50, r: 6, spd: 4, life: 1.6, size: 1.4 }, 2));
     snd(p, "mob.phantom.swoop", 1.5, 1.2);
     snd(p, "random.glass", 1, 1.6);
     shake(p, 0.4, 0.4);
@@ -287,9 +333,9 @@ function se_ult(ctx) { // 검황 ④ 월하 일섬
   later(22, () => {
     const hits = foes(dim, add(o, f, 8), 10).filter((e) => { const d = sub(e.location, o), L = Math.hypot(d.x, d.z); return L < 16.5 && (d.x * f.x + d.z * f.z) / (L || 1) > 0.45; });
     for (const e of hits) {
-      if (hit(e, 2.2, 1)) { knockUp(e, 0.5); arc(dim, "mn_arc", center(e), yw, { r: 1.5, n: 40, sweep: 140, life: 0.3, prio: 1 }); }
+      if (hit(e, 2.2, 1)) { knockUp(e, 0.5); moonSlash(dim, center(e), yw, { r: 1.6, sweep: 140 }, false); pt(dim, "mn_glyph", center(e), { u: r, v: UP, r: 1, h: 0, n: 60, life: 0.5, size: 1 }, 2); }
     }
-    pt(dim, "mn_star", add(up(o, 1.5), f, 6), { n: 40, r: 5, spd: 3, life: 1.2, size: 1.3 }, 2);
+    pt(dim, "mn_star", add(up(o, 1.5), f, 6), { n: 60, r: 6, spd: 3, life: 1.4, size: 1.3 }, 2);
     snd(p, "random.explode", 0.8, 1.5);
     snd(p, "random.orb", 0.8, 0.5);
     shake(p, 0.6, 0.5);
@@ -306,7 +352,9 @@ function bk_spin(ctx0) { // 광전사 ① 혈참 회전 (2타, 흡혈)
   ctx.onHit = (e, d) => { base(e, d); healed += d * 0.05; };
   const hit = hitter(ctx), n = step(p, "bk1", 2), R = (n ? 3.5 : 3) + (emp ? 1.2 : 0);
   M.anim(p, "spin");
-  arc(dim, "bl_arc", up(p.location, 1), yawOf(p), { r: R, sweep: 359, dur: 0.16, n: emp ? 200 : 150, thick: 0.9, spd: 4, life: 0.5 });
+  if (n === 1) ctx0.setCd?.(8);
+  arc(dim, "bl_arc", up(p.location, 1), yawOf(p), { r: R, sweep: 359, dur: 0.16, n: emp ? 260 : 200, thick: 0.9, spd: 4, life: 0.5 });
+  later(2, () => arc(dim, "bl_arc", up(p.location, 0.8), yawOf(p), { r: R - 0.5, sweep: 359, dur: 0.16, n: 80, thick: 0.5, spd: 2, life: 0.5, tone: 0.2, prio: 1 }));
   if (emp) pt(dim, "bl_mist", up(p.location, 0.6), { n: 12, r: R * 0.6, spd: 1.5, life: 1.2, size: 1.4 }, 2);
   later(3, () => {
     for (const e of foes(dim, p.location, R + 0.4)) if (hit(e, n ? 0.6 : 0.5)) pt(dim, "bl_drop", center(e), { n: 6, r: 0.3, spd: 3, life: 0.8 }, 2);
@@ -390,11 +438,13 @@ function ds_combo(ctx0) { // 파괴자 ① 대지 가르기 (3타)
   const c = up(p.location, 1.1);
   if (n < 2) {
     M.anim(p, "slash");
-    arc(dim, "dr_arc", c, yw, n ? { tilt: 35, dir: -1, r: 2.8, n: 120 } : { r: 2.7, n: 110 });
+    arc(dim, "dr_arc", c, yw, n ? { tilt: 35, dir: -1, r: 2.8, n: 160 } : { r: 2.7, n: 150 });
+    later(1, () => pt(dim, "dr_ember", add(c, fwdOf(yw), 1.8), { n: 10, r: 1, spd: 2, life: 0.9 }, 2));
     later(2, () => { for (const e of cone(dim, p, 3.3)) hit(e, n ? 0.6 : 0.55); snd(p, "game.player.attack.sweep", 0.9, 0.7); snd(p, "fire.ignite", 0.5, 0.8); });
     return;
   }
-  // 3타: 내려찍어 앞으로 10칸 균열 + 바위판
+  // 3타: 내려찍어 앞으로 10칸 균열 + 바위판 (콤보 끝 → 8초 대기)
+  ctx0.setCd?.(8);
   M.anim(p, "slash_down");
   arc(dim, "dr_arc", c, yw, { tilt: 90, r: 2.6, n: 120 });
   later(3, () => {
