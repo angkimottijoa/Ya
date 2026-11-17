@@ -1,5 +1,6 @@
 // Arcania RPG - 진입점
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
+import { demoCircle } from "./magic.js";
 import { data, save, forget, msg, notify, isAdmin, setLevel } from "./player.js";
 import { initCombat, resetSpeed } from "./combat.js";
 import { initSkillTriggers, skillJumpTick } from "./skills.js";
@@ -109,6 +110,7 @@ world.afterEvents.playerInteractWithEntity?.subscribe(({ player: p, target }) =>
 //   rpg:quest <텍스트>    퀘스트창에 임의 텍스트 표시 (\n 줄바꿈, 빈 값이면 원래대로)
 //   rpg:level <숫자>      레벨 직접 설정 (스탯 포인트 다시 계산)
 //   rpg:gold <숫자>       골드 직접 설정
+//   rpg:circle <프리셋> [크기] [v]  마법진 미리보기 (astral · hexa · cyan · seal · triseal · trinity, v = 앞에 세워서)
 system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p }) => {
   if (p?.typeId !== "minecraft:player") return;
   switch (id) {
@@ -121,6 +123,7 @@ system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p 
       return;
     }
     case "rpg:quest": return void setQuestText(p, message.replaceAll("\\n", "\n"));
+    case "rpg:circle": return void demoCircle(p, message);
     case "rpg:level": return void setLevel(p, message.trim());
     case "rpg:gold": {
       const d = data(p);

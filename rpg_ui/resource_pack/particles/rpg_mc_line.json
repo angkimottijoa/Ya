@@ -1,0 +1,64 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:mc_line",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_mc"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     0,
+     0,
+     0
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life"
+   },
+   "minecraft:particle_motion_parametric": {
+    "relative_position": [
+     "variable.u.x * ((variable.particle_random_1 * variable.r) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.particle_random_2 - 0.5) * variable.w) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.x * ((variable.particle_random_1 * variable.r) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.particle_random_2 - 0.5) * variable.w) * math.cos((variable.rot + variable.spin * variable.particle_age)))",
+     "variable.u.y * ((variable.particle_random_1 * variable.r) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.particle_random_2 - 0.5) * variable.w) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.y * ((variable.particle_random_1 * variable.r) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.particle_random_2 - 0.5) * variable.w) * math.cos((variable.rot + variable.spin * variable.particle_age)))",
+     "variable.u.z * ((variable.particle_random_1 * variable.r) * math.cos((variable.rot + variable.spin * variable.particle_age)) - ((variable.particle_random_2 - 0.5) * variable.w) * math.sin((variable.rot + variable.spin * variable.particle_age))) + variable.v.z * ((variable.particle_random_1 * variable.r) * math.sin((variable.rot + variable.spin * variable.particle_age)) + ((variable.particle_random_2 - 0.5) * variable.w) * math.cos((variable.rot + variable.spin * variable.particle_age)))"
+    ]
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "(variable.particle_age < variable.draw * (variable.particle_random_1) ? 0 : 1) * variable.size * 0.085 * (1)",
+     "(variable.particle_age < variable.draw * (variable.particle_random_1) ? 0 : 1) * variable.size * 0.085 * (1)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 64,
+     "texture_height": 80,
+     "uv": [
+      0,
+      64
+     ],
+     "uv_size": [
+      16,
+      16
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": [
+     "variable.cr",
+     "variable.cg",
+     "variable.cb",
+     "variable.a * math.clamp((variable.life - variable.particle_age) / math.max(0.05, variable.fade), 0, 1) * math.clamp((variable.particle_age - variable.draw * (variable.particle_random_1)) / 0.12, 0, 1)"
+    ]
+   }
+  }
+ }
+}
