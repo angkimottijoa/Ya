@@ -111,6 +111,7 @@ world.afterEvents.playerInteractWithEntity?.subscribe(({ player: p, target }) =>
 //   rpg:level <숫자>      레벨 직접 설정 (스탯 포인트 다시 계산)
 //   rpg:gold <숫자>       골드 직접 설정
 //   rpg:reaper            히든 직업 영혼 수확자 해금 (테스트용)
+//   rpg:hidden [id]       히든 직업 해금 (chronomancer · abyss_knight · spirit_shepherd, 비우면 셋 다)
 //   rpg:circle <프리셋> [크기] [v]  마법진 미리보기 (astral · hexa · cyan · seal · triseal · trinity, v = 앞에 세워서)
 system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p }) => {
   if (p?.typeId !== "minecraft:player") return;
@@ -125,6 +126,7 @@ system.afterEvents.scriptEventReceive.subscribe(({ id, message, sourceEntity: p 
     }
     case "rpg:quest": return void setQuestText(p, message.replaceAll("\\n", "\n"));
     case "rpg:circle": return void demoCircle(p, message);
+    case "rpg:hidden": { const d = data(p); d.hidden ??= {}; for (const id of ["chronomancer", "abyss_knight", "spirit_shepherd"]) if (!message.trim() || message.trim() === id) d.hidden[id] = "open"; save(p); return void notify(p, "§d히든 직업 해금 (직업·스킬 > 승급)"); }
     case "rpg:reaper": { const d = data(p); d.reaperOpen = true; save(p); return void notify(p, "§5히든 직업 영혼 수확자 해금 (직업·스킬 > 승급)"); }
     case "rpg:level": return void setLevel(p, message.trim());
     case "rpg:gold": {

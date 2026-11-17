@@ -115,6 +115,15 @@
     },
     "rpg_jt_soul_reaper": {
       "textures": "textures/items/rpg/jt_soul_reaper"
+    },
+    "rpg_jt_chronomancer": {
+      "textures": "textures/items/rpg/jt_chronomancer"
+    },
+    "rpg_jt_abyss_knight": {
+      "textures": "textures/items/rpg/jt_abyss_knight"
+    },
+    "rpg_jt_spirit_shepherd": {
+      "textures": "textures/items/rpg/jt_spirit_shepherd"
     }
   }
 }

@@ -1,5 +1,6 @@
 // 플레이어 메뉴 화면들
 import { world, EquipmentSlot } from "@minecraft/server";
+import { hiddenOpen } from "./hidden_jobs.js";
 import { ModalFormData } from "@minecraft/server-ui";
 import { Screen, rt } from "./ui.js";
 import { data, save, stat, xpNeed, addGold, msg, notify, isAdmin, byId, MAX_LV, maxMp } from "./player.js";
@@ -387,6 +388,7 @@ function nextAdvances(p) {
   const ids = [...(J.PATHS[cur]?.next ?? [])];
   // 히든: 영혼 수확자 (조건을 채우면 2차·3차 어디서나 나타남)
   if (d.reaperOpen && (J.PATHS[cur]?.tier ?? 0) >= 2 && cur !== "soul_reaper") ids.push("soul_reaper");
+  if ((J.PATHS[cur]?.tier ?? 0) >= 2) for (const h of hiddenOpen(d)) if (h !== cur) ids.push(h);
   return ids.map((id) => {
     const t = J.PATHS[id];
     const why = d.lv < (t.lv ?? 1) ? `Lv.${t.lv} 필요` : d.gold < (t.cost ?? 0) ? `${t.cost}G 필요` : "";

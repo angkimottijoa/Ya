@@ -1,0 +1,75 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:sp_burst",
+   "basic_render_parameters": {
+    "material": "particles_blend",
+    "texture": "textures/particle/rpg_sp"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "(variable.particle_random_1 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_2 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_3 - 0.5) * 2 * variable.r"
+    ],
+    "direction": [
+     "(variable.particle_random_1 - 0.5)",
+     "(variable.particle_random_2 - 0.5) + 0.3",
+     "(variable.particle_random_3 - 0.5)"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life * (0.6 + variable.particle_random_4 * 0.6)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * (0.4 + variable.particle_random_4 * 0.8)",
+   "minecraft:particle_motion_dynamic": {
+    "linear_acceleration": [
+     0,
+     0,
+     0
+    ],
+    "linear_drag_coefficient": 2.4
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (0.14 + variable.particle_random_4 * 0.12) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.8)",
+     "variable.size * (0.14 + variable.particle_random_4 * 0.12) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.8)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 32,
+     "texture_height": 8,
+     "uv": [
+      "(variable.particle_random_4 > 0.6 ? 8 : 0)",
+      0
+     ],
+     "uv_size": [
+      8,
+      8
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp((variable.particle_age / variable.particle_lifetime) * 0.7 + variable.particle_random_4 * 0.2 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#F0FFFFFF",
+      "0.25": "#E0D8FFF0",
+      "0.5": "#D08CF0C8",
+      "0.75": "#B046B494",
+      "1.0": "#60145040"
+     }
+    }
+   }
+  }
+ }
+}

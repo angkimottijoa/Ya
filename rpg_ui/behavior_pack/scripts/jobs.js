@@ -30,6 +30,11 @@ export const PATHS = {
   // 히든 3차 (reaper.js): 2차 이상 · Lv.40 이상으로 밤에 몬스터 300마리를 쓰러뜨리면 승급 목록에 나타남 (아무 2차·3차에서나)
   soul_reaper: { tool: { name: "영혼 수확자의 낫", shape: "scythe", dmg: 15 }, name: "영혼 수확자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "class", color: "§5", bonus: { str: 9, int: 6, dex: 5 }, hidden: true, desc: "떠도는 영혼을 거두는 자. 근처에서 쓰러진 적의 영혼을 모아 낫에 담고, 모은 영혼으로 적을 거둔다." },
 
+  // 히든 3차 (hidden_jobs.js): 2차 이상 · Lv.40 이상에서 조건을 채워 몬스터를 쓰러뜨리면 승급 목록에 나타남
+  chronomancer: { tool: { name: "멈춘 시계의 홀", shape: "scepter", dmg: 13 }, name: "시간술사", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "mage", color: "§6", bonus: { int: 10, dex: 6, str: 4 }, hidden: true, desc: "시간을 멈추고 되감는 자. 시곗바늘 칼날과 시계판 마법진으로 적의 시간을 빼앗는다." },
+  abyss_knight: { tool: { name: "심연의 대검", shape: "greatsword", dmg: 16 }, name: "심연의 기사", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "class", color: "§4", bonus: { str: 12, vit: 8 }, hidden: true, desc: "심연에 몸을 내준 기사. 맞을수록 침식이 차올라 강해지고, 끝내 심연 그 자체가 된다." },
+  spirit_shepherd: { tool: { name: "혼령 인도자의 지팡이", shape: "staff", dmg: 12 }, name: "혼령 인도자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "archer", color: "§a", bonus: { dex: 8, int: 8, vit: 4 }, hidden: true, desc: "짐승의 혼을 거느리는 자. 혼령 늑대가 늘 곁을 지키고, 까마귀 · 사슴 · 곰의 혼이 부름에 응한다." },
+
   cleric: { tool: { name: "성직자의 철퇴", shape: "mace", dmg: 6 }, name: "성직자", tier: 1, base: "cleric", weapons: ["mace", "staff"], next: ["priest", "paladin"], icon: "cleric", color: "§e", desc: "빛의 가호로 동료를 지키는 치유사." },
   priest: { tool: { name: "도사의 부채", shape: "staff", dmg: 6 }, name: "사제", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["staff"], next: ["archbishop"], icon: "cleric", color: "§e", bonus: { int: 4, vit: 4 }, desc: "더 강한 치유와 정화." },
   archbishop: { tool: { name: "물의 성홀", shape: "scepter", dmg: 7 }, name: "대주교", tier: 3, base: "cleric", lv: 40, cost: 5000, weapons: ["staff"], next: [], icon: "cleric", color: "§e", bonus: { int: 8, vit: 8 }, desc: "기적을 행하는 자." },
@@ -42,7 +47,7 @@ export const PATH_PAL = {
   novice: "cloud", warrior: "steel", swordmaster: "steel", sword_emperor: "steel", berserker: "blood", destroyer: "blood",
   archer: "forest", sniper: "forest", hawkeye: "forest", hunter: "forest", beastlord: "forest",
   mage: "moon", elementalist: "ember", archmage: "ember", stormcaller: "storm", stormlord: "storm",
-  cleric: "holy", priest: "holy", archbishop: "holy", paladin: "holy", crusader: "holy", soul_reaper: "moon",
+  cleric: "holy", priest: "holy", archbishop: "holy", paladin: "holy", crusader: "holy", soul_reaper: "moon", chronomancer: "moon", abyss_knight: "blood", spirit_shepherd: "forest",
 };
 
 export const TIER_NAMES = ["", "1차", "2차", "3차"];
@@ -89,6 +94,19 @@ export const JOB_SKILLS = [
   { id: "jr_soul_reaper_2", key: 2, path: "soul_reaper", name: "영혼 사슬", lv: 45, mp: 24, cd: 12, kind: "melee", pow: 1, wr: "rp_chain", desc: "앞 14칸 최대 네 명에게 영혼 사슬을 던져 2초 묶고 끌어당긴다. 사슬에 묶인 적에게 낙인(영혼 수확 피해 1.5배)." },
   { id: "jr_soul_reaper_3", key: 3, path: "soul_reaper", name: "망령 행진", lv: 45, mp: 28, cd: 15, kind: "melee", pow: 1, wr: "rp_wraith", desc: "망령이 되어 주변 적 사이를 세 번 꿰뚫고 지나가며 벤다. 영혼 3개마다 한 번 더 (최대 6개 사용)." },
   { id: "jr_soul_reaper_4", key: 4, path: "soul_reaper", name: "영혼 수확", lv: 50, mp: 60, cd: 45, kind: "melee", pow: 1, wr: "rp_ult", desc: "발밑에 죽음의 진, 등 뒤에 거대한 낫. 주변 적의 영혼을 뽑아 낫에 모은 뒤 크게 한 바퀴 베어 거둔다. 체력 15% 이하 일반 몹은 처형(최대 3마리, 보스는 피해 1.5배), 모은 영혼만큼 피해·회복 증가." },
+  // ── 히든: 시간술사 · 심연의 기사 · 혼령 인도자 (V11.6, hidden_jobs.js) ──
+  { id: "jh_chrono_1", key: 1, path: "chronomancer", name: "초침 베기", lv: 45, mp: 6, cd: 0.5, kind: "magic", pow: 1, wr: "tm_combo", desc: "3타: 시곗바늘 칼날이 몸 앞을 휙 돌며 벰 → 반대로 → 발밑 시계판이 돌다 터짐. 맞힐 때마다 시간 조각. 마지막 뒤 8초." },
+  { id: "jh_chrono_2", key: 2, path: "chronomancer", name: "정지 구슬", lv: 45, mp: 24, cd: 12, kind: "magic", pow: 1, wr: "tm_freeze", desc: "날아간 구슬이 터지면 시계판과 톱니가 펼쳐져 주변 적을 2초 멈춤. 풀릴 때 멈춘 동안 받은 피해의 40%가 한꺼번에 더 들어감." },
+  { id: "jh_chrono_3", key: 3, path: "chronomancer", name: "되감기", lv: 45, mp: 20, cd: 10, kind: "magic", pow: 1, wr: "tm_rewind", desc: "2초 전 자리로 되돌아가고, 지나온 길의 잔상들이 한꺼번에 벤다. 시간 조각 3개가 있으면 써서 체력 12% 회복." },
+  { id: "jh_chrono_4", key: 4, path: "chronomancer", name: "시간 붕괴", lv: 50, mp: 60, cd: 45, kind: "magic", pow: 1, wr: "tm_ult", desc: "바닥에 거대한 시계판(바늘이 거꾸로 돎)과 톱니 넷, 모래가 쏟아짐. 안의 적은 느려지다 멈추고, 열두 번 종이 울리며 눈금마다 폭발 → 가운데 큰 폭발. 시간 조각만큼 강해짐." },
+  { id: "jh_abyss_1", key: 1, path: "abyss_knight", name: "심연 베기", lv: 45, mp: 6, cd: 0.5, kind: "melee", pow: 1, wr: "ab_combo", desc: "3타: 검은 호와 칼을 따라 뻗는 촉수 → 반대로 → 앞 바닥에서 촉수 다섯이 솟아 띄움. 마지막 뒤 8초." },
+  { id: "jh_abyss_2", key: 2, path: "abyss_knight", name: "끌어당기는 손", lv: 45, mp: 22, cd: 11, kind: "melee", pow: 1, wr: "ab_grasp", desc: "앞쪽 바닥에서 검은 촉수 여섯이 차례로 솟아 적을 붙잡고 내 쪽으로 끌어온다." },
+  { id: "jh_abyss_3", key: 3, path: "abyss_knight", name: "공허 돌진", lv: 45, mp: 22, cd: 9, kind: "melee", pow: 1, wr: "ab_void", desc: "검은 구멍으로 들어가 앞 12칸 안 적의 뒤 구멍에서 튀어나와 벤다." },
+  { id: "jh_abyss_4", key: 4, path: "abyss_knight", name: "심연화", lv: 50, mp: 50, cd: 45, kind: "melee", pow: 1, wr: "ab_ult", desc: "7초(침식 100이면 12초) 동안 등에 촉수 날개가 돋고 힘·속도·저항 · 근접 흡혈 · 스킬 피해 +35%. 끝날 때 블랙홀이 열려 빨아들인 뒤 터짐." },
+  { id: "jh_spirit_1", key: 1, path: "spirit_shepherd", name: "혼령 지휘", lv: 45, mp: 6, cd: 0.5, kind: "ranged", pow: 1, wr: "sp_command", desc: "3타: 혼령 늑대가 조준한 적에게 달려가 문다 → 한 번 더 → 혼령 곰이 달려가 들이받아 띄움. 마지막 뒤 8초." },
+  { id: "jh_spirit_2", key: 2, path: "spirit_shepherd", name: "까마귀 떼", lv: 45, mp: 22, cd: 11, kind: "ranged", pow: 1, wr: "sp_crows", desc: "혼령 까마귀 열둘이 부채꼴로 14칸 날아가며 쪼고, 쪼인 적은 2초 실명." },
+  { id: "jh_spirit_3", key: 3, path: "spirit_shepherd", name: "수호 사슴", lv: 45, mp: 26, cd: 16, kind: "ranged", pow: 1, wr: "sp_deer", desc: "혼령 사슴이 나타나 주변 아군을 치유(15% + 재생)하고, 뿔 돌진으로 앞 9칸 적을 밀어낸다." },
+  { id: "jh_spirit_4", key: 4, path: "spirit_shepherd", name: "백귀 행렬", lv: 50, mp: 60, cd: 45, kind: "ranged", pow: 1, wr: "sp_ult", desc: "뒤에서 늑대 · 사슴 · 곰 · 까마귀 혼령 스물넷이 여섯 줄로 앞 24칸을 휩쓸고 지나간다. 유대만큼 강해짐." },
   // ── 마법사 계열 (V11.2, mage.js · 마법진 캐스터) ──
   { id: "jm_mage_1", key: 1, path: "mage", name: "마력탄", lv: 1, mp: 4, cd: 0.5, kind: "magic", pow: 1, wr: "mg_bolt", desc: "3연: 손끝 작은 마법진에서 조준한 곳으로 마력탄. 3번째는 큰 마력탄(주변 폭발). 마지막 뒤 8초 대기." },
   { id: "jm_mage_2", key: 2, path: "mage", name: "비전 폭발", lv: 8, mp: 16, cd: 10, kind: "magic", pow: 1, wr: "mg_burst", desc: "발밑에 마법진을 그리고 0.6초 뒤 비전 폭발, 주변 적을 밀어낸다." },
