@@ -82,6 +82,27 @@ function boom(dim, at, big = false) {
   dust(dim, at, { n: big ? 12 : 8, r: 0.5, spd: big ? 8 : 6, tone: 0 });
   smoke(dim, at, { n: big ? 14 : 5, r: big ? 1.2 : 0.6, spd: big ? 3 : 2, size: big ? 2 : 1.3 });
 }
+/** 균열 선: a → b 사이를 지그재그로 갈라진 금 (검은 줄 + 가장자리 흰 줄), 꼭짓점마다 작은 폭발 */
+function crack(dim, a, b, o = {}) {
+  const d = sub(b, a), L = Math.hypot(d.x, d.y, d.z) || 0.1, dir = scl(d, 1 / L);
+  const side = norm(cross(dir, UP).x || cross(dir, UP).z ? cross(dir, UP) : { x: 1, y: 0, z: 0 });
+  const segs = Math.max(3, Math.min(8, Math.round(L / 1.6)));
+  let prev = a;
+  for (let i = 1; i <= segs; i++) {
+    const q = i / segs, j = i === segs ? 0 : (Math.random() - 0.5) * Math.min(1.6, L * 0.18);
+    const cur = add(add(a, d, q), side, j);
+    const sd = sub(cur, prev), sl = Math.hypot(sd.x, sd.y, sd.z) || 0.01, su = scl(sd, 1 / sl);
+    pt(dim, "bh_line", prev, { u: su, v: side, r: sl, h: 0.6, n: Math.round(sl * 14), tone: 0.97, life: o.life ?? 1.4, size: 1.6, thick: i * 5.3 });
+    pt(dim, "bh_line", add(prev, side, 0.12), { u: su, v: side, r: sl, h: 0.4, n: Math.round(sl * 7), tone: 0, life: (o.life ?? 1.4) * 0.6, size: 0.9, thick: i * 2.1 });
+    if (i < segs && Math.random() < 0.5) { // 갈라져 나간 잔금
+      const br = add(cur, norm(add(su, side, Math.random() < 0.5 ? 1.2 : -1.2)), 0.8 + Math.random());
+      pt(dim, "bh_line", cur, { u: norm(sub(br, cur)), v: side, r: Math.hypot(...Object.values(sub(br, cur))), h: 0.5, n: 10, tone: 0.95, life: (o.life ?? 1.4) * 0.8, size: 1.1, thick: i * 9 });
+    }
+    prev = cur;
+  }
+  pt(dim, "bh_boom", a, { n: 4, r: 0.3, spd: 1.2, size: 1.2, life: 0.6, tone: 0.85 });
+  pt(dim, "bh_boom", b, { n: 5, r: 0.3, spd: 1.5, size: 1.4, life: 0.7, tone: 0 });
+}
 /** 강타 이펙트: 폭발 뭉게로 그린 원이 작게 시작해 점점 커짐. 여러 겹을 차례로 */
 function boomRings(dim, at, o = {}) {
   const rings = o.rings ?? [[0, 7, 0], [3, 11, 0.85], [6, 15, 0], [10, 19, 0.85]]; // [지연, 퍼지는 속도, 색]
@@ -223,6 +244,7 @@ function ambush(ctx) {
     const targets = M.around(dim, g, 14).sort((a, b) => dist2(a.location, g) - dist2(b.location, g)).slice(0, 8);
     if (!targets.length) return;
     const marks = [];
+    later(6 + targets.length * 4 + 60, () => camClear(p)); // 안전장치: 시점 복귀
     targets.forEach((e, i) => later(6 + i * 4, () => {
       if (!e.isValid()) return;
       const from = { ...p.location }, el = e.location;
@@ -232,7 +254,17 @@ function ambush(ctx) {
       pt(dim, "bh_boom", up(from, 0.5), { n: 5, r: 0.4, spd: 1.5, size: 1.2, life: 0.6, tone: 0.85 });
       const d = sub(back, from), L = Math.hypot(d.x, d.y, d.z) || 0.1;
       pt(dim, "bh_line", up(from, 1), { u: norm(d), v: UP, r: L, h: 0.25, n: Math.round(L * 12), tone: 0, life: 0.4, size: 1.4, thick: Math.random() * 10 });
+      crack(dim, up(from, 0.08), up(back, 0.08));           // 이동한 길을 따라 땅에 균열
       try { p.teleport(back, { facingLocation: up(el, 1.2), keepVelocity: false }); } catch {}
+      // 역동적인 시점: 어깨 너머 → 발 근처 낮은 곳 → 적 앞 아래에서 올려다보기 (번갈아)
+      const fwd = norm({ x: el.x - back.x, y: 0, z: el.z - back.z }), rgt = cross(fwd, UP);
+      const shots = [
+        [add(add(add(back, fwd, -1.7), rgt, 0.85), UP, 1.95), up(el, 1.0)],
+        [add(add(add(back, rgt, 1.5), fwd, 0.5), UP, 0.25), up(el, 1.7)],
+        [add(add(add(el, fwd, 2.6), rgt, -1.1), UP, 0.55), up(back, 1.3)],
+      ];
+      const [cp, cl] = shots[i % 3];
+      cam(p, cp, cl, i ? 0.12 : 0.2, "OutCubic");
       M.anim(p, i % 2 ? "slash_down" : "slash");
       claw(dim, p, { base: back, yaw: yawTo(back, el), roll: (i % 2 ? 1 : -1) * (40 + Math.random() * 30), r: 4.4, dots: 5, thick: 0.7, dist: 1.8, n: 1000, dur: 0.07, life: 0.6, size: 1.35, h: 95 });
       boom(dim, up(el, 1));
@@ -244,6 +276,9 @@ function ambush(ctx) {
     }));
     // 마지막: 할퀸 자리들이 한꺼번에 연쇄 폭발
     later(6 + targets.length * 4 + 6, () => {
+      const pl = p.location;
+      cam(p, add(add(up(pl, 8), fwdOf(yawOf(p)), -7), rightOf(yawOf(p)), 4), up(pl, 0.5), 0.35, "OutCubic"); // 위에서 넓게
+      later(26, () => camClear(p));
       M.sound(p, "random.explode", 1.4, 0.7);
       marks.forEach(({ e, at }, i) => later(i, () => {
         const q = e.isValid() ? { ...e.location } : at;
