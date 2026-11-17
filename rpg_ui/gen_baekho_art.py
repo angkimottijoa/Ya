@@ -89,11 +89,11 @@ def main():
             if gold:
                 col = (255, 190, 120)
             elif lum < 0.25:
-                col = (165 + int(lum * 120), 14, 16)          # 짙은 빨강
+                col = (215, 12, 14)                            # 진한 빨강
             elif lum < 0.6:
-                col = (232, 38 + int((lum - 0.25) * 60), 34)  # 빨강
+                col = (255, 30, 26)                            # 선명한 빨강
             else:
-                col = (255, 105 + int((lum - 0.6) * 180), 92 + int((lum - 0.6) * 150))  # 연한 빨강
+                col = (255, 92 + int((lum - 0.6) * 120), 80 + int((lum - 0.6) * 100))  # 밝은 빨강
             for i, j in clumps[(x * 7 + y * 13) % 4]:
                 bp[x * CELL + i, y * CELL + j] = col + (255,)
     OUT.parent.mkdir(parents=True, exist_ok=True)
