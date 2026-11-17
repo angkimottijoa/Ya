@@ -14,6 +14,7 @@ import * as MSR from "./msrun.js";
 import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
 import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
+import { isSkillLocked } from "./skill_lock.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS };
 
 export const WCLASS = {
@@ -287,6 +288,7 @@ function castWeaponSpecial(p, s) {
 }
 
 export function castKey(p, key) {
+  if (isSkillLocked(p)) return false; // 주작 3단 조준 중: 다른 스킬은 모두 무시
   const ws = heldWeaponSkills(p);
   if (ws) {
     const s = ws.find((x) => x.key === key);

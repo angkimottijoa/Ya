@@ -2,6 +2,7 @@
 import { system } from "@minecraft/server";
 import { data, notify } from "./player.js";
 import { fx, anim } from "./skills.js";
+import { isSkillLocked } from "./skill_lock.js";
 
 export const DASH_CD = 80; // 초
 const air = new Map(); // pid -> { wasJump, used, ticks }
@@ -14,7 +15,7 @@ export function dashLeft(p) {
 
 export function dashTick(p) {
   const d = data(p);
-  if (d.lv < 10 || d.set.dash === false) return;
+  if (d.lv < 10 || d.set.dash === false || isSkillLocked(p)) return;
   let onGround = true, jumping = false, sneak = false;
   try {
     onGround = p.isOnGround;

@@ -14,6 +14,7 @@
 import { system, world, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 import { JJ } from "./jujak_meta.js";
+import { skillLock } from "./skill_lock.js";
 
 export const BOW_ID = "rpg:jujak_bow";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -192,6 +193,8 @@ function restoreHold(p) {
   if (!h) return;
   try { p.teleport({ x: h.x, y: h.y, z: h.z }, { rotation: p.getRotation(), keepVelocity: false }); } catch {}
   try { p.setDynamicProperty(HOLD, undefined); } catch {}
+  skillLock.delete(p.id);
+  try { p.removeEffect("slowness"); } catch {}
   M.potion(p, "slow_falling", 1, 1);
   if (h.decoy) for (const [id, pid] of decoyOwner) if (id === h.decoy) { decoyOwner.delete(id); try { world.getEntity(id)?.remove(); } catch {} }
 }
@@ -228,7 +231,8 @@ export function releaseAim(p) { const f = aiming.get(p.id); if (!f) return false
 function bigShot(ctx, done) {
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
   M.anim(p, "bow_draw");
-  M.potion(p, "slowness", 2, 6);
+  M.potion(p, "slowness", 6, 6);
+  M.potion(p, "slow_falling", 1, 6);
   M.potion(p, "resistance", 3, 6);
   M.sound(p, "mob.blaze.breathe", 1, 0.7);
   ember(dim, up(p.location, 0.6), { n: 30, r: 1, spd: 2, life: 1 });
@@ -237,7 +241,9 @@ function bigShot(ctx, done) {
   let decoy = null;
   try { decoy = dim.spawnEntity("rpg:jj_decoy", base); decoy.setRotation?.({ x: 0, y: yaw0 }); decoyOwner.set(decoy.id, p.id); } catch {}
   try { p.setDynamicProperty(HOLD, JSON.stringify({ x: base.x, y: base.y, z: base.z, decoy: decoy?.id })); } catch {}
-  const unhide = () => restoreHold(p);
+  const unhide = () => { restoreHold(p); skillLock.delete(p.id); };
+  skillLock.add(p.id);
+  try { p.teleport(sky, { keepVelocity: false }); } catch {} // 한 번만 옮기고, 이후엔 속도를 0으로 붙잡음 (고개는 자유롭게)
   const MAX = 100; // 5초 안에 안 누르면 빗나감으로 발사
   let t = 0, fired = false;
   const release = () => {
@@ -252,7 +258,9 @@ function bigShot(ctx, done) {
     if (fired || !p.isValid()) { aiming.delete(p.id); unhide(); return; }
     t++;
     const k = ease(Math.min(1, t / 20)), L = base;
-    try { p.teleport(sky, { rotation: p.getRotation(), keepVelocity: false }); } catch {} // 진짜 몸은 하늘에 붙잡아 둠 (고개만 돌려 조준)
+    // 진짜 몸은 하늘에 붙잡아 둠: 매 틱 속도를 0으로 (순간이동은 고개 방향까지 되돌려서 쓰지 않음), 멀리 밀렸을 때만 다시 옮김
+    try { p.clearVelocity(); } catch { try { p.applyKnockback(0, 0, 0, 0.04); } catch {} }
+    try { const pl = p.location; if (Math.abs(pl.y - sky.y) > 1.5 || Math.hypot(pl.x - sky.x, pl.z - sky.z) > 1.5) p.teleport(sky, { keepVelocity: false }); } catch {}
     drawBow(p, k, true, t % 3 === 1, base);
     shoulderCam(p, base);
     if (t % 8 === 1) ghost(dim, base, yawOf(p));
