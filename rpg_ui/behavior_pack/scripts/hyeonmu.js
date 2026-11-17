@@ -631,7 +631,7 @@ function descent(ctx) {
   const yaw0 = yawOf(p), f0 = fwdOf(yaw0), r0 = rightOf(yaw0);
   const C = { ...p.location };
   try { const top = dim.getTopmostBlock({ x: Math.floor(C.x), z: Math.floor(C.z) }); if (top && Math.abs(top.location.y + 1 - C.y) < 3) C.y = top.location.y + 1; } catch {}
-  const PRE = 24, HOLD = 100 + n * 20, FIN = PRE + HOLD, BURST = FIN + 20, END = BURST + 30;
+  const PRE = 24, HOLD = 100 + n * 20, FIN = PRE + HOLD, BURST = FIN + 25, END = BURST + 30;
   const HALO = add(C, f0, -3.5), HALO_H = 12;
   const insideAllies = () => { try { return dim.getPlayers({ location: C, maxDistance: R }); } catch { return [p]; } };
   skillLock.add(p.id);
@@ -692,7 +692,7 @@ function descent(ctx) {
   let ang = rad(yaw0 - 90);
   const ringPt = (a, h, rr = R + 2.2) => ({ x: C.x + Math.cos(a) * rr, y: C.y + h, z: C.z + Math.sin(a) * rr });
   const sweeps = [];
-  for (let t = 0; t < BURST; t += 2) later(t, () => {
+  for (let t = 0; t < FIN; t += 2) later(t, () => {
     const pts = [];
     if (t < PRE + 6) { // 후광을 나선으로 감아 오름
       const hc = haloAt(Math.min(t, PRE)), q = Math.min(1, t / (PRE + 4));
@@ -701,13 +701,55 @@ function descent(ctx) {
       ang += 0.2;
       const sw = sweeps.some((s0) => t - s0 < 10) ? 2.2 : 0;
       for (let i = 0; i <= 34; i++) pts.push(ringPt(ang - i * 0.11, 2 + Math.sin(i * 0.45 + t * 0.2) * 0.7, R + 2.2 + (sw * i) / 34));
-    } else { // 돔 위로 감아 오름
-      const k = Math.min(1, (t - FIN) / 18);
-      for (let i = 0; i <= 34; i++) { const a = ang + t * 0.15 - i * 0.18, e = Math.min(1.5, (k * 34 - i) * 0.05 + 0.2); if (e < 0) break; const rr = (R + 1) * Math.cos(e); pts.push({ x: C.x + Math.cos(a) * rr, y: C.y + (R + 1) * Math.sin(e), z: C.z + Math.sin(a) * rr }); }
     }
     if (pts.length > 1) serpent(dim, pts, { thick: 0.85, life: 0.13, tone: 0.18, size: 1.6, dens: 0.55 });
     if (t === 6) { rocks(dim, HALO, { n: 30, r: 2, spd: 8 }); snd(p, "mob.ravager.roar", 1.2, 0.6); }
   });
+  // 마무리 뱀 (3D 사슬): 머리가 지나간 길을 몸이 그대로 따라감
+  //   돔을 나선으로 감아 오름(12틱) → 꼭대기 위로 고개를 쳐듦(6틱) → 코브라처럼 멈칫·뒤로 젖힘(2틱)
+  //   → 입을 벌리고 나선을 그리며 빠르게 내리꽂힘(5틱, 점점 빨라짐) → 머리는 땅속으로, 몸이 뒤따라 빨려 들어감
+  const hist = [];
+  const TOP = up(C, R + 7);
+  const headAt = (u) => {
+    if (u <= 12) { const q = u / 12, a = ang + u * 0.34, e = 0.15 + q * 1.15, rr = (R + 1.1) * Math.cos(e); return { x: C.x + Math.cos(a) * rr, y: C.y + (R + 1.1) * Math.sin(e), z: C.z + Math.sin(a) * rr }; }
+    if (u <= 18) { const q = ease((u - 12) / 6), from = headAt(12); return add(add(from, sub(TOP, from), q), { x: Math.sin(u) * 0.3, y: 0, z: Math.cos(u) * 0.3 }, 1 - q); }
+    if (u <= 20) return add(up(TOP, Math.sin((u - 18) * 1.6) * 0.5 + 0.6), f0, -0.8 * (u - 18) / 2); // 멈칫 · 뒤로 젖힘
+    if (u <= 25) { // 나선을 그리며 내리꽂힘 (점점 빨라짐)
+      const P = headAt(20), a0 = Math.atan2(P.z - C.z, P.x - C.x), r00 = Math.hypot(P.x - C.x, P.z - C.z);
+      const q = Math.pow((u - 20) / 5, 1.6), a = a0 + q * Math.PI * 3, rr = r00 * (1 - q) + 2.2 * Math.sin(q * Math.PI);
+      return { x: C.x + Math.cos(a) * rr, y: P.y - (P.y - (C.y - 1)) * q, z: C.z + Math.sin(a) * rr };
+    }
+    return up(C, -1 - (u - 25) * 1.6); // 땅속으로 (몸이 따라 들어감)
+  };
+  const bodyFrom = (N, gap) => { // 머리에서 뒤로, 지나온 길을 따라 일정 간격으로 점을 고름
+    let cur = hist[hist.length - 1], i = hist.length - 2, need = gap;
+    const pts = [cur];
+    while (pts.length < N && i >= 0) {
+      const nx = hist[i], d = len(sub(nx, cur));
+      if (d >= need && d > 0) { cur = add(cur, sub(nx, cur), need / d); pts.push(cur); need = gap; }
+      else { need -= d; cur = nx; i--; }
+    }
+    return pts;
+  };
+  for (let u = 0; u <= 36; u++) later(FIN + u, () => {
+    if (u === 0) { for (let i = 40; i >= 1; i--) hist.push(ringPt(ang - i * 0.11, 2 + Math.sin(i * 0.45) * 0.7)); }
+    hist.push(headAt(u));
+    if (hist.length > 400) hist.splice(0, 200);
+    const body = bodyFrom(40, 0.45);
+    const vis = body.filter((q) => q.y > C.y - 0.3);
+    if (vis.length > 1) serpent(dim, vis, { thick: 0.9, life: 0.07, tone: 0.18, size: 1.6, dens: 0.5, head: body[0].y > C.y - 0.3 });
+    // 입 벌림 (쳐들 때부터 내리꽂을 때까지): 위·아래 턱
+    if (u >= 16 && u <= 25 && body.length > 2) {
+      const h = body[0], d = norm(sub(body[0], body[1])), bs = basis(d), open = u >= 19 ? 0.75 : 0.35;
+      for (const sg of [1, -1]) { const jd = norm(add(d, bs.v, sg * open)); pt(dim, "hm_scale", h, { u: jd, v: bs.v, w: bs.w, r: 1.1, thick: 0.26, n: 26, life: 0.07, size: 1.1, tone: 0.1 }); }
+      pt(dim, "hm_glow", add(h, d, 0.9), { n: 3, r: 0.15, spd: 0.5, size: 1, life: 0.15, tone: 0.2 });
+    }
+    if (u >= 20 && u <= 25) { trailSpark(body[0]); }
+    if (u === 12) snd(p, "mob.ravager.roar", 1.3, 0.6);
+    if (u === 18) { snd(p, "mob.enderdragon.growl", 1.2, 0.7); shake(dim, C, 0.4, 0.4); }
+    if (u === 20) snd(p, "mob.phantom.swoop", 1.5, 0.5);
+  });
+  const trailSpark = (q) => { glow(dim, q, { n: 6, r: 0.4, spd: 2, size: 1.1, life: 0.6 }); smoke(dim, q, { n: 2, r: 0.3, spd: 0.4, size: 1.6, life: 0.8 }); };
   // 등껍질 파동 3번: 밀어내기 + 투사체 부숨
   const pulse = (k) => {
     const big = k === 2;
@@ -790,8 +832,6 @@ function descent(ctx) {
     for (let t = 0; t < 2; t++) later(t * 2, () => { const k = ease((t + 1) / 3); for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L * k, s2.th, { life: 0.12, n: 40 }); });
     later(4, () => { for (const s2 of pal) spike(dim, s2.base, s2.dir, s2.L, s2.th, { life: 3 }); });
     later(66, () => { for (const s2 of pal) rocks(dim, add(s2.base, s2.dir, s2.L * 0.5), { n: 6, r: 0.4, spd: 4, tone: 0.2 }); snd(p, "random.glass", 1, 0.5); });
-    // 뱀이 돔 꼭대기에서 한가운데로 내리꽂혀 사라짐
-    for (let t = 0; t < 8; t++) later(t, () => { const pts = []; for (let k2 = 0; k2 <= 24; k2++) { const y = R + 2 - t * 1.6 + k2 * 0.5; if (y < 0) continue; pts.push({ x: C.x + Math.sin(k2 * 0.4) * 0.6, y: C.y + y, z: C.z + Math.cos(k2 * 0.4) * 0.6 }); } if (pts.length > 1) serpent(dim, pts, { thick: 0.85, life: 0.1, tone: 0.18, size: 1.6, dens: 0.55 }); });
     // 모두 멀리 밀어냄 + 아군 큰 보호막
     for (const e of foesAround(dim, p, C, 20)) { hit(e, 1.6, 1); M.toss(C, e, 24 * push, 6); M.potion(e, "poison", 2, 3); }
     for (const a of insideAllies()) { M.potion(a, "absorption", 3, 8); M.potion(a, "regeneration", 2, 4); glow(dim, center(a), { n: 20, spd: 3, tone: 0 }); }

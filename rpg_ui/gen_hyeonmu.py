@@ -20,7 +20,7 @@ JADE = {"0.0": "#FFF0FFF4", "0.18": "#FFB4F5D2", "0.4": "#FF4FC488", "0.65": "#F
 ROCK = {"0.0": "#FF58665C", "0.35": "#FF333D37", "0.7": "#FF1A211D", "1.0": "#FF0A0D0B"}
 SPIKE = {"0.0": "#FFD6FFE8", "0.18": "#FF7FE0AE", "0.4": "#FF2F8F5E", "0.62": "#FF17482F", "0.82": "#FF0B1A12", "1.0": "#FF030504"}
 SNAKE = {"0.0": "#FFD2E6A4", "0.25": "#FF8DB65A", "0.5": "#FF3E7436", "0.75": "#FF1B3A1F", "1.0": "#FF07120A"}
-RAIN = {"0.0": "#FFD8FFB0", "0.3": "#FF8FEA60", "0.7": "#EE3FA83A", "1.0": "#AA1B5A22"}
+RAIN = {"0.0": "#F0E4FFB8", "0.35": "#E09CF05A", "0.7": "#D04CC03A", "1.0": "#B0237A2A"}
 POISON = {"0.0": "#9978C850", "0.4": "#7740862E", "1.0": "#00102A10"}
 INK = {"0.0": "#CC33493B", "0.45": "#99162219", "1.0": "#00040705"}
 FILL = {"0.0": "#702F8F5E", "0.6": "#401E5A3C", "1.0": "#000B1A12"}
@@ -94,6 +94,16 @@ def sheet():
         d.ellipse([10, 8, big - 10, big - 14], fill=(235, 235, 235, 255))
     for i, fn in enumerate([glow, dot, rock(2), rock(9), shard, puff, star, scale_]):
         put(i, fn)
+    # 두 번째 줄 0번: 빗방울 줄기 (세로, 아래쪽 머리가 밝고 위로 갈수록 흐려지는 꼬리)
+    drop = Image.new("RGBA", (big, big), (0, 0, 0, 0))
+    dd = ImageDraw.Draw(drop)
+    for y in range(big):
+        q = y / (big - 1)  # 0 = 위(꼬리) → 1 = 아래(머리)
+        w = 2 + 5 * q ** 3
+        a = int(255 * (0.15 + 0.85 * q ** 1.5))
+        dd.line([(c - w / 2, y), (c + w / 2, y)], fill=(255, 255, 255, a))
+    dd.ellipse([c - 6, big - 14, c + 6, big - 1], fill=(255, 255, 255, 255))
+    im.paste(drop.resize((SPR, SPR), Image.LANCZOS), (0, SPR))
     im.save(TEXD / "rpg_hm.png")
 
 
@@ -352,14 +362,14 @@ def main():
     rr = f"math.sqrt(variable.r * variable.r + {R2} * (variable.thick * variable.thick - variable.r * variable.r))"
     part("hm_rain", {
         **once(),
-        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ra}) * {rr}", f"variable.h + {R3} * 4", f"math.sin({ra}) * {rr}"], "direction": [f"({R4} - 0.5) * 0.08", -1, 0.03]},
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({ra}) * {rr}", f"variable.h + {R3} * 4", f"math.sin({ra}) * {rr}"], "direction": [0, -1, 0]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
         "minecraft:particle_initial_speed": f"variable.spd * (0.85 + {R4} * 0.3)",
         "minecraft:particle_motion_dynamic": {},
         "minecraft:particle_motion_collision": {"collision_radius": 0.05, "expire_on_contact": True},
-        "minecraft:particle_appearance_billboard": {"size": ["variable.size * 0.05", "variable.size * 0.55"], "facing_camera_mode": "lookat_direction",
-                                                    "direction": {"mode": "derive_from_velocity", "min_speed_threshold": 0.01},
-                                                    "uv": {"texture_width": 64, "texture_height": 64, "uv": [SPR, 0], "uv_size": [SPR, SPR]}},
+        # 세로로 선 빗줄기 (Y축만 돌아 항상 똑바로 섬)
+        "minecraft:particle_appearance_billboard": {"size": [f"variable.size * (0.07 + {R4} * 0.04)", f"variable.size * (0.45 + {R4} * 0.3)"], "facing_camera_mode": "rotate_y",
+                                                    "uv": {"texture_width": 64, "texture_height": 64, "uv": [0, SPR], "uv_size": [SPR, SPR]}},
         "minecraft:particle_appearance_tinting": {"color": {"interpolant": f"{R3}", "gradient": RAIN}},
     }, material="particles_blend")
     # hm_rune: 땅에 그리는 진(陣): 바깥 원 · 안쪽 원 · 12개 눈금 · 육각형, h = 돌아간 각도(도), r = 반지름

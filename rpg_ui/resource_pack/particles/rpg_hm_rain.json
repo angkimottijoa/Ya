@@ -22,9 +22,9 @@
      "math.sin((variable.particle_random_1 * 360)) * math.sqrt(variable.r * variable.r + variable.particle_random_2 * (variable.thick * variable.thick - variable.r * variable.r))"
     ],
     "direction": [
-     "(variable.particle_random_4 - 0.5) * 0.08",
+     0,
      -1,
-     0.03
+     0
     ]
    },
    "minecraft:particle_lifetime_expression": {
@@ -38,20 +38,16 @@
    },
    "minecraft:particle_appearance_billboard": {
     "size": [
-     "variable.size * 0.05",
-     "variable.size * 0.55"
+     "variable.size * (0.07 + variable.particle_random_4 * 0.04)",
+     "variable.size * (0.45 + variable.particle_random_4 * 0.3)"
     ],
-    "facing_camera_mode": "lookat_direction",
-    "direction": {
-     "mode": "derive_from_velocity",
-     "min_speed_threshold": 0.01
-    },
+    "facing_camera_mode": "rotate_y",
     "uv": {
      "texture_width": 64,
      "texture_height": 64,
      "uv": [
-      8,
-      0
+      0,
+      8
      ],
      "uv_size": [
       8,
@@ -63,10 +59,10 @@
     "color": {
      "interpolant": "variable.particle_random_3",
      "gradient": {
-      "0.0": "#FFD8FFB0",
-      "0.3": "#FF8FEA60",
-      "0.7": "#EE3FA83A",
-      "1.0": "#AA1B5A22"
+      "0.0": "#F0E4FFB8",
+      "0.35": "#E09CF05A",
+      "0.7": "#D04CC03A",
+      "1.0": "#B0237A2A"
      }
     }
    }
