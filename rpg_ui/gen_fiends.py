@@ -150,6 +150,20 @@ def main():
         "minecraft:particle_appearance_billboard": {"size": [f"variable.scale * 1.5 * variable.size * (1 - math.pow({AGE}, 6))"] * 2, "facing_camera_mode": "lookat_xyz",
                                                     "uv": {"texture_width": SC_W, "texture_height": SC_H, "uv": [sbx, sby], "uv_size": [1, 1]}},
     }, material="particles_alpha")
+    # 통짜 그림 낫: 파티클 하나에 그림 전체 (쥐는 곳 = 가운데). 회전 = rot(+spin·시간), 크기 r, vd·vs 로 이동
+    #   hd_scy_flat = 수평으로 누움(몸 둘레로 돌리기) · hd_scy_up = 세로로 서서 카메라 쪽을 봄(내려찍기 · 박기)
+    #   색 = (cr, cg, cb) · 투명도 a (잔상은 a 낮게, 보랏빛) · 끝에 사라짐
+    for nm, mode in (("hd_scy_flat", "emitter_transform_xz"), ("hd_scy_up", "lookat_y")):
+        part(nm, "rpg_hd_scythe_img", {**once(),
+            "minecraft:emitter_shape_point": {"offset": [0, 0, 0], "direction": ["variable.vd.x", "variable.vd.y", "variable.vd.z"]},
+            "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+            "minecraft:particle_initial_speed": "variable.vs",
+            "minecraft:particle_motion_dynamic": {},
+            "minecraft:particle_initial_spin": {"rotation": "variable.rot", "rotation_rate": "variable.spin"},
+            "minecraft:particle_appearance_billboard": {"size": ["variable.r", "variable.r"], "facing_camera_mode": mode,
+                                                        "uv": {"texture_width": 128, "texture_height": 128, "uv": [0, 0], "uv_size": [128, 128]}},
+            "minecraft:particle_appearance_tinting": {"color": ["variable.cr", "variable.cg", "variable.cb", f"variable.a * (1 - math.pow({AGE}, 3))"]},
+        }, material="particles_blend")
     # 보랏빛 불꽃 (그림의 불길처럼: 흰 보라 → 보라 → 짙은 보라, 붉은 기 섞임), 위로 일렁이며 피어오름
     FLAME = {"0.0": "#FFF6E0FF", "0.2": "#FFC888FF", "0.42": "#FF9A3CF0", "0.6": "#FF6A1AB8", "0.75": "#FFB0204A", "0.88": "#FF3A0A5A", "1.0": "#A0100418"}
     part("hd_flame", "rpg_hd", {**once(),
@@ -441,6 +455,16 @@ def scythe_art():
     icon = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); icon.paste(ic, ((32 - ic.size[0]) // 2, (32 - ic.size[1]) // 2), ic)
     art = shrink(52)
     art.save(TEXD / "rpg_hd_scythe.png")
+    # 통짜 그림 낫 (파티클 하나에 그림 전체): 쥐는 곳(0.45, 0.58)이 정사각형 가운데 오게 여백을 두고 128x128
+    bw, bh = im.size; gx, gy = bw * 0.45, bh * 0.58
+    half = int(max(gx, bw - gx, gy, bh - gy)) + 2
+    sq = Image.new("RGBA", (half * 2, half * 2), (0, 0, 0, 0)); sq.paste(im, (int(half - gx), int(half - gy)), im)
+    big = sq.resize((128, 128), Image.LANCZOS); pb = big.load()
+    for y in range(128):
+        for x in range(128):
+            r, g, b2, a2 = pb[x, y]
+            pb[x, y] = (r, g, b2, 255) if a2 > 110 else (0, 0, 0, 0)
+    big.save(TEXD / "rpg_hd_scythe_img.png")
     iw, ih = art.size
     filled = sum(1 for y in range(ih) for x in range(iw) if art.getpixel((x, y))[3])
     # 돌리는 중심: 자루 가운데쯤 (그림 비율 0.45, 0.58)
