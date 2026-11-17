@@ -1,0 +1,180 @@
+{
+ "format_version": "1.8.0",
+ "animations": {
+  "animation.rpg_w3d.hundun_scythe.fp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -60,
+      10,
+      -15
+     ],
+     "position": [
+      0,
+      1,
+      -2
+     ],
+     "scale": 0.6
+    }
+   }
+  },
+  "animation.rpg_w3d.hundun_scythe.tp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -90,
+      0,
+      0
+     ],
+     "position": [
+      0,
+      0,
+      -1
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.cheongryong_lance.fp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -65,
+      10,
+      -15
+     ],
+     "position": [
+      0,
+      1,
+      -2
+     ],
+     "scale": 0.55
+    }
+   }
+  },
+  "animation.rpg_w3d.cheongryong_lance.tp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -90,
+      0,
+      0
+     ],
+     "position": [
+      0,
+      0,
+      -1
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.baekho_axe.fp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -60,
+      10,
+      -15
+     ],
+     "position": [
+      0,
+      1,
+      -2
+     ],
+     "scale": 0.65
+    }
+   }
+  },
+  "animation.rpg_w3d.baekho_axe.tp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -90,
+      0,
+      0
+     ],
+     "position": [
+      0,
+      0,
+      -1
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.jujak_bow.fp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -5,
+      -20,
+      -10
+     ],
+     "position": [
+      1,
+      1,
+      -2
+     ],
+     "scale": 0.7
+    }
+   }
+  },
+  "animation.rpg_w3d.jujak_bow.tp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      -10,
+      0,
+      0
+     ],
+     "position": [
+      0,
+      0,
+      -1
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.hyeonmu_shield.fp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      0,
+      80,
+      0
+     ],
+     "position": [
+      -2,
+      0,
+      -3
+     ],
+     "scale": 0.8
+    }
+   }
+  },
+  "animation.rpg_w3d.hyeonmu_shield.tp": {
+   "loop": true,
+   "bones": {
+    "body": {
+     "rotation": [
+      0,
+      90,
+      0
+     ],
+     "position": [
+      -1,
+      0,
+      0
+     ]
+    }
+   }
+  }
+ }
+}

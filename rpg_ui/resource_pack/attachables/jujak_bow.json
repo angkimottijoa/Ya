@@ -1,0 +1,36 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:attachable": {
+  "description": {
+   "identifier": "rpg:jujak_bow",
+   "materials": {
+    "default": "entity_alphatest",
+    "enchanted": "entity_alphatest_glint"
+   },
+   "textures": {
+    "default": "textures/models/rpg_w3d_jujak_bow",
+    "enchanted": "textures/misc/enchanted_item_glint"
+   },
+   "geometry": {
+    "default": "geometry.rpg_w3d_jujak_bow"
+   },
+   "animations": {
+    "fp": "animation.rpg_w3d.jujak_bow.fp",
+    "tp": "animation.rpg_w3d.jujak_bow.tp"
+   },
+   "scripts": {
+    "animate": [
+     {
+      "fp": "c.is_first_person"
+     },
+     {
+      "tp": "!c.is_first_person"
+     }
+    ]
+   },
+   "render_controllers": [
+    "controller.render.item_default"
+   ]
+  }
+ }
+}
