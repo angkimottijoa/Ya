@@ -784,14 +784,8 @@ function soar(ctx) {
       const dir = norm(sub(pos, prev));
       yawF = angLerp(yawF, yawTo(len(dir) > 0.01 ? dir : G.d), 0.25); // 몸 방향도 부드럽게 돌림
       phoenix(dim, pos, yawF, t2 * 0.32, 1.9, 0.07); // 매 틱 그림 + 작은 위상 → 끊김 없는 날갯짓
-      trail(dim, prev, pos, { size: 2.6, life: 0.9, n: 24 });
-      if (t2 % 2 === 0) ember(dim, pos, { n: 12, r: 1.4, spd: 1.2, life: 1 });
-      if (t2 % 6 === 0) { fireBoom(dim, pos, { n: 4, r: 0.8, spd: 1.5, size: 1.8, tone: 0.1 }); for (const e2 of enemiesNear(dim, p, pos, 3.4, 1.5)) hit(e2, 0.7, 4); }
-      // 화려하게: 지나간 자리에 남는 잔불 폭발 · 불 고리 · 깃털 불티 · 가끔 터지는 폭죽 같은 폭발
-      if (t2 % 3 === 1) fireBoom(dim, prev, { n: 3, r: 0.6, spd: 0.6, size: 2.2, life: 1.4, tone: 0.2 });
-      if (t2 % 10 === 5) { pt(dim, "jj_ring", pos, { n: 40, r: 0.6, spd: 9, size: 1.8, life: 0.5, tone: 0.15 }); M.sound(p, "firework.blast", 0.6, 0.8); }
-      if (t2 % 4 === 2) ember(dim, add(pos, { x: (Math.random() - 0.5) * 4, y: Math.random() * 2, z: (Math.random() - 0.5) * 4 }), { n: 10, r: 0.3, spd: 3.5, life: 1.2, tone: 0.35 });
-      if (t2 % 14 === 7) { const q2 = add(prev, { x: (Math.random() - 0.5) * 5, y: (Math.random() - 0.5) * 3, z: (Math.random() - 0.5) * 5 }); later(3, () => { try { dim.spawnParticle("minecraft:large_explosion", q2); } catch {} fireBoom(dim, q2, { n: 10, r: 0.6, spd: 4, size: 2 }); ember(dim, q2, { n: 20, r: 0.4, spd: 6, life: 0.9 }); M.sound(p, "firework.large_blast", 0.8, 1); }); }
+      // 주작 몸에 붙던 불줄기 · 불티 · 폭발 뭉치는 없앰 (불붙어 도망가는 것처럼 보여서) — 주작만 깔끔하게, 판정은 그대로
+      if (t2 % 6 === 0) for (const e2 of enemiesNear(dim, p, pos, 3.4, 1.5)) hit(e2, 0.7, 4);
       if (t2 % 20 === 4) M.sound(p, "mob.enderdragon.flap", 0.9, 1.2);
       prev = pos;
     };
