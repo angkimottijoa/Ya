@@ -166,7 +166,7 @@ function hd_hook(ctx) { // ② 낫을 던져 걸린 적을 끌어옴 → 끌려�
   });
 }
 const hd_hook_pre = (p) => hd_collide(p);
-// ── ③ 낫 그네 · ④ 혼돈 쌍낫 기동 (그네와 줄 감기를 이어 가며 공중을 누빔) ──
+// ── ③ 낫 그네(입체 기동, 4연속) · ④ 혼돈 쌍낫 기동 ──
 /** 조준한 곳(적 또는 블록) 에 낫을 박을 자리 */
 function anchorAt(p, maxD = 20) {
   const a = aim(p, maxD);
@@ -176,49 +176,120 @@ function anchorAt(p, maxD = 20) {
 }
 const tether = (dim, a, b, life = 0.12) => { const d = sub(b, a), L = len(d); if (L < 0.3) return; pt(dim, "hd_line", a, { u: norm(d), r: L, n: Math.round(L * 5 + 4), life, size: 1 }, 1); };
 const planted = (dim, at, life) => scythe(dim, at, { x: 1, y: 0, z: 0 }, UP, { rot: -35, life, scale: 0.045, prio: 1 });
+// 입체 기동: 진짜 줄 물리 (줄 길이 제약 + 감기 + 추진 + 중력), 벽 자동 차기, 지나가며 자동 베기, 착지 구르기
+const CHARGES = 4, COMBO_GAP = 60;
+const solid = (dim, q) => { try { const b = dim.getBlock({ x: Math.floor(q.x), y: Math.floor(q.y), z: Math.floor(q.z) }); return !!b && !b.isAir && !b.isLiquid && b.isSolid !== false; } catch { return false; } };
+/** 낫 줄을 박을 자리 자동 찾기: 겨눈 적 → 좌우 앞 위쪽 벽·나무·천장 (두 줄) → 정면 → 위 앞 */
+function findAnchors(p) {
+  const dim = p.dimension, eye = eyeOf(p), v = viewOf(p);
+  try { const h = p.getEntitiesFromViewDirection({ maxDistance: 20 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return [{ at: center(h), ent: h }]; } catch {}
+  const yaw = yawOf(p), pitch = Math.asin(Math.max(-1, Math.min(1, v.y))) * 57.3;
+  const dirOf = (dy, dp) => { const y = rad(yaw + dy), pc = rad(Math.min(75, pitch + dp)); return { x: -Math.sin(y) * Math.cos(pc), y: Math.sin(pc), z: Math.cos(y) * Math.cos(pc) }; };
+  const ray = (d) => { try { const h = dim.getBlockFromRay(eye, d, { maxDistance: 22, includeLiquidBlocks: false, includePassableBlocks: false }); if (h) return { at: add(h.block.location, { x: h.faceLocation?.x ?? 0.5, y: h.faceLocation?.y ?? 0.5, z: h.faceLocation?.z ?? 0.5 }) }; } catch {} return null; };
+  const side = (sg) => { for (const [dy, dp] of [[22, 12], [30, 28], [16, 0], [40, 40]]) { const r = ray(dirOf(sg * dy, dp)); if (r && len(sub(r.at, eye)) > 2.5) return r; } return null; };
+  const L = side(-1), R = side(1);
+  if (L && R) return [L, R];
+  if (L || R) return [L ?? R];
+  for (const [dy, dp] of [[0, 8], [0, 35], [0, 60]]) { const r = ray(dirOf(dy, dp)); if (r && len(sub(r.at, eye)) > 2.5) return [r]; }
+  return null;
+}
 function hd_swing_start(p, ctx) {
-  const s = st(p), dim = p.dimension, A = anchorAt(p, 20);
-  if (!A) { notify(p, "§7박을 곳이 없다 (블록이나 적을 겨눠라)"); return false; }
-  const hit = hitter(ctx), P0 = { ...p.location }, d = { x: P0.x - A.at.x, z: P0.z - A.at.z }, L = Math.max(2.5, Math.min(10, Math.hypot(d.x, d.z)));
-  const th0 = Math.atan2(d.z, d.x), v = flatN(viewOf(p)), sign = d.x * v.z - d.z * v.x > 0 ? 1 : -1, T = 14;
-  const sw = { A, th0, sign, L, T, t: 0, y0: P0.y, done: false };
+  const s = st(p), dim = p.dimension, As = findAnchors(p);
+  if (!As) { notify(p, "§7걸 곳이 없다 (벽 · 나무 · 천장 · 적 근처에서)"); return false; }
+  const hit = hitter(ctx), C = () => { const pts = As.map((a) => (a.ent?.isValid() ? center(a.ent) : a.at)); return pts.length > 1 ? scl2(add(pts[0], pts[1]), 0.5) : pts[0]; };
+  let L = Math.max(3, len(sub(C(), up(p.location, 1))) * 0.92);
+  const sw = { As, t: 0, done: false, kick: 0 };
+  if (s.swing) s.swing.done = true;
   s.swing = sw;
-  M.anim(p, "spin");
-  planted(dim, A.at, T / 20 + 0.2);
-  pt(dim, "hd_burst", A.at, { n: 16, r: 0.3, spd: 3, life: 0.5 }, 1);
-  snd(p, "item.trident.hit_ground", 0.8, 0.7); snd(p, "mob.phantom.swoop", 0.8, 1);
+  M.anim(p, "shoot_up");
+  for (const a of As) { planted(dim, a.at, 2.4); pt(dim, "hd_burst", a.at, { n: 10, r: 0.2, spd: 3, life: 0.4 }, 2); }
+  snd(p, "item.trident.hit_ground", 0.7, 1.3); snd(p, "random.chestclosed", 0.5, 1.8);
+  // 줄을 박는 순간 살짝 당겨 올림
+  try { const c = C(), d = sub(c, p.location), h = Math.hypot(d.x, d.z) || 1; p.applyKnockback(d.x / h, d.z / h, 0.6, 0.55); } catch {}
   const tick = () => {
     if (!p.isValid() || sw.done || s.swing !== sw) return;
     sw.t++;
-    const q = sw.t / T, th = th0 + sign * Math.PI * q;
-    const tgt = { x: A.at.x + Math.cos(th) * L, y: sw.y0 + Math.sin(q * Math.PI) * 3, z: A.at.z + Math.sin(th) * L };
-    const cur = p.location, dx = tgt.x - cur.x, dz = tgt.z - cur.z, h = Math.hypot(dx, dz);
-    try { p.applyKnockback(h > 0.01 ? dx / h : 0, h > 0.01 ? dz / h : 0, Math.min(3, h), Math.max(-1, Math.min(1.5, tgt.y - cur.y + 0.08))); } catch {}
-    if (sw.t % 2 === 0) { tether(dim, A.at, up(p.location, 1.2)); scythe(dim, up(p.location, 1.1), { x: -Math.sin(th), y: 0, z: Math.cos(th) }, UP, { rot: sw.t * 40, life: 0.12, scale: 0.035, prio: 2 }); }
-    flame(dim, up(p.location, 0.8), { n: 3, r: 0.3, spd: 0.5, life: 0.7, prio: 2 });
-    for (const e of foes(dim, p.location, 2.2)) if (hit(e, 0.6, 10)) { flame(dim, center(e), { n: 10, r: 0.3, spd: 3 }); try { e.applyKnockback(-Math.sin(th) * sign, Math.cos(th) * sign, 1, 0.3); } catch {} }
-    if (sw.t >= T) { sw.done = true; if (s.swing === sw) s.swing = null; return; }
+    const c = C(), P = up(p.location, 1);
+    let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
+    // 추진(보는 방향) + 줄 감기(조금씩 짧아짐) + 중력
+    const look = viewOf(p);
+    v = add(v, look, 0.07); v.y -= 0.06;
+    L = Math.max(2.6, L - 0.12);
+    const d = sub(P, c), dist = len(d) || 0.01, n = scl2(d, 1 / dist);
+    if (dist >= L) { const vr = v.x * n.x + v.y * n.y + v.z * n.z; if (vr > 0) v = add(v, n, -vr); v = add(v, n, -(dist - L) * 0.35); }
+    const sp = len(v); if (sp > 2.2) v = scl2(v, 2.2 / sp);
+    // 벽 자동 차기: 가는 방향 바로 앞이 벽이면 벽을 차고 튕겨 나감(위로 + 벽 반대쪽)
+    const hdir = Math.hypot(v.x, v.z);
+    if (hdir > 0.2 && sw.t - sw.kick > 6) {
+      const fx = { x: P.x + (v.x / hdir) * 0.9, y: P.y, z: P.z }, fz = { x: P.x, y: P.y, z: P.z + (v.z / hdir) * 0.9 };
+      const bx = solid(dim, fx) || solid(dim, up(fx, -0.6)), bz = solid(dim, fz) || solid(dim, up(fz, -0.6));
+      if (bx || bz) {
+        sw.kick = sw.t;
+        if (bx) v.x = -v.x * 0.6; if (bz) v.z = -v.z * 0.6;
+        v.y = Math.max(v.y, 0.55);
+        v = add(v, look, 0.35);
+        flame(dim, P, { n: 14, r: 0.4, spd: 2.5, life: 0.6, prio: 1 });
+        snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
+        notify(p, "§5벽 차기!");
+      }
+    }
+    const h = Math.hypot(v.x, v.z);
+    try { p.applyKnockback(h > 0.001 ? v.x / h : 0, h > 0.001 ? v.z / h : 0, h, v.y); } catch {}
+    // 연출: 두 줄(양손에서), 등 뒤 보랏빛 연기 분사, 손에 든 낫이 돌아감
+    if (sw.t % 2 === 0) {
+      const yw = yawOf(p), rr = rightOf(yw);
+      sw.As.forEach((a, i) => tether(dim, a.ent?.isValid() ? center(a.ent) : a.at, add(up(p.location, 1.2), rr, sw.As.length > 1 ? (i ? 0.4 : -0.4) : 0), 0.12));
+      flame(dim, add(up(p.location, 1), fwdOf(yw), -0.5), { n: 4, r: 0.15, spd: 2.2, life: 0.6, vd: scl2(norm(v), -1.5), prio: 2 });
+    }
+    // 지나가며 자동 베기 (가까운 적)
+    for (const e of foes(dim, p.location, 2.4)) if (hit(e, 0.55, 10)) { const cc = up(p.location, 1); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.7, 1.2); }
+    // 착지: 구르기 (앞으로 짧게 + 연기)
+    let g = false; try { g = p.isOnGround; } catch {}
+    if ((g && sw.t > 6) || sw.t > 60) { sw.done = true; if (s.swing === sw) s.swing = null; if (g) { const f = flatN(v.x || v.z ? v : viewOf(p)); try { p.applyKnockback(f.x, f.z, 0.9, 0.05); } catch {} flame(dim, up(p.location, 0.3), { n: 10, r: 0.5, spd: 1.2, life: 0.7, prio: 2 }); M.anim(p, "dash"); } return; }
     later(1, tick);
   };
   later(1, tick);
   return true;
 }
-/** 그네 중 다시: 지금 도는 방향(접선)으로 튕겨 나감 */
+const scl2 = (a, k) => ({ x: a.x * k, y: a.y * k, z: a.z * k });
+/** 날아가는 중 ③ 다시: 줄을 놓으며 가속 → 바로 다음 줄 */
 function hd_swing_launch(p) {
   const s = st(p), sw = s.swing;
   if (!sw || sw.done) return false;
   sw.done = true; s.swing = null;
-  const q = sw.t / sw.T, th = sw.th0 + sw.sign * Math.PI * q, tx = -Math.sin(th) * sw.sign, tz = Math.cos(th) * sw.sign;
-  try { p.applyKnockback(tx, tz, 2.6, 0.65); } catch {}
+  let v = { x: 0, y: 0, z: 0 }; try { v = p.getVelocity(); } catch {}
+  const look = viewOf(p), nv = add(add(scl2(v, 1.1), look, 0.9), UP, 0.35), h = Math.hypot(nv.x, nv.z);
+  try { p.applyKnockback(h > 0.001 ? nv.x / h : 0, h > 0.001 ? nv.z / h : 0, Math.min(2.6, h), Math.min(1.4, nv.y)); } catch {}
   M.anim(p, "dash");
-  darc(p.dimension, up(p.location, 1.1), yawOf(p), { r: 2.6, sweep: 200, n: 160, life: 0.45 });
-  flame(p.dimension, up(p.location, 1), { n: 18, r: 0.5, spd: 3, life: 0.8 });
-  snd(p, "mob.phantom.swoop", 1, 1.4);
-  notify(p, "§5튕겨 나감!");
+  darc(p.dimension, up(p.location, 1.1), yawOf(p), { r: 2.6, sweep: 200, n: 140, life: 0.4 });
+  flame(p.dimension, up(p.location, 1), { n: 14, r: 0.4, spd: 3, life: 0.7, vd: scl2(look, -2) });
+  snd(p, "mob.phantom.swoop", 1, 1.5);
   return true;
 }
-function hd_swing(ctx) { const { p } = ctx; st(p).ctx = ctx; hd_swing_start(p, ctx); }
-const hd_swing_pre = (p) => { const s = st(p); if (hd_swing_launch(p)) return true; if (s.gear && now() < s.gear.until) { hd_swing_start(p, s.ctx); return true; } return false; };
+function hd_comboEnd(p) { const s = st(p); if (s.combo3) { s.combo3 = null; s.setCd3?.(6); } }
+function hd_swing(ctx) { // ③ 첫 사용: 줄 쏘기 (남은 횟수 3)
+  const { p } = ctx, s = st(p);
+  s.ctx = ctx; s.setCd3 = ctx.setCd;
+  ctx.setCd?.(99); // 콤보 중엔 일반 사용 막고, 끝나면 6초
+  if (!hd_swing_start(p, ctx)) { ctx.setCd?.(0.5); return; }
+  const c = (s.combo3 = { left: CHARGES - 1, until: now() + COMBO_GAP });
+  later(COMBO_GAP + 2, () => { if (s.combo3 === c && now() >= c.until) hd_comboEnd(p); });
+  notify(p, `§5낫 줄 §d${"◆".repeat(c.left)}§8${"◇".repeat(CHARGES - 1 - c.left)} §7— ③ 다시: 놓고 다음 줄`);
+}
+const hd_swing_pre = (p) => {
+  const s = st(p), gear = s.gear && now() < s.gear.until, c = s.combo3;
+  if (!gear && !(c && now() <= c.until && c.left > 0)) return false;
+  hd_swing_launch(p);
+  later(1, () => hd_swing_start(p, s.ctx)); // 놓자마자 다음 줄
+  if (!gear) {
+    c.left--; c.until = now() + COMBO_GAP;
+    const c2 = c;
+    later(COMBO_GAP + 2, () => { if (s.combo3 === c2 && now() >= c2.until) hd_comboEnd(p); });
+    notify(p, `§5낫 줄 §d${"◆".repeat(c.left)}§8${"◇".repeat(CHARGES - 1 - c.left)}`);
+    if (c.left <= 0) later(30, () => hd_comboEnd(p));
+  }
+  return true;
+};
 /** ④ 중 클릭: 조준한 곳에 낫 줄을 박고 줄을 감아 빠르게 끌려감 (적이면 도착하며 회전 베기) */
 function hd_reel(p) {
   const s = st(p), g = s.gear;
@@ -608,7 +679,7 @@ export const WEAPON_SKILLS = {
   "rpg:hundun_scythe": [
     { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_reel(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다. ④ 중에는 클릭 = 낫 줄 감기." },
     { id: "w_hd_2", key: 2, name: "혼돈 · 낫 끌어오기", short: "끌어오기", lv: 1, mp: 14, cd: 7, pow: 1, run: hd_hook, pre: hd_hook_pre, desc: "낫을 회전시켜 던져(14칸) 걸린 적을 끌어온다. 끌려오는 동안·직후 ② 나 ① 을 다시 누르면 몸을 부딪쳐 크게 날려 보내는 연계, 아니면 도착하며 넉백으로 밀려난다." },
-    { id: "w_hd_3", key: 3, name: "혼돈 · 낫 그네", short: "그네", lv: 1, mp: 14, cd: 5, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "조준한 블록·적에 낫을 박고 낫을 축으로 반원을 그리며 휘돌아 날아가며 벤다. 그네 중 다시 누르면 그 순간 도는 방향으로 튕겨 나간다." },
+    { id: "w_hd_3", key: 3, name: "혼돈 · 낫 그네", short: "그네", lv: 1, mp: 14, cd: 6, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "좌우 앞쪽 벽·나무·천장(겨눈 적)에 낫 줄 둘을 자동으로 박고 줄 물리로 휘돌아 날아감(줄 감기 · 보는 방향 추진 · 벽에 닿으면 벽 차기 · 지나가며 자동 베기 · 착지 구르기). 날아가는 중 다시: 줄을 놓으며 가속하고 바로 다음 줄. 4번까지 이어 쓰고 6초 대기." },
     { id: "w_hd_4", key: 4, name: "혼돈 · 쌍낫 기동", short: "기동", lv: 1, mp: 45, cd: 35, pow: 1, run: hd_gear, desc: "7초 동안 클릭하면 조준한 곳에 낫 줄을 박고 줄을 감아 빠르게 날아가고(적이면 도착하며 회전 베기), ③ 그네를 재사용 대기 없이 이어 쓴다. 공중에 오래 머물며, 끝에 거대한 낫이 한 바퀴 돌며 거둔다." },
   ],
   "rpg:qiongqi_claws": [
