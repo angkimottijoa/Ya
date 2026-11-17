@@ -904,11 +904,139 @@ function soar(ctx) {
   later(170, () => skillLock.delete(p.id)); // 안전장치
 }
 
+// ───────── ④ 주작 · 홍련군무 (쉬프트 두 번) ─────────
+// 활을 2초 당기는 동안 몸 둘레에 불화살 12발이 하나씩 생기고 작은 주작 셋이 주위를 맴돎
+//   → 놓으면 12발이 각자 다른 적을 쫓아가(유도) 터짐 → 그중 가장 강한 적(최대 체력 높은 적)에게 작은 주작 셋이 날아가 두 번씩 들이받음
+const maxHpOf = (e) => { try { return e.getComponent("minecraft:health")?.effectiveMax ?? 0; } catch { return 0; } };
+/** 유도 비행: 매 틱 goal() 쪽으로 점점 세게 꺾음. draw(pos, prev, t), hitR 안에 들면 onHit(goal) */
+function homer(o) {
+  let pos = o.pos, vel = o.vel, t = 0;
+  const step = () => {
+    t++;
+    const g = o.goal(), to = sub(g, pos), d = len(to);
+    if (d < (o.hitR ?? 1.5) || t > (o.max ?? 60)) { o.onHit(g, t > (o.max ?? 60)); return; }
+    const turn = t < (o.free ?? 4) ? 0.04 : Math.min(o.turnMax ?? 0.45, 0.08 + (t - (o.free ?? 4)) * (o.turnUp ?? 0.03));
+    vel = add(vel, sub(scl(norm(to), o.speed), vel), turn);
+    const prev = pos;
+    pos = add(pos, vel);
+    o.draw(pos, prev, t);
+    later(1, step);
+  };
+  step();
+}
+function crimsonDance(ctx) {
+  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
+  const CH = 40, N = 12;
+  skillLock.add(p.id);
+  M.potion(p, "slowness", 2, 2);
+  M.potion(p, "resistance", 3, 3);
+  M.anim(p, "bow_draw");
+  M.sound(p, "mob.blaze.breathe", 1, 0.8);
+  const yawTo = (d) => (Math.atan2(-d.x, d.z) * 180) / Math.PI;
+  // 몸 둘레 불화살 자리 (뒤쪽 반원 → 시선 쪽을 향함)
+  const spot = (i) => {
+    const yw = yawOf(p), f = fwdOf(yw), r = rightOf(yw), a = ((i + 0.5) / N) * Math.PI * 2;
+    return add(add(add(up(p.location, 1.5 + Math.sin(a * 2) * 0.35), r, Math.cos(a) * 2.6), f, Math.sin(a) * 1.4 - 0.6), UP, 0);
+  };
+  const birdAt = (j, t) => { // 작은 주작 셋: 머리 위를 맴돎
+    const a = t * 0.12 + (j / 3) * Math.PI * 2;
+    return { x: p.location.x + Math.cos(a) * 3.2, y: p.location.y + 2.8 + Math.sin(t * 0.2 + j) * 0.4, z: p.location.z + Math.sin(a) * 3.2 };
+  };
+  const birdYaw = (j, t) => (((t * 0.12 + (j / 3) * Math.PI * 2) * 180) / Math.PI) + 180;
+  for (let t = 1; t <= CH; t++) later(t, () => {
+    const have = Math.min(N, Math.floor(t / 3));
+    if (t % 2 === 0) for (let i = 0; i < have; i++) {
+      const q = spot(i), v = viewOf(p);
+      trail(dim, add(q, v, -0.7), add(q, v, 0.7), { size: 1.3, life: 0.12, n: 10, tone: 0.1 });
+      ember(dim, add(q, v, 0.75), { n: 1, r: 0, spd: 0, life: 0.15, tone: -0.3 });
+    }
+    if (t % 3 === 0 && have <= N && t / 3 <= N) { ember(dim, spot(have - 1), { n: 8, r: 0.3, spd: 1.5, life: 0.5 }); M.sound(p, "note.pling", 0.5, 0.6 + have * 0.1); }
+    for (let j = 0; j < 3; j++) phoenix(dim, birdAt(j, t), birdYaw(j, t), t * 0.4 + j, 0.55, 0.07);
+    if (t % 10 === 0) { M.anim(p, "bow_hold"); pt(dim, "jj_ring", up(p.location, 0.1), { n: 30, r: 0.5, spd: 6, size: 1.4, life: 0.5, tone: 0.2 }); }
+  });
+  later(CH + 1, () => {
+    skillLock.delete(p.id);
+    M.anim(p, "slash");
+    M.sound(p, "random.bow", 1.5, 0.6);
+    M.sound(p, "mob.blaze.shoot", 1.2, 0.8);
+    flashScreen(p, 1, 0.5, 0.1, 0.25);
+    // 적 고르기: 30칸 안, 시선 앞쪽 우선
+    const eye = eyeOf(p), v = viewOf(p);
+    let foes = [];
+    try { foes = M.around(dim, p.location, 30).filter((e) => e.id !== p.id && e.typeId !== "minecraft:player" && e.isValid()); } catch {}
+    foes.sort((a, b) => { const sc = (e) => { const d = sub(center(e), eye), L = len(d) || 1; return L * (1.6 - (d.x * v.x + d.y * v.y + d.z * v.z) / L); }; return sc(a) - sc(b); });
+    foes = foes.slice(0, N);
+    // 1) 불화살 12발: 각자 다른 적 (적이 적으면 돌아가며)
+    for (let i = 0; i < N; i++) later(Math.floor(i / 2), () => {
+      const from = spot(i), tgt = foes.length ? foes[i % foes.length] : null;
+      const fall = add(add(eye, v, 26), { x: (Math.random() - 0.5) * 10, y: -2, z: (Math.random() - 0.5) * 10 });
+      const out = norm(add(sub(from, up(p.location, 1.5)), v, 1.2));
+      homer({
+        pos: from, vel: scl(norm(add(out, UP, 0.6)), 1.1), speed: 1.5, free: 4, turnUp: 0.05, max: 45, hitR: 1.6,
+        goal: () => (tgt && tgt.isValid() ? center(tgt) : fall),
+        draw: (pos, prev, t) => {
+          trail(dim, prev, pos, { size: 1.5, life: 0.35, n: 14, tone: 0.05 });
+          if (t % 2 === 0) ember(dim, pos, { n: 3, r: 0.2, spd: 0.8, life: 0.5 });
+        },
+        onHit: (g) => {
+          fireBoom(dim, g, { n: 10, r: 0.6, spd: 4, size: 2 });
+          ember(dim, g, { n: 18, r: 0.4, spd: 5, life: 0.8 });
+          pt(dim, "jj_ring", g, { n: 26, r: 0.4, spd: 7, size: 1.4, life: 0.4, tone: 0.2 });
+          if (tgt && tgt.isValid()) hit(tgt, 0.9, 4);
+          for (const e of enemiesNear(dim, p, g, 1.8, 1)) if (e !== tgt) hit(e, 0.4, 3);
+          if (i % 3 === 0) M.sound(p, "firework.blast", 0.8, 0.9 + i * 0.05);
+        },
+      });
+    });
+    // 2) 가장 강한 적에게 불새 군무: 최대 체력 40 이상인 적(없으면 가장 센 적 하나), 최대 3명에게 나눠서
+    const strong = [...foes].sort((a, b) => maxHpOf(b) - maxHpOf(a));
+    const picks = strong.filter((e) => maxHpOf(e) >= 40).slice(0, 3);
+    if (!picks.length && strong.length) picks.push(strong[0]);
+    for (let j = 0; j < 3; j++) later(10 + j * 4, () => {
+      const tgt = picks.length ? picks[j % picks.length] : null;
+      const lost = add(add(eye, v, 20), UP, -1);
+      let pos = birdAt(j, CH), yawF = birdYaw(j, CH), hits = 0;
+      if (j === 0) { M.sound(p, "mob.enderdragon.growl", 0.9, 1.8); if (tgt) for (let k = 0; k < 3; k++) ember(dim, up(center(tgt), 2.5), { n: 10, r: 0.6, spd: 1, life: 1, tone: -0.2 }); }
+      const go = (vel0) => homer({
+        pos, vel: vel0, speed: 0.95, free: 6, turnUp: 0.025, turnMax: 0.35, max: 60, hitR: 1.8,
+        goal: () => (tgt && tgt.isValid() ? center(tgt) : lost),
+        draw: (q, prev, t) => {
+          pos = q;
+          const d = sub(q, prev);
+          yawF = yawF + ((((yawTo(d) - yawF) % 360) + 540) % 360 - 180) * 0.3;
+          phoenix(dim, q, yawF, t * 0.35 + j, 0.75, 0.07);
+          trail(dim, prev, q, { size: 2, life: 0.6, n: 16 });
+          if (t % 3 === 0) fireBoom(dim, prev, { n: 2, r: 0.4, spd: 0.6, size: 1.6, life: 1, tone: 0.2 });
+          if (t % 2 === 0) ember(dim, q, { n: 5, r: 0.6, spd: 1.2, life: 0.8 });
+        },
+        onHit: (g) => {
+          hits++;
+          const big = hits >= 2;
+          if (big) { try { dim.spawnParticle("minecraft:large_explosion", g); } catch {} }
+          fireBoom(dim, g, { n: big ? 24 : 14, r: 1, spd: big ? 7 : 5, size: big ? 3 : 2.2 });
+          ember(dim, g, { n: big ? 60 : 30, r: 0.6, spd: big ? 8 : 6, life: 1 });
+          pt(dim, "jj_ring", up(g, -0.5), { n: 44, r: 0.5, spd: big ? 14 : 9, size: 2, life: 0.6, tone: 0.1 });
+          if (tgt && tgt.isValid()) { hit(tgt, big ? 2 : 1.3, 5); if (big) M.toss(g, tgt, 1.2, 2.5); }
+          for (const e of enemiesNear(dim, p, g, big ? 3.5 : 2.2, 1.5)) if (e !== tgt) hit(e, 0.6, 3);
+          shake(dim, g, big ? 0.6 : 0.3, 0.4);
+          M.sound(p, "random.explode", big ? 1.3 : 0.8, big ? 0.8 : 1.2);
+          if (big) M.sound(p, "firework.large_blast", 1.2, 0.8);
+          // 첫 번째: 위로 솟구쳤다 크게 돌아 다시 들이받음
+          if (!big && tgt && tgt.isValid()) { const a = (j / 3) * Math.PI * 2; go({ x: Math.cos(a) * 0.6, y: 1.1, z: Math.sin(a) * 0.6 }); }
+        },
+      });
+      go(scl(norm(add(sub(pos, p.location), UP, 1)), 0.6));
+    });
+  });
+  later(CH + 120, () => skillLock.delete(p.id)); // 안전장치
+}
+
 /** 무기 스킬 표 (청룡의 검과 같은 모양: HUD·쿨다운에 그대로 씀) */
 export const WEAPON_SKILLS = {
   [BOW_ID]: [
     { id: "w_jj_1", key: 1, name: "주작 · 화시", short: "화시", lv: 1, mp: 6, cd: 0.35, pow: 1, run: flameShot, desc: "불화살 → 맞히면 근접 폭발 불화살 세 발 → 또 맞히면 주작의 활로 2초 조준해 큰 불화살을 쏴 크게 폭발. 6발마다 장전." },
     { id: "w_jj_2", key: 2, name: "주작 · 연사", short: "연사", lv: 1, mp: 25, cd: 10, pow: 1, run: rapidFire, desc: "등에 3D 불 날개를 펼치며 뒤로 물러서면 등 뒤 양옆에 활 6개가 나타나 목표를 향해 세 번 일제 사격, 날개가 하늘로 솟아 흩어지며 깃털이 불화살 비가 된다." },
     { id: "w_jj_3", key: 3, name: "주작 · 비상", short: "비상", lv: 1, mp: 40, cd: 18, pow: 1, run: soar, desc: "뒤로 크게 도약해 공중에 멈춘 뒤 불 날개를 세 번 퍼덕여 불비를 내리고, 거대한 활을 소환해 시위에 건 주작을 쏘면 주작이 날갯짓하며 조준 지점으로 날아가 폭발." },
+    { id: "w_jj_4", key: 4, name: "주작 · 홍련군무", short: "군무", lv: 1, mp: 50, cd: 25, pow: 1, run: crimsonDance, desc: "2초 동안 활을 당기면 몸 둘레에 불화살 12발과 작은 주작 셋이 모이고, 놓으면 불화살이 각자 다른 적을 쫓아가 터진 뒤 가장 강한 적에게 주작 셋이 날아가 두 번씩 들이받는다." },
   ],
 };
