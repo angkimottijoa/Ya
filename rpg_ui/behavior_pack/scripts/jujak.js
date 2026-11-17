@@ -189,18 +189,22 @@ function bigShot(ctx, done) {
   M.potion(p, "resistance", 3, 6);
   M.sound(p, "mob.blaze.breathe", 1, 0.7);
   ember(dim, up(p.location, 0.6), { n: 30, r: 1, spd: 2, life: 1 });
+  // 조준하는 동안 몸을 투명하게 (어깨 시점에서 시야를 가리지 않게), 쏘면 바로 원래대로
+  try { p.addEffect("invisibility", 120, { amplifier: 0, showParticles: false }); } catch {}
+  const unhide = () => { try { p.removeEffect("invisibility"); } catch {} };
   const MAX = 100; // 5초 안에 안 누르면 빗나감으로 발사
   let t = 0, fired = false;
   const release = () => {
     if (fired) return;
     fired = true;
     aiming.delete(p.id);
+    later(12, unhide);
     const zone = GAUGE[gaugePos(t)];
     shoot(zone);
   };
   aiming.set(p.id, release);
   const loop = () => {
-    if (fired || !p.isValid()) { aiming.delete(p.id); return; }
+    if (fired || !p.isValid()) { aiming.delete(p.id); unhide(); return; }
     t++;
     const k = ease(Math.min(1, t / 20)), L = p.location;
     drawBow(p, k, true, t % 3 === 1);
