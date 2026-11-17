@@ -632,7 +632,7 @@ function descent(ctx) {
   const C = { ...p.location };
   try { const top = dim.getTopmostBlock({ x: Math.floor(C.x), z: Math.floor(C.z) }); if (top && Math.abs(top.location.y + 1 - C.y) < 3) C.y = top.location.y + 1; } catch {}
   const PRE = 24, HOLD = 100 + n * 20, FIN = PRE + HOLD, BURST = FIN + 25, END = BURST + 30;
-  const HALO = add(C, f0, -3.5), HALO_H = 12;
+  const HALO = add(C, f0, -3), HALO_H = 7;
   const insideAllies = () => { try { return dim.getPlayers({ location: C, maxDistance: R }); } catch { return [p]; } };
   skillLock.add(p.id);
   later(PRE + 2, () => skillLock.delete(p.id));
@@ -694,14 +694,14 @@ function descent(ctx) {
   });
   // 후광: 등 뒤로 거대한 현무 방패가 솟아 떠 있음 (마무리 때 돔으로 내려옴)
   const haloAt = (t) => {
-    if (t < PRE) return up(HALO, -HALO_H / 2 + ease(t / PRE) * (HALO_H / 2 + 4));
-    if (t < FIN) return up(HALO, 4 + Math.sin(t * 0.08) * 0.3);
+    if (t < PRE) return up(HALO, -HALO_H / 2 + ease(t / PRE) * (HALO_H / 2 + 3));
+    if (t < FIN) return up(HALO, 3 + Math.sin(t * 0.08) * 0.3);
     const k = ease(Math.min(1, (t - FIN) / 18));
-    return add(up(HALO, 4 - k * 2), sub(C, HALO), k);
+    return add(up(HALO, 3 - k * 1.5), sub(C, HALO), k);
   };
   for (let t = 0; t < BURST; t += 3) later(t, () => {
     const c = up(haloAt(t), HALO_H / 2), k = t >= FIN ? 1 - Math.min(1, (t - FIN) / 18) * 0.6 : 1;
-    shieldArt(dim, c, scl(r0, -1), UP, HALO_H * k, { n: 1150, life: 0.17, dome: 1.6 * k, size: 1.25 });
+    shieldArt(dim, c, scl(r0, -1), UP, HALO_H * k, { n: 1000, life: 0.17, dome: 1.0 * k, size: 1.1 });
     if (t % 6 === 0) glow(dim, c, { n: 8, r: 3, spd: 0.8, size: 1.3, life: 0.8 });
   });
   // 거대한 검은 뱀: 처음엔 후광을 감아 오르고 → 돔 바깥을 돌며 지킴 → 마무리 때 돔 위로 감아 오름
@@ -712,7 +712,7 @@ function descent(ctx) {
     const pts = [];
     if (t < PRE + 6) { // 후광을 나선으로 감아 오름
       const hc = haloAt(Math.min(t, PRE)), q = Math.min(1, t / (PRE + 4));
-      for (let i = 0; i <= 34; i++) { const s2 = q * 34 - i; if (s2 < 0) break; const a = s2 * 0.42, y = s2 * 0.33; pts.push(add(add(up(hc, y), r0, Math.cos(a) * 4.2), f0, Math.sin(a) * 1.4)); }
+      for (let i = 0; i <= 34; i++) { const s2 = q * 34 - i; if (s2 < 0) break; const a = s2 * 0.5, y = s2 * 0.21; pts.push(add(add(up(hc, y), r0, Math.cos(a) * 2.7), f0, Math.sin(a) * 1.1)); }
     } else if (t < FIN) { // 돔 바깥 순찰 (꼬리 휩쓸기 때 크게 흔듦)
       ang += 0.2;
       const sw = sweeps.some((s0) => t - s0 < 10) ? 2.2 : 0;
