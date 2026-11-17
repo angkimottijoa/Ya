@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 // 청룡의 검 (V3.1) — 직업과 상관없이 쓰는 스킬 검
 //   ① 클릭        청룡 · 유수   : 앞으로 미끄러지며 몸을 감는 물살 곡선 획
-//   ② 쉬프트+클릭 청룡 · 와선   : 여러 각도로 기울어진 점선 고리가 돌며 끌어당김
+//   ② 쉬프트+클릭 청룡 · 와선창 : 돌진하며 창 반 바퀴씩 좌우로 휘두름 → 찌르기 → 물러섰다 돌진 찌르기 + 번개
 //   ③ 쉬프트+점프 청룡 강림     : 먹구름 → 청룡이 구름 아래를 한 바퀴 → 길게 내려와 땅속으로 → 구름에서 번개
 //   ④ 쉬프트 두 번 청룡 · 천룡추 : 돌진하며 검기 → 솟구쳐 큰 청룡 머리 → 함께 내리꽂기 → 번개
 // 파티클: gen_cheongryong.py (물빛 픽셀 먼지 + ✱ 눈꽃, 머리는 윤곽선 점 찍기)
@@ -64,7 +64,7 @@ function slash(dim, at, yaw, o = {}) {
   const f = fwdOf(yaw), ry = (yaw * Math.PI) / 180, tr = ((o.tilt ?? 0) * Math.PI) / 180;
   const right = { x: -Math.cos(ry), y: 0, z: -Math.sin(ry) };
   const u = { x: right.x * Math.cos(tr), y: Math.sin(tr), z: right.z * Math.cos(tr) };
-  const [a0, a1] = o.full ? ((o.dir ?? 1) > 0 ? [0, 370] : [370, 0]) : (o.dir ?? 1) > 0 ? [-8, 188] : [188, -8];
+  const [a0, a1] = o.a0 != null ? [o.a0, o.a1] : o.full ? ((o.dir ?? 1) > 0 ? [0, 370] : [370, 0]) : (o.dir ?? 1) > 0 ? [-8, 188] : [188, -8];
   pt(dim, "cr_slash", at, { u, v: f, w: f, a0, a1, r: o.r ?? 3.6, thick: o.thick ?? 1.2, n: o.n ?? 300, dur: o.dur ?? 0.12, life: o.life ?? 0.45, spd: o.spd ?? 0, size: o.size ?? 1 });
 }
 
@@ -108,37 +108,88 @@ function flowingWater(ctx) {
   });
 }
 
-// ② 와선: 기울어진 점선 고리 5개가 2초 동안 돌며, 0.5초마다 끌어당김 + 피해
+// ② 와선창: 창을 들고 돌진하며 오른쪽 반 바퀴 → 왼쪽 반 바퀴 휘두름 → 앞으로 찌르기 → 살짝 물러섰다가 → 돌진 찌르기 + 앞으로 번개
+/** 파티클 창: 손(origin)에서 dir 쪽으로. 자루(짙은 남색) + 잎 모양 창날(흰·하늘) + 창날 밑 물빛 술 */
+function spear(dim, origin, dir, o = {}) {
+  const len = o.len ?? 3.4, life = o.life ?? 0.1;
+  const side = norm(Math.abs(dir.y) > 0.9 ? cross(dir, { x: 1, y: 0, z: 0 }) : cross(dir, { x: 0, y: 1, z: 0 }));
+  const butt = add(origin, dir, -1.1), neck = add(origin, dir, len - 1.1), tip = add(neck, dir, 1.05);
+  line(dim, butt, neck, { tone: 0.82, n: 34, thick: 0.1, size: 1.5, life });                        // 자루
+  for (const s2 of [-1, 1]) {                                                                          // 잎 모양 창날
+    const wing = add(add(neck, dir, 0.32), side, s2 * 0.24);
+    line(dim, neck, wing, { tone: 0.1, n: 8, thick: 0.2, size: 1.6, life });
+    line(dim, wing, tip, { tone: 0.02, n: 14, thick: 0.6, size: 1.5, life });
+  }
+  line(dim, neck, tip, { tone: 0.0, n: 12, thick: 0.5, size: 1.1, life });                            // 창날 가운데 흰 줄
+  cluster(dim, add(neck, dir, -0.15), { n: 3, r: 0.15, spd: 0.6, tone: 0.35 });                         // 물빛 술
+  return tip;
+}
 function whirlpool(ctx) {
-  const { p } = ctx, dim = p.dimension, hit = hitter(ctx), c = { ...p.location };
-  M.anim(p, "raise");
-  M.sound(p, "bubble.upinside", 0.7);
-  const rings = [
-    { r: 3.2, h: 1.2, tiltx: 0.35, tiltz: 0, spin: 160, tone: 0.55, dots: 34 },
-    { r: 2.4, h: 2.0, tiltx: -0.5, tiltz: 0.3, spin: -200, tone: 0.3, dots: 26 },
-    { r: 4.2, h: 0.6, tiltx: 0.1, tiltz: -0.25, spin: 120, tone: 0.75, dots: 44 },
-    { r: 1.8, h: 2.8, tiltx: 0.7, tiltz: 0.5, spin: 260, tone: 0.15, dots: 20 },
-    { r: 5.2, h: 0.3, tiltx: 0, tiltz: 0.12, spin: -90, tone: 0.9, dots: 52 },
-  ];
-  rings.forEach((rg, i) => later(1 + i * 3, () => pt(dim, "cr_ring", c, { ...rg, life: 2 })));
-  for (let i = 0; i < 4; i++) {
-    later(8 + i * 10, () => {
-      pt(dim, "cr_arc", c, { yaw: i * 90, a0: 0, a1: 300, r: 3 + i * 0.4, thick: 0.6, h: 0.2 + i * 0.5, tilt: 0.4, dur: 0.3, n: 180 });
-      snow(dim, up(c, 1.5), 4, 3);
-      for (const e of M.around(dim, c, 6)) {
-        M.toss(c, e, -5, 1.5);
-        hit(e, 0.35);
-      }
-      M.sound(p, "random.splash", 0.8 + i * 0.1, 0.6);
+  const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
+  M.potion(p, "resistance", 4, 2.5);
+  M.sound(p, "item.trident.riptide_1", 1, 1.1);
+  const rot = (yaw, deg) => fwdOf(yaw + deg); // 앞에서 오른쪽(-) / 왼쪽(+)으로 돌린 수평 방향
+  // 1) 돌진하며 오른쪽 반 바퀴 (뒤 → 오른쪽 → 앞), 2) 왼쪽 반 바퀴 (뒤 → 왼쪽 → 앞)
+  const halves = [{ t0: 1, from: 180, to: 0, side: -1, a0: -90, a1: 90 }, { t0: 8, from: -180, to: 0, side: 1, a0: 270, a1: 90 }];
+  for (const h of halves) {
+    later(h.t0, () => {
+      M.anim(p, "slash");
+      const yw = yawOf(p);
+      slash(dim, up(p.location, 1.05), yw, { a0: h.a0, a1: h.a1, r: 3.3, thick: 1.0, n: 360, dur: 0.28, life: 0.6, size: 1.15 });
+      M.sound(p, "item.trident.throw", 1, 0.9 + h.t0 * 0.02);
+    });
+    for (let k = 0; k <= 6; k++) later(h.t0 + k, () => {
+      const yw = yawOf(p), f = fwdOf(yw);
+      if (k < 6) try { p.applyKnockback(f.x, f.z, 0.75, 0.02); } catch {}
+      const deg = h.from + ((h.to - h.from) * k) / 6;                    // 창이 몸 옆을 반 바퀴 돎
+      const hand = add(up(p.location, 1.1), rot(yw, h.side * -90), 0.35);
+      const tip = spear(dim, hand, rot(yw, deg), { len: 3.4 }); // 오른쪽: 180→90→0, 왼쪽: -180→-90→0
+      if (k % 2 === 0) snow(dim, tip, 1, 0.4);
+      for (const e of M.around(dim, up(p.location, 0), 3.6)) hit(e, 0.45);
     });
   }
-  later(48, () => {
-    for (let k = 0; k < 10; k++) {
-      const a = (k / 10) * Math.PI * 2;
-      cluster(dim, { x: c.x + Math.cos(a) * 2.5, y: c.y + 0.6, z: c.z + Math.sin(a) * 2.5 }, { n: 16, r: 0.5, spd: 3, tone: 0.4 });
-    }
-    for (const e of M.around(dim, c, 5)) hit(e, 1.4);
-    M.sound(p, "random.explode", 1.6, 0.5);
+  // 3) 앞으로 찌르기
+  later(16, () => {
+    M.anim(p, "thrust");
+    const yw = yawOf(p), f = fwdOf(yw), hand = up(p.location, 1.15);
+    for (let k = 0; k < 4; k++) later(k, () => spear(dim, add(hand, f, k * 0.4), f, { len: 3.6 }));
+    const tip = add(hand, f, 4.6);
+    pt(dim, "cr_arc", p.location, { yaw: yw, a0: -12, a1: 12, r: 4.5, thick: 0.6, h: 1.1, dur: 0.06, n: 120 });
+    cluster(dim, tip, { n: 22, r: 0.4, spd: 3.5, tone: 0.3 });
+    for (let d = 1; d <= 5; d++) for (const e of M.around(dim, add(p.location, f, d), 1.6)) hit(e, 0.9);
+    M.sound(p, "item.trident.hit", 1.2, 1.1);
+  });
+  // 4) 살짝 뒤로 물러섬 (창을 당겨 겨눔)
+  later(21, () => {
+    const yw = yawOf(p), f = fwdOf(yw);
+    try { p.applyKnockback(-f.x, -f.z, 0.6, 0.12); } catch {}
+    for (let k = 0; k < 6; k++) later(k, () => { spear(dim, add(up(p.location, 1.15), fwdOf(yawOf(p)), -0.6), fwdOf(yawOf(p)), { len: 3.4 }); bodyVolts(dim, p.location, 1, 0.9); });
+    M.sound(p, "random.fizz", 0.8, 1.6);
+  });
+  // 5) 돌진 찌르기 + 앞으로 번개
+  later(28, () => {
+    M.anim(p, "thrust");
+    const yw = yawOf(p), f = fwdOf(yw), o = { ...p.location };
+    try { p.applyKnockback(f.x, f.z, 2.6, 0.08); } catch {}
+    M.sound(p, "item.trident.riptide_2", 1.2, 1);
+    M.sound(p, "ambient.weather.lightning.impact", 1, 1.5);
+    for (let k = 0; k < 6; k++) later(k, () => {
+      const L = p.location, ff = fwdOf(yawOf(p));
+      const tip = spear(dim, add(up(L, 1.15), ff, 0.6), ff, { len: 3.8 });
+      cluster(dim, tip, { n: 6, r: 0.3, spd: 2, tone: 0.2 });
+      for (const e of M.around(dim, add(L, ff, 2.5), 2.6)) hit(e, 1.3);
+    });
+    later(4, () => {
+      const L = p.location, ff = fwdOf(yawOf(p)), start = add(up(L, 1.15), ff, 4.2);
+      for (let i = 0; i < 3; i++) {
+        const end = add(add(start, ff, 9 + i * 2), { x: -ff.z, y: 0, z: ff.x }, (i - 1) * 1.6);
+        volt(dim, start, up(end, (Math.random() - 0.5) * 1.2), { size: 1.2, life: 0.32 });
+      }
+      flash(dim, start, 2.5);
+      pt(dim, "cr_shock", up(add(L, ff, 3), 0.15), { n: 80, spd: 9, tone: 0.2 });
+      for (let d = 2; d <= 13; d += 1.5) for (const e of M.around(dim, add(L, ff, d), 2)) hit(e, 1.6);
+      M.sound(p, "ambient.weather.thunder", 0.9, 1.4);
+    });
   });
 }
 
@@ -831,7 +882,7 @@ const cross = (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z
 export const WEAPON_SKILLS = {
   [SWORD_ID]: [
     { id: "w_cr_1", key: 1, name: "청룡 · 유수", short: "유수", lv: 1, mp: 12, cd: 4, pow: 1, run: flowingWater, desc: "앞으로 미끄러지며 몸을 감는 물살을 그린다." },
-    { id: "w_cr_2", key: 2, name: "청룡 · 와선", short: "와선", lv: 1, mp: 25, cd: 14, pow: 1, run: whirlpool, desc: "기울어진 점선 물결 고리가 돌며 적을 끌어당긴다." },
+    { id: "w_cr_2", key: 2, name: "청룡 · 와선창", short: "와선창", lv: 1, mp: 25, cd: 12, pow: 1, run: whirlpool, desc: "돌진하며 창을 오른쪽·왼쪽으로 반 바퀴씩 휘두르고 찌른 뒤, 물러섰다가 돌진 찌르기와 함께 앞으로 번개를 날린다." },
     { id: "w_cr_3", key: 3, name: "청룡 강림", short: "강림", lv: 1, mp: 45, cd: 30, pow: 1, run: dragon, desc: "거대한 먹구름 위에서 나타난 청룡이 아래를 한 바퀴 돌고 솟구쳤다가 내리꽂힌 뒤, 주변을 구속하고 번개가 쏟아진다." },
     { id: "w_cr_4", key: 4, name: "청룡 · 천룡추", short: "천룡추", lv: 1, mp: 40, cd: 22, pow: 1, run: dragonDive, desc: "번개를 두르고 일직선으로 번개 돌진(뇌섬) → 대각 베기 두 번 · 한 바퀴 베기 · 올려 베기 → 날아가는 검기 → 솟구쳐 공중 이동, 옆에 나타난 청룡과 함께 내리꽂고 번개." },
   ],
