@@ -89,6 +89,8 @@ def main():
                 bp[x * CELL + i, y * CELL + j] = col + (255,)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     big.save(OUT)
+    # 선명한 점용: 같은 그림, 픽셀마다 꽉 찬 4x4 칸
+    small.resize((small.size[0] * 4, small.size[1] * 4), Image.NEAREST).save(OUT.with_name("rpg_bh_art_solid.png"))
     bg = Image.new("RGBA", small.size, (90, 120, 80, 255))
     bg.alpha_composite(small)
     bg.resize((small.size[0] * 4, small.size[1] * 4), Image.NEAREST).save(ROOT / "docs" / "baekho_art_preview.png")

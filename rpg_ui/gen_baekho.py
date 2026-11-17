@@ -131,6 +131,19 @@ def main():
             "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
                    "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_bh_art")
+    # 4-2) 같은 그림을 선명한 꽉 찬 점으로 (흩날림 없음, 오래 남겨 한 번만 그림)
+    part("bh_art_solid", {
+        "minecraft:emitter_rate_instant": {"num_particles": "variable.n"},
+        "minecraft:emitter_lifetime_once": {"active_time": 0.05},
+        "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [f"({R3} - 0.5)", "1", f"({R4} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
+        "minecraft:particle_initial_speed": 0,
+        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_appearance_billboard": {
+            "size": [f"variable.scale * 0.85 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
+            "uv": {"texture_width": AWT * 4, "texture_height": AHT * 4,
+                   "uv": [f"(variable.x0 + {bx}) * 4", f"(variable.y0 + {by}) * 4"], "uv_size": [4, 4]}},
+    }, tex="textures/particle/rpg_bh_art_solid")
     # 5) 땅이 갈라지며 퍼지는 파문: 반지름이 시간에 따라 커지는 고리에서 흙덩이·먼지가 튀어 오름
     ra = f"({R1} * 360)"
     rr_ = "(variable.r + variable.emitter_age * variable.spd)"

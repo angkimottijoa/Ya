@@ -427,9 +427,10 @@ function apex(ctx) {
   // 도끼: 사진 색 연기 뭉치 점으로 크게, 45도 (날 = 앞 아래로 땅에 박힘). 점이 피어오르며 커짐. 쥐는 곳 기준, 날이 H 지점 땅속에
   const AXS = 0.085, back = scl(f, -1);
   const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 };
-  const axeAt = (H, drop, life = 0.4, n = 1500) => {
+  const axeAt = (H, drop, life = 0.4, n = 1500, solid = false) => {
     const grip = add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
-    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n, life });
+    if (solid) pt(dim, "bh_art_solid", grip, { ...AXE_ART, u: back, v: UP, w: rt, scale: AXS, depth: 0.6, n, life, size: 1 });
+    else art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n, life });
   };
   let tt = 0, landed = false;
   const fall = () => {
@@ -450,8 +451,10 @@ function apex(ctx) {
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
     // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 8초 동안 박혀 연기를 피워 올림 (5틱마다 다시 그림)
-    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15, 2600));
-    for (let t = 3; t < 163; t += 6) later(t, () => axeAt(H, 0, 1.05, 3000)); // 점을 많이 → 또렷하게
+    for (let t = 0; t < 3; t++) later(t, () => { axeAt(H, (3 - t) * 8, 0.15, 2200); axeAt(H, (3 - t) * 8, 0.15, 2200, true); });
+    // 반은 선명한 점 (한 번 그려 8초 그대로), 반은 연기 점 (6틱마다 피어오름)
+    later(3, () => axeAt(H, 0, 8, 4500, true));
+    for (let t = 3; t < 163; t += 6) later(t, () => axeAt(H, 0, 1.05, 3200));
     later(3, () => boom(dim, up(H, 0.5), true));
     // 연쇄 폭발: 박힌 곳에서 바깥으로 두 바퀴
     for (let k = 0; k < 6; k++) {
