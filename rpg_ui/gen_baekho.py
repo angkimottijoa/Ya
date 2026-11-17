@@ -110,7 +110,7 @@ def main():
     })
     # 4) 그림 점 찍기 (백호 머리 · 도끼): 텍스처 rpg_bh_art 의 (x0,y0,iw,ih) 영역을 픽셀마다 점으로
     #   u = 그림 가로, v = 그림 세로(위), w = 그림 앞(볼록하게 튀어나옴 depth → 입체), 기준점 (cx, cy), scale = 픽셀당 블록
-    CELL = 4
+    CELL = 8
     _art = Image.open(ROOT / "resource_pack" / "textures" / "particle" / "rpg_bh_art.png")
     AWT, AHT = _art.size[0] // CELL, _art.size[1] // CELL
     bx, by = f"math.floor({R1} * variable.iw)", f"math.floor({R2} * variable.ih)"
@@ -124,10 +124,10 @@ def main():
         "minecraft:emitter_lifetime_once": {"active_time": 0.05},
         "minecraft:emitter_shape_point": {"offset": [f"variable.u.{c} * {lx} + variable.v.{c} * {ly} + variable.w.{c} * {lz}" for c in "xyz"], "direction": [f"({R3} - 0.5)", "1", f"({R4} - 0.5)"]},
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.8 + {R4} * 0.4)"},
-        "minecraft:particle_initial_speed": 0,
-        "minecraft:particle_motion_dynamic": {},
+        "minecraft:particle_initial_speed": f"0.15 + {R4} * 0.35",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.5, 0], "linear_drag_coefficient": 1.5},
         "minecraft:particle_appearance_billboard": {
-            "size": [f"variable.scale * 0.8 * variable.size"] * 2, "facing_camera_mode": "lookat_xyz",
+            "size": [f"variable.scale * 1.35 * variable.size * (0.85 + {AGE} * 0.4)"] * 2, "facing_camera_mode": "lookat_xyz",
             "uv": {"texture_width": AWT * CELL, "texture_height": AHT * CELL,
                    "uv": [f"(variable.x0 + {bx}) * {CELL}", f"(variable.y0 + {by}) * {CELL}"], "uv_size": [CELL, CELL]}},
     }, tex="textures/particle/rpg_bh_art")

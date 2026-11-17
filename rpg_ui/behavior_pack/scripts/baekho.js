@@ -9,7 +9,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
-import { AXE_ART, AXE_BANDS } from "./bh_art_meta.js";
+import { AXE_ART } from "./bh_art_meta.js";
 
 export const AXE_ID = "rpg:baekho_axe";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -76,10 +76,10 @@ function clawAt(dim, c, u, v, w, o = {}) {
 const smoke = (dim, at, o = {}) => pt(dim, "bh_smoke", at, { n: 6, r: 0.4, spd: 1.5, size: 1, life: 1.2, ...o });
 function boom(dim, at, big = false) {
   try { dim.spawnParticle(big ? "minecraft:huge_explosion_emitter" : "minecraft:large_explosion", at); } catch {}
-  pt(dim, "bh_boom", at, { n: big ? 26 : 12, r: big ? 1.3 : 0.5, spd: big ? 7 : 4, size: big ? 2.6 : 1.5, life: 0.9, tone: 0 });
+  pt(dim, "bh_boom", at, { n: big ? 18 : 10, r: big ? 1.3 : 0.5, spd: big ? 7 : 4, size: big ? 2.9 : 1.6, life: 0.9, tone: 0 });
   pt(dim, "bh_boom", at, { n: big ? 12 : 5, r: big ? 1 : 0.4, spd: big ? 5 : 3, size: big ? 2 : 1.2, life: 0.8, tone: 0.85 });
-  dust(dim, at, { n: big ? 30 : 16, r: 0.6, spd: big ? 7 : 5, tone: 0.85 });
-  dust(dim, at, { n: big ? 18 : 10, r: 0.5, spd: big ? 8 : 6, tone: 0 });
+  dust(dim, at, { n: big ? 20 : 12, r: 0.6, spd: big ? 7 : 5, tone: 0.85 });
+  dust(dim, at, { n: big ? 12 : 8, r: 0.5, spd: big ? 8 : 6, tone: 0 });
   smoke(dim, at, { n: big ? 14 : 5, r: big ? 1.2 : 0.6, spd: big ? 3 : 2, size: big ? 2 : 1.3 });
 }
 /** 강타 이펙트: 폭발 뭉게로 그린 원이 작게 시작해 점점 커짐. 여러 겹을 차례로 */
@@ -277,7 +277,7 @@ function blob(dim, c, d, a, b, cc, U, o = {}) {
 function drawPaw(dim, W, D, N0, k, spread = 1, t = 0) {
   const N = norm(sub(N0, scl(D, dot3(N0, D)))), S = cross(D, N);
   const P = (d, n, s) => add(add(add(W, D, d * k), N, n * k), S, s * k);
-  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 11, size: 1.4, ...o, ...(o.dens ? { dens: o.dens * 0.4 } : {}) });
+  const B = (pos, dir, a, b, cc, o = {}) => blob(dim, pos, dir, a * k, b * k, cc * k, scl(N, -1), { dens: 9, size: 1.45, life: 0.09, ...o, ...(o.dens ? { dens: o.dens * 0.33 } : {}) });
   const seg = (A, Bp, r, o) => { const d = sub(Bp, A), L = Math.hypot(d.x, d.y, d.z) || 0.01; B(add(A, d, 0.5), scl(d, 1 / L), L / (2 * k) + 0.05, r, r, o); };
   // 팔뚝: 짧게 (손 위주로 보이게), 고리 줄무늬
   seg(P(-2.1, -0.1, 0), P(-0.9, 0, 0), 0.72, { stripe: 1.6, ao: 0.1 });
@@ -400,7 +400,7 @@ function apex(ctx) {
   // 내리친 순간: 거대한 3D 할퀴기 자국 + 폭발 + 번지는 폭발, 맞은 자리마다 폭발
   later(T0 + 12, () => {
     const u = strikeDir, v = norm(cross(toCam, u)), c = add(E0, toCam, 1.5);
-    clawAt(dim, c, u, v, toCam, { r: 13, dots: 4, thick: 1.8, size: 3, n: 1600, dur: 0.12, life: 0.9, h: 75 });
+    clawAt(dim, c, u, v, toCam, { r: 13, dots: 4, thick: 1.8, size: 3.2, n: 1200, dur: 0.12, life: 0.9, h: 75 });
     boom(dim, E0, true);
     boomWave(dim, add(E0, UP, -1), { r: 0.5, spd: 14, n: 90, dur: 0.35, size: 2.2 });
     let nb = 0;
@@ -427,15 +427,12 @@ function apex(ctx) {
     }
     M.sound(p, "mob.enderdragon.flap", 1, 0.7);
   });
-  // 도끼: 사진 그대로 선명한 점 그림, 45도 (날 = 앞 아래로 땅에 박힘). 띠마다 도끼가 있는 범위만 찍음
-  const AXS = 0.116, back = scl(f, -1);
-  const headPx = { x: 20 - AXE_ART.cx, y: AXE_ART.cy - 97 };
-  const axeAt = (H, drop, life) => {
+  // 도끼: 사진 색 연기 뭉치 점으로 크게, 45도 (날 = 앞 아래로 땅에 박힘). 점이 피어오르며 커짐. 쥐는 곳 기준, 날이 H 지점 땅속에
+  const AXS = 0.085, back = scl(f, -1);
+  const headPx = { x: 28 - AXE_ART.cx, y: AXE_ART.cy - 132 };
+  const axeAt = (H, drop, life = 0.4, n = 1500) => {
     const grip = add(add(up(H, -1.2 + drop), back, -headPx.x * AXS), UP, -headPx.y * AXS);
-    for (const [x0, y0, iw, ih, filled] of AXE_BANDS) {
-      const n = Math.round((filled * 1.8 * iw * ih) / Math.max(1, filled) * Math.min(1, filled / (iw * ih)) + 2);
-      pt(dim, "bh_art", grip, { x0, y0, iw, ih, cx: AXE_ART.cx, cy: AXE_ART.cy, u: back, v: UP, w: rt, scale: AXS, depth: 0, n, life, size: 1 });
-    }
+    art(dim, "axe", grip, back, UP, rt, { scale: AXS, depth: 0.6, n, life });
   };
   let tt = 0, landed = false;
   const fall = () => {
@@ -455,9 +452,9 @@ function apex(ctx) {
     pt(dim, "bh_shock", up(G, 0.15), { n: 160, spd: 22, size: 1.6 });
     shake(dim, G, 0.9, 0.5);
     M.sound(p, "random.explode", 1.6, 0.7);
-    // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 한 번 그려 8초 동안 그대로 박혀 있음
-    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.1));
-    later(3, () => axeAt(H, 0, 8));
+    // 하늘에서 거대한 도끼가 떨어져 내리꽂힘 (3틱) → 8초 동안 박혀 연기를 피워 올림 (5틱마다 다시 그림)
+    for (let t = 0; t < 3; t++) later(t, () => axeAt(H, (3 - t) * 8, 0.15, 1400));
+    for (let t = 3; t < 163; t += 5) later(t, () => axeAt(H, 0, 0.9, 1500));
     later(3, () => boom(dim, up(H, 0.5), true));
     // 연쇄 폭발: 박힌 곳에서 바깥으로 두 바퀴
     for (let k = 0; k < 6; k++) {
