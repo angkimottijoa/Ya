@@ -16,6 +16,8 @@ import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
 import * as HM from "./hyeonmu.js";
 import { WR } from "./warrior.js";
+import { MG } from "./mage.js";
+const RUN = { ...WR, ...MG }; // 직업 스킬 (전사 · 마법사 계열)
 import { isSkillLocked } from "./skill_lock.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS };
 
@@ -233,8 +235,8 @@ export function castWeaponSkill(p, id) {
 // ───────── 효과: spellbook.js (MagicSpells 이식 엔진) ─────────
 function runEffect(p, s, dmg) {
   const d = data(p);
-  if (s.wr && WR[s.wr]) { // 전사 계열 (warrior.js) · setCd = 콤보가 끝나면 긴 대기시간
-    WR[s.wr]({ p, dmg, data: d, s, setCd: (sec) => { if (!skillMode(p)) cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(sec * 20)); } });
+  if (s.wr && RUN[s.wr]) { // 전사 계열 (warrior.js) · setCd = 콤보가 끝나면 긴 대기시간
+    RUN[s.wr]({ p, dmg, data: d, s, setCd: (sec) => { if (!skillMode(p)) cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(sec * 20)); } });
     return;
   }
   if (s.ms) {
