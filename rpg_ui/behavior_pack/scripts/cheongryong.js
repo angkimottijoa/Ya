@@ -9,6 +9,7 @@
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 import { SPEAR } from "./cr_spear_meta.js";
+import { skillOpt } from "./skill_opts.js";
 
 export const SWORD_ID = "rpg:cheongryong_sword";
 const later = (t, fn) => system.runTimeout(() => { try { fn(); } catch {} }, Math.max(1, Math.round(t)));
@@ -827,6 +828,9 @@ function dragonDive(ctx) {
       M.anim(p, anim);
       const L = p.location, yw = yawOf(p), f = fwdOf(yw), o = opt();
       slash(dim, up(L, o.full ? 0.9 : 1.1), yw, o);
+      // 더 화려하게: 베기마다 앞으로 날아가는 검기 초승달 + 칼끝 번개
+      if (!o.full) { slash(dim, up(L, 1.1), yw, { ...o, r: 3.4, thick: 0.9, n: 260, dur: 0.05, life: 0.55, spd: 26 }); volt(dim, up(add(L, f, 1), 1.2), up(add(L, f, 7), 1.2 + (Math.random() - 0.5) * 2), { size: 0.9, life: 0.22, branch: 1 }); }
+      else for (let k = 0; k < 6; k++) slash(dim, up(L, 1), yw + k * 60, { tilt: 0, dir: 1, r: 2.6, thick: 0.6, n: 120, dur: 0.04, life: 0.5, spd: 20, size: 1 });
       if (o.full) { // 한 바퀴: 주변 전부 + 바깥으로 퍼지는 물보라
         pt(dim, "cr_shock", up(L, 0.9), { n: 120, spd: 9, tone: 0.2 });
         for (const e of M.around(dim, L, 5.2)) { hit(e, mul); M.toss(L, e, 1.5, 3); }
@@ -951,10 +955,22 @@ function dragonDiveMain(ctx, hit) {
     M.sound(p, "random.explode", 1.1, 0.9);
     M.sound(p, "random.splash", 0.7);
     later(7, () => lightning(ctx, { x: hitAt.x + 1, y: hitAt.y + 18, z: hitAt.z - 1 }, hitAt, hit, 2.2));
+    // 더 화려하게: 사방으로 날아가는 검기 여덟 · 해일 · 둘레 번개 · 하늘로 솟는 빛기둥
+    for (let k = 0; k < 8; k++) slash(dim, up(hitAt, 1), k * 45, { tilt: 0, dir: k % 2 ? 1 : -1, r: 3, thick: 1, n: 220, dur: 0.05, life: 0.7, spd: 22, size: 1.2 });
+    wave(ctx, hit, hitAt, { r: 2, spd: 14, h: 2.4, life: 0.9, n: 520, mul: 0.5, push: 6 });
+    later(3, () => { pt(dim, "cr_pillar", hitAt, { r: 1.8, h: 3, n: 240, life: 1.4 }); pt(dim, "cr_column", hitAt, { r: 1.6, n: 220, spd: 16 }); });
+    for (let k = 0; k < 5; k++) later(4 + k * 3, () => { const a = (k / 5) * Math.PI * 2 + 0.3, q = { x: hitAt.x + Math.cos(a) * 5, y: hitAt.y, z: hitAt.z + Math.sin(a) * 5 }; volt(dim, up(q, 12), up(q, 0.2), { size: 1, life: 0.25 }); pt(dim, "cr_shock", up(q, 0.1), { n: 50, spd: 6, tone: 0.2 }); });
   };
+  const cam3 = skillOpt("crCam3p"); // 관리자 옵션: 청룡이 보이는 3인칭 시점
+  if (cam3) later(START + HOVER + 90, () => camClear(p)); // 안전장치: 끊겨도 원래 시점으로
   const tick = () => {
     if (!p.isValid()) return;
     yawS = angLerp(yawS, yawOf(p), 0.3); // 시선을 부드럽게 따라감
+    if (cam3 && t % 2 === 0) {
+      const L = p.location, ff = fwdOf(yawS), rr = { x: -Math.cos((yawS * Math.PI) / 180), y: 0, z: -Math.sin((yawS * Math.PI) / 180) };
+      if (landT < 0) cam(p, { x: L.x - ff.x * 9 - rr.x * 4.5, y: L.y + 4.5 + (diveT >= 0 ? 2 : 0), z: L.z - ff.z * 9 - rr.z * 4.5 }, { x: L.x + ff.x * 3 + rr.x * 1.6, y: L.y + (diveT >= 0 ? 0 : 1.2), z: L.z + ff.z * 3 + rr.z * 1.6 }, 0.15, "Linear");
+      else if (landT === 2) { cam(p, { x: L.x - ff.x * 7 - rr.x * 6, y: L.y + 3, z: L.z - ff.z * 7 - rr.z * 6 }, up(L, 0.5), 0.3); later(24, () => camClear(p)); }
+    }
     if (diveT < 0 && t <= HOVER) steer(t);
     if (t === HOVER + 1) { // 내리꽂기 시작: 먼저 고개를 치켜들며 숨을 고름
       diveT = 0;
@@ -986,6 +1002,11 @@ function dragonDiveMain(ctx, hit) {
       if (diveT >= 0) follow = Math.min(1, follow + 0.1);
       draw(at, pitchS, grow);
       if (t % 3 === 0) cluster(dim, at, { n: 12, r: 2, spd: 1.5, tone: 0.3 });
+      // 더 화려하게: 몸을 따라 감기는 번개 · 머리에서 날아가는 검기 · 몸 둘레 별빛 · 바깥 물결 고리
+      if (chain && t % 5 === 0) { const i = 2 + Math.floor(Math.random() * (chain.length - 6)); volt(dim, chain[i], chain[i + 3], { size: 0.8, life: 0.2, branch: 1, amp: 0.8 }); }
+      if (t % 9 === 4) slash(dim, at, yawS, { tilt: (Math.random() - 0.5) * 70, dir: Math.random() < 0.5 ? 1 : -1, r: 3, thick: 0.8, n: 200, dur: 0.05, life: 0.6, spd: 24, size: 1.1 });
+      if (chain && t % 4 === 2) for (const q of [chain[6], chain[12], chain[18]]) if (q) snow(dim, q, 2, 1.2);
+      if (diveT < 0 && t % 12 === 0) pt(dim, "cr_ring", up(p.location, -0.5), { r: 5, h: 0.2, dots: 40, spin: 200, tone: 0.3, life: 0.8 });
       if (t % 6 === 0) snow(dim, at, 4, 4);
       if (diveT >= 0) {
         diveT++;

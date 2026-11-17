@@ -18,6 +18,7 @@ import { openHome, questDetailBody } from "./menu.js";
 import { openNpc, SKINS, ANIMS, CAMS, npcId, npcHasShop, npcShopList, npcDialog, saveDialog, baseAnim, setBaseAnim } from "./npc.js";
 import * as R from "./rules.js";
 import { npcRegistry, registerNpcEntity, unregisterNpc } from "./npcdb.js";
+import { SKILL_OPTS, skillOpt, setSkillOpt } from "./skill_opts.js";
 
 const QT = Object.entries(Q.QTYPES);
 
@@ -27,6 +28,7 @@ const TABS = [
   { id: "helper", name: "제작 도움", icon: "skill" },
   { id: "wp", name: "길찾기", icon: "nav" },
   { id: "weapon", name: "무기·스킬", icon: "class" },
+  { id: "skillhelp", name: "스킬 도움", icon: "skill" },
   { id: "npc", name: "NPC", icon: "npc" },
   { id: "shop", name: "상점", icon: "shop" },
   { id: "player", name: "플레이어", icon: "profile" },
@@ -49,7 +51,7 @@ export function openAdmin(p, tab = "quest", sel, page = 0) {
     msg(p, "§c제작자 권한이 없습니다. §7(/tag @s add rpg_admin)");
     return;
   }
-  return { quest: questTab, catalog: catalogTab, helper: helperTab, wp: wpTab, weapon: weaponTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
+  return { quest: questTab, catalog: catalogTab, helper: helperTab, wp: wpTab, weapon: weaponTab, skillhelp: skillHelpTab, npc: npcTab, shop: shopTab, player: playerTab, data: dataTab }[tab](p, sel, page);
 }
 
 // ═════════ 퀘스트 ═════════
@@ -850,6 +852,7 @@ function playerTab(p, selId) {
     return re();
   });
   scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
+  for (const [id, nm] of [["rpg:hundun_orb", "§d혼돈의 구슬"], ["rpg:qiongqi_claws", "§c궁기의 쌍발톱"], ["rpg:taowu_hammer", "§6도올의 대망치"], ["rpg:taotie_maw", "§2도철의 아가리"]]) scr.action(`${nm} 지급`, () => { giveItem(t, id, 1); msg(p, `${nm}§f을(를) 지급했습니다.`); return re(); });
   scr.action("§2현무의 방패 지급", () => { giveItem(t, "rpg:hyeonmu_shield", 1); msg(p, "§2현무의 방패를 지급했습니다."); return re(); });
   scr.action("§6주작의 활 지급", () => { giveItem(t, "rpg:jujak_bow", 1); msg(p, "§6주작의 활을 지급했습니다."); return re(); });
   scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
@@ -1073,6 +1076,28 @@ const TEMPLATES = [
   { id: "daily", name: "일일 사냥", desc: "매일 초기화되는 몬스터 토벌" },
   { id: "chain", name: "연속 퀘스트 (3단계)", desc: "대화 → 처치 → 보고, 선행 퀘스트 자동 연결" },
 ];
+
+// ═════════ 스킬 도움: 시험용 도구 + 스킬 연출 옵션 ═════════
+function skillHelpTab(p, sel) {
+  const scr = new Screen("L", "제작자 도구 / 스킬 도움");
+  const d = data(p);
+  sel = sel ?? SKILL_OPTS[0]?.id;
+  for (const o of SKILL_OPTS) scr.item(`${skillOpt(o.id) ? "§a[켜짐] " : "§8[꺼짐] "}§f${o.name}`, ICON("settings"), () => skillHelpTab(p, o.id), { on: o.id === sel });
+  adminChrome(scr, p, "skillhelp");
+  const o = SKILL_OPTS.find((x) => x.id === sel);
+  scr.select("스킬 도움", ICON("skill"));
+  scr.body(rt(
+    "§e§l시험 도구§r\n§f- 재사용 대기 초기화 · 마나 가득 · 관리자 스킬 모드(대기·마나 없음)\n§f- 사신수 · 사흉수 무기 한 번에 받기\n\n",
+    o ? `§e§l${o.name}§r ${skillOpt(o.id) ? "§a켜짐" : "§8꺼짐"}\n§7${o.desc}\n\n` : "",
+    "§7옵션은 월드 전체에 적용됩니다.",
+  ));
+  if (o) scr.action(skillOpt(o.id) ? `§c${o.name} 끄기` : `§a${o.name} 켜기`, () => { setSkillOpt(o.id, !skillOpt(o.id)); msg(p, `§f${o.name} ${skillOpt(o.id) ? "§a켜짐" : "§8꺼짐"}`); return skillHelpTab(p, o.id); });
+  scr.action("재사용 대기 초기화", () => { SK.resetCooldowns(p); msg(p, "§a모든 스킬 재사용 대기를 초기화했습니다."); return skillHelpTab(p, sel); });
+  scr.action("마나 가득", () => { d.mp = 99999; save(p); msg(p, "§9마나를 채웠습니다."); return skillHelpTab(p, sel); });
+  scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기 (대기·마나 없음)", () => { d.set ??= {}; d.set.adminSkill = !d.set.adminSkill; save(p); msg(p, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐" : "§7관리자 스킬 모드 꺼짐"); return skillHelpTab(p, sel); });
+  scr.action("사신수 · 사흉수 무기 받기", () => { for (const id of ["rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield", "rpg:hundun_orb", "rpg:qiongqi_claws", "rpg:taowu_hammer", "rpg:taotie_maw"]) giveItem(p, id, 1); msg(p, "§a사신수 · 사흉수 무기를 받았습니다."); return skillHelpTab(p, sel); });
+  return scr.show(p);
+}
 
 function helperTab(p) {
   const scr = new Screen("L", "제작자 도구 / 제작 도움");

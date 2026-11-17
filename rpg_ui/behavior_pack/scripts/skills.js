@@ -15,13 +15,14 @@ import { WEAPON_SKILLS as CR_SKILLS } from "./cheongryong.js";
 import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
 import * as HM from "./hyeonmu.js";
+import { WEAPON_SKILLS as FD_SKILLS } from "./fiends.js";
 import { WR } from "./warrior.js";
 import { MG } from "./mage.js";
 import { RP } from "./reaper.js";
 import { HJ } from "./hidden_jobs.js";
 const RUN = { ...WR, ...MG, ...RP, ...HJ }; // 직업 스킬 (전사 · 마법사 계열 · 히든 영혼 수확자)
 import { isSkillLocked } from "./skill_lock.js";
-const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS };
+const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
@@ -269,12 +270,18 @@ export function buffMul(p) {
 // ───────── 발동: ① 클릭 / ② 쉬프트+클릭 / ③ 쉬프트+점프 (직업 도구를 들고) ─────────
 /** 관리자 스킬 모드: 쿨다운·마나 없음, 모든 직업 스킬 사용 가능 (제작자 도구 > 플레이어) */
 export const skillMode = (p) => !!data(p).set?.adminSkill && isAdmin(p);
+/** 이 플레이어의 모든 스킬 재사용 대기 초기화 (관리자 도구 > 스킬 도움) */
+export function resetCooldowns(p) { for (const k of [...cd.keys()]) if (k.startsWith(`${p.id}|`)) cd.delete(k); }
 
 /** 스킬 무기 발동 (직업 조건 없음) */
 function castWeaponSpecial(p, s) {
   const d = data(p);
+  // 재입력 · 모드 중 입력 (사흉수): 쿨타임 · 마나 없이 처리
+  try { if (s.pre?.(p)) return true; } catch {}
+  const cdOf = (sec) => cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(sec * 20));
+  const extra = { setCd: (sec) => { if (!skillMode(p)) cdOf(sec); }, resetCd: () => cd.delete(`${p.id}|${s.id}`) };
   if (skillMode(p)) {
-    s.run({ p, dmg: 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02), data: d });
+    s.run({ p, dmg: 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02), data: d, ...extra });
     notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
     return true;
   }
@@ -293,7 +300,7 @@ function castWeaponSpecial(p, s) {
   const cdr = 1 - Math.min(0.4, stat(p, "int") * 0.01);
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   const dmg = 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02);
-  s.run({ p, dmg, data: d });
+  s.run({ p, dmg, data: d, ...extra });
   notify(p, `§b§l${s.name}! §r§9-${s.mp} MP`);
   return true;
 }

@@ -124,6 +124,18 @@
     },
     "rpg_jt_spirit_shepherd": {
       "textures": "textures/items/rpg/jt_spirit_shepherd"
+    },
+    "rpg_hundun_orb": {
+      "textures": "textures/items/rpg/hundun_orb"
+    },
+    "rpg_qiongqi_claws": {
+      "textures": "textures/items/rpg/qiongqi_claws"
+    },
+    "rpg_taowu_hammer": {
+      "textures": "textures/items/rpg/taowu_hammer"
+    },
+    "rpg_taotie_maw": {
+      "textures": "textures/items/rpg/taotie_maw"
     }
   }
 }
