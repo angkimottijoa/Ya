@@ -6,7 +6,7 @@
 //      2단 화살은 근접 신관: 둘레(아래쪽까지)에 적이 조금이라도 들어오면 그 자리에서 폭발
 //      3단: 주작의 활(사용자 그림 점 찍기)이 손 앞에 나타나 시선을 따라다니며 2초 동안 시위를 당김
 //           → 그 순간 바라보는 쪽으로 큰 불화살(사용자 그림)이 곧게 날아가 크게 폭발
-//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발, 2초 동안 안 쏘면 자동 장전
+//      6초 안에 다음 단을 이어 쏘지 않거나 빗나가면 1단으로. 화살 6발: 남아 있으면 6초, 다 쓰면 2초 동안 안 쏘면 자동 장전
 // 파티클: gen_jujak.py (jj_bow, jj_bigarrow, jj_ember, jj_trail, jj_boom, jj_ring)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, world, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
@@ -126,8 +126,8 @@ const BOW = JJ.BOW, AR = JJ.ARROW;
 /** 활·시위·화살: 플레이어 앞 바닥에 크게(높이 약 5블록) 세움. k = 당긴 정도 0~1. drawBody 일 때만 활 몸을 그림 (3틱마다) */
 function drawBow(p, k, withArrow = true, drawBody = true) {
   const dim = p.dimension, v = viewOf(p), yw = yawOf(p), f = fwdOf(yw), right = rightOf(yw);
-  // 활 면: 대부분 옆을 향하게 (뒤·1인칭에서도 활 모양이 보임), 활 배(그림 오른쪽)는 앞쪽
-  const u = norm(add(scl(f, 0.35), right, 0.94));
+  // 활 면: 플레이어가 바라보는 방향과 나란히 (활 배 = 앞, 시위 = 플레이어 쪽)
+  const u = f;
   const SB = 0.068;
   // 시위 가운데(활 양 끝의 중간)가 플레이어 바로 앞 가운데 줄에 오게 활 위치를 맞춤 → 화살이 정면으로 곧게
   const rel = (ix, iy) => add(scl(u, (ix - BOW.cx) * SB), UP, (BOW.cy - iy) * SB);
@@ -250,9 +250,10 @@ function bigShot(ctx, done) {
 // ───────── ① 주작 · 화시 (3단 콤보, 6발 장전) ─────────
 const AMMO = 6;
 const combo = new Map(); // pid -> { stage, until, busy, ammo, reload }
-const REFILL = 40; // 2초 동안 안 쓰면 다시 채워짐 (들고 있을 때)
+const REFILL_EMPTY = 40, REFILL_PART = 120; // 다 쓰면 2초, 남아 있으면 6초 동안 안 쏘면 다시 채워짐
+const refillDelay = (st) => (st.ammo <= 0 ? REFILL_EMPTY : REFILL_PART);
 function refill(p, st) {
-  if (st.ammo >= AMMO || system.currentTick - st.last < REFILL) return;
+  if (st.ammo >= AMMO || system.currentTick - st.last < refillDelay(st)) return;
   st.ammo = AMMO;
   M.anim(p, "reload");
   M.sound(p, "random.bow", 0.8, 1.6);
@@ -266,7 +267,7 @@ export function ammoLine(p) {
   if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, last: 0 }; combo.set(p.id, st); }
   refill(p, st);
   const now = system.currentTick, stage = now > st.until ? 0 : st.stage;
-  const left = st.ammo < AMMO ? Math.max(0, Math.ceil((REFILL - (now - st.last)) / 20)) : 0;
+  const left = st.ammo < AMMO ? Math.max(0, Math.ceil((refillDelay(st) - (now - st.last)) / 20)) : 0;
   return `§6🔥 §f${"|".repeat(st.ammo)}§8${"|".repeat(AMMO - st.ammo)} §f${st.ammo}/${AMMO}` + (stage ? `  §c${stage + 1}단` : "") + (left && st.ammo < AMMO ? `  §7장전 ${left}s` : "");
 }
 function flameShot(ctx) {
@@ -274,7 +275,7 @@ function flameShot(ctx) {
   let st = combo.get(p.id);
   if (!st) { st = { stage: 0, until: 0, busy: 0, ammo: AMMO, last: 0 }; combo.set(p.id, st); }
   refill(p, st);
-  if (st.ammo <= 0) { say(p, `§7화살이 없습니다 — ${Math.ceil((REFILL - (now - st.last)) / 20)}초 뒤 자동 장전`); return; }
+  if (st.ammo <= 0) { say(p, `§7화살이 없습니다 — ${Math.ceil((refillDelay(st) - (now - st.last)) / 20)}초 뒤 자동 장전`); return; }
   if (now < st.busy) return; // 3단 조준 중
   if (now > st.until) st.stage = 0;
   const eye = eyeOf(p), v = viewOf(p), start = add(eye, v, 1);
