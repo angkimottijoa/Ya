@@ -20,6 +20,7 @@ JADE = {"0.0": "#FFF0FFF4", "0.18": "#FFB4F5D2", "0.4": "#FF4FC488", "0.65": "#F
 ROCK = {"0.0": "#FF58665C", "0.35": "#FF333D37", "0.7": "#FF1A211D", "1.0": "#FF0A0D0B"}
 SPIKE = {"0.0": "#FFD6FFE8", "0.18": "#FF7FE0AE", "0.4": "#FF2F8F5E", "0.62": "#FF17482F", "0.82": "#FF0B1A12", "1.0": "#FF030504"}
 SNAKE = {"0.0": "#FFD2E6A4", "0.25": "#FF8DB65A", "0.5": "#FF3E7436", "0.75": "#FF1B3A1F", "1.0": "#FF07120A"}
+POISON = {"0.0": "#9978C850", "0.4": "#7740862E", "1.0": "#00102A10"}
 INK = {"0.0": "#CC33493B", "0.45": "#99162219", "1.0": "#00040705"}
 FILL = {"0.0": "#702F8F5E", "0.6": "#401E5A3C", "1.0": "#000B1A12"}
 SHEET = "textures/particle/rpg_hm"
@@ -319,6 +320,17 @@ def main():
         "minecraft:particle_initial_speed": f"variable.spd * (0.3 + {R4} * 0.5)",
         "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.7, 0], "linear_drag_coefficient": 1.6},
         **look(f"variable.size * (0.4 + {R4} * 0.35) * (0.7 + {AGE} * 0.8)", 5, INK, AGE),
+    }, material="particles_blend")
+
+    # hm_fog: 낮게 깔리는 짙은 초록 독 안개
+    part("hm_fog", {
+        **once(),
+        "minecraft:emitter_shape_point": {"offset": [f"({R1} - 0.5) * 2 * variable.r", f"{R2} * 0.4", f"({R3} - 0.5) * 2 * variable.r"],
+                                          "direction": [f"({R1} - 0.5)", f"0.1 + {R2} * 0.25", f"({R3} - 0.5)"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.7 + {R4} * 0.6)"},
+        "minecraft:particle_initial_speed": f"variable.spd * (0.2 + {R4} * 0.4)",
+        "minecraft:particle_motion_dynamic": {"linear_acceleration": [0, 0.15, 0], "linear_drag_coefficient": 1.2},
+        **look(f"variable.size * (0.5 + {R4} * 0.4) * (0.6 + {AGE} * 0.7)", 5, POISON, AGE),
     }, material="particles_blend")
 
     # hm_flash: 패링 번쩍임

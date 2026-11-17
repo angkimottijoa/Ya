@@ -8,7 +8,7 @@
 //   현무진  방패 앞에 육각 등껍질 벽: 벽 뒤 구역에 있는 나·아군에게 벽 앞쪽에서 온 피해는 들어가지 않음,
 //          벽에 닿는 투사체는 부서져 사라짐, 벽에 붙은 적은 밀려남
 //   ① 클릭  귀갑타: 3타 콤보 (방패 밀치기 → 뱀 꼬리 휘두르기 → 내리찍어 균열·띄우기) · 현무 기운 1개당 +15%
-//   ② 쉬프트+클릭  사신박: 방패에서 뱀이 뻗어 나가 처음 맞은 적을 휘감아 끌어옴 (독 · 느려짐)
+//   ② 쉬프트+클릭  사신독굴: 뱀이 내 둘레를 돌며 지킴(물기·투사체 쳐냄) → 땅속으로 파고들어 적마다 발밑에서 튀어나와 묾 → 독 안개
 //   ③ 쉬프트+점프  현무붕지 (+ 큰 현무진 4초): 거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄움
 //          → 끝(또는 처음 맞은 적)에서 흑요석빛 비취 바위 기둥 다발이 솟고 검은 뱀이 감아 오름 · 현무 기운을 모두 써서 강해짐
 // 파티클: gen_hyeonmu.py
@@ -345,71 +345,129 @@ function bash(ctx) {
   }
 }
 
-// ───────── ② 사신박 ─────────
-function serpentBind(ctx) {
+// ───────── ② 사신 · 독굴진 (쉬프트+클릭) ─────────
+// 1) 큰 뱀이 방패에서 나와 내 둘레(반지름 4)를 2.5초 동안 돌며 지킴: 닿는 적은 물고 바깥으로 튕김, 원을 넘는 투사체는 쳐냄, 독 안개를 흘림
+// 2) 이어서 땅속으로 파고들어 앞 14칸의 적(최대 5)을 차례로 찾아가 발밑에서 튀어나와 물고(띄우기 + 독) 다시 들어감
+// 3) 지나간 자리에 3초 동안 독 안개: 안에 있는 적은 독 · 느려짐
+function serpentDen(ctx) {
   st(ctx.p).dmg = ctx.dmg;
   const { p } = ctx, dim = p.dimension, hit = hitter(ctx);
-  const v = viewOf(p), f = flat(v), r = { x: -f.z, y: 0, z: f.x };
-  const root = () => add(up(p.location, 1.1), flat(viewOf(p)), 0.7);
-  const MAX = 11, SPD = 1.9;
-  let reach = 0, caught = null, t = 0;
-  M.anim(p, "slash");
-  snd(p, "mob.phantom.swoop", 1, 0.7);
-  try { p.playSound("random.fizz", { volume: 0.6, pitch: 0.6 }); } catch {}
-  const body = (head, from, wave) => { // 머리에서 몸쪽으로 물결치는 점들
-    const d = sub(head, from), L = len(d), u = scl(d, 1 / (L || 1)), side = norm(cross(u, UP)), pts = [];
-    const N = Math.max(3, Math.round(L / 0.45));
-    for (let i = 0; i <= N; i++) { const q = i / N, amp = Math.sin(q * Math.PI) * 0.45 * wave; pts.push(add(add(from, d, 1 - q), side, Math.sin(q * 9 + t * 0.9) * amp)); }
-    return pts;
-  };
-  const go = () => {
-    t++;
-    const R0 = root();
-    if (!caught) {
-      reach = Math.min(MAX, reach + SPD);
-      const head = add(R0, norm(viewOf(p)), reach);
-      serpent(dim, body(head, R0, 1), { thick: 0.3 });
-      if (t % 2 === 0) glow(dim, head, { n: 3, spd: 0.8, size: 0.7, life: 0.4 });
-      for (const e of foesAround(dim, p, head, 1.9)) { if (len(sub(center(e), head)) < 1.6) { caught = e; break; } }
-      if (caught) { bind(); return; }
-      if (reach >= MAX) { retract(head); return; }
-      later(1, go);
+  const RING = 4, GUARD = 50;
+  M.anim(p, "raise");
+  snd(p, "mob.phantom.swoop", 1, 0.6);
+  snd(p, "random.fizz", 0.7, 0.5);
+  M.potion(p, "resistance", 1, GUARD / 20);
+  const fogs = []; // { at, until }
+  const fogAt = (at, sec = 3) => { fogs.push({ at: { ...at }, until: system.currentTick + sec * 20 }); pt(dim, "hm_fog", at, { n: 10, r: 1.1, spd: 0.6, size: 1.6, life: sec * 0.8 }); };
+  // 독 안개 피해 (10틱마다)
+  const fogTick = () => {
+    const now = system.currentTick;
+    for (let i = fogs.length - 1; i >= 0; i--) if (fogs[i].until < now) fogs.splice(i, 1);
+    if (!fogs.length && now > endT) return;
+    const seen = new Set();
+    for (const f of fogs) for (const e of foesAround(dim, p, f.at, 1.9)) {
+      if (seen.has(e.id)) continue;
+      seen.add(e.id);
+      M.potion(e, "poison", 1, 1.6);
+      M.potion(e, "slowness", 2, 0.8);
+      hit(e, 0.12, 10);
     }
+    later(10, fogTick);
   };
-  const retract = (from) => {
-    for (let k = 1; k <= 4; k++) later(k, () => { const R0 = root(), head = add(R0, sub(from, R0), 1 - k / 4); serpent(dim, body(head, R0, 0.6), { thick: 0.28 }); });
-  };
-  const bind = () => {
-    const e = caught;
-    hit(e, 1.1);
-    M.potion(e, "poison", 2, 3);
-    M.potion(e, "slowness", 3, 2);
-    snd(p, "mob.ravager.bite", 0.8, 1.6);
-    snd(p, "random.fizz", 0.8, 0.5);
-    // 휘감기: 적 둘레를 나선으로 세 바퀴 (10틱) → 끌어옴
-    for (let k = 0; k < 12; k++) later(k, () => {
-      if (!e.isValid()) return;
-      const c = e.location, pts = [];
-      for (let i = 0; i <= 26; i++) { const a = i * 0.75 + k * 0.4, y = 0.15 + i * 0.07; pts.push({ x: c.x + Math.cos(a) * 0.62, y: c.y + y, z: c.z + Math.sin(a) * 0.62 }); }
-      pts.reverse();
-      serpent(dim, pts, { thick: 0.2, life: 0.08 });
-      const R0 = root(); serpent(dim, body(pts[pts.length - 1], R0, 0.4), { thick: 0.26, head: false });
-      if (k % 3 === 0) glow(dim, center(e), { n: 5, spd: 1.5, size: 0.8, tone: 0.3 });
+  let endT = system.currentTick + 200;
+  later(10, fogTick);
+  // 1) 똬리: 내 둘레를 도는 뱀
+  const startA = rad(yawOf(p) + 90);
+  for (let t = 0; t < GUARD; t++) later(t, () => {
+    const c = p.location, grow = Math.min(1, (t + 1) / 8), head = startA + t * 0.21, pts = [];
+    for (let i = 0; i <= 20; i++) {
+      const a = head - i * 0.11 * grow, rr = RING * (0.4 + grow * 0.6);
+      pts.push({ x: c.x + Math.cos(a) * rr, y: c.y + 0.7 + Math.sin(a * 3 + t * 0.3) * 0.25 - i * 0.012, z: c.z + Math.sin(a) * rr });
+    }
+    serpent(dim, pts, { thick: 0.36, life: 0.08 });
+    if (t % 3 === 0) glow(dim, pts[0], { n: 2, spd: 0.6, size: 0.7, life: 0.4 });
+    if (t % 8 === 0) pt(dim, "hm_fog", pts[10], { n: 3, r: 0.6, spd: 0.4, size: 1.3, life: 1.6 });
+    if (t % 16 === 0) snd(p, "mob.phantom.swoop", 0.5, 1.3);
+    // 원에 닿는 적: 물고 바깥으로 튕김
+    for (const e of foesAround(dim, p, c, RING + 1.5)) {
+      const d = Math.hypot(e.location.x - c.x, e.location.z - c.z);
+      if (d < RING - 1.3 || d > RING + 1.2) continue;
+      if (hit(e, 0.45, 12)) { M.potion(e, "poison", 1, 2); M.toss(c, e, 7, 2.5); glow(dim, center(e), { n: 8, spd: 3, tone: 0.2 }); snd(p, "mob.ravager.bite", 0.5, 1.7); }
+    }
+    // 원을 넘어오는 투사체를 뱀 몸이 쳐냄
+    try {
+      for (const e of dim.getEntities({ location: c, maxDistance: RING + 2 })) {
+        if (!PROJ.has(e.typeId) || !e.isValid()) continue;
+        let own = null; try { own = e.getComponent("minecraft:projectile")?.owner; } catch {}
+        if (own?.typeId === "minecraft:player") continue;
+        const d = Math.hypot(e.location.x - c.x, e.location.z - c.z);
+        if (d > RING - 1.2 && d < RING + 1.4) { glow(dim, e.location, { n: 10, spd: 3 }); pt(dim, "hm_flash", e.location, { n: 1, spd: 0, size: 1.2, life: 0.2 }); e.remove(); snd(p, "item.shield.block", 0.6, 1.4); }
+      }
+    } catch {}
+  });
+  // 2) 땅굴: 앞쪽 적을 차례로 찾아가 발밑에서 튀어나와 묾
+  later(GUARD, () => {
+    const o = { ...p.location }, f = flat(viewOf(p)), r = { x: -f.z, y: 0, z: f.x };
+    // 내 앞에서 땅속으로 파고듦
+    const dive = add(o, f, 1.5);
+    for (let k = 0; k < 5; k++) later(k, () => {
+      const pts = [];
+      for (let i = 0; i <= 14; i++) { const q = k / 5 + i * 0.05; pts.push(add(add(o, f, 0.5 + q * 1.2), UP, 1.4 - q * 1.6)); }
+      serpent(dim, pts.filter((q) => q.y > o.y - 0.3), { thick: 0.34 });
     });
-    later(10, () => {
-      if (!e.isValid()) return;
-      const d = sub(p.location, e.location), L = Math.hypot(d.x, d.z);
-      if (L > 2.2) try { e.applyKnockback(d.x / L, d.z / L, Math.min(3.2, (L - 1.5) * 0.36), 0.35); } catch {}
-      hit(e, 0.5, 1);
-      glow(dim, center(e), { n: 20, spd: 4, tone: 0.1 });
-      snd(p, "mob.phantom.swoop", 1, 1.2);
+    rocks(dim, dive, { n: 14, r: 0.6, spd: 5 });
+    snd(p, "dig.grass", 1, 0.6);
+    let targets = foesAround(dim, p, add(o, f, 7), 9).filter((e) => { const d = sub(e.location, o), L = Math.hypot(d.x, d.z); return L < 14.5 && dot(flat(d), f) > 0.25; });
+    targets.sort((a, b) => len(sub(a.location, o)) - len(sub(b.location, o)));
+    targets = targets.slice(0, 5);
+    // 적이 없으면 지그재그로 앞 12칸에서 세 번 튀어나옴
+    const stops = targets.length ? targets.map((e) => ({ e })) : [4, 8, 12].map((d, i) => ({ at: add(add(o, f, d), r, (i % 2 ? 1 : -1) * 1.5) }));
+    let cur = dive, delay = 4;
+    stops.forEach((sp, i) => {
+      const goal0 = sp.e ? sp.e.location : sp.at, dist = len(sub(goal0, cur)), steps = Math.max(2, Math.ceil(dist / 1.4));
+      const from = cur;
+      // 땅속 이동: 흙이 들썩이는 줄 + 균열 + 독 안개
+      for (let k = 1; k <= steps; k++) later(delay + k, () => {
+        const goal = sp.e && sp.e.isValid() ? sp.e.location : goal0, q = k / steps, side = Math.sin(q * Math.PI * 2) * 0.8;
+        const d = sub(goal, from), dn = flat(d), sd = { x: -dn.z, y: 0, z: dn.x };
+        const at = add(add(from, d, q), sd, side);
+        rocks(dim, at, { n: 5, r: 0.35, spd: 3.5, life: 0.8 });
+        crack(dim, at, dn, 1.4, { h: 0.15, n: 16, life: 1.6 });
+        if (k % 2 === 0) fogAt(at, 3);
+        if (k % 3 === 0) snd(p, "dig.gravel", 0.6, 0.7);
+      });
+      delay += steps;
+      const tEmerge = delay;
+      // 발밑에서 튀어나와 물고 다시 들어감 (호를 그리며)
+      for (let k = 0; k < 8; k++) later(tEmerge + k, () => {
+        const c = sp.e && sp.e.isValid() ? sp.e.location : goal0, dn = flat(sub(c, from)), pts = [];
+        const head = (k + 1) / 8;
+        for (let i = 0; i <= 18; i++) {
+          const q = head - i * 0.045;
+          if (q < 0) break;
+          const a = q * Math.PI; // 뒤에서 솟아 위를 지나 앞으로 내리꽂힘
+          pts.push(add(add(c, dn, -Math.cos(a) * 1.6), UP, Math.sin(a) * 3.2 - 0.3));
+        }
+        if (pts.length > 1) serpent(dim, pts, { thick: 0.38, life: 0.08 });
+        if (k === 0) { rocks(dim, add(c, dn, -1.6), { n: 16, r: 0.6, spd: 6 }); snd(p, "dig.stone", 1, 0.8); }
+        if (k === 3) { // 물기
+          if (sp.e && sp.e.isValid()) { if (hit(sp.e, 1.0, 1)) { knockUp(sp.e, 0.75, 1); M.potion(sp.e, "poison", 2, 3); } glow(dim, center(sp.e), { n: 16, spd: 4, tone: 0.15 }); }
+          for (const e of foesAround(dim, p, c, 2)) if (e !== sp.e && hit(e, 0.5, 1)) M.potion(e, "poison", 1, 2);
+          pt(dim, "hm_flash", up(c, 1.4), { n: 1, spd: 0, size: 1.6, life: 0.2 });
+          snd(p, "mob.ravager.bite", 0.9, 1.4);
+        }
+        if (k === 7) { rocks(dim, add(c, dn, 1.6), { n: 12, r: 0.5, spd: 4 }); fogAt(c, 3); }
+      });
+      delay += 8;
+      cur = sp.e && sp.e.isValid() ? { ...sp.e.location } : goal0;
+      void i;
     });
-  };
-  go();
-  void r;
+    endT = system.currentTick + delay + 70;
+    // 마지막: 땅속에서 독 안개가 크게 터짐
+    later(delay + 1, () => { pt(dim, "hm_fog", cur, { n: 24, r: 2, spd: 1, size: 2, life: 2.4 }); fogAt(cur, 3); ring(dim, cur, { n: 50, spd: 7, size: 1.3, tone: 0.3 }); snd(p, "random.fizz", 1, 0.6); });
+  });
 }
 
-// ───────── ③ 현무진 전개 ─────────
 /** 큰 현무진: 박힌 방패 앞에 큰 등껍질 벽 → 끝날 때 깨지며 앞으로 파편 폭발 */
 function bigWall(p, hit, sec) {
   const dim = p.dimension;
@@ -552,7 +610,7 @@ function earthbreak(ctx) {
 export const WEAPON_SKILLS = {
   [SHIELD_ID]: [
     { id: "w_hm_1", key: 1, name: "현무 · 귀갑타", short: "귀갑타", lv: 1, mp: 5, cd: 0.35, pow: 1, run: bash, desc: "3타 콤보: 방패 밀치기 → 뱀 꼬리 휘두르기(독) → 내리찍어 균열·바위 기둥·띄우기. 현무 기운 1개당 +15%. 우클릭을 길게 누르면 막기, 맞기 직전 0.3초 안에 누르면 완벽 패링." },
-    { id: "w_hm_2", key: 2, name: "현무 · 사신박", short: "사신박", lv: 1, mp: 18, cd: 8, pow: 1, run: serpentBind, desc: "방패에서 검푸른 뱀이 11칸 뻗어 처음 맞은 적을 휘감아(독·느려짐) 내 앞으로 끌어온다." },
+    { id: "w_hm_2", key: 2, name: "현무 · 사신독굴", short: "독굴", lv: 1, mp: 22, cd: 12, pow: 1, run: serpentDen, desc: "큰 뱀이 2.5초 동안 내 둘레를 돌며 닿는 적을 물어 튕기고 날아오는 투사체를 쳐낸 뒤, 땅속으로 파고들어 앞 14칸의 적(최대 5)마다 발밑에서 튀어나와 물고(띄우기·독) 지나간 자리에 3초 동안 독 안개를 남긴다." },
     { id: "w_hm_3", key: 3, name: "현무 · 붕지", short: "붕지", lv: 1, mp: 50, cd: 26, pow: 1, run: earthbreak, desc: "거대한 방패를 내리찍어 앞으로 20칸 대지가 솟구치며 닿은 적을 모두 띄우고, 끝에서 흑요석빛 바위 기둥 다발이 솟는다. 박힌 방패 앞에는 4초 동안 큰 현무진(벽 뒤는 앞쪽 공격 무시, 끝날 때 파편 폭발). 현무 기운을 모두 써서 넓고 강해지며, 3개면 두 갈래로 갈라진다." },
   ],
 };
