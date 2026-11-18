@@ -128,11 +128,12 @@ export function openEnhance(p, selKey, npcName = "대장장이", filter = "all")
   const d = data(p);
   const all = candidates(p).sort((a, b) => (b.eq ? 1 : 0) - (a.eq ? 1 : 0) || getEnh(b.it) - getEnh(a.it));
   const list = all.filter((x) => filter === "all" || enhKind(x.it) === filter);
-  const scr = new Screen("L", `${npcName} / 강화`);
-  for (const x of list) {
-    const L = getEnh(x.it), r = L >= MAX_ENH ? 0 : rateOf(L + 1, getFail(x.it));
-    scr.item([`${L ? `${TIER_COL[tierOf(Math.max(1, L))]}§l+${L} ` : ""}§r§f`, baseName(x.it), `${x.eq ? " §2[장착]" : ""}\n§7${enhKind(x.it) === "weapon" ? "무기" : "방어구"} · ${L >= MAX_ENH ? "§6최대 강화" : `다음 +${L + 1} §f${r}%`}`],
-      iconOf(x.it.typeId), () => openForge(p, x.key, x.it.typeId, npcName, filter), { rarity: Math.min(5, Math.ceil(L / 3)) || undefined });
+  // 배낭과 같은 격자 (V12.135): 칸 색 = 강화 구간, 아래 숫자 = +단계 · 누르면 바로 연성소
+  const scr = new Screen("G", `${npcName} / 강화`);
+  for (const x of list.slice(0, 30)) {
+    const L = getEnh(x.it);
+    scr.item(L ? `${TIER_COL[tierOf(L)]}+${L}` : x.eq ? "§2장착" : "§7+0", iconOf(x.it.typeId), () => { lastRes.delete(p.id); return openForge(p, x.key, x.it.typeId, npcName, filter); },
+      { rarity: L >= 13 ? 5 : L >= 9 ? 4 : L >= 5 ? 3 : L >= 1 ? 2 : 1 });
   }
   scr.tab("닫기", ICON("close"), () => {});
   for (const [id, name, icon] of [["all", "전체", "all"], ["weapon", "무기", "class"], ["armor", "방어구", "armor"]]) scr.tab(name, ICON(icon), () => openEnhance(p, undefined, npcName, id), filter === id);
@@ -149,12 +150,13 @@ export function openEnhance(p, selKey, npcName = "대장장이", filter = "all")
     return scr.show(p);
   }
   scr.select(`${npcName}의 연성소`, ICON("class"));
-  scr.body(`§f왼쪽에서 §e§l강화할 장비§r§f를 누르면 연성소로 넘어갑니다.\n\n${guide}${histTxt}`);
+  scr.body(`§f강화할 장비를 누르면 §e§l연성소§r§f로 넘어갑니다.\n§7칸 색: 흰 +0 · 초록 +1~4 · 파랑 +5~8 · 보라 +9~12 · 주황 +13~\n\n${guide}${histTxt}`);
   scr.reopen = () => openEnhance(p, selKey, npcName, filter);
   return scr.show(p);
 }
 
 const pick = new Map(); // pid -> { scroll, protect } 연성소에서 고른 주문서 · 방지석 사용
+const lastRes = new Map(); // pid -> 연성소 결과 띠 글자 (장비를 새로 고르면 지움)
 const comma = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 let infoLookup = () => null; // itemlore.js 가 등록: id → { cat, atk } (사신수 · 사흉수 · 직업 도구)
 export function setInfoLookup(fn) { infoLookup = fn; }
@@ -173,6 +175,7 @@ function showResult(p, r) {
     try { p.dimension.spawnParticle("minecraft:totem_particle", at); } catch {}
     p.onScreenDisplay.setTitle(`§e§l+${r.NL} 성공!`, { subtitle: rt("§f", baseName(r.it)), fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
     pushHist(p, `§a성공 §f+${r.L} → +${r.NL} §7(${r.rate}%)`);
+    lastRes.set(p.id, `§a§l강화 성공!  §r§f+${r.L} → §a§l+${r.NL}`);
     if (r.NL >= 12) world.sendMessage(rt(`§6§l[강화] §r§f${p.name} 님이 §e§l+${r.NL} `, baseName(r.it), "§r§f 강화에 성공했습니다!"));
   } else {
     p.playSound("random.anvil_land", { volume: 0.6, pitch: 0.7 });
@@ -180,6 +183,7 @@ function showResult(p, r) {
     const sub = r.NL < r.L ? `§c+${r.L} → +${r.NL}` : r.prot ? "§6파괴방지석이 하락을 막았습니다" : "§7단계 유지";
     p.onScreenDisplay.setTitle("§c§l강화 실패", { subtitle: sub, fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
     pushHist(p, `§c실패 §f+${r.L} → +${r.NL} §7(${r.rate}%)${r.prot ? " §6방지" : ""}`);
+    lastRes.set(p.id, `§c§l강화 실패  §r${r.NL < r.L ? `§f+${r.L} → §c+${r.NL}` : r.prot ? "§6방지석이 단계를 지켰습니다" : "§7단계 유지"}`);
   }
   return true;
 }
@@ -236,7 +240,9 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   // 가운데: 아이템 · 큰 +단계 · 분류
   scr.raw("[FC]", rt("§f", baseName(it)), iconOf(it.typeId), null);
   scr.raw("[FV]", `${L ? TIER_COL[tierOf(L)] : "§7"}+${L}`, "", null);
+  scr.raw("[FP]", "", `${FORGE}pips_${L}`, null);
   scr.raw("[FS]", `${catOf(it.typeId)} · 강화 ${L}/${MAX_ENH}`, "", null);
+  if (lastRes.has(p.id)) scr.raw("[FT]", lastRes.get(p.id), "", null);
   // 아래: 수치
   const base = weapon ? baseAtk(it.typeId) : (weaponInfo(it.typeId)?.def ?? 0) * 10;
   const val = (l) => (weapon ? Math.round(base * (1 + weaponBonus(l))) : base + armorDef(l));

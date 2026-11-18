@@ -67,7 +67,7 @@ export class Screen {
       f.button(rt(marker, "§r§l", e.text), e.icon || undefined);
       handlers.push(fn ?? null);
     };
-    for (const it of this.items) add(`[I]${it.on ? "[ON]" : ""}${it.rarity ? `[R${it.rarity}]` : ""}`, it, it.fn);
+    for (const it of this.items) add(`[I]${it.on ? "[ON]" : ""}${it.rarity ? `[R${it.rarity}]` : ""}${it.mark ?? ""}`, it, it.fn);
     for (const t of this.tabs) add(`[T]${t.on ? "[ON]" : ""}`, t, t.fn);
     for (const c of this.chips) add("[C]", c, null);
     if (this.sel) add(this.sel.doll ? "[S][P]" : "[S]", this.sel, null);

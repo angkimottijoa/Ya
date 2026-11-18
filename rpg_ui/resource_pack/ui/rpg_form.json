@@ -3,7 +3,7 @@
   //  Arcania RPG 메뉴 화면 (서버 폼 ActionFormData 를 완전히 다른 레이아웃으로 그림)
   //
   //  제목(title) 플래그:
-  //    [RPG:G] 그리드(배낭/상점)  [RPG:H] 타일(홈)  [RPG:L] 리스트  [RPG:D] NPC 대화창  [RPG:F] 연성소(강화, ui/rpg_forge.json)
+  //    [RPG:G] 그리드(배낭/상점)  [RPG:H] 타일(홈)  [RPG:L] 리스트  [RPG:D] NPC 대화창  [RPG:F] 연성소(강화)  [RPG:Q] 퀘스트 연결 — 둘 다 ui/rpg_forge.json
   //
   //  버튼 텍스트 마커 (스크립트 ui.js 가 붙임):
   //    [I] 본문 항목  [T] 왼쪽 레일 탭  [C] 상단 재화 칩
@@ -285,6 +285,9 @@
                               },
                               {
                                 "list_mode@rpg_form.list_mode": {}
+                              },
+                              {
+                                "chain_mode@rpg_forge.chain_mode": {}
                               }
                             ]
                           }
@@ -467,7 +470,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "((((#title_text - '[RPG:G]') - '[RPG:H]') - '[RPG:L]') - '[RPG:F]')",
+              "source_property_name": "(((((#title_text - '[RPG:G]') - '[RPG:H]') - '[RPG:L]') - '[RPG:F]') - '[RPG:Q]')",
               "target_property_name": "#crumb"
             }
           ]

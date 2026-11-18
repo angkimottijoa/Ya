@@ -417,23 +417,23 @@ function openMainChain(p, sel, page) {
   const chain = Q.chainSort(mains).map(({ q, depth }) => ({ q, depth, st: Q.state(p, q) }));
   // 앞 퀘스트를 아직 못 끝낸 마디는 무조건 잠김으로 (레벨 · 직업 조건으로 잠긴 것도 잠김)
   for (const x of chain) if (x.st === "available" && x.q.prereq && !d.q.d[x.q.prereq]) x.st = "locked";
-  const PAGE = 6;
+  const PAGE = 7;
   const pages = Math.max(1, Math.ceil(chain.length / PAGE));
   const firstOpen = Math.max(0, chain.findIndex((x) => x.st !== "done"));
   if (page === undefined || page === null) page = Math.floor(firstOpen / PAGE);
   page = Math.min(page, pages - 1);
   const shown = chain.slice(page * PAGE, page * PAGE + PAGE);
   sel = sel && chain.find((x) => x.q.id === sel) ? sel : (chain[firstOpen] ?? shown[0])?.q.id;
-  const scr = new Screen("L", "퀘스트 / 메인 이야기");
-  const NODE = { done: "§a✔", ready: "§e★", active: "§6▶", available: "§b●", locked: "§8■" };
-  const ICONS = { done: "check", ready: "star", active: "nav", available: "quest", locked: "lock" };
+  // [RPG:Q] 연결 화면: 왼쪽 마디(✔ ★ ▶ ● 자물쇠) + 금색/남색 연결선, 오른쪽 이름 칸 (ui/rpg_forge.json)
+  const scr = new Screen("Q", "퀘스트 / 메인 이야기");
+  const QM = { done: "[Q0]", ready: "[Q1]", active: "[Q2]", available: "[Q3]", locked: "[Q4]" };
   shown.forEach((x, k) => {
-    const i = page * PAGE + k, last = i === chain.length - 1, lock = x.st === "locked";
-    const branch = x.depth > 1 ? "§8└ " : "";
-    const title = lock ? `§8${x.q.title}` : x.st === "done" ? `§7${x.q.title}` : `§f§l${x.q.title}`;
+    const i = page * PAGE + k, lock = x.st === "locked";
+    const prevDone = i > 0 && chain[i - 1].st === "done";
+    const mark = QM[x.st] + (i === 0 ? "[QF]" : "") + (i === chain.length - 1 ? "[QE]" : "") + (prevDone ? "[QG]" : "");
+    const title = lock ? `§8${x.q.title}` : x.st === "done" ? `§7${x.q.title}` : `§f${x.q.title}`;
     const sub = { done: "§2완료", ready: "§e완료 보고 가능", active: "§6진행 중", available: "§b수락 가능", locked: "§8잠김 · 앞 장을 끝내면 열림" }[x.st];
-    scr.item(`${NODE[x.st]} §7${i + 1}장 ${branch}${title}
-${last ? "§8╹ " : "§8┃ "}${sub}`, ICON(ICONS[x.st]), () => openQuests(p, "main", x.q.id, page), { on: x.q.id === sel, rarity: lock ? undefined : x.st === "done" ? 1 : 3 });
+    scr.item(`${lock ? "§8" : "§e"}${i + 1}장  ${title}\n§r${sub}`, "", () => openQuests(p, "main", x.q.id, page), { on: x.q.id === sel, mark });
   });
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === "main");
@@ -508,21 +508,26 @@ export function openQuests(p, cat = "active", sel, page) {
     groups.sort((a, b) => Math.min(...a.map((x) => order[x.st])) - Math.min(...b.map((x) => order[x.st])));
     list = groups.flat();
   }
-  const PAGE = 6;
+  const PAGE = 7;
   const pages = Math.max(1, Math.ceil(list.length / PAGE));
   page = Math.min(page, pages - 1);
   const shown = list.slice(page * PAGE, page * PAGE + PAGE);
   sel = sel && list.find((x) => x.q.id === sel) ? sel : shown[0]?.q.id;
   const catName = QCATS.find((c) => c.id === cat).name;
-  const scr = new Screen("L", `퀘스트 / ${catName}`);
-  for (const { q, st } of shown) {
+  // 연결 화면 (V12.135): 상태 마디 + 같은 묶음(선행 → 후속)끼리만 연결선
+  const scr = new Screen("Q", `퀘스트 / ${catName}`);
+  const QM = { done: "[Q0]", ready: "[Q1]", active: "[Q2]", available: "[Q3]", locked: "[Q4]" };
+  shown.forEach(({ q, st }, k) => {
     const t = Q.qtype(q);
     const pr = pri.indexOf(q.id);
     const nav = st === "active" || st === "ready" ? Q.navTarget(p, q) : null;
     const dist = nav && nav.dim === p.dimension.id ? ` · ${Math.round(Math.hypot(nav.x - p.location.x, nav.z - p.location.z))}m` : "";
-    const depth = list.find((x) => x.q === q)?.depth ?? 0;
-    scr.item(`${depth ? `${"  ".repeat(Math.min(3, depth - 1))}§7└ ` : ""}${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] §f${q.title}\n${STATE_TAG[st]} §7${q.region || ""}${dist}`, ICON(t.icon), () => openQuests(p, cat, q.id, page), { on: q.id === sel });
-  }
+    const idx = page * PAGE + k, depth = list[idx]?.depth ?? 0, nextDepth = list[idx + 1]?.depth ?? 0;
+    const linkUp = depth > 0, linkDown = nextDepth > 0 && idx + 1 < list.length;
+    const mark = QM[st] + (linkUp ? "" : "[QF]") + (linkDown ? "" : "[QE]") + (linkUp && list[idx - 1]?.st === "done" ? "[QG]" : "");
+    const sub = { done: "§2완료", ready: "§e완료 보고 가능", active: "§6진행 중", available: "§b수락 가능", locked: "§8잠김" }[st];
+    scr.item(`${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] ${st === "locked" ? "§8" : "§f"}${q.title}\n§r${sub}§7${q.region ? ` · ${q.region}` : ""}${dist}`, "", () => openQuests(p, cat, q.id, page), { on: q.id === sel, mark });
+  });
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === cat);
   chips(scr, p);
