@@ -586,10 +586,52 @@
      ],
      "transitions": [
       {
+       "guard_in": "q.is_using_item"
+      },
+      {
        "atk1": "!v.rpg_fr && v.rpg_atk"
       }
      ],
      "blend_transition": 0.15
+    },
+    "guard_in": {
+     "animations": [
+      "rpgw_bash_guard_in",
+      {
+       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
+      },
+      {
+       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
+      }
+     ],
+     "transitions": [
+      {
+       "guard": "q.any_animation_finished"
+      },
+      {
+       "idle": "!q.is_using_item"
+      }
+     ]
+    },
+    "guard": {
+     "animations": [
+      "rpgw_bash_guard",
+      {
+       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
+      },
+      {
+       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
+      }
+     ],
+     "transitions": [
+      {
+       "atk1": "!v.rpg_fr && v.rpg_atk"
+      },
+      {
+       "idle": "!q.is_using_item"
+      }
+     ],
+     "blend_transition": 0.12
     },
     "atk1": {
      "animations": [

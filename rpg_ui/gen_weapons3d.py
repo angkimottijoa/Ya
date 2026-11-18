@@ -20,7 +20,7 @@ W = {
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=2.6, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True,
+    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.9, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
@@ -190,7 +190,13 @@ def build(name, cfg):
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)
     Wd, Ht = im.size
     aura = cfg.get("aura")
-    if aura:  # 기운 색을 텍스처 오른쪽에 한 줄씩 덧붙임
+    HCOL = [(96, 62, 34), (58, 36, 20)]  # 손잡이 (가죽 · 어두운 가죽)
+    if cfg.get("handle"):  # 손잡이 색을 텍스처 오른쪽에 덧붙임
+        big = Image.new("RGBA", (Wd + len(HCOL), Ht), (0, 0, 0, 0)); big.paste(im, (0, 0))
+        for i, c in enumerate(HCOL):
+            for y in range(Ht): big.putpixel((Wd + i, y), (*c, 255))
+        im_tex = big
+    elif aura:  # 기운 색을 텍스처 오른쪽에 한 줄씩 덧붙임
         big = Image.new("RGBA", (Wd + len(aura["cols"]), Ht), (0, 0, 0, 0)); big.paste(im, (0, 0))
         for i, c in enumerate(aura["cols"]):
             for y in range(Ht): big.putpixel((Wd + i, y), (*c, 255))
@@ -234,9 +240,23 @@ def build(name, cfg):
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                         "north": mid, "south": mid,
                         "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
-            shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z), 몸 앞(z ≤ -3)에
-            o3 = [round(o3[0] + HAND[0], 4), round(o3[1] + HAND[1], 4), round(o3[2] + HAND[2] - (5.5 if shield else 0), 4)]
             cubes.append({"origin": o3, "size": s3, "uv": face})
+    shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z)
+    zoff = -5.5 if shield else 0
+    if cfg.get("handle"):  # 뒷면(움푹한 안쪽) 가운데 세로 손잡이 + 위아래 받침 → 손이 손잡이를 쥐게 방패를 옮김
+        cx, cy = int(Wd // 2), int(Ht // 2)
+        while not dm[cy][cx]: cy += 1
+        zbar = dm[cy][cx][1] + 3; L = max(5, Ht // 9)
+        hc = lambda col: {f: {"uv": [Wd + col, cy], "uv_size": [1, 1]} for f in ("north", "south", "east", "west", "up", "down")}
+        cubes.append({"origin": [round((cx - 1 - gx) * u, 4), round((gy - cy - L) * u, 4), round(zbar * u, 4)],
+                      "size": [round(2 * u, 4), round(2 * L * u, 4), round(1.6 * u, 4)], "uv": hc(0)})
+        for yy in (cy - L, cy + L - 1):  # 받침: 뒷면 → 손잡이
+            zb = dm[yy][cx][1] if dm[yy][cx] else zbar
+            cubes.append({"origin": [round((cx - 1 - gx) * u, 4), round((gy - yy - 1) * u, 4), round(zb * u, 4)],
+                          "size": [round(2 * u, 4), round(u, 4), round(max(u, (zbar - zb) * u), 4)], "uv": hc(1)})
+        zoff = -(zbar + 0.8) * u  # 손잡이 한가운데가 손에
+    for c in cubes:
+        o = c["origin"]; c["origin"] = [round(o[0] + HAND[0], 4), round(o[1] + HAND[1], 4), round(o[2] + HAND[2] + zoff, 4)]
     if aura:  # 머리 둘레를 휘감는 기운 띠 (그림 면 밖으로 입체적으로 돎): 띠마다 나선 호, 가운데 굵고 끝 가늘게
         head_y = Ht * 0.18
         for rb in range(aura["ribbons"]):

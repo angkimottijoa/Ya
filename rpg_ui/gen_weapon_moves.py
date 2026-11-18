@@ -61,7 +61,8 @@ KINDS = {
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
     "bash": {  # 방패: 앞에 세워 들고 → 밀쳐 치기 · 몸통 박치기 · 내려찍기
-        "stance": P(rightArm=[-70, 15, 0], rightItem=[70, 0, 0], leftArm=[-20, 0, -15], body=[4, 10, 0]),
+        "stance": P(rightArm=[-22, 0, 0], rightArm_pos=[-1.5, 0, 0], rightItem=[22, 90, 0], rightItem_pos=[0, 3, 0], leftArm=[-10, 0, -8], body=[2, 6, 0]),  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
+        "guard": P(rightArm=[-70, 15, 0], rightItem=[70, 0, 0], leftArm=[-20, 0, -15], body=[4, 10, 0]),  # 패링 · 막기(우클릭 누름): 앞으로 세워 듦
         "hits": [
             (P(rightArm=[-50, 25, 0], rightItem=[50, 0, 0], body=[0, 25, 0]), P(rightArm=[-95, 0, 0], rightItem=[95, 0, 0], body=[14, -5, 0], root_pos=[0, 0, -3]), P(rightArm=[-90, 0, 0], rightItem=[90, 0, 0], body=[12, -5, 0], root_pos=[0, 0, -3])),
             (P(rightArm=[-60, 20, 0], rightItem=[60, 0, 0], body=[-6, 30, 0], waist_pos=[0, -1, 0]), P(rightArm=[-80, -10, 0], rightItem=[80, 0, 0], body=[20, -20, 0], root_pos=[0, 0, -4]), P(rightArm=[-78, -10, 0], rightItem=[78, 0, 0], body=[18, -20, 0], root_pos=[0, 0, -4])),
@@ -69,7 +70,7 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
-FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3}  # 1인칭 무기별 크기 배율
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9}  # 방패: 3인칭은 줄였지만(2.6→1.9) 1인칭 크기는 V12.69 그대로  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
@@ -107,13 +108,17 @@ def build():
             "rightLeg": {"rotation": {"0.00": [32, 0, 0], "0.40": [-32, 0, 0], "0.80": [32, 0, 0]}},
             "leftLeg": {"rotation": {"0.00": [-32, 0, 0], "0.40": [32, 0, 0], "0.80": [-32, 0, 0]}},
             "root": {"position": {"0.00": [0, 0, 0], "0.20": [0, 0.8, 0], "0.40": [0, 0, 0], "0.60": [0, 0.8, 0], "0.80": [0, 0, 0]}}}}
+        if "guard" in d:
+            gd = d["guard"]
+            anims[f"{base}.guard"] = {"loop": True, "bones": keyed([(0, gd)])}
+            anims[f"{base}.guard_in"] = {"loop": "hold_on_last_frame", "animation_length": 0.08, "bones": keyed([(0, st), (0.08, gd)])}
         for i, (wind, hit, end) in enumerate(d["hits"], 1):
             anims[f"{base}.atk{i}"] = {"loop": "hold_on_last_frame", "animation_length": T_END, "bones": keyed([(0, st), (T_WIND, wind), (T_HIT, hit), (T_END, end)])}
             anims[f"{base}.atk{i}b"] = {"loop": "hold_on_last_frame", "animation_length": T_BACK, "bones": keyed([(0, end), (T_BACK, st)])}
     for name, (item, kind) in W.items():
         base = f"animation.rpg_w3d.{kind}"
         a = lambda s: f"rpgw_{kind}_{s}"
-        for s in ["stance_up", "stance_down", "walk_down", "atk1", "atk1b", "atk2", "atk2b", "atk3", "atk3b"]:
+        for s in ["stance_up", "stance_down", "walk_down", "atk1", "atk1b", "atk2", "atk2b", "atk3", "atk3b"] + (["guard", "guard_in"] if "guard" in KINDS[kind] else []):
             ent_anims[a(s)] = f"{base}.{s}"
         legs = [{a("walk_down"): "q.modified_move_speed >= 0.1"}, {a("stance_down"): "q.modified_move_speed < 0.1"}]
         go = "!v.rpg_fr && v.rpg_atk"
@@ -121,6 +126,10 @@ def build():
             "default": {"transitions": [{"atk1": go}, {"idle": "1"}]},
             "idle": {"animations": [a("stance_up")] + legs, "transitions": [{"atk1": go}], "blend_transition": 0.15},
         }
+        if "guard" in KINDS[kind]:  # 우클릭을 누르는 동안(패링 창 · 막기) 방패를 앞으로 듦
+            states["idle"]["transitions"].insert(0, {"guard_in": "q.is_using_item"})
+            states["guard_in"] = {"animations": [a("guard_in")] + legs, "transitions": [{"guard": "q.any_animation_finished"}, {"idle": "!q.is_using_item"}]}
+            states["guard"] = {"animations": [a("guard")] + legs, "transitions": [{"atk1": go}, {"idle": "!q.is_using_item"}], "blend_transition": 0.12}
         for i in (1, 2, 3):
             nxt = f"atk{i % 3 + 1}"
             states[f"atk{i}"] = {"animations": [a(f"atk{i}")] + legs, "transitions": [{f"atk{i}b": "q.any_animation_finished"}], "blend_transition": 0.05}

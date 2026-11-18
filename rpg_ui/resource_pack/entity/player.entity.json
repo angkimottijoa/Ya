@@ -209,6 +209,8 @@
     "rpgw_bash_atk2b": "animation.rpg_w3d.bash.atk2b",
     "rpgw_bash_atk3": "animation.rpg_w3d.bash.atk3",
     "rpgw_bash_atk3b": "animation.rpg_w3d.bash.atk3b",
+    "rpgw_bash_guard": "animation.rpg_w3d.bash.guard",
+    "rpgw_bash_guard_in": "animation.rpg_w3d.bash.guard_in",
     "rpgw_ctrl_hyeonmu_shield": "controller.animation.rpg_w3d.hyeonmu_shield",
     "rpgw_fp_hundun_scythe": "animation.rpg_w3d.fp_hundun_scythe",
     "rpgw_fp_cheongryong_lance": "animation.rpg_w3d.fp_cheongryong_lance",
