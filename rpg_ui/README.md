@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.144.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.145.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.145 변경
+- 팩 이름이 계속 「V12.133」으로 보이던 것 수정: manifest 의 name 칸을 버전 올릴 때 같이 바꾸지 않았음 → 지금부터 같이 바꿈
 
 ## V12.144 변경
 - 강화 · 퀘스트 화면이 어두운 바탕만 나오고 틀이 안 보이던 것 수정: V12.141 의 「문」 목록(참/거짓 → 칸 수)이 게임에서 0칸으로만 나옴 → 빼고 틀을 바로 그림
