@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_soul_reaper",
       "minecraft:display_name": {
-        "value": "§5영혼 수확자의 낫 §7[3차 영혼 수확자 전용]"
+        "value": "§5영혼의 낫 §7[3차 영혼 수확자 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

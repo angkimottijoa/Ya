@@ -177,10 +177,10 @@ const W3D_MAP = {
   "rpg:jujak_bow": { reload: "w3d_bow_nock", shoot: "w3d_bow_shot", shoot_up: "w3d_bow_up", bow_draw: "w3d_bow_shot", bow_hold: "w3d_bow_hold", cast: "w3d_bow_shot", raise: "w3d_bow_up" },
   melee: { shoot: "w3d_m_thrust", cast: "w3d_m_thrust", shoot_up: "w3d_m_upslash", raise: "w3d_m_raise" },
 };
-const W3D_MELEE = new Set(["rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:hyeonmu_shield", "rpg:jt_warrior", "rpg:jt_mage", "rpg:jt_cleric", "rpg:jt_swordmaster", "rpg:jt_berserker", "rpg:jt_elementalist", "rpg:jt_stormcaller", "rpg:jt_paladin", "rpg:jt_priest"]);
+const W3D_MELEE = new Set(["rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:hyeonmu_shield", "rpg:jt_warrior", "rpg:jt_mage", "rpg:jt_cleric", "rpg:jt_swordmaster", "rpg:jt_berserker", "rpg:jt_elementalist", "rpg:jt_stormcaller", "rpg:jt_paladin", "rpg:jt_priest", "rpg:jt_sword_emperor", "rpg:jt_abyss_knight", "rpg:jt_destroyer", "rpg:jt_soul_reaper"]);
 function w3dName(p, name) {
   let id; try { id = p.getComponent("minecraft:inventory")?.container?.getItem(p.selectedSlotIndex)?.typeId; } catch {}
-  const m = ["rpg:jujak_bow", "rpg:jt_archer", "rpg:jt_hunter", "rpg:jt_sniper"].includes(id) ? W3D_MAP["rpg:jujak_bow"] : W3D_MELEE.has(id) ? W3D_MAP.melee : null;
+  const m = ["rpg:jujak_bow", "rpg:jt_archer", "rpg:jt_hunter", "rpg:jt_sniper", "rpg:jt_beastlord", "rpg:jt_hawkeye"].includes(id) ? W3D_MAP["rpg:jujak_bow"] : W3D_MELEE.has(id) ? W3D_MAP.melee : null;
   return (m && m[name]) || name;
 }
 export function anim(p, name) {

@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_beastlord",
       "minecraft:display_name": {
-        "value": "§a도살자 §7[3차 야수왕 전용]"
+        "value": "§a짐승의 장궁 §7[3차 야수왕 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

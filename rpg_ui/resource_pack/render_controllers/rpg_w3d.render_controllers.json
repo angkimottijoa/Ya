@@ -177,6 +177,72 @@
     }
    ]
   },
+  "controller.render.rpg_w3d_t3_sword_emperor": {
+   "geometry": "Geometry.rpg_w3d_t3_sword_emperor",
+   "textures": [
+    "Texture.rpg_w3d_t3_sword_emperor"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t3_abyss_knight": {
+   "geometry": "Geometry.rpg_w3d_t3_abyss_knight",
+   "textures": [
+    "Texture.rpg_w3d_t3_abyss_knight"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t3_destroyer": {
+   "geometry": "Geometry.rpg_w3d_t3_destroyer",
+   "textures": [
+    "Texture.rpg_w3d_t3_destroyer"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t3_beastlord": {
+   "geometry": "Geometry.rpg_w3d_t3_beastlord",
+   "textures": [
+    "Texture.rpg_w3d_t3_beastlord"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t3_hawkeye": {
+   "geometry": "Geometry.rpg_w3d_t3_hawkeye",
+   "textures": [
+    "Texture.rpg_w3d_t3_hawkeye"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t3_soul_reaper": {
+   "geometry": "Geometry.rpg_w3d_t3_soul_reaper",
+   "textures": [
+    "Texture.rpg_w3d_t3_soul_reaper"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
   "controller.render.rpg_w3d_hyeonmu_shield": {
    "geometry": "Geometry.rpg_w3d_hyeonmu_shield",
    "textures": [

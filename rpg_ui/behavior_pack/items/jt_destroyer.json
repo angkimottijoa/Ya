@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_destroyer",
       "minecraft:display_name": {
-        "value": "§c응룡의 도끼 §7[3차 파괴자 전용]"
+        "value": "§c불마의 도끼 §7[3차 파괴자 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

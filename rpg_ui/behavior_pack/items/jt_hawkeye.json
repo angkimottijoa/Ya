@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_hawkeye",
       "minecraft:display_name": {
-        "value": "§a쉐도어 §7[3차 매의 눈 전용]"
+        "value": "§a시련의 활 §7[3차 매의 눈 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

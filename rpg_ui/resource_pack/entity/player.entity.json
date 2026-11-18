@@ -28,6 +28,12 @@
     "rpg_w3d_t2_stormcaller": "textures/models/rpg_w3d_t2_stormcaller",
     "rpg_w3d_t2_paladin": "textures/models/rpg_w3d_t2_paladin",
     "rpg_w3d_t2_priest": "textures/models/rpg_w3d_t2_priest",
+    "rpg_w3d_t3_sword_emperor": "textures/models/rpg_w3d_t3_sword_emperor",
+    "rpg_w3d_t3_abyss_knight": "textures/models/rpg_w3d_t3_abyss_knight",
+    "rpg_w3d_t3_destroyer": "textures/models/rpg_w3d_t3_destroyer",
+    "rpg_w3d_t3_beastlord": "textures/models/rpg_w3d_t3_beastlord",
+    "rpg_w3d_t3_hawkeye": "textures/models/rpg_w3d_t3_hawkeye",
+    "rpg_w3d_t3_soul_reaper": "textures/models/rpg_w3d_t3_soul_reaper",
     "rpg_w3d_hyeonmu_shield": "textures/models/rpg_w3d_hyeonmu_shield"
    },
    "geometry": {
@@ -49,6 +55,12 @@
     "rpg_w3d_t2_stormcaller": "geometry.rpg_w3d_t2_stormcaller",
     "rpg_w3d_t2_paladin": "geometry.rpg_w3d_t2_paladin",
     "rpg_w3d_t2_priest": "geometry.rpg_w3d_t2_priest",
+    "rpg_w3d_t3_sword_emperor": "geometry.rpg_w3d_t3_sword_emperor",
+    "rpg_w3d_t3_abyss_knight": "geometry.rpg_w3d_t3_abyss_knight",
+    "rpg_w3d_t3_destroyer": "geometry.rpg_w3d_t3_destroyer",
+    "rpg_w3d_t3_beastlord": "geometry.rpg_w3d_t3_beastlord",
+    "rpg_w3d_t3_hawkeye": "geometry.rpg_w3d_t3_hawkeye",
+    "rpg_w3d_t3_soul_reaper": "geometry.rpg_w3d_t3_soul_reaper",
     "rpg_w3d_hyeonmu_shield": "geometry.rpg_w3d_hyeonmu_shield"
    },
    "scripts": {
@@ -70,7 +82,7 @@
      "variable.hand_bob = query.life_time < 0.01 ? 0.0 : variable.hand_bob + ((query.is_on_ground && query.is_alive ? math.clamp(math.sqrt(math.pow(query.position_delta(0), 2.0) + math.pow(query.position_delta(2), 2.0)), 0.0, 0.1) : 0.0) - variable.hand_bob) * 0.02;",
      "variable.map_angle = math.clamp(1 - variable.player_x_rotation / 45.1, 0.0, 1.0);",
      "variable.item_use_normalized = query.main_hand_item_use_duration / query.main_hand_item_max_duration;",
-     "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield' || query.get_equipped_item_name == 'jt_warrior' || query.get_equipped_item_name == 'jt_mage' || query.get_equipped_item_name == 'jt_archer' || query.get_equipped_item_name == 'jt_cleric' || query.get_equipped_item_name == 'jt_swordmaster' || query.get_equipped_item_name == 'jt_berserker' || query.get_equipped_item_name == 'jt_hunter' || query.get_equipped_item_name == 'jt_sniper' || query.get_equipped_item_name == 'jt_elementalist' || query.get_equipped_item_name == 'jt_stormcaller' || query.get_equipped_item_name == 'jt_paladin' || query.get_equipped_item_name == 'jt_priest';",
+     "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield' || query.get_equipped_item_name == 'jt_warrior' || query.get_equipped_item_name == 'jt_mage' || query.get_equipped_item_name == 'jt_archer' || query.get_equipped_item_name == 'jt_cleric' || query.get_equipped_item_name == 'jt_swordmaster' || query.get_equipped_item_name == 'jt_berserker' || query.get_equipped_item_name == 'jt_hunter' || query.get_equipped_item_name == 'jt_sniper' || query.get_equipped_item_name == 'jt_elementalist' || query.get_equipped_item_name == 'jt_stormcaller' || query.get_equipped_item_name == 'jt_paladin' || query.get_equipped_item_name == 'jt_priest' || query.get_equipped_item_name == 'jt_sword_emperor' || query.get_equipped_item_name == 'jt_abyss_knight' || query.get_equipped_item_name == 'jt_destroyer' || query.get_equipped_item_name == 'jt_beastlord' || query.get_equipped_item_name == 'jt_hawkeye' || query.get_equipped_item_name == 'jt_soul_reaper';",
      "v.rpg_fr = variable.is_first_person || query.is_riding || query.is_sleeping || query.is_swimming || query.is_gliding;",
      "v.rpg_atk = variable.attack_time > 0.0;"
     ],
@@ -139,7 +151,25 @@
       "rpgw_ctrl_t2_priest": "!v.rpg_fr && query.get_equipped_item_name == 'jt_priest'"
      },
      {
-      "attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
+      "rpgw_ctrl_t3_sword_emperor": "!v.rpg_fr && query.get_equipped_item_name == 'jt_sword_emperor'"
+     },
+     {
+      "rpgw_ctrl_t3_abyss_knight": "!v.rpg_fr && query.get_equipped_item_name == 'jt_abyss_knight'"
+     },
+     {
+      "rpgw_ctrl_t3_destroyer": "!v.rpg_fr && query.get_equipped_item_name == 'jt_destroyer'"
+     },
+     {
+      "rpgw_ctrl_t3_beastlord": "!v.rpg_fr && query.get_equipped_item_name == 'jt_beastlord'"
+     },
+     {
+      "rpgw_ctrl_t3_hawkeye": "!v.rpg_fr && query.get_equipped_item_name == 'jt_hawkeye'"
+     },
+     {
+      "rpgw_ctrl_t3_soul_reaper": "!v.rpg_fr && query.get_equipped_item_name == 'jt_soul_reaper'"
+     },
+     {
+      "rpgw_vswing": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
      },
      {
       "rpgw_fp_hundun_scythe": "variable.is_first_person && query.get_equipped_item_name == 'hundun_scythe'"
@@ -191,6 +221,24 @@
      },
      {
       "rpgw_fp_t2_priest": "variable.is_first_person && query.get_equipped_item_name == 'jt_priest'"
+     },
+     {
+      "rpgw_fp_t3_sword_emperor": "variable.is_first_person && query.get_equipped_item_name == 'jt_sword_emperor'"
+     },
+     {
+      "rpgw_fp_t3_abyss_knight": "variable.is_first_person && query.get_equipped_item_name == 'jt_abyss_knight'"
+     },
+     {
+      "rpgw_fp_t3_destroyer": "variable.is_first_person && query.get_equipped_item_name == 'jt_destroyer'"
+     },
+     {
+      "rpgw_fp_t3_beastlord": "variable.is_first_person && query.get_equipped_item_name == 'jt_beastlord'"
+     },
+     {
+      "rpgw_fp_t3_hawkeye": "variable.is_first_person && query.get_equipped_item_name == 'jt_hawkeye'"
+     },
+     {
+      "rpgw_fp_t3_soul_reaper": "variable.is_first_person && query.get_equipped_item_name == 'jt_soul_reaper'"
      }
     ]
    },
@@ -329,6 +377,12 @@
     "rpgw_ctrl_t2_stormcaller": "controller.animation.rpg_w3d.t2_stormcaller",
     "rpgw_ctrl_t2_paladin": "controller.animation.rpg_w3d.t2_paladin",
     "rpgw_ctrl_t2_priest": "controller.animation.rpg_w3d.t2_priest",
+    "rpgw_ctrl_t3_sword_emperor": "controller.animation.rpg_w3d.t3_sword_emperor",
+    "rpgw_ctrl_t3_abyss_knight": "controller.animation.rpg_w3d.t3_abyss_knight",
+    "rpgw_ctrl_t3_destroyer": "controller.animation.rpg_w3d.t3_destroyer",
+    "rpgw_ctrl_t3_beastlord": "controller.animation.rpg_w3d.t3_beastlord",
+    "rpgw_ctrl_t3_hawkeye": "controller.animation.rpg_w3d.t3_hawkeye",
+    "rpgw_ctrl_t3_soul_reaper": "controller.animation.rpg_w3d.t3_soul_reaper",
     "rpgw_fp_hundun_scythe": "animation.rpg_w3d.fp_hundun_scythe",
     "rpgw_fp_cheongryong_lance": "animation.rpg_w3d.fp_cheongryong_lance",
     "rpgw_fp_baekho_axe": "animation.rpg_w3d.fp_baekho_axe",
@@ -345,7 +399,14 @@
     "rpgw_fp_t2_elementalist": "animation.rpg_w3d.fp_t2_elementalist",
     "rpgw_fp_t2_stormcaller": "animation.rpg_w3d.fp_t2_stormcaller",
     "rpgw_fp_t2_paladin": "animation.rpg_w3d.fp_t2_paladin",
-    "rpgw_fp_t2_priest": "animation.rpg_w3d.fp_t2_priest"
+    "rpgw_fp_t2_priest": "animation.rpg_w3d.fp_t2_priest",
+    "rpgw_fp_t3_sword_emperor": "animation.rpg_w3d.fp_t3_sword_emperor",
+    "rpgw_fp_t3_abyss_knight": "animation.rpg_w3d.fp_t3_abyss_knight",
+    "rpgw_fp_t3_destroyer": "animation.rpg_w3d.fp_t3_destroyer",
+    "rpgw_fp_t3_beastlord": "animation.rpg_w3d.fp_t3_beastlord",
+    "rpgw_fp_t3_hawkeye": "animation.rpg_w3d.fp_t3_hawkeye",
+    "rpgw_fp_t3_soul_reaper": "animation.rpg_w3d.fp_t3_soul_reaper",
+    "rpgw_vswing": "animation.rpg_w3d.vswing"
    },
    "render_controllers": [
     {
@@ -410,6 +471,24 @@
     },
     {
      "controller.render.rpg_w3d_t2_priest": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_priest'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_sword_emperor": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_sword_emperor'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_abyss_knight": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_abyss_knight'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_destroyer": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_destroyer'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_beastlord": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_beastlord'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_hawkeye": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_hawkeye'"
+    },
+    {
+     "controller.render.rpg_w3d_t3_soul_reaper": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_soul_reaper'"
     },
     {
      "controller.render.rpg_w3d_hyeonmu_shield": "!variable.map_face_icon && query.get_equipped_item_name == 'hyeonmu_shield'"

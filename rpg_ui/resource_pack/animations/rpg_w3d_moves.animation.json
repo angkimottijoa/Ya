@@ -5639,6 +5639,227 @@
      ]
     }
    }
+  },
+  "animation.rpg_w3d.fp_t3_sword_emperor": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t3_abyss_knight": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t3_destroyer": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t3_beastlord": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 1.18755,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
+      15,
+      180
+     ],
+     "position": [
+      0,
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 2.5"
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t3_hawkeye": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 1.18755,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
+      15,
+      180
+     ],
+     "position": [
+      0,
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 2.5"
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t3_soul_reaper": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.vswing": {
+   "loop": true,
+   "bones": {
+    "rightArm": {
+     "rotation": [
+      "-math.sin((1 - math.pow(1 - variable.attack_time, 4)) * 180) * 70 - math.sin(variable.attack_time * 180) * 25",
+      "math.sin(math.sqrt(variable.attack_time) * 360) * 11",
+      "math.sin(variable.attack_time * 180) * -23"
+     ]
+    },
+    "body": {
+     "rotation": [
+      0,
+      "math.sin(math.sqrt(variable.attack_time) * 360) * 11",
+      0
+     ]
+    }
+   }
   }
  }
 }

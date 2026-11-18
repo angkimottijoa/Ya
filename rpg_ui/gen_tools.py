@@ -124,6 +124,9 @@ def draw(shape, pal, tier):
 
 def art_icon(path, n=32):
     src = Image.open(path).convert("RGBA")
+    if path.name == "t3_destroyer.png": src = src.transpose(Image.FLIP_LEFT_RIGHT)  # 도끼날이 오른쪽 위로 가게
+    if src.width > src.height * 2.0:  # 가로로 누운 긴 무기: 대각선으로 세워 아이콘 칸을 채움 (마크 검 아이콘처럼 손잡이 왼쪽 아래)
+        src = src.rotate(40, resample=Image.BICUBIC, expand=True); src = src.crop(src.getbbox())
     k = (n - 2) / max(src.size)
     sm = src.resize((max(1, round(src.width * k)), max(1, round(src.height * k))), Image.LANCZOS)
     px = sm.load()
@@ -131,7 +134,7 @@ def art_icon(path, n=32):
         for x in range(sm.width):
             r, g, b, a = px[x, y]; px[x, y] = (r, g, b, 255) if a > 90 else (0, 0, 0, 0)
     out = Image.new("RGBA", (n, n), (0, 0, 0, 0)); out.paste(sm, ((n - sm.width) // 2, (n - sm.height) // 2))
-    if path.name in ("t1_archer.png", "t2_hunter.png"):  # 작게 줄이면 사라지는 활시위: 왼쪽 끝 ↔ 위쪽 끝
+    if path.name in ("t1_archer.png", "t2_hunter.png", "t3_beastlord.png", "t3_hawkeye.png"):  # 작게 줄이면 사라지는 활시위: 왼쪽 끝 ↔ 위쪽 끝
         p = out.load(); pts = [(x, y) for y in range(n) for x in range(n) if p[x, y][3]]
         a = min(pts); b = min(pts, key=lambda q: q[1])
         ImageDraw.Draw(out).line([a, b], fill=(222, 206, 160, 255))

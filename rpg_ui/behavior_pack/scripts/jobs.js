@@ -11,15 +11,15 @@ export const PATHS = {
 
   warrior: { tool: { name: "전사의 검", shape: "sword", dmg: 7 }, name: "전사", tier: 1, base: "warrior", weapons: ["sword", "axe", "mace"], next: ["swordmaster", "berserker"], icon: "warrior", color: "§c", desc: "최전선에서 적을 베어 넘기는 근접 전투의 달인." },
   swordmaster: { tool: { name: "차가운 달빛 클라우드", shape: "greatsword", dmg: 10 }, name: "검성", tier: 2, base: "warrior", lv: 20, cost: 1000, weapons: ["sword"], next: ["sword_emperor"], icon: "class", color: "§c", bonus: { str: 5, dex: 3 }, desc: "검 한 자루에 모든 것을 건 검의 구도자. 빠르고 정확한 연속 공격." },
-  sword_emperor: { tool: { name: "발뭉", shape: "greatsword", dmg: 14 }, name: "검황", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["sword"], next: [], icon: "class", color: "§c", bonus: { str: 10, dex: 6 }, desc: "검의 정점. 일격에 전장을 가른다." },
+  sword_emperor: { tool: { name: "황금의 장검", shape: "greatsword", dmg: 14 }, name: "검황", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["sword"], next: [], icon: "class", color: "§c", bonus: { str: 10, dex: 6 }, desc: "검의 정점. 일격에 전장을 가른다." },
   berserker: { tool: { name: "핏빛칼날 블라디", shape: "sword", dmg: 11 }, name: "광전사", tier: 2, base: "warrior", lv: 20, cost: 1000, weapons: ["axe", "mace"], next: ["destroyer"], icon: "axe", color: "§c", bonus: { str: 6, vit: 3 }, desc: "분노를 힘으로 바꾸는 파괴자. 넓은 범위와 높은 피해." },
-  destroyer: { tool: { name: "응룡의 도끼", shape: "axe", dmg: 15 }, name: "파괴자", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["axe", "mace"], next: [], icon: "mace", color: "§c", bonus: { str: 12, vit: 6 }, desc: "대지를 부수는 재앙." },
+  destroyer: { tool: { name: "불마의 도끼", shape: "axe", dmg: 15 }, name: "파괴자", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["axe", "mace"], next: [], icon: "mace", color: "§c", bonus: { str: 12, vit: 6 }, desc: "대지를 부수는 재앙." },
 
   archer: { tool: { name: "궁수의 장궁", shape: "bow", dmg: 4 }, name: "궁수", tier: 1, base: "archer", weapons: ["bow", "crossbow"], next: ["sniper", "hunter"], icon: "archer", color: "§a", desc: "먼 거리에서 약점을 꿰뚫는 사냥꾼." },
   sniper: { tool: { name: "뇌격의 궁", shape: "sword", dmg: 8 }, name: "저격수", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["bow"], next: ["hawkeye"], icon: "archer", color: "§a", bonus: { dex: 6, str: 2 }, desc: "한 발에 끝내는 정밀 사격." },
-  hawkeye: { tool: { name: "쉐도어", shape: "sword", dmg: 11 }, name: "매의 눈", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["bow"], next: [], icon: "archer", color: "§a", bonus: { dex: 12, str: 4 }, desc: "하늘에서 내려다보듯 모든 것을 꿰뚫는다." },
+  hawkeye: { tool: { name: "시련의 활", shape: "sword", dmg: 11 }, name: "매의 눈", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["bow"], next: [], icon: "archer", color: "§a", bonus: { dex: 12, str: 4 }, desc: "하늘에서 내려다보듯 모든 것을 꿰뚫는다." },
   hunter: { tool: { name: "피의 곡궁", shape: "spear", dmg: 9 }, name: "사냥꾼", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["crossbow", "spear"], next: ["beastlord"], icon: "crossbow", color: "§a", bonus: { dex: 4, str: 4 }, desc: "쇠뇌와 창으로 무리를 사냥한다." },
-  beastlord: { tool: { name: "도살자", shape: "greatsword", dmg: 14 }, name: "야수왕", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["crossbow", "spear"], next: [], icon: "spear", color: "§a", bonus: { dex: 8, str: 8 }, desc: "사냥의 왕." },
+  beastlord: { tool: { name: "짐승의 장궁", shape: "greatsword", dmg: 14 }, name: "야수왕", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["crossbow", "spear"], next: [], icon: "spear", color: "§a", bonus: { dex: 8, str: 8 }, desc: "사냥의 왕." },
 
   mage: { tool: { name: "견습 마법 지팡이", shape: "staff", dmg: 3 }, name: "마법사", tier: 1, base: "mage", weapons: ["staff"], next: ["elementalist", "stormcaller"], icon: "mage", color: "§b", desc: "원소의 힘을 다루는 학자." },
   elementalist: { tool: { name: "크티아스의 마도서", shape: "orbstaff", dmg: 6 }, name: "원소술사", tier: 2, base: "mage", lv: 20, cost: 1000, weapons: ["staff"], next: ["archmage"], icon: "mage", color: "§b", bonus: { int: 7 }, desc: "불과 얼음을 자유롭게 다룬다." },
@@ -28,7 +28,7 @@ export const PATHS = {
   stormlord: { tool: { name: "폭풍의 삼지창", shape: "trident", dmg: 11 }, name: "폭풍의 군주", tier: 3, base: "mage", lv: 40, cost: 5000, weapons: ["staff", "spear"], next: [], icon: "spear", color: "§b", bonus: { int: 10, dex: 4 }, desc: "하늘의 분노 그 자체." },
 
   // 히든 3차 (reaper.js): 2차 이상 · Lv.40 이상으로 밤에 몬스터 300마리를 쓰러뜨리면 승급 목록에 나타남 (아무 2차·3차에서나)
-  soul_reaper: { tool: { name: "영혼 수확자의 낫", shape: "scythe", dmg: 15 }, name: "영혼 수확자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "class", color: "§5", bonus: { str: 9, int: 6, dex: 5 }, hidden: true, desc: "떠도는 영혼을 거두는 자. 근처에서 쓰러진 적의 영혼을 모아 낫에 담고, 모은 영혼으로 적을 거둔다." },
+  soul_reaper: { tool: { name: "영혼의 낫", shape: "scythe", dmg: 15 }, name: "영혼 수확자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "class", color: "§5", bonus: { str: 9, int: 6, dex: 5 }, hidden: true, desc: "떠도는 영혼을 거두는 자. 근처에서 쓰러진 적의 영혼을 모아 낫에 담고, 모은 영혼으로 적을 거둔다." },
 
   // 히든 3차 (hidden_jobs.js): 2차 이상 · Lv.40 이상에서 조건을 채워 몬스터를 쓰러뜨리면 승급 목록에 나타남
   chronomancer: { tool: { name: "멈춘 시계의 홀", shape: "scepter", dmg: 13 }, name: "시간술사", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "mage", color: "§6", bonus: { int: 10, dex: 6, str: 4 }, hidden: true, desc: "시간을 멈추고 되감는 자. 시곗바늘 칼날과 시계판 마법진으로 적의 시간을 빼앗는다." },

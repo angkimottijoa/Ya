@@ -28,6 +28,12 @@ W = {  # 무기 → 동작 종류 (gen_weapons3d.py 의 아이템과 같음)
     "t2_stormcaller": ("jt_stormcaller", "thrust"),
     "t2_paladin": ("jt_paladin", "chop"),
     "t2_priest": ("jt_priest", "tome"),
+    "t3_sword_emperor": ("jt_sword_emperor", "chop"),
+    "t3_abyss_knight": ("jt_abyss_knight", "chop"),
+    "t3_destroyer": ("jt_destroyer", "chop"),
+    "t3_beastlord": ("jt_beastlord", "bow"),
+    "t3_hawkeye": ("jt_hawkeye", "bow"),
+    "t3_soul_reaper": ("jt_soul_reaper", "reap"),
 }
 
 
@@ -89,7 +95,7 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
-FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3, "t2_hunter": 1.45 * 1.3 * 1.8 / 1.6, "t2_sniper": 1.45 * 1.3 * 1.8 / 1.6, "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3, "t2_hunter": 1.45 * 1.3 * 1.8 / 1.6, "t2_sniper": 1.45 * 1.3 * 1.8 / 1.6, "t3_beastlord": 1.45 * 1.3, "t3_hawkeye": 1.45 * 1.3, "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
@@ -205,6 +211,10 @@ def build():
 
 def main():
     anims, ctrls, ent_anims = build()
+    at = "variable.attack_time"; sw = f"math.sin((1 - math.pow(1 - {at}, 4)) * 180)"
+    anims["animation.rpg_w3d.vswing"] = {"loop": True, "bones": {  # 자바·베드락 기본 휘두르기와 같은 꼴: 팔을 앞·아래로 크게 내려치고 몸을 살짝 비틂
+        "rightArm": {"rotation": [f"-{sw} * 70 - math.sin({at} * 180) * 25", f"math.sin(math.sqrt({at}) * 360) * 11", f"math.sin({at} * 180) * -23"]},
+        "body": {"rotation": [0, f"math.sin(math.sqrt({at}) * 360) * 11", 0]}}}
     (RP / "animations" / "rpg_w3d_moves.animation.json").write_text(json.dumps({"format_version": "1.8.0", "animations": anims}, indent=1))
     (RP / "animation_controllers").mkdir(parents=True, exist_ok=True)
     (RP / "animation_controllers" / "rpg_w3d.animation_controllers.json").write_text(json.dumps({"format_version": "1.10.0", "animation_controllers": ctrls}, indent=1))
@@ -212,6 +222,7 @@ def main():
     pe = RP / "entity" / "player.entity.json"
     van = json.loads(pe.read_text()); de = van["minecraft:client_entity"]["description"]
     de["animations"].update(ent_anims)
+    de["animations"]["rpgw_vswing"] = "animation.rpg_w3d.vswing"
     held = " || ".join(f"query.get_equipped_item_name == '{item}'" for item, _ in W.values())
     pre = de["scripts"].setdefault("pre_animation", [])
     pre[:] = [x for x in pre if not x.startswith("v.rpg_")] + [
@@ -222,7 +233,7 @@ def main():
     anim = [{"root": "!v.rpg_w || v.rpg_fr"}, {"humanoid_base_pose": "v.rpg_w && !v.rpg_fr"}, {"look_at_target_default": "v.rpg_w && !v.rpg_fr"}, {"cape": "v.rpg_w && !v.rpg_fr"}]
     for name, (item, _) in W.items():
         anim.append({f"rpgw_ctrl_{name}": f"!v.rpg_fr && query.get_equipped_item_name == '{item}'"})
-    anim.append({"attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"})  # 3인칭: 마크 기본 팔 휘두르기도 겹침 (때리기 · 블록 · 몹)
+    anim.append({"rpgw_vswing": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"})  # V12.97: 마크 기본 팔 휘두르기(때리기 · 블록 캐기)를 직접 — 기본 attack.rotations 는 3D 무기 자세에서 안 보였음  # 3인칭: 마크 기본 팔 휘두르기도 겹침 (때리기 · 블록 · 몹)
     for name, (item, _) in W.items():
         anim.append({f"rpgw_fp_{name}": f"variable.is_first_person && query.get_equipped_item_name == '{item}'"})
     de["scripts"]["animate"] = anim
