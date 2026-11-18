@@ -69,11 +69,11 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.45  # 1인칭 크기 (V12.46 0.82 는 너무 커서 화면 절반을 가림)
+FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = 0
-FP_SPIN = {n: -90 for n in W}  # 사용자 축 그림: 파란(V12.39) → 빨간 = 긴 축 둘레 90° (날 축이 옆 → 앞). 반대면 +90
+FP_TILT = 22  # 무기 폭 축(Y, 화면 가로) 둘레로 22° — 사용자 축 그림: 긴 축 87.9°·가로축 그대로, 화살표 짧은 축 102.8° → 136.9° (빨간 화살표 136°)
+FP_SPIN = {}
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -129,7 +129,7 @@ def build():
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
-                                                                          "rpg_w3d_tilt": {"rotation": [FP_TILT, 0, 0]},
+                                                                          "rpg_w3d_tilt": {"rotation": [0, FP_TILT, 0]},
                                                                           "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN.get(name, 0)]}}}
         ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"
     return anims, ctrls, ent_anims

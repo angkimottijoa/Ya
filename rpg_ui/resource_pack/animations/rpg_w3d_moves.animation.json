@@ -4097,7 +4097,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.45,
+     "scale": 0.63,
      "rotation": [
       0,
       55,
@@ -4112,7 +4112,7 @@
     "rpg_w3d_tilt": {
      "rotation": [
       0,
-      0,
+      22,
       0
      ]
     },
@@ -4120,7 +4120,7 @@
      "rotation": [
       0,
       0,
-      -90
+      0
      ]
     }
    }
@@ -4129,7 +4129,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.45,
+     "scale": 0.63,
      "rotation": [
       0,
       55,
@@ -4144,7 +4144,7 @@
     "rpg_w3d_tilt": {
      "rotation": [
       0,
-      0,
+      22,
       0
      ]
     },
@@ -4152,7 +4152,7 @@
      "rotation": [
       0,
       0,
-      -90
+      0
      ]
     }
    }
@@ -4161,7 +4161,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.45,
+     "scale": 0.63,
      "rotation": [
       0,
       55,
@@ -4176,7 +4176,7 @@
     "rpg_w3d_tilt": {
      "rotation": [
       0,
-      0,
+      22,
       0
      ]
     },
@@ -4184,7 +4184,7 @@
      "rotation": [
       0,
       0,
-      -90
+      0
      ]
     }
    }
@@ -4193,7 +4193,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.45,
+     "scale": 0.63,
      "rotation": [
       0,
       55,
@@ -4208,7 +4208,7 @@
     "rpg_w3d_tilt": {
      "rotation": [
       0,
-      0,
+      22,
       0
      ]
     },
@@ -4216,7 +4216,7 @@
      "rotation": [
       0,
       0,
-      -90
+      0
      ]
     }
    }
@@ -4225,7 +4225,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.45,
+     "scale": 0.63,
      "rotation": [
       0,
       55,
@@ -4240,7 +4240,7 @@
     "rpg_w3d_tilt": {
      "rotation": [
       0,
-      0,
+      22,
       0
      ]
     },
@@ -4248,7 +4248,7 @@
      "rotation": [
       0,
       0,
-      -90
+      0
      ]
     }
    }
