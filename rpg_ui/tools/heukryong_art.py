@@ -1,7 +1,7 @@
 # 흑룡의 검 아이콘 (V12.147): 사용자 그림 art/heukryong_sword_ref.png (흰 바탕, 칼끝 왼쪽 아래) → 32x32 아이콘 (칼끝 오른쪽 위)
 #   3D 모델은 gen_weapons3d.py 가 같은 그림으로 만듦
 from PIL import Image
-src = Image.open("art/heukryong_sword_ref.png").convert("RGBA")
+src = Image.open("art/heukryong_sword_clean.png").convert("RGBA")
 px = src.load()
 for y in range(src.height):
     for x in range(src.width):
