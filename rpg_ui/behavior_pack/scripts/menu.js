@@ -2,7 +2,7 @@
 import { world, EquipmentSlot } from "@minecraft/server";
 import { hiddenOpen } from "./hidden_jobs.js";
 import { ModalFormData } from "@minecraft/server-ui";
-import { Screen, rt } from "./ui.js";
+import { Screen, rt , shortGold } from "./ui.js";
 import { data, save, stat, xpNeed, addGold, msg, notify, isAdmin, byId, MAX_LV, maxMp } from "./player.js";
 import { CLASSES, STATS, CLASS_CHANGE_COST } from "./classes.js";
 import * as Q from "./quests.js";
@@ -39,7 +39,7 @@ const SECTIONS = [
 function chips(scr, p) {
   const d = data(p);
   scr.chip(ICON("level"), `Lv.${d.lv}`);
-  scr.chip(ICON("gold"), `${d.gold}`);
+  scr.chip(ICON("gold"), shortGold(d.gold));
 }
 
 function chrome(scr, p, current) {

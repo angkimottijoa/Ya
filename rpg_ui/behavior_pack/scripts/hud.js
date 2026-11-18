@@ -17,7 +17,7 @@ import { fiendLine } from "./fiends.js";
 import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
-import { rt } from "./ui.js";
+import { rt , shortGold } from "./ui.js";
 import { manualTarget } from "./waypoints.js";
 
 const sent = new Map(); // pid -> { q, card, bar, flip }
@@ -52,7 +52,7 @@ export function card(p) {
   const s = combatStats(p);
   const lines = [
     `§l§f${p.name}§r  §e§lLv.${d.lv}§r ${c.color}§l${c.name}`,
-    `§6§lG§r §f§l${d.gold}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
+    `§6§lG§r §f§l${shortGold(d.gold)}§r${d.pts ? `  §e§l+${d.pts}P` : ""}${unread ? `  §d§l✉${unread}` : ""}`,
     ...skillLines(info.list.map(sk).filter(Boolean), info.holding),
     heldBow(p) ? ammoLine(p) : "",
     heldShield(p) ? shieldLine(p) : "",

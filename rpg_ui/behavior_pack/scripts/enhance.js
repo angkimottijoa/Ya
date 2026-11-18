@@ -6,7 +6,7 @@
 //   방어구: 방어력 +6/단계 (+11 부터 +12) → +15 = 120 (부위마다) · 받는 피해 감소 = 방어력 / (방어력 + 800)
 //          (바닐라 갑옷 수치는 게임이 따로 막음 — 정보 창엔 갑옷 수치 × 10 을 '기본 방어력'으로 같이 보여 줌)
 import { world, system, ItemStack } from "@minecraft/server";
-import { Screen, rt } from "./ui.js";
+import { Screen, rt, shortGold } from "./ui.js";
 import { data, save, notify, msg } from "./player.js";
 import { ICON, iconOf, itemName, weaponInfo, armorSlot, inv, countItem, removeItem } from "./itemdb.js";
 
@@ -150,7 +150,7 @@ export function openEnhance(p, selKey, npcName = "대장장이", filter = "all")
   }
   scr.tab("닫기", ICON("close"), () => {});
   for (const [id, name, icon] of [["all", "전체", "all"], ["weapon", "무기", "class"], ["armor", "방어구", "armor"]]) scr.tab(name, ICON(icon), () => openEnhance(p, undefined, npcName, id), filter === id);
-  scr.chip(ICON("gold"), `${d.gold}G`);
+  scr.chip(ICON("gold"), shortGold(d.gold));
   STONES.forEach((st, i) => scr.chip(`textures/items/rpg/enh_stone_${i + 1}`, `${countItem(p, st.id)}`));
   SCROLLS.forEach((sc, i) => scr.chip(`textures/items/rpg/enh_scroll_${i + 1}`, `${countItem(p, sc.id)}`));
   scr.chip("textures/items/rpg/enh_protect", `${countItem(p, PROTECT.id)}`);
@@ -219,7 +219,7 @@ function openMatPick(p, kind, back, selIdx, need = 0) {
     scr.item(`${have ? "§f" : "§c"}${have}${x.idx === cur ? " §a✔" : ""}`, x.tex, () => reopen(x.idx), { on: x.idx === selIdx, rarity: x.rarity });
   }
   scr.tab("돌아가기", ICON("back"), back);
-  scr.chip(ICON("gold"), `${comma(d.gold)}G`);
+  scr.chip(ICON("gold"), shortGold(d.gold));
   const x = list[selIdx] ?? list[0], have = countItem(p, x.id), using = x.idx === cur;
   const enough = kind === "scroll" ? have >= 1 : have >= need;
   scr.select(`${x.color}${x.name}`, x.tex);
@@ -252,7 +252,7 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   STONES.forEach((st, i) => scr.chip(STONE_TEX(i), `${countItem(p, st.id)}`));
   SCROLLS.forEach((sc, i) => scr.chip(SCROLL_TEX(i), `${countItem(p, sc.id)}`));
   scr.chip("textures/items/rpg/enh_protect", `${countItem(p, PROTECT.id)}`);
-  scr.chip(ICON("gold"), `${comma(d.gold)}`);
+  scr.chip(ICON("gold"), shortGold(d.gold));
   const res = lastRes.get(p.id);
   if (res) scr.raw(res.ok ? "[FT][OK]" : "[FT]", res.text, "", null);
 
@@ -294,7 +294,7 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   scr.raw("[FB]", `${rc}${rate}%`, `${FORGE}bar_${Math.round(rate / 5) * 5}`, null);
   // 재료
   scr.raw("[FM]", `${have >= n.count ? "§f" : "§c"}${n.stone.name.replace(" 강화석", "석")} ×${n.count}`, STONE_TEX(tierOf(T)), null);
-  scr.raw("[FM]", `${d.gold >= n.gold ? "§f" : "§c"}${comma(n.gold)}G`, ICON("gold"), null);
+  scr.raw("[FM]", `${d.gold >= n.gold ? "§f" : "§c"}${shortGold(n.gold)}G`, ICON("gold"), null);
   if (sc) scr.raw("[FM]", "§f주문서 ×1", SCROLL_TEX(ch.scroll), null);
   if (useP) scr.raw("[FM]", `${haveP >= n.protect ? "§f" : "§c"}방지석 ×${n.protect}`, "textures/items/rpg/enh_protect", null);
   // 버튼

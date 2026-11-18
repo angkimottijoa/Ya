@@ -14,6 +14,15 @@ export function rt(...parts) {
   return { rawtext: raw.length ? raw : [{ text: "" }] };
 }
 
+/** 돈 짧게 (V12.142): 99,999 까지는 1,234 · 10만 이상은 12.3만 · 1억 이상은 1.2억 — 모든 칩 · HUD 에서 칸을 넘지 않게 */
+export function shortGold(n) {
+  n = Math.floor(Number(n) || 0);
+  const c = (x) => String(x).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  if (Math.abs(n) < 100000) return c(n);
+  if (Math.abs(n) < 100000000) { const v = n / 10000; return `${v >= 1000 ? c(Math.floor(v)) : v.toFixed(1).replace(/\.0$/, "")}만`; }
+  const v = n / 100000000; return `${v >= 1000 ? c(Math.floor(v)) : v.toFixed(1).replace(/\.0$/, "")}억`;
+}
+
 export class Screen {
   /** mode: "G" 그리드 | "H" 타일 | "L" 리스트 | "D" NPC 대화창 */
   constructor(mode, crumb) {
