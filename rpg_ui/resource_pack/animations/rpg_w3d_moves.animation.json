@@ -4244,7 +4244,7 @@
     },
     "rpg_w3d_tilt": {
      "rotation": [
-      -45,
+      135,
       0,
       0
      ]
@@ -4253,7 +4253,7 @@
      "rotation": [
       "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
       "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
-      -15
+      180
      ]
     }
    }
