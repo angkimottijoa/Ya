@@ -68,7 +68,7 @@ KINDS = {
             (P(rightArm=[-160, 0, 0], rightItem=[160, 0, 0], body=[-12, 0, 0]), P(rightArm=[-40, 0, 0], rightItem=[40, 0, 0], body=[30, 0, 0], waist_pos=[0, -3, 0]), P(rightArm=[-35, 0, 0], rightItem=[35, 0, 0], body=[28, 0, 0], waist_pos=[0, -3, 0])),
         ]},
 }
-T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
+T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
@@ -128,7 +128,7 @@ def build():
         ent_anims[f"rpgw_ctrl_{name}"] = f"controller.animation.rpg_w3d.{name}"
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
-        sw = "math.sin(variable.attack_time * 180)"  # 때리기 · 블록 · 몹 · 스킬 휘두름 (게임이 주는 휘두르기 시간)
+        sw = "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180)"  # 1.6배 빠르게 (휘두르기 시간 앞 60% 안에 끝)  # 때리기 · 블록 · 몹 · 스킬 휘두름 (게임이 주는 휘두르기 시간)
         if name == "jujak_bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
             # 당기기(사용 중): 내 쪽으로 당기고 살짝 들림 · 쏘기(휘두르기 시간): 앞으로 튕겼다 반동으로 돌아옴
             draw = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0)"
