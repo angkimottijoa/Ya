@@ -589,7 +589,7 @@ def item():
         "description": {"identifier": "rpg:cheongryong_sword", "menu_category": {"category": "equipment", "group": "itemGroup.name.sword"}},
         "components": {
             "minecraft:icon": "rpg_cheongryong_sword",
-            "minecraft:display_name": {"value": "§b§l청룡의 검 §r§7[스킬 검 · 모든 직업]"},
+            "minecraft:display_name": {"value": "§b§l청룡의 검"},
             "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 180,
             "minecraft:enchantable": {"slot": "sword", "value": 22}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,

@@ -544,7 +544,7 @@ def items():
         atlas["texture_data"][f"rpg_{iid}"] = {"textures": f"textures/items/rpg/{iid}"}
         data = {"format_version": "1.21.40", "minecraft:item": {
             "description": {"identifier": f"rpg:{iid}", "menu_category": {"category": "equipment", "group": "itemGroup.name.sword"}},
-            "components": {"minecraft:icon": f"rpg_{iid}", "minecraft:display_name": {"value": f"{name} §r§7[사흉수 · 스킬 무기]"},
+            "components": {"minecraft:icon": f"rpg_{iid}", "minecraft:display_name": {"value": f"{name}"},
                            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": round(dmg * 1.5) * 10,
                            "minecraft:enchantable": {"slot": "sword", "value": 18}, "minecraft:glint": True, "minecraft:can_destroy_in_creative": False,
                            "minecraft:use_modifiers": {"use_duration": 0.05, "movement_modifier": 1.0}}}}

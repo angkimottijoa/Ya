@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_mage",
       "minecraft:display_name": {
-        "value": "§b견습 마법 지팡이 §7[1차 마법사 전용]"
+        "value": "§b§l견습 마법 지팡이"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_abyss_knight",
       "minecraft:display_name": {
-        "value": "§5심연의 대검 §7[3차 심연의 기사 전용]"
+        "value": "§5§l심연의 대검"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

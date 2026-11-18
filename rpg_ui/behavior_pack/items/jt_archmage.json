@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_archmage",
       "minecraft:display_name": {
-        "value": "§b그림자 §7[3차 대마법사 전용]"
+        "value": "§b§l그림자"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

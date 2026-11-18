@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_stormlord",
       "minecraft:display_name": {
-        "value": "§b폭풍의 삼지창 §7[3차 폭풍의 군주 전용]"
+        "value": "§b§l폭풍의 삼지창"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

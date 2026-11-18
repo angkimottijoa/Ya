@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_taotie_maw",
       "minecraft:display_name": {
-        "value": "§2§l도철의 아가리 §r§7[사흉수 · 스킬 무기]"
+        "value": "§2§l도철의 아가리"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

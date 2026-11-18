@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_hundun_scythe",
       "minecraft:display_name": {
-        "value": "§5§l혼돈의 낫 §r§7[사흉수 · 스킬 무기]"
+        "value": "§5§l혼돈의 낫"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

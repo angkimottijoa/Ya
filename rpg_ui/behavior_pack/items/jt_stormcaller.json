@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_stormcaller",
       "minecraft:display_name": {
-        "value": "§b뇌전의 창 §7[2차 뇌전술사 전용]"
+        "value": "§b§l뇌전의 창"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

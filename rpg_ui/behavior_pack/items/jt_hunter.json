@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_hunter",
       "minecraft:display_name": {
-        "value": "§a피의 곡궁 §7[2차 사냥꾼 전용]"
+        "value": "§a§l피의 곡궁"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

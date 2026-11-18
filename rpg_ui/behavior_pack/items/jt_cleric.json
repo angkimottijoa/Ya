@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_cleric",
       "minecraft:display_name": {
-        "value": "§e성직자의 서 §7[1차 성직자 전용]"
+        "value": "§e§l성직자의 서"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

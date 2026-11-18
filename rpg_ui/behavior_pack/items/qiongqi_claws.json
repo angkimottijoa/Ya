@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_qiongqi_claws",
       "minecraft:display_name": {
-        "value": "§c§l궁기의 쌍발톱 §r§7[사흉수 · 스킬 무기]"
+        "value": "§c§l궁기의 쌍발톱"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

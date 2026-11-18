@@ -16,7 +16,8 @@ import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
 import * as SK from "./skills.js";
 import { combatStats } from "./combat.js";
-import { enhLines, defenseOf, heldEnhMul } from "./enhance.js";
+import { enhLines, defenseOf, heldEnhMul, getEnh, enhKind } from "./enhance.js";
+import { loreInfo } from "./itemlore.js";
 import * as WP from "./waypoints.js";
 import { npcRegistry } from "./npcdb.js";
 import * as J from "./jobs.js";
@@ -111,6 +112,33 @@ export function openProfile(p, sel = "str") {
   }
   scr.action("§b더보기 (전투 정보 · 스킬 위력)", () => openCombatInfo(p));
   scr.reopen = () => openProfile(p, sel);
+  return scr.show(p);
+}
+
+// ═════════ 아이템 자세히 보기 (V12.132) ═════════
+//   설정 · 공격력 · 강화(단계 막대 · 다음 단계) · 이 무기 / 도구의 스킬 (대기 · 마나 · 위력)
+export function openItemDetail(p, it, back) {
+  const scr = new Screen("L", "배낭 / 자세히 보기");
+  const li = loreInfo(it.typeId);
+  scr.tab("돌아가기", ICON("back"), back);
+  const lines = ["§l§f", itemName(it), "§r\n"];
+  if (li) lines.push(`§7${li.cat}\n\n§f${li.flavor}\n\n§b● 공격력 §f${li.atk}\n`);
+  else { const w = weaponInfo(it.typeId); if (w?.atk) lines.push(`§7${w.kind}\n§b● 공격력 §f${w.atk}\n`); if (w?.def) lines.push(`§7${w.kind}\n§b● 방어 §f${w.def}\n`); }
+  lines.push(enhLines(it));
+  const KT = { 1: "①", 2: "②", 3: "③", 4: "④" };
+  if (SK.WEAPON_NAMES[it.typeId]) {
+    lines.push("\n§e§l스킬§r\n");
+    for (const { s, mp, mix, pow } of SK.weaponSkillInfo(p, it.typeId)) lines.push(`§f${KT[s.key]} §l${s.name.split("·").pop().trim()}§r §7대기 ${s.cd}초 · 마나 ${mp} · 위력 §e${numc(pow)}\n§8${s.desc ?? ""}\n`);
+  } else {
+    const path = J.pathOfTool(it.typeId);
+    if (path) {
+      lines.push(`\n§e§l${J.PATHS[path]?.name ?? ""} 스킬§r\n`);
+      for (const s of J.skillsOfPath(path)) { const pw = SK.jobSkillPower(p, s); lines.push(`§f${KT[s.key] ?? ""} §l${s.name}§r §7Lv.${s.lv} · 대기 ${s.cd}초 · 마나 ${SK.mpCost(p, s.mp)}${pw ? ` · 위력 §e${numc(pw)}` : ""}\n§8${s.desc ?? ""}\n`); }
+    }
+  }
+  scr.select(rt(itemName(it)), iconOf(it.typeId));
+  scr.body(rt(lines));
+  scr.reopen = () => openItemDetail(p, it, back);
   return scr.show(p);
 }
 
@@ -703,13 +731,17 @@ export function openBag(p, cat = "all", selKey, page = 0) {
       const en = it.getComponent("minecraft:enchantable")?.getEnchantments() ?? [];
       if (en.length) lines.push("\n§5", en.map((e) => `${ENCH_KO[e.type.id] ?? e.type.id} ${roman(e.level)}`).join("\n"), "\n");
     } catch {}
-    lines.push(enhLines(it)); // 강화 단계 · 효과 · 다음 단계
-    const lore = it.getLore().filter((l) => !l.startsWith("§6§l강화 +"));
+    // V12.132: 긴 설명 · 강화 표 · 스킬은 「자세히 보기」로 (여기엔 요약만)
+    const li = loreInfo(it.typeId), L = getEnh(it);
+    if (li) lines.push(`§7${li.cat}\n§b공격력 §f${li.atk}\n`);
+    if (enhKind(it)) lines.push(`§6강화 §f+${L}§7/15\n`);
+    const lore = it.getLore().filter((l) => !l.startsWith("§6§l강화 +") && !(li && (l.startsWith("§7") || l.startsWith("§8") || l.startsWith("§b●"))));
     if (lore.length) lines.push("\n§7", lore.join("\n"), "\n");
     if (sel.eq) lines.push(`\n§2${sel.eq.name}에 장착 중`);
     scr.select(rt(itemName(it)), iconOf(it.typeId));
     scr.body(rt(lines));
 
+    if (li || enhKind(it)) scr.action("§b자세히 보기", () => openItemDetail(p, it, () => openBag(p, cat, sel.key, page)));
     const slotFor = armorSlot(it.typeId);
     if (sel.eq) {
       scr.action("장착 해제", () => {

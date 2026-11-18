@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_elementalist",
       "minecraft:display_name": {
-        "value": "§b크티아스의 마도서 §7[2차 원소술사 전용]"
+        "value": "§b§l크티아스의 마도서"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

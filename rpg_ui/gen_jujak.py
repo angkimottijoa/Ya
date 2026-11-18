@@ -289,7 +289,7 @@ def item():
         "description": {"identifier": "rpg:jujak_bow", "menu_category": {"category": "equipment", "group": "itemGroup.name.bow"}},
         "components": {
             "minecraft:icon": "rpg_jujak_bow",
-            "minecraft:display_name": {"value": "§6§l주작의 활 §r§7[스킬 무기 · 모든 직업]"},
+            "minecraft:display_name": {"value": "§6§l주작의 활"},
             "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 90,  # 활: 근접 평타는 다른 사신수(180)의 절반, 주 공격은 ① 화시
             "minecraft:enchantable": {"slot": "bow", "value": 22}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,

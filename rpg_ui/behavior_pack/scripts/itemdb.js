@@ -138,10 +138,14 @@ export function iconOf(id) {
 
 /** 아이템 이름 RawMessage
  *  1) 모루로 바꾼 이름(nameTag)  2) 게임 언어 번역(item/tile.<id>.name)  3) API 번역 키  4) ID 정리 */
+/** 이 애드온 아이템 이름 (번역 키가 없어 화면에 키가 그대로 보이던 것) — itemlore.js · enhance.js 가 등록 */
+const RPG_NAMES = {};
+export const setRpgName = (id, text) => { RPG_NAMES[id] = text; };
 export function itemName(stackOrId) {
   const stack = typeof stackOrId === "string" ? null : stackOrId;
   if (stack?.nameTag) return { text: stack.nameTag };
   const id = stack ? stack.typeId : stackOrId.includes(":") ? stackOrId : `minecraft:${stackOrId}`;
+  if (RPG_NAMES[id]) return { text: RPG_NAMES[id] };
   const [ns, s] = id.split(":");
   if (ns === "minecraft" && NAME_KEY[s]) return { translate: `${NAME_KEY[s]}.${s}.name` };
   let key = null;

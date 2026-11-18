@@ -160,7 +160,7 @@ def main():
                 "description": {"identifier": f"rpg:jt_{path}", "menu_category": {"category": "equipment", "group": "itemGroup.name.sword"}},
                 "components": {
                     "minecraft:icon": icon,
-                    "minecraft:display_name": {"value": f"{color}{name} §7[{['', '1차', '2차', '3차'][tier]} {job} 전용]"},
+                    "minecraft:display_name": {"value": f"{color}§l{name}"},
                     "minecraft:max_stack_size": 1,
                     "minecraft:hand_equipped": True,
                     "minecraft:damage": round(int(dmg) * 1.5) * 10,  # V12.109: 평타 1.5배

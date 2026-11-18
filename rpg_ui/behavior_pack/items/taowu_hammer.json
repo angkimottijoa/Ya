@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_taowu_hammer",
       "minecraft:display_name": {
-        "value": "§6§l도올의 대망치 §r§7[사흉수 · 스킬 무기]"
+        "value": "§6§l도올의 대망치"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

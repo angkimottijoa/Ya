@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_chronomancer",
       "minecraft:display_name": {
-        "value": "§5멈춘 시계의 홀 §7[3차 시간술사 전용]"
+        "value": "§5§l멈춘 시계의 홀"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

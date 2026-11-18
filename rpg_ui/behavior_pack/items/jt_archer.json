@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_archer",
       "minecraft:display_name": {
-        "value": "§a궁수의 장궁 §7[1차 궁수 전용]"
+        "value": "§a§l궁수의 장궁"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
