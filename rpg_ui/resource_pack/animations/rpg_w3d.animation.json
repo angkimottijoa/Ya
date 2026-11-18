@@ -6,16 +6,16 @@
    "bones": {
     "body": {
      "rotation": [
-      "0",
-      "0 + (v.up * 70 - v.dn * 170 + v.rec * 100) * 1",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 35 + v.dn * 60 - v.rec * 25) * 1"
+      "152 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 1",
+      "-9 + v.dn * 35 * 1 - v.rec * 35 * 1",
+      "25 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0",
-      "0 + math.sin(q.life_time * 170) * 0.25",
-      "0"
+      "-7",
+      "-3 + math.sin(q.life_time * 170) * 0.25",
+      "-2"
      ],
-     "scale": 0.45
+     "scale": 0.5
     }
    }
   },
@@ -24,21 +24,14 @@
    "bones": {
     "body": {
      "rotation": [
-      "0",
-      "0 + (v.up * 70 - v.dn * 170 + v.rec * 100) * 0.6",
-      "65 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 35 + v.dn * 60 - v.rec * 25) * 0.6"
+      "97 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 0.6",
+      "-1.5 + v.dn * 35 * 0.6 - v.rec * 35 * 0.6",
+      "-49 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0",
-      "0 + math.sin(q.life_time * 170) * 0.25",
-      "0"
-     ]
-    },
-    "turn": {
-     "rotation": [
-      0,
-      -90,
-      0
+      "1.5",
+      "-2.5 + math.sin(q.life_time * 170) * 0.25",
+      "-10.5"
      ]
     }
    }
@@ -48,16 +41,16 @@
    "bones": {
     "body": {
      "rotation": [
-      "0",
-      "0 + (v.up * 10 - v.dn * 10) * 1",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 20 + v.dn * 35 - v.rec * 15) * 1"
+      "152 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 1",
+      "-9 + v.dn * 0 * 1 - v.rec * 0 * 1",
+      "25 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0 + (v.up * 3 - v.dn * 10 + v.rec * 7) * 1",
-      "0 + math.sin(q.life_time * 170) * 0.25",
-      "0"
+      "-7",
+      "-3 + math.sin(q.life_time * 170) * 0.25",
+      "-2 + (v.up * 2 - v.dn * 6 + v.rec * 4) * 1"
      ],
-     "scale": 0.45
+     "scale": 0.5
     }
    }
   },
@@ -66,21 +59,14 @@
    "bones": {
     "body": {
      "rotation": [
-      "0",
-      "0 + (v.up * 10 - v.dn * 10) * 0.6",
-      "65 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 20 + v.dn * 35 - v.rec * 15) * 0.6"
+      "97 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 0.6",
+      "-1.5 + v.dn * 0 * 0.6 - v.rec * 0 * 0.6",
+      "-49 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0 + (v.up * 3 - v.dn * 10 + v.rec * 7) * 0.6",
-      "0 + math.sin(q.life_time * 170) * 0.25",
-      "0"
-     ]
-    },
-    "turn": {
-     "rotation": [
-      0,
-      -90,
-      0
+      "1.5",
+      "-2.5 + math.sin(q.life_time * 170) * 0.25",
+      "-10.5 + (v.up * 2 - v.dn * 6 + v.rec * 4) * 0.6"
      ]
     }
    }
@@ -90,16 +76,16 @@
    "bones": {
     "body": {
      "rotation": [
-      "0 + (v.dn * 15 - v.rec * 15) * 1",
-      "0",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 80 + v.dn * 160 - v.rec * 80) * 1"
+      "152 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 1",
+      "-9 + v.dn * 0 * 1 - v.rec * 0 * 1",
+      "25 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0",
-      "0 + math.sin(q.life_time * 170) * 0.25 + (v.up * 2 - v.dn * 3 + v.rec * 1) * 1",
-      "0"
+      "-7",
+      "-3 + math.sin(q.life_time * 170) * 0.25",
+      "-2"
      ],
-     "scale": 0.45
+     "scale": 0.5
     }
    }
   },
@@ -108,21 +94,14 @@
    "bones": {
     "body": {
      "rotation": [
-      "0 + (v.dn * 15 - v.rec * 15) * 0.6",
-      "0",
-      "65 + math.sin(q.life_time * 110) * 2.5 + (-v.up * 80 + v.dn * 160 - v.rec * 80) * 0.6"
+      "97 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 0.6",
+      "-1.5 + v.dn * 0 * 0.6 - v.rec * 0 * 0.6",
+      "-49 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0",
-      "0 + math.sin(q.life_time * 170) * 0.25 + (v.up * 2 - v.dn * 3 + v.rec * 1) * 0.6",
-      "0"
-     ]
-    },
-    "turn": {
-     "rotation": [
-      0,
-      -90,
-      0
+      "1.5",
+      "-2.5 + math.sin(q.life_time * 170) * 0.25",
+      "-10.5"
      ]
     }
    }
