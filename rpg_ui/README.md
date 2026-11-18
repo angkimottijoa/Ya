@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.104.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.105.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.105 변경
+- 불마의 도끼(3차 파괴자): 도끼날 둘레 주황빛 번짐 제거 (날 안쪽 룬 · 손잡이 무늬는 유지)
 
 ## V12.104 변경
 - 빈손 휘두르기: V12.28(플레이어 정의 파일 도입)부터 깨짐 확인 (V12.26 정상). 최신 게임(1.26.70)의 기본 동작이 쓰는 변수 이름이 바뀌어(first_person_rotation_factor → first_person_item_rotation_factor 등) 옛 파일에 없던 것 → 1.26.70 원본 기준 + 옛 이름도 함께 계산
