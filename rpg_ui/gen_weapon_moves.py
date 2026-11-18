@@ -61,7 +61,7 @@ KINDS = {
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
     "bash": {  # 방패: 앞에 세워 들고 → 밀쳐 치기 · 몸통 박치기 · 내려찍기
-        "stance": P(rightArm=[-22, 0, 0], rightArm_pos=[-1.5, 0, 0], rightItem=[22, 90, 0], rightItem_pos=[0, 3, 0], leftArm=[-10, 0, -8], body=[2, 6, 0]),  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
+        "stance": P(rightArm=[0, 0, 0], rightArm_pos=[-2.5, 0, 0], rightItem=[0, 90, 0], rightItem_pos=[0, 3, 0], leftArm=[-10, 0, -8], body=[0, 6, 0]),  # 팔 X 와 손 Y 를 섞으면 방패가 비스듬히 기울었음 → 팔은 곧게 내리고 손은 Y 만 (방패가 땅과 직각)  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
         "guard": P(rightArm=[-70, 15, 0], rightItem=[70, 0, 0], leftArm=[-20, 0, -15], body=[4, 10, 0]),  # 패링 · 막기(우클릭 누름): 앞으로 세워 듦
         "hits": [
             (P(rightArm=[-50, 25, 0], rightItem=[50, 0, 0], body=[0, 25, 0]), P(rightArm=[-95, 0, 0], rightItem=[95, 0, 0], body=[14, -5, 0], root_pos=[0, 0, -3]), P(rightArm=[-90, 0, 0], rightItem=[90, 0, 0], body=[12, -5, 0], root_pos=[0, 0, -3])),
