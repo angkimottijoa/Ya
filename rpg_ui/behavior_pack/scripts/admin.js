@@ -463,6 +463,7 @@ export function editNpc(p, e, back) {
   adminChrome(scr, p, "npc");
   scr.select(e.nameTag || "NPC", ICON("npc"));
   scr.body(npcSummary(e));
+  scr.action(e.getDynamicProperty("rpg:smith") === true ? "§6대장장이(강화) 끄기 §7(켜짐)" : "§6대장장이(강화) 켜기", () => { e.setDynamicProperty("rpg:smith", e.getDynamicProperty("rpg:smith") !== true); msg(p, e.getDynamicProperty("rpg:smith") ? "§6이 NPC 와 대화하면 「강화하기」가 나옵니다" : "§7대장장이 꺼짐"); return re(); });
   scr.action("이 NPC에게 이동", () => { p.teleport(e.location); return re(); });
   scr.action("내 위치로 옮기기 (기준점 변경)", () => { e.teleport(p.location); e.setDynamicProperty("rpg:anchor", p.location); registerNpcEntity(e); return re(); });
   scr.action("§c제거", () => confirm(p, `${e.nameTag} NPC를 제거할까요?`, () => { unregisterNpc(npcId(e)); e.remove(); return npcTab(p); }, re));

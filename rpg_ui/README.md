@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.132.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.133.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.133 변경
+- 관리자 도구 > NPC > NPC 관리 첫 화면에 「대장장이(강화) 켜기」 (상점 화면 안에만 있어 찾기 어려웠음)
 
 ## V12.132 변경
 - 아이템 이름의 군더더기 설명([스킬 무기 · 모든 직업] 등) 제거 → 아이템 설명줄: 분류 · 한 줄 설정(청룡 = 동방을 지키는 푸른 용…) · 공격력 · 「자세히: 배낭」 (+ 강화 줄)
