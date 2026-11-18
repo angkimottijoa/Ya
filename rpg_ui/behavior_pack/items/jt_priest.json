@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_priest",
       "minecraft:display_name": {
-        "value": "§e도사의 부채 §7[2차 사제 전용]"
+        "value": "§e신성예찬의 서 §7[2차 사제 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

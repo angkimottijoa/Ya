@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_sniper",
       "minecraft:display_name": {
-        "value": "§a혹한의 단검 네일링 §7[2차 저격수 전용]"
+        "value": "§a뇌격의 궁 §7[2차 저격수 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

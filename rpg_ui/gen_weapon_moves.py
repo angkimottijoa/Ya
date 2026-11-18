@@ -20,6 +20,14 @@ W = {  # 무기 → 동작 종류 (gen_weapons3d.py 의 아이템과 같음)
     "t1_mage": ("jt_mage", "thrust"),
     "t1_archer": ("jt_archer", "bow"),
     "t1_cleric": ("jt_cleric", "tome"),
+    "t2_swordmaster": ("jt_swordmaster", "chop"),
+    "t2_berserker": ("jt_berserker", "chop"),
+    "t2_hunter": ("jt_hunter", "bow"),
+    "t2_sniper": ("jt_sniper", "bow"),
+    "t2_elementalist": ("jt_elementalist", "tome"),
+    "t2_stormcaller": ("jt_stormcaller", "thrust"),
+    "t2_paladin": ("jt_paladin", "chop"),
+    "t2_priest": ("jt_priest", "tome"),
 }
 
 
@@ -81,12 +89,12 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
-FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3, "t2_hunter": 1.45 * 1.3 * 1.8 / 1.6, "t2_sniper": 1.45 * 1.3 * 1.8 / 1.6, "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = {"jujak_bow": 135, "hyeonmu_shield": 135, "t1_archer": 135, "t1_cleric": 135}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
-FP_SPIN = {n: (180 if n in ("jujak_bow", "hyeonmu_shield", "t1_archer", "t1_cleric") else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
+FP_TILT = {n: 135 for n in W if n == "hyeonmu_shield" or W[n][1] in ("bow", "tome")}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
+FP_SPIN = {n: (180 if n == "hyeonmu_shield" or W[n][1] in ("bow", "tome") else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -94,7 +102,7 @@ def chan(bone):
     return (bone[:-4], "position") if bone.endswith("_pos") else (bone, "rotation")
 
 
-FP_YAW = {"t1_cleric": 27 + 180}  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
+FP_YAW = {n: 27 + 180 for n in W if W[n][1] == "tome"}  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
 FP_GUARD_TURN = 27  # 관측: -63 모서리, -90·-117 은 앞면(무늬) 비스듬, +47(V12.83) 은 뒷면(손잡이)이 20° 비스듬 → 모서리에서 90° 인 +27 이 뒷면 정면. 이전 메모: V12.86 -90 은 왼쪽이 가깝게 비스듬 · V12.87 -63 은 모서리가 보였음 → 반대로 27°: 방패 1인칭 패링: 정면 (0° 는 비스듬, 47° 는 왼쪽을 봤음)

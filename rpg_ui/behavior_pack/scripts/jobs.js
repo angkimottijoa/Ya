@@ -10,15 +10,15 @@ export const PATHS = {
   novice: { name: "모험가", tier: 0, base: "novice", weapons: [], next: ["warrior", "archer", "mage", "cleric"], icon: "novice", desc: "아직 길을 정하지 않은 여행자." },
 
   warrior: { tool: { name: "전사의 검", shape: "sword", dmg: 7 }, name: "전사", tier: 1, base: "warrior", weapons: ["sword", "axe", "mace"], next: ["swordmaster", "berserker"], icon: "warrior", color: "§c", desc: "최전선에서 적을 베어 넘기는 근접 전투의 달인." },
-  swordmaster: { tool: { name: "차가운 달빛 클라우", shape: "greatsword", dmg: 10 }, name: "검성", tier: 2, base: "warrior", lv: 20, cost: 1000, weapons: ["sword"], next: ["sword_emperor"], icon: "class", color: "§c", bonus: { str: 5, dex: 3 }, desc: "검 한 자루에 모든 것을 건 검의 구도자. 빠르고 정확한 연속 공격." },
+  swordmaster: { tool: { name: "차가운 달빛 클라우드", shape: "greatsword", dmg: 10 }, name: "검성", tier: 2, base: "warrior", lv: 20, cost: 1000, weapons: ["sword"], next: ["sword_emperor"], icon: "class", color: "§c", bonus: { str: 5, dex: 3 }, desc: "검 한 자루에 모든 것을 건 검의 구도자. 빠르고 정확한 연속 공격." },
   sword_emperor: { tool: { name: "발뭉", shape: "greatsword", dmg: 14 }, name: "검황", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["sword"], next: [], icon: "class", color: "§c", bonus: { str: 10, dex: 6 }, desc: "검의 정점. 일격에 전장을 가른다." },
   berserker: { tool: { name: "핏빛칼날 블라디", shape: "sword", dmg: 11 }, name: "광전사", tier: 2, base: "warrior", lv: 20, cost: 1000, weapons: ["axe", "mace"], next: ["destroyer"], icon: "axe", color: "§c", bonus: { str: 6, vit: 3 }, desc: "분노를 힘으로 바꾸는 파괴자. 넓은 범위와 높은 피해." },
   destroyer: { tool: { name: "응룡의 도끼", shape: "axe", dmg: 15 }, name: "파괴자", tier: 3, base: "warrior", lv: 40, cost: 5000, weapons: ["axe", "mace"], next: [], icon: "mace", color: "§c", bonus: { str: 12, vit: 6 }, desc: "대지를 부수는 재앙." },
 
   archer: { tool: { name: "궁수의 장궁", shape: "bow", dmg: 4 }, name: "궁수", tier: 1, base: "archer", weapons: ["bow", "crossbow"], next: ["sniper", "hunter"], icon: "archer", color: "§a", desc: "먼 거리에서 약점을 꿰뚫는 사냥꾼." },
-  sniper: { tool: { name: "혹한의 단검 네일링", shape: "sword", dmg: 8 }, name: "저격수", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["bow"], next: ["hawkeye"], icon: "archer", color: "§a", bonus: { dex: 6, str: 2 }, desc: "한 발에 끝내는 정밀 사격." },
+  sniper: { tool: { name: "뇌격의 궁", shape: "sword", dmg: 8 }, name: "저격수", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["bow"], next: ["hawkeye"], icon: "archer", color: "§a", bonus: { dex: 6, str: 2 }, desc: "한 발에 끝내는 정밀 사격." },
   hawkeye: { tool: { name: "쉐도어", shape: "sword", dmg: 11 }, name: "매의 눈", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["bow"], next: [], icon: "archer", color: "§a", bonus: { dex: 12, str: 4 }, desc: "하늘에서 내려다보듯 모든 것을 꿰뚫는다." },
-  hunter: { tool: { name: "영혼수확자의 창 바이던트", shape: "spear", dmg: 9 }, name: "사냥꾼", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["crossbow", "spear"], next: ["beastlord"], icon: "crossbow", color: "§a", bonus: { dex: 4, str: 4 }, desc: "쇠뇌와 창으로 무리를 사냥한다." },
+  hunter: { tool: { name: "피의 곡궁", shape: "spear", dmg: 9 }, name: "사냥꾼", tier: 2, base: "archer", lv: 20, cost: 1000, weapons: ["crossbow", "spear"], next: ["beastlord"], icon: "crossbow", color: "§a", bonus: { dex: 4, str: 4 }, desc: "쇠뇌와 창으로 무리를 사냥한다." },
   beastlord: { tool: { name: "도살자", shape: "greatsword", dmg: 14 }, name: "야수왕", tier: 3, base: "archer", lv: 40, cost: 5000, weapons: ["crossbow", "spear"], next: [], icon: "spear", color: "§a", bonus: { dex: 8, str: 8 }, desc: "사냥의 왕." },
 
   mage: { tool: { name: "견습 마법 지팡이", shape: "staff", dmg: 3 }, name: "마법사", tier: 1, base: "mage", weapons: ["staff"], next: ["elementalist", "stormcaller"], icon: "mage", color: "§b", desc: "원소의 힘을 다루는 학자." },
@@ -36,9 +36,9 @@ export const PATHS = {
   spirit_shepherd: { tool: { name: "혼령 인도자의 지팡이", shape: "staff", dmg: 12 }, name: "혼령 인도자", tier: 3, base: "hidden", lv: 45, cost: 10000, weapons: [], next: [], icon: "archer", color: "§a", bonus: { dex: 8, int: 8, vit: 4 }, hidden: true, desc: "짐승의 혼을 거느리는 자. 혼령 늑대가 늘 곁을 지키고, 까마귀 · 사슴 · 곰의 혼이 부름에 응한다." },
 
   cleric: { tool: { name: "성직자의 서", shape: "mace", dmg: 6 }, name: "성직자", tier: 1, base: "cleric", weapons: ["mace", "staff"], next: ["priest", "paladin"], icon: "cleric", color: "§e", desc: "빛의 가호로 동료를 지키는 치유사." },
-  priest: { tool: { name: "도사의 부채", shape: "staff", dmg: 6 }, name: "사제", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["staff"], next: ["archbishop"], icon: "cleric", color: "§e", bonus: { int: 4, vit: 4 }, desc: "더 강한 치유와 정화." },
+  priest: { tool: { name: "신성예찬의 서", shape: "staff", dmg: 6 }, name: "사제", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["staff"], next: ["archbishop"], icon: "cleric", color: "§e", bonus: { int: 4, vit: 4 }, desc: "더 강한 치유와 정화." },
   archbishop: { tool: { name: "물의 성홀", shape: "scepter", dmg: 7 }, name: "대주교", tier: 3, base: "cleric", lv: 40, cost: 5000, weapons: ["staff"], next: [], icon: "cleric", color: "§e", bonus: { int: 8, vit: 8 }, desc: "기적을 행하는 자." },
-  paladin: { tool: { name: "악마사냥꾼 데런의 총칼", shape: "sword", dmg: 12 }, name: "성기사", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["mace", "sword"], next: ["crusader"], icon: "class", color: "§e", bonus: { vit: 5, str: 3 }, desc: "빛의 무기로 싸우는 수호자." },
+  paladin: { tool: { name: "성 비에르의 검", shape: "sword", dmg: 12 }, name: "성기사", tier: 2, base: "cleric", lv: 20, cost: 1000, weapons: ["mace", "sword"], next: ["crusader"], icon: "class", color: "§e", bonus: { vit: 5, str: 3 }, desc: "빛의 무기로 싸우는 수호자." },
   crusader: { tool: { name: "업화의 전쟁망치", shape: "hammer", dmg: 13 }, name: "성전사", tier: 3, base: "cleric", lv: 40, cost: 5000, weapons: ["mace", "sword"], next: [], icon: "class", color: "§e", bonus: { vit: 10, str: 6 }, desc: "성스러운 전쟁의 선봉." },
 };
 

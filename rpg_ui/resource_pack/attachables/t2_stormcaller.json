@@ -1,0 +1,20 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:attachable": {
+  "description": {
+   "identifier": "rpg:jt_stormcaller",
+   "materials": {
+    "default": "entity_alphatest"
+   },
+   "textures": {
+    "default": "textures/models/rpg_w3d_t2_stormcaller"
+   },
+   "geometry": {
+    "default": "geometry.rpg_w3d_empty"
+   },
+   "render_controllers": [
+    "controller.render.item_default"
+   ]
+  }
+ }
+}

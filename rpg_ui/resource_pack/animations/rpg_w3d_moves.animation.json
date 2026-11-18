@@ -5373,6 +5373,272 @@
      ]
     }
    }
+  },
+  "animation.rpg_w3d.fp_t2_swordmaster": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_berserker": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_hunter": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 1.33599375,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
+      15,
+      180
+     ],
+     "position": [
+      0,
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 2.5"
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_sniper": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 1.33599375,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
+      15,
+      180
+     ],
+     "position": [
+      0,
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 2.5"
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_elementalist": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.8190000000000001,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30 + 207",
+      180
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_stormcaller": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_paladin": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t2_priest": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.8190000000000001,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30 + 207",
+      180
+     ]
+    }
+   }
   }
  }
 }

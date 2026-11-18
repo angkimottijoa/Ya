@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_swordmaster",
       "minecraft:display_name": {
-        "value": "§c차가운 달빛 클라우 §7[2차 검성 전용]"
+        "value": "§c차가운 달빛 클라우드 §7[2차 검성 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

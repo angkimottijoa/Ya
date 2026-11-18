@@ -29,17 +29,26 @@ W = {
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "t1_cleric": dict(item="rpg:jt_cleric", src="t1_cleric.png", px=26, maxd=3, len=0.75, grip=0.5, kind="tome", noupright=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
+    # 2차 직업 도구 (V12.92): 1차보다 화려하게 · 블록 더 많이
+    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", px=56, maxd=7, len=1.55, grip=0.1, kind="chop", vanilla=True),
+    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", px=60, maxd=9, len=1.8, grip=0.1, kind="chop", vanilla=True),
+    "t2_hunter": dict(item="rpg:jt_hunter", src="t2_hunter.png", mirror=True, string=(200, 190, 170), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
+    "t2_sniper": dict(item="rpg:jt_sniper", src="t2_sniper.png", string=(230, 220, 160), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
+    "t2_elementalist": dict(item="rpg:jt_elementalist", src="t2_elementalist.png", px=40, maxd=4, len=0.85, grip=0.5, kind="tome", noupright=True),
+    "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
+    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", flip180=True, px=56, maxd=7, len=1.45, grip=0.12, kind="chop", vanilla=True),
+    "t2_priest": dict(item="rpg:jt_priest", src="t2_priest.png", px=40, maxd=4, len=0.85, grip=0.5, kind="tome", noupright=True),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
 
-def cutout(im):
-    """흰 배경(가장자리에서 이어진 밝고 무채색) 제거 + 작은 떨어진 조각 제거"""
+def cutout(im, thr=212, sat=36):
+    """흰 배경(가장자리에서 이어진 밝고 무채색) 제거 + 작은 떨어진 조각 제거 (thr·sat: 밝은 칼날은 더 엄격하게)"""
     im = im.convert("RGBA")
     Wd, Ht = im.size
     px = im.load()
-    bg = lambda c: min(c[:3]) > 212 and max(c[:3]) - min(c[:3]) < 36
+    bg = lambda c: min(c[:3]) > thr and max(c[:3]) - min(c[:3]) < sat
     seen = bytearray(Wd * Ht)
     q = deque([(x, 0) for x in range(Wd)] + [(x, Ht - 1) for x in range(Wd)] + [(0, y) for y in range(Ht)] + [(Wd - 1, y) for y in range(Ht)])
     while q:
@@ -191,6 +200,7 @@ def build(name, cfg):
     if cfg["src"]:
         src = Image.open(ROOT / "art" / cfg["src"])
         if cfg.get("shell_only"): base = shell_only(src).crop(shell_only(src).getbbox())  # 윤곽으로만 자름 (밝은 테두리·하이라이트가 배경으로 지워지지 않게)
+        elif src.mode == "RGBA" and src.getpixel((0, 0))[3] == 0 and cfg["src"].startswith("t"): base = src  # 이미 배경을 지운 그림 (도구 그림: 다시 지우면 흰 칼날이 깎임)
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
         if cfg.get("stretch_y"): base = base.resize((base.width, round(base.height * cfg["stretch_y"])), Image.LANCZOS)  # 세로로 더 긴 타원
         up = base if cfg.get("noupright") else upright(base)

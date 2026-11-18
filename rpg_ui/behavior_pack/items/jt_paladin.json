@@ -11,7 +11,7 @@
     "components": {
       "minecraft:icon": "rpg_jt_paladin",
       "minecraft:display_name": {
-        "value": "§e악마사냥꾼 데런의 총칼 §7[2차 성기사 전용]"
+        "value": "§e성 비에르의 검 §7[2차 성기사 전용]"
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,

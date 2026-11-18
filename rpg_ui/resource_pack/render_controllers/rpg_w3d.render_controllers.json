@@ -89,6 +89,94 @@
     }
    ]
   },
+  "controller.render.rpg_w3d_t2_swordmaster": {
+   "geometry": "Geometry.rpg_w3d_t2_swordmaster",
+   "textures": [
+    "Texture.rpg_w3d_t2_swordmaster"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_berserker": {
+   "geometry": "Geometry.rpg_w3d_t2_berserker",
+   "textures": [
+    "Texture.rpg_w3d_t2_berserker"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_hunter": {
+   "geometry": "Geometry.rpg_w3d_t2_hunter",
+   "textures": [
+    "Texture.rpg_w3d_t2_hunter"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_sniper": {
+   "geometry": "Geometry.rpg_w3d_t2_sniper",
+   "textures": [
+    "Texture.rpg_w3d_t2_sniper"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_elementalist": {
+   "geometry": "Geometry.rpg_w3d_t2_elementalist",
+   "textures": [
+    "Texture.rpg_w3d_t2_elementalist"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_stormcaller": {
+   "geometry": "Geometry.rpg_w3d_t2_stormcaller",
+   "textures": [
+    "Texture.rpg_w3d_t2_stormcaller"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_paladin": {
+   "geometry": "Geometry.rpg_w3d_t2_paladin",
+   "textures": [
+    "Texture.rpg_w3d_t2_paladin"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t2_priest": {
+   "geometry": "Geometry.rpg_w3d_t2_priest",
+   "textures": [
+    "Texture.rpg_w3d_t2_priest"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
   "controller.render.rpg_w3d_hyeonmu_shield": {
    "geometry": "Geometry.rpg_w3d_hyeonmu_shield",
    "textures": [
