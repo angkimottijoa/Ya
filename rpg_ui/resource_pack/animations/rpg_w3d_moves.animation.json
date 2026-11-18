@@ -4093,11 +4093,111 @@
     }
    }
   },
-  "animation.rpg_w3d.fp_small": {
+  "animation.rpg_w3d.fp_hundun_scythe": {
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.6,
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      0,
+      0,
+      -90
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_cheongryong_lance": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_baekho_axe": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_jujak_bow": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      0,
+      0,
+      0
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_hyeonmu_shield": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
      "rotation": [
       0,
       55,

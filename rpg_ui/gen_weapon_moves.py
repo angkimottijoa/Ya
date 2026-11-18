@@ -69,10 +69,10 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.6  # 1인칭 무기 크기 (내 화면에서만)
+FP_SCALE = 0.63  # 1인칭 무기 크기 (내 화면에서만)
 FP_POS = [0.2, 0, 0]  # 1인칭: + = 화면 가운데 쪽 (V12.33→V12.34 스크린샷으로 확인: -4→-1.5 에 손잡이가 왼쪽으로 약 190px)
 FP_ROT = [0, 55, 0]  # 1인칭: 화면 오른쪽에 세움 (V12.34 에서 자리는 맞았음)
-FP_SPIN = 0  # 1인칭: 무기 긴 축으로만 돌려 넓은 면이 카메라를 봄 (안쪽 뼈 rpg_w3d_spin, 회전 순서 문제 없음)
+FP_SPIN = {"hundun_scythe": -90}  # 1인칭 긴 축 돌리기: 낫 날(모델 +Y)을 화면 왼쪽 위로 (Blockbench 규칙: 베드락 X·Y 회전 부호 반대 → 안쪽 뼈 +X 가 화면 왼쪽 위)
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -126,9 +126,10 @@ def build():
         ctrls[f"controller.animation.rpg_w3d.{name}"] = {"initial_state": "default", "states": states}
         ent_anims[f"rpgw_ctrl_{name}"] = f"controller.animation.rpg_w3d.{name}"
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
-    anims["animation.rpg_w3d.fp_small"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
-                                                                     "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN]}}}
-    ent_anims["rpgw_fp_small"] = "animation.rpg_w3d.fp_small"
+    for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
+        anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
+                                                                          "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN.get(name, 0)]}}}
+        ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"
     return anims, ctrls, ent_anims
 
 
@@ -151,7 +152,8 @@ def main():
     anim = [{"root": "!v.rpg_w || v.rpg_fr"}, {"humanoid_base_pose": "v.rpg_w && !v.rpg_fr"}, {"look_at_target_default": "v.rpg_w && !v.rpg_fr"}, {"cape": "v.rpg_w && !v.rpg_fr"}]
     for name, (item, _) in W.items():
         anim.append({f"rpgw_ctrl_{name}": f"!v.rpg_fr && query.get_equipped_item_name == '{item}'"})
-    anim.append({"rpgw_fp_small": "v.rpg_w && variable.is_first_person"})
+    for name, (item, _) in W.items():
+        anim.append({f"rpgw_fp_{name}": f"variable.is_first_person && query.get_equipped_item_name == '{item}'"})
     de["scripts"]["animate"] = anim
     pe.write_text(json.dumps(van, indent=1))
     print(len(anims), "animations,", len(ctrls), "controllers")
