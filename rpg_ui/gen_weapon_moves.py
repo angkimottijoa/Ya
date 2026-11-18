@@ -86,7 +86,7 @@ def chan(bone):
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
 FP_REST_TURN = -73  # (V12.76 -90 → 73°)
-FP_GUARD_POS = {"hyeonmu_shield": [-6, -7, 0]}  # 패링(우클릭) 중: 화면 가운데 위로 들어 올림 (시뮬: -x 위, -y 왼쪽; V12.74 는 x 부호가 반대여서 아래로 갔음)
+FP_GUARD_POS = {"hyeonmu_shield": [-3, 2.5, -9]}  # V12.84: 게임에서 본 축 — -x 위, -y 카메라 쪽(V12.83 은 방패가 코앞까지 와 커졌음), -z 화면 가운데 쪽(V12.79 확인)  # 패링(우클릭) 중: 화면 가운데 위로 들어 올림 (시뮬: -x 위, -y 왼쪽; V12.74 는 x 부호가 반대여서 아래로 갔음)
 # (+90 은 반대쪽이었음) 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
 
 
@@ -163,7 +163,7 @@ def build():
             # Y +15: 활은 세로축 둘레로 돌려 왼쪽 옆면이 살짝 (-15 는 반대쪽이었음)
             spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
-            turn = f" + {FP_SHIELD_SIDE} + (1 - {FP_GUARD}) * {FP_REST_TURN}" if "guard" in KINDS[W[name][1]] else ""
+            turn = f" + (1 - {FP_GUARD}) * {FP_SHIELD_SIDE + FP_REST_TURN}" if "guard" in KINDS[W[name][1]] else ""  # 패링 중엔 0° (정면) — 측면 각도는 기본 상태에만
             spin = {"rotation": [f"{sw} * 70", f"{sw} * -30{turn}", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * FP_SIZE.get(name, 1), "rotation": FP_ROT, "position": fp_pos(name)},  # 활은 1인칭에서 더 크게
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
