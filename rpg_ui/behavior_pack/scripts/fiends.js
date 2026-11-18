@@ -64,7 +64,7 @@ const shake = (p, pw, sec) => { try { p.runCommand(`camerashake add @s ${pw} ${s
 const combo = new Map();
 function step(p, key, max, gap = 26) { const k = `${p.id}|${key}`, c = combo.get(k), n = c && now() - c.t <= gap ? (c.n + 1) % max : 0; combo.set(k, { n, t: now() }); return n; }
 function aim(p, maxD = 22) {
-  try { const h = p.getEntitiesFromViewDirection({ maxDistance: maxD }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return { at: center(h), ent: h }; } catch {}
+  try { const h = p.getEntitiesFromViewDirection({ maxDistance: maxD }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item" && e.typeId !== "rpg:heuk_dragon"); if (h) return { at: center(h), ent: h }; } catch {}
   try { const b = p.getBlockFromViewDirection({ maxDistance: maxD }); if (b) return { at: add(b.block.location, { x: 0.5, y: 1, z: 0.5 }), block: true }; } catch {}
   return { at: add(eyeOf(p), viewOf(p), maxD) };
 }
@@ -206,7 +206,7 @@ const solid = (dim, q) => { try { const b = dim.getBlock({ x: Math.floor(q.x), y
 /** 낫 줄을 박을 자리 자동 찾기: 겨눈 적 → 좌우 앞 위쪽 벽·나무·천장 (두 줄) → 정면 → 위 앞 */
 function findAnchors(p) {
   const dim = p.dimension, eye = eyeOf(p), v = viewOf(p);
-  try { const h = p.getEntitiesFromViewDirection({ maxDistance: 20 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return [{ at: center(h), ent: h }]; } catch {}
+  try { const h = p.getEntitiesFromViewDirection({ maxDistance: 20 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item" && e.typeId !== "rpg:heuk_dragon"); if (h) return [{ at: center(h), ent: h }]; } catch {}
   const yaw = yawOf(p), pitch = Math.asin(Math.max(-1, Math.min(1, v.y))) * 57.3;
   const dirOf = (dy, dp) => { const y = rad(yaw + dy), pc = rad(Math.min(75, pitch + dp)); return { x: -Math.sin(y) * Math.cos(pc), y: Math.sin(pc), z: Math.cos(y) * Math.cos(pc) }; };
   const ray = (d) => { try { const h = dim.getBlockFromRay(eye, d, { maxDistance: 22, includeLiquidBlocks: false, includePassableBlocks: false }); if (h) return { at: add(h.block.location, { x: h.faceLocation?.x ?? 0.5, y: h.faceLocation?.y ?? 0.5, z: h.faceLocation?.z ?? 0.5 }) }; } catch {} return null; };
@@ -236,7 +236,7 @@ const fov = (p, on) => { try { p.runCommand(on ? "camera @s fov_set 92 0.25 in_o
 /** 사슬 걸 곳 자동 (보이는 것만): 겨눈 적 → 앞쪽 여러 방향으로 광선(56칸), 앞으로 멀고 높고 side 쪽인 곳이 좋음. 없으면 null */
 function autoAnchor(p, side) {
   const dim = p.dimension, eye = eyeOf(p), yaw = yawOf(p), f = fwdOf(yaw), r = rightOf(yaw), lp = viewOf(p).y * 57.3;
-  try { const h = p.getEntitiesFromViewDirection({ maxDistance: ROPE_MAX }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item"); if (h) return { at: center(h), ent: h, off: sub(center(h), h.location) }; } catch {}
+  try { const h = p.getEntitiesFromViewDirection({ maxDistance: ROPE_MAX }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item" && e.typeId !== "rpg:heuk_dragon"); if (h) return { at: center(h), ent: h, off: sub(center(h), h.location) }; } catch {}
   let best = null;
   for (const dy of [12, 22, 32, 45, 60]) for (const dp of [8, 20, 35, 50, 65]) for (const sg of [side, -side]) {
     const y = rad(yaw + sg * dy), pc = rad(Math.min(80, dp + Math.max(-10, lp * 0.4))), d = { x: -Math.sin(y) * Math.cos(pc), y: Math.sin(pc), z: Math.cos(y) * Math.cos(pc) };

@@ -332,11 +332,12 @@ function headPt(c, hd, lx, ly, lz, sc) {
   return add(add(add(c, F, lx * sc), U, ly * sc), S, lz * sc);
 }
 /** a 에서 b 로 휜 선 (가시·뿔·수염·발톱) */
+let PX = "cr"; // 용 파티클 이름 앞부분 (흑룡은 "hrd": 같은 모양 · 흑요석 보라 색)
 function line(dim, a, b, o = {}) {
   const d = sub(b, a), len = Math.hypot(d.x, d.y, d.z) || 0.01, u = { x: d.x / len, y: d.y / len, z: d.z / len };
-  pt(dim, "cr_line", a, { u, v: o.bend ?? { x: 0, y: 1, z: 0 }, r: len, h: o.h ?? 0, n: o.n ?? Math.ceil(len * 12), tone: o.tone ?? 0.5, spd: o.spd ?? 0, thick: o.thick ?? 0.6, life: o.life ?? 0.12, size: o.size ?? 1 });
+  pt(dim, `${PX}_line`, a, { u, v: o.bend ?? { x: 0, y: 1, z: 0 }, r: len, h: o.h ?? 0, n: o.n ?? Math.ceil(len * 12), tone: o.tone ?? 0.5, spd: o.spd ?? 0, thick: o.thick ?? 0.6, life: o.life ?? 0.12, size: o.size ?? 1 });
 }
-const glow = (dim, at, o = {}) => pt(dim, "cr_glow", at, { n: o.n ?? 1, r: o.r ?? 0, size: o.size ?? 0.3, tone: o.tone ?? 0.2, life: o.life ?? 0.12 });
+const glow = (dim, at, o = {}) => pt(dim, `${PX}_glow`, at, { n: o.n ?? 1, r: o.r ?? 0, size: o.size ?? 0.3, tone: o.tone ?? 0.2, life: o.life ?? 0.12 });
 function shake(dim, at, power, sec) {
   try { for (const pl of dim.getPlayers({ location: at, maxDistance: 28 })) pl.runCommand(`camerashake add @s ${power} ${sec} positional`); } catch {}
 }
@@ -344,7 +345,11 @@ function shake(dim, at, power, sec) {
  * 한 틱 분량의 청룡: 비늘 몸통 + 등가시 + 갈기 + 네 다리(발톱) + 수염 + 꼬리 지느러미 + 머리(윤곽·채움) + 빛나는 눈
  *  path(t) 위를 지나는 용, ground 아래는 안 그림
  */
-function drawDragon(dim, path, t, o) {
+export function drawDragon(dim, path, t, o) {
+  const was = PX; PX = o.px ?? "cr";
+  try { drawDragon0(dim, path, t, o); } finally { PX = was; }
+}
+function drawDragon0(dim, path, t, o) {
   const { thick, life, ground, sc = 1.7 } = o;
   const ok = (q) => q.y > ground;
   const H = frame(path, t);
@@ -354,7 +359,7 @@ function drawDragon(dim, path, t, o) {
     const b = path(t - 1 + k / 5);
     if (ok(b)) {
       const dd = norm(sub(b, a)), uu = norm(Math.abs(dd.y) > 0.95 ? cross(dd, { x: 1, y: 0, z: 0 }) : cross(dd, { x: 0, y: 1, z: 0 }));
-      pt(dim, "cr_body", b, { u: uu, v: cross(uu, dd), r: thick, n: 46, life, seg: t * 5 + k });
+      pt(dim, `${PX}_body`, b, { u: uu, v: cross(uu, dd), r: thick, n: 46, life, seg: t * 5 + k });
     }
     a = b;
   }
@@ -367,8 +372,8 @@ function drawDragon(dim, path, t, o) {
   if (!ok(H.c)) return;
   const hd = headDir(path(t - 1), path(t + 1));
   // 머리: 채움(입체) + 윤곽선
-  pt(dim, "cr_headfill", H.c, { ...hd, n: 300, life: 0.1, scale: sc });
-  pt(dim, "cr_head", H.c, { ...hd, n: 300, life: 0.1, scale: sc });
+  pt(dim, `${PX}_headfill`, H.c, { ...hd, n: 300, life: 0.1, scale: sc });
+  pt(dim, `${PX}_head`, H.c, { ...hd, n: 300, life: 0.1, scale: sc });
   // 빛나는 눈 + 머리 주변 기운
   for (const s of [-1, 1]) glow(dim, headPt(H.c, hd, 1.02, 0.6, 0.44 * s, sc), { size: 0.32, tone: 0.1, n: 2 });
   if (t % 2 === 0) glow(dim, headPt(H.c, hd, 0.6, 0.3, 0, sc), { size: 2.4, tone: 1, r: 0.6, n: 2, life: 0.15 });

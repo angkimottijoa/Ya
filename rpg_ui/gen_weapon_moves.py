@@ -103,7 +103,8 @@ for _n in ("t2_swordmaster", "t2_berserker", "t2_paladin", "t3_sword_emperor", "
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = {n: 135 for n in W if n == "hyeonmu_shield" or W[n][1] == "bow"}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
+FP_TILT = {n: 135 for n in W if n == "hyeonmu_shield" or W[n][1] == "bow"}
+FP_TILT["heukryong_sword"] = 90  # V12.149: 흑룡의 검은 칼끝이 시선 바로 앞 (45° 는 위로 섰고, 뒤집으면 뒤를 향했음)  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
 FP_SPIN = {n: (180 if n == "hyeonmu_shield" or W[n][1] == "bow" else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 

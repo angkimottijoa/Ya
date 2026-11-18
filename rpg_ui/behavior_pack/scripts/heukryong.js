@@ -1,16 +1,16 @@
 // ═══════════════════════════════════════════════════════════════════════
-// 흑룡의 검 (V12.146 · V12.147 보라 · 사신수보다 강함) — 사신수 위 · 연계 중심 · 극한 기동 · 사슬
-//   「용맥」 1~5단: 스킬로 적을 맞힌 뒤 1.5초 안에 다른 스킬로 이어 맞히면 한 단계 오름 (단계마다 위력 +6%, 이펙트 강해짐), 끊기면 처음부터
-//   ① 연참   4타: 칠 때마다 시선 쪽으로 미끄러지며 벰 · 공중에서 치면 체공 유지 · 4타 = 회전베기 + 사슬 채찍(먼 적을 끌어옴)
-//            분기: ② 직후 ① = 추격 베기(방금 꿰뚫은 적에게 사슬로 되돌아가 꽂음) · 승천 중 ① = 공중 순간이동 베기 · 천쇄 중 ① = 회전 도약
-//   ② 사슬 섬영  2회 충전: 조준점(적 · 벽 · 허공 10칸)에 사슬을 박고 그쪽으로 끌려가며 그 선을 벰, 0.5초 뒤 지나간 자리가 터짐
-//            분기: ① 4타 직후 ② = 역린(같은 선을 되짚어 X자 베기) · 천쇄 중 ② = 걸린 사슬을 끊고 그 속도 그대로 섬영
-//   ③ 천쇄   (혼돈에서 옮김) 사슬 입체 기동 + 등에 흑룡 날개 · 지나가며 베기 · 벽 차기 — 끝나면 25초 대기
-//   ④ 승천   땅에서 사슬이 솟아 둘레 적을 공중으로 끌어올리고 같이 솟구침 → 떠 있는 동안 클릭마다 적 사이를 순간이동 베기(최대 6)
-//            → 내리꽂기. 용맥 5단이면 거대한 흑룡 형상이 함께 내리꽂히고 위력 1.5배
+// 흑룡의 검 (V12.146 → V12.149 3D 흑룡) — 사신수 위 · 연계 · 극한 기동 · 3D 흑룡(rpg:heuk_dragon, gen_heukdragon.py)을 타고 · 끌려 다님
+//   「용맥」 1~5단: 스킬로 맞힌 뒤 1.5초 안에 다른 스킬로 이어 맞히면 한 단계 (위력 +6%) — 단계가 높을수록 소환되는 흑룡이 커짐
+//   (V12.149: 흑룡 = 청룡처럼 파티클로 그린 동양 용, 블록 모델 아님)
+//   ① 용조 연참  4타: 칠 때마다 미끄러지며 벰 · 공중 체공 · 4타 = 등 뒤에서 흑룡 머리가 튀어나와 물어뜯으며 앞으로 돌진(나도 같이 끌려감)
+//               ② 직후 ① = 추격 베기 · ④ 비행 중 ① = 흑룡 숨결 · ③ 천쇄 중 ① = 회전 도약
+//   ② 흑룡 질주  2회 충전: 흑룡 등에 올라타 시선 방향으로 일직선 질주 → U자로 휘돌아 되돌아옴 (지나간 적을 몸으로 벰), 다시 누르면 뛰어내리며 높이 솟구침
+//   ③ 천쇄      사슬 입체 기동 + 등에 흑룡 날개 + 흑룡이 꼬불꼬불 따라 날며, 회전 도약(클릭)하면 가까운 적에게 급강하
+//   ④ 흑룡 비행  거대한 흑룡을 타고 6초 동안 시선으로 조종하며 비행 (몸에 닿는 적을 벰) · 클릭 = 숨결 · 쉬프트 = 급강하 내리꽂기
 // 파티클: gen_heukryong.py (hr_*)
 // ═══════════════════════════════════════════════════════════════════════
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
+import { drawDragon } from "./cheongryong.js";
 import * as M from "./ms.js";
 import { spend } from "./pbudget.js";
 import { odmStart, odmActive, odmHop, odmLeap, odmLeft, odmDetach } from "./fiends.js";
@@ -117,7 +117,49 @@ function wings(p, k = 1) {
 }
 const speed = (dim, at, v, o = {}) => { const d = norm(v), w0 = Math.abs(d.y) > 0.9 ? { x: 1, y: 0, z: 0 } : UP, a = norm(crs(d, w0)), b = norm(crs(d, a)); pt(dim, "hr_speed", at, { u: a, v: b, vd: d, r: o.r ?? 1.4, spd: o.spd ?? 14, n: o.n ?? 8, life: o.life ?? 0.2, size: 1 }, 2); };
 
-/** 천쇄(입체 기동 엔진) 흑룡 테마 */
+// ═════════ 흑룡 (청룡처럼 파티클로 그린 동양 용: 비늘 몸통 · 등가시 · 갈기 · 네 다리 발톱 · 수염 · 꼬리 지느러미 · 입체 머리 · 빛나는 눈) ═════════
+//   cheongryong.js 의 drawDragon 을 흑요석 보라 색 파티클(hrd_*, tools/recolor_dragon.py)로 씀
+//   머리가 지나온 자리를 기억해 몸이 그 길을 따라옴 → 좌우 · 위아래로 꼬불꼬불 3D 로 굽이치며 날아감
+class Drake {
+  constructor(dim, at, size, pose = 0, o = {}) {
+    this.dim = dim; this.size = size; this.pos = { ...at }; this.dir = { x: 0, y: 0, z: 1 }; this.t = 0;
+    this.hist = [{ ...at }]; this.alive = true; this.life = o.life ?? 1.0; this.mouth = pose === 2;
+  }
+  ok() { return this.alive; }
+  pose(n) { this.mouth = n === 2; }
+  /** 머리를 at 으로 (dir = 진행 방향, wig = 꼬불꼬불 세기) — 몸은 지나온 길을 따라 그려짐 */
+  move(at, dir, wig = 0.5) {
+    if (!this.alive) return;
+    this.t++;
+    if (dir && len(dir) > 0.01) this.dir = norm(dir);
+    const side = norm(crs(this.dir, UP)), vert = norm(crs(side, this.dir));
+    const P = add(add(at, side, Math.sin(this.t * 0.42) * wig * 1.3 * this.size), vert, Math.sin(this.t * 0.29 + 1) * wig * 0.7 * this.size);
+    this.pos = { ...at }; this.hist.push(P); if (this.hist.length > 42) this.hist.shift();
+    const H = this.hist, n = H.length, base = this.t - (n - 1);
+    const path = (tt) => { const i = Math.max(0, Math.min(n - 1, tt - base)), i0 = Math.floor(i), i1 = Math.min(n - 1, i0 + 1), f = i - i0; return { x: H[i0].x + (H[i1].x - H[i0].x) * f, y: H[i0].y + (H[i1].y - H[i0].y) * f, z: H[i0].z + (H[i1].z - H[i0].z) * f }; };
+    try { drawDragon(this.dim, path, this.t, { thick: 0.78 * this.size, life: this.life, ground: -1e9, sc: 1.55 * this.size, px: "hrd" }); } catch {}
+    if (this.mouth && this.t % 2 === 0) flame(this.dim, this.head(), { n: 8, r: 0.3 * this.size, spd: 2.5, vd: scl(this.dir, 2) });
+  }
+  head() { return this.hist[this.hist.length - 1] ?? this.pos; }
+  lag(k) { return this.hist[Math.max(0, this.hist.length - 1 - k)] ?? this.pos; }
+  back() { return up(this.lag(3), 0.95 * this.size); }
+  /** 몸이 지나는 점들 (닿은 적 판정용) */
+  body() { return [0, 4, 8, 12, 16].map((k) => this.lag(k)); }
+  remove(fx = true) {
+    if (fx && this.alive) { const h = this.head(); pt(this.dim, "hr_swirl", h, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 2, r: 1.5 * this.size, spin: 800, n: 50, life: 0.5 }, 1); flame(this.dim, h, { n: 16, r: this.size, spd: 2 }); }
+    this.alive = false;
+  }
+}
+const dragonSize = (p, base) => base * (1 + veinN(p) * 0.12); // 용맥이 높을수록 큰 흑룡
+/** 흑룡 몸에 닿은 적 (몸 점마다 반지름 r) */
+const bodyHits = (dk, r) => { const seen = new Map(); for (const q of dk.body()) for (const e of foes(dk.dim, q, r * dk.size)) seen.set(e.id, e); return [...seen.values()]; };
+/** 플레이어를 흑룡 등에 태움 (시선은 그대로) */
+const ride = (p, dk) => { try { p.teleport(dk.back(), { keepVelocity: false }); } catch {} };
+const solidAt = (dim, q) => { try { const b = dim.getBlock({ x: Math.floor(q.x), y: Math.floor(q.y), z: Math.floor(q.z) }); return !!b && !b.isAir && !b.isLiquid; } catch { return false; } };
+/** 다 끝난 뒤 떨어져 죽지 않게 */
+const safeLand = (p, sec = 2) => { try { M.potion(p, "slow_falling", 0, sec); } catch {} };
+
+/** 천쇄(입체 기동 엔진) 흑룡 테마 + 따라 나는 흑룡 */
 const HR_THEME = {
   name: "흑룡 천쇄", col: "§5", col2: "§d", endCd: 25, reel: "hr_reelspark",
   chain: (dim, a, b, life) => wire(dim, a, b, life),
@@ -135,48 +177,76 @@ const HR_THEME = {
     const c = center(e); slash(dim, add(c, rightOf(yaw), -1.6), add(c, rightOf(yaw), 1.6), { h: 0.5, dens: 30 });
     flame(dim, c, { n: 8, r: 0.3, spd: 2.5 });
   },
-  onTick: (p, m) => { if (m.t % 3 === 0) wings(p, 1); },
+  onTick: (p, m) => { if (m.t % 3 === 0) wings(p, 1); companion(p, m); },
+  onEnd: (p) => { const s = st(p); s.comp?.remove(); s.comp = null; },
 };
+/** ③ 천쇄 동안 따라 나는 흑룡: 내 둘레 위쪽을 꼬불꼬불 돌며 따라옴, 회전 도약(클릭)하면 가까운 적에게 급강하해 물어뜯고 돌아옴 */
+function companion(p, m) {
+  const s = st(p), dim = p.dimension;
+  if (!s.comp || !s.comp.ok()) { s.comp = new Drake(dim, add(up(p.location, 5), fwdOf(yawOf(p)), -4), dragonSize(p, 0.6), 0, { life: 0.6 }); s.compA = 0; s.compDive = null; }
+  const dk = s.comp, ctx = s.ctx;
+  if (m.lastLeap === m.t && !s.compDive) {
+    const tgt = foes(dim, p.location, 16).sort((a, b) => len(sub(a.location, p.location)) - len(sub(b.location, p.location)))[0];
+    if (tgt) { s.compDive = { e: tgt, t: 0 }; dk.pose(2); snd(p, "mob.enderdragon.growl", 0.5, 1.4); }
+  }
+  if (s.compDive) {
+    const dv = s.compDive, e = dv.e; dv.t++;
+    if (!e?.isValid() || dv.t > 24) { s.compDive = null; dk.pose(0); }
+    else {
+      const to = center(e), d = sub(to, dk.head()), L = len(d);
+      dk.move(add(dk.pos, d, Math.min(1, 1.8 / (L || 1))), d, 0.3);
+      if (L < 1.8) {
+        const hit = hitter(ctx, 33, 1); hit(e, 0.7); burst(dim, to, { n: 18, spd: 4 }); flame(dim, to, { n: 10, r: 0.5 });
+        snd(p, "mob.ravager.bite", 0.9, 0.7); shake(p, 0.12, 0.2); s.compDive = null; dk.pose(0);
+      }
+      return;
+    }
+  }
+  s.compA += 8;
+  const r = 4.5, aa = rad(s.compA), goal = add(up(p.location, 3.2 + Math.sin(rad(s.compA * 2)) * 0.8), { x: Math.cos(aa) * r, y: 0, z: Math.sin(aa) * r });
+  const d = sub(goal, dk.pos), tangent = { x: -Math.sin(aa), y: 0, z: Math.cos(aa) };
+  dk.move(add(dk.pos, d, 0.35), add(scl(tangent, 1), d, 0.3), 0.6);
+  if (m.t % 4 === 0) for (const e of bodyHits(dk, 1.6)) hitter(ctx, 33, 10)(e, 0.25);
+}
 
-// ═════════ ① 연참 ═════════
+// ═════════ ① 용조 연참 ═════════
 const combo = new Map();
 function step(p, max, gap = 24) { const c = combo.get(p.id), n = c && now() - c.t <= gap ? (c.n + 1) % max : 0; combo.set(p.id, { n, t: now() }); return n; }
 function hr_combo(ctx) {
   const { p } = ctx, dim = p.dimension, s = st(p), yaw = yawOf(p), f = fwdOf(yaw), air = !onGround(p);
   s.ctx = ctx;
-  // 분기: ② 직후 = 추격 베기
-  if (s.lastDash && now() - s.lastDash.t <= 20 && s.lastDash.ent?.isValid()) return chase(ctx, s.lastDash.ent);
+  if (s.lastDash && now() - s.lastDash.t <= 20 && s.lastDash.ent?.isValid()) return chase(ctx, s.lastDash.ent); // ② 직후 = 추격 베기
   const n = step(p, 4), hit = hitter(ctx, 1);
   M.anim(p, n === 3 ? "spin" : n % 2 ? "slash_down" : "slash");
-  push(p, { x: f.x * (n === 3 ? 0.9 : 0.55), y: air ? 0.24 : 0.04, z: f.z * (n === 3 ? 0.9 : 0.55) });
+  push(p, { x: f.x * (n === 3 ? 0.4 : 0.6), y: air ? 0.24 : 0.04, z: f.z * (n === 3 ? 0.4 : 0.6) });
   if (air) try { M.potion(p, "slow_falling", 0, 0.6); } catch {}
   const c = add(up(p.location, 1.05), f, 1.2), tn = tone(p);
   if (n < 3) {
     arc(dim, c, yaw, { sweep: 170, r: 2.7, tilt: [-22, 28, -40][n], dir: n % 2 ? -1 : 1, dur: 0.07, n: 150, tone: tn });
     for (const e of foes(dim, c, 3.4)) { const d = sub(e.location, p.location); if (d.x * f.x + d.z * f.z > -0.3) if (hit(e, 0.32)) flame(dim, center(e), { n: 5, r: 0.25, spd: 2, tone: tn }); }
     snd(p, "game.player.attack.sweep", 0.8, 1.2 + n * 0.12);
-  } else {
-    // 4타: 회전베기 + 사슬 채찍 (가장 먼 적 하나를 끌어옴)
-    const cc = up(p.location, 1);
-    arc(dim, cc, yaw, { sweep: 400, r: 3.2, dur: 0.14, n: 240, tone: tn });
-    pt(dim, "hr_swirl", cc, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 1.5, r: 2.4, spin: 1000, n: 50, life: 0.4 }, 2);
-    for (const e of foes(dim, cc, 3.8)) if (hit(e, 0.55)) flame(dim, center(e), { n: 7, r: 0.3, spd: 2.5, tone: tn });
-    const far = foes(dim, cc, 11).filter((e) => len(sub(e.location, p.location)) > 4).sort((a, b) => len(sub(a.location, p.location)) - len(sub(b.location, p.location)))[0];
-    if (far) {
-      for (let k = 1; k <= 3; k++) later(k, () => { if (!far.isValid()) return; const h = up(p.location, 1.1); wire(dim, h, add(h, sub(center(far), h), k / 3), 0.1); });
-      later(4, () => {
-        if (!far.isValid()) return;
-        const d = sub(p.location, far.location), L = len(d) || 1;
-        push(far, { x: (d.x / L) * 1.4, y: 0.35, z: (d.z / L) * 1.4 });
-        hit(far, 0.4, 1); burst(dim, center(far), { n: 12, tone: tn });
-        snd(p, "item.armor.equip_chain", 1, 0.8);
-      });
-    }
-    snd(p, "game.player.attack.sweep", 1, 0.8); snd(p, "mob.enderdragon.flap", 0.6, 1.3);
-    s.combo4 = now();
+    return;
   }
+  // 4타: 회전베기 → 등 뒤에서 흑룡이 튀어나와 아가리를 벌리고 시선 방향으로 꼬불꼬불 돌진, 나도 그 머리에 끌려감
+  const cc = up(p.location, 1);
+  arc(dim, cc, yaw, { sweep: 400, r: 3.2, dur: 0.14, n: 220, tone: tn });
+  for (const e of foes(dim, cc, 3.8)) hit(e, 0.45);
+  const v = viewOf(p), dir = norm({ x: v.x, y: Math.max(-0.5, Math.min(0.5, v.y)), z: v.z });
+  const dk = new Drake(dim, add(add(up(p.location, 1.6), dir, -3), UP, 0.8), dragonSize(p, 0.55), 2);
+  const bite = hitter(ctx, 1, 6), start = { ...dk.pos };
+  snd(p, "mob.enderdragon.growl", 0.7, 1.3); snd(p, "mob.enderdragon.flap", 0.8, 1.2);
+  for (let k = 1; k <= 12; k++) later(k, () => {
+    if (!dk.ok()) return;
+    const at = add(start, dir, k * 1.15);
+    dk.move(at, dir, 0.8);
+    if (k >= 3 && k <= 10) { const q = add(dk.head(), dir, -0.4); push(p, { x: (q.x - p.location.x) * 0.45, y: (q.y - 1 - p.location.y) * 0.45 + 0.08, z: (q.z - p.location.z) * 0.45 }); } // 머리에 끌려감
+    speed(dim, dk.pos, dir, { n: 6 });
+    for (const e of bodyHits(dk, 1.5)) if (bite(e, 0.4)) { burst(dim, center(e), { n: 10, tone: tn }); snd(p, "mob.ravager.bite", 0.7, 1.1); }
+    if (k === 12) { dk.remove(); safeLand(p, 1); }
+  });
+  s.combo4 = now();
 }
-/** 추격 베기: 방금 섬영으로 꿰뚫은 적에게 사슬로 되돌아가 내리꽂음 */
+/** 추격 베기: 방금 ② 로 지나친 적에게 사슬로 되돌아가 내리꽂음 */
 function chase(ctx, e) {
   const { p } = ctx, dim = p.dimension, s = st(p), hit = hitter(ctx, 5);
   s.lastDash = null;
@@ -186,195 +256,191 @@ function chase(ctx, e) {
     if (!e.isValid()) return;
     try { p.teleport(up(back, -0.9), { facingLocation: center(e) }); } catch {}
     slash(dim, from, back, { h: 0.9, dens: 26 });
-    const yaw = yawOf(p);
-    arc(dim, center(e), yaw, { sweep: 160, r: 2.4, tilt: 70, dir: -1, dur: 0.06, n: 170, tone: tone(p) });
+    arc(dim, center(e), yawOf(p), { sweep: 160, r: 2.4, tilt: 70, dir: -1, dur: 0.06, n: 170, tone: tone(p) });
     hit(e, 0.85, 1); burst(dim, center(e), { n: 18, spd: 4 });
     snd(p, "mob.enderdragon.flap", 0.8, 1.6); snd(p, "item.trident.hit", 1, 0.7); shake(p, 0.15, 0.2);
     notify(p, "§5§l추격 베기");
   });
 }
 
-// ═════════ ② 사슬 섬영 ═════════
+// ═════════ ② 흑룡 질주 (타고 일직선 → U자 → 되돌아옴) ═════════
 const RECH = 6; // 충전 1회 6초
 function charges(p) { const c = st(p).ch; while (c.n < 2 && now() >= c.next) { c.n++; c.next += RECH * 20; } return c; }
-function hr_dash(ctx) {
-  const { p } = ctx, s = st(p), c = charges(p);
+function hr_rush(ctx) {
+  const { p } = ctx, dim = p.dimension, s = st(p), c = charges(p);
   s.ctx = ctx;
   if (c.n <= 0) { ctx.setCd?.(Math.max(0.5, (c.next - now()) / 20)); return; }
   if (c.n === 2) c.next = now() + RECH * 20;
   c.n--;
   ctx.setCd?.(c.n > 0 ? 0.5 : Math.max(0.5, (c.next - now()) / 20));
-  const rev = s.combo4 && now() - s.combo4 <= 16; s.combo4 = 0;
-  if (odmActive(p)) odmDetach(p); // 천쇄 중: 걸린 사슬을 끊고 지금 속도 그대로 섬영
-  const eye = eyeOf(p), v = viewOf(p);
-  let target = null, ent = null;
-  try { ent = p.getEntitiesFromViewDirection({ maxDistance: 24 }).map((x) => x.entity).find((e) => e?.isValid() && e.id !== p.id && e.typeId !== "minecraft:item") ?? null; } catch {}
-  if (ent) target = center(ent);
-  else { try { const b = p.getBlockFromViewDirection({ maxDistance: 24 }); if (b) target = add(b.block.location, { x: b.faceLocation?.x ?? 0.5, y: b.faceLocation?.y ?? 0.5, z: b.faceLocation?.z ?? 0.5 }); } catch {} }
-  const hookAt = target ?? add(eye, v, 10);
-  const end = ent ? add(center(ent), norm(sub(center(ent), eye)), 1.6) : add(hookAt, norm(sub(hookAt, eye)), target ? -1.2 : 0);
-  const start = up(p.location, 1);
-  dashLine(ctx, start, end, hookAt, ent, () => { if (rev) later(3, () => dashLine(ctx, up(p.location, 1), start, null, null, null, true)); }); // 역린: 같은 선을 되짚어 처음 자리로
+  if (odmActive(p)) odmDetach(p);
+  s.ride?.end?.(false);
+  const v = viewOf(p), dir = norm({ x: v.x, y: Math.max(-0.45, Math.min(0.55, v.y)), z: v.z }), side = norm(crs(dir, UP));
+  const rev = s.combo4 && now() - s.combo4 <= 16; s.combo4 = 0; // ① 4타 직후: 역린 — 위력 1.3배 · 두 번 휘돎
+  const dk = new Drake(dim, up(p.location, 0.2), dragonSize(p, 0.85));
+  const hit = hitter(ctx, 2, 8), tn = tone(p), P0 = { ...p.location };
+  // 길: 일직선 15칸 (막히면 앞에서 멈춤) → 반지름 3.5 반원 → 되돌아 12칸
+  let L = 15; for (let k = 2; k <= 15; k++) if (solidAt(dim, add(up(P0, 1), dir, k))) { L = Math.max(4, k - 2); break; }
+  const pts = [];
+  for (let k = 1; k <= 10; k++) pts.push({ at: add(P0, dir, (L * k) / 10), d: dir });
+  const turnC = add(add(P0, dir, L), side, 3.5);
+  const loops = rev ? 2 : 1;
+  for (let lp = 0; lp < loops; lp++) for (let k = 1; k <= 8; k++) { const a = Math.PI * (k / 8) + lp * Math.PI; const off = add(scl(side, -Math.cos(a) * 3.5), dir, Math.sin(a) * 3.5 * (lp % 2 ? -1 : 1)); pts.push({ at: add(turnC, off, 1), d: norm(add(scl(side, Math.sin(a)), dir, Math.cos(a) * (lp % 2 ? -1 : 1))) }); }
+  const backDir = rev ? dir : scl(dir, -1), from = pts[pts.length - 1].at;
+  for (let k = 1; k <= 8; k++) pts.push({ at: add(from, backDir, (12 * k) / 8), d: backDir });
+  const r = { i: 0, done: false, last: null };
+  r.end = (jump) => {
+    if (r.done) return; r.done = true; if (s.ride === r) s.ride = null;
+    const d = dk.dir;
+    push(p, jump ? { x: d.x * 0.8, y: 1.25, z: d.z * 0.8 } : { x: d.x * 1.1, y: 0.35, z: d.z * 1.1 });
+    safeLand(p, jump ? 3 : 1.5);
+    if (jump) { arc(dim, up(p.location, 1), yawOf(p), { sweep: 380, r: 2.6, dur: 0.12, n: 160, tone: tn }); snd(p, "mob.enderdragon.flap", 1, 1.5); notify(p, "§5§l뛰어오르기"); }
+    s.lastDash = { t: now(), ent: r.last };
+    dk.remove();
+  };
+  s.ride = r;
+  M.anim(p, "dash");
+  snd(p, "mob.enderdragon.growl", 0.8, 1.2); snd(p, "mob.enderdragon.flap", 1, 1.4);
+  notify(p, rev ? "§5§l역린 질주 §r§7(다시: 뛰어오르기)" : "§5§l흑룡 질주 §r§7(② 다시: 뛰어오르기)");
+  const tick = () => {
+    if (r.done || !p.isValid() || !dk.ok()) return r.end?.(false);
+    const q = pts[r.i++];
+    if (!q) return r.end(false);
+    dk.move(q.at, q.d, 0.35);
+    ride(p, dk);
+    if (r.i % 2 === 0) wings(p, 0.9);
+    speed(dim, up(dk.pos, 0.6), q.d, { n: 10, r: 1.8 });
+    for (const e of bodyHits(dk, 1.7)) if (hit(e, rev ? 0.55 : 0.42)) { r.last = e; burst(dim, center(e), { n: 12, tone: tn }); slash(dim, add(center(e), side, -1.4), add(center(e), side, 1.4), { h: 0.5, dens: 26 }); }
+    later(1, tick);
+  };
+  later(1, tick);
 }
-/** from → to 로 사슬에 끌려가며 벰 (anchor = 사슬 박힌 곳) */
-function dashLine(ctx, from, to, anchor, ent, done, reverse = false) {
-  const { p } = ctx, dim = p.dimension, s = st(p), hit = hitter(ctx, 2), tn = tone(p);
-  const d = sub(to, from), L = Math.min(len(d), 24), dir = norm(d), steps = Math.max(3, Math.min(9, Math.round(L / 2.4)));
-  M.anim(p, "shoot");
-  snd(p, "item.armor.equip_chain", 1, 1.3); snd(p, "mob.enderdragon.flap", 0.7, 1.8);
-  const fly = anchor ? 2 : 0;
-  if (anchor) for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = up(p.location, 1.1); wire(dim, h, add(h, sub(anchor, h), k / fly), 0.1); });
-  const path = [];
-  for (let k = 0; k <= steps; k++) later(fly + k, () => {
-    const P = up(p.location, 1);
-    path.push(P);
-    if (k < steps) {
-      const rem = sub(add(from, dir, (L * (k + 1)) / steps), P);
-      push(p, { x: rem.x * 0.9, y: rem.y * 0.9 + 0.06, z: rem.z * 0.9 });
-      if (anchor) wire(dim, P, anchor, 0.08);
-      speed(dim, P, dir, { n: 10 });
-      if (k % 2 === 0) wings(p, 0.8);
-      for (const e of foes(dim, P, 2.2)) if (hit(e, reverse ? 0.42 : 0.5, 20)) { burst(dim, center(e), { n: 10, tone: tn }); if (!s.lastDash?.ent && e !== ent) s.pierced = e; }
-    } else {
-      // 끝: 크게 가르기 + 지나간 자리 0.5초 뒤 폭발
-      const yaw = yawOf(p);
-      arc(dim, P, yaw, { sweep: 180, r: 2.8, tilt: reverse ? 40 : -40, dir: reverse ? -1 : 1, dur: 0.06, n: 180, tone: tn });
-      if (reverse) arc(dim, P, yaw, { sweep: 180, r: 2.8, tilt: -40, dur: 0.06, n: 180, tone: tn });
-      if (ent?.isValid()) { hit(ent, 0.7, 1); flame(dim, center(ent), { n: 10, r: 0.4, spd: 2.5, tone: tn }); }
-      const pts = path.slice();
-      later(10, () => {
-        for (let i = 0; i + 1 < pts.length; i++) slash(dim, pts[i], pts[i + 1], { h: 0.6, dens: 18, life: 0.35 });
-        for (const q of pts) { for (const e of foes(dim, q, 1.8)) hit(e, 0.28, 40); }
-        burst(dim, pts[Math.floor(pts.length / 2)] ?? P, { n: 16, spd: 4 });
-        snd(p, "random.explode", 0.35, 1.6);
-      });
-      s.lastDash = { t: now(), ent: ent ?? s.pierced ?? null }; s.pierced = null;
-      snd(p, "game.player.attack.sweep", 1, 0.9); if (reverse) notify(p, "§5§l역린");
-      done?.();
-    }
-  });
-}
+const hr_rush_pre = (p) => { const r = st(p).ride; if (r && !r.done) { r.end(true); return true; } return false; };
 
-// ═════════ ③ 천쇄 (입체 기동 엔진 + 흑룡 테마) ═════════
+// ═════════ ③ 천쇄 (입체 기동 엔진 + 흑룡 테마 + 따라 나는 흑룡) ═════════
 function hr_odm(ctx) {
   const { p } = ctx;
   st(p).ctx = ctx;
   odmStart(p, { ...ctx, theme: HR_THEME, power: 1, mulf: () => veinMul(p), onHit: () => vein(p, 3) });
 }
 
-// ═════════ ④ 승천 ═════════
-function hr_ascend(ctx) {
-  const { p } = ctx, dim = p.dimension, s = st(p), hit = hitter(ctx, 4, 1), big = veinN(p) >= VEIN_MAX;
+// ═════════ ④ 흑룡 비행 ═════════
+const FLY_T = 120;
+function hr_fly(ctx) {
+  const { p } = ctx, dim = p.dimension, s = st(p), big = veinN(p) >= VEIN_MAX;
   s.ctx = ctx;
-  const at = { ...p.location }, tn = tone(p);
-  const mob = foes(dim, at, 8).slice(0, 8);
-  M.anim(p, "raise");
-  snd(p, "mob.enderdragon.growl", big ? 1 : 0.6, big ? 0.7 : 1); shake(p, 0.3, 0.4);
-  // 땅에서 사슬이 솟아 적을 붙잡아 끌어올림
-  mob.forEach((e, i) => {
-    const g = add(e.location, { x: Math.cos(i * 2.4) * 1.6, y: 0, z: Math.sin(i * 2.4) * 1.6 });
-    for (let k = 1; k <= 3; k++) later(i + k, () => { if (e.isValid()) wire(dim, g, add(g, sub(center(e), g), k / 3), 0.1); });
-    later(i + 4, () => { if (!e.isValid()) return; burst(dim, g, { n: 10, spd: 3 }); hit(e, 0.35); push(e, { x: 0, y: 1.25, z: 0 }); flame(dim, center(e), { n: 6 }); });
-  });
-  pt(dim, "hr_shock", up(at, 0.1), { r: 6, n: 120, life: 0.6 }, 1);
-  push(p, { x: 0, y: 1.3, z: 0 });
-  s.asc = { left: 6, hits: 0, until: now() + 80, mob, hold: new Map(), big, done: false };
-  const a = s.asc;
-  notify(p, `§5§l흑룡 승천 §r§7— 클릭: 적 사이를 베며 날기 (최대 6)`);
-  let t = 0;
+  if (odmActive(p)) odmDetach(p);
+  s.ride?.end?.(false);
+  const size = dragonSize(p, 1.35) * (big ? 1.15 : 1);
+  const dk = new Drake(dim, up(p.location, 0.5), size);
+  const hit = hitter(ctx, 4, 10), tn = tone(p);
+  const f = { t: 0, breaths: 5, lastBreath: -99, sneakPrev: true, diving: false, done: false, big, dk };
+  s.fly = f;
+  push(p, { x: 0, y: 0.9, z: 0 });
+  snd(p, "mob.enderdragon.growl", 1, big ? 0.7 : 0.9); snd(p, "mob.enderdragon.flap", 1, 0.9); shake(p, 0.3, 0.4);
+  try { p.runCommand("camera @s fov_set 95 0.4 in_out_sine"); } catch {}
+  notify(p, `§5§l흑룡 비행 §r§7— 시선으로 조종 · 클릭: 숨결 · 쉬프트: 급강하`);
+  let dir = norm({ ...viewOf(p), y: Math.max(0.35, viewOf(p).y) }), pos = up(p.location, 1.5);
   const tick = () => {
-    if (!p.isValid() || s.asc !== a || a.done) return;
-    t++;
-    if (t % 3 === 0) wings(p, big ? 1.35 : 1.1);
-    if (t >= 10) {
-      // 떠 있음: 플레이어와 붙잡힌 적을 공중에 고정
-      push(p, { x: 0, y: 0.02, z: 0 });
-      for (const e of a.mob) {
-        if (!e.isValid()) continue;
-        if (!a.hold.has(e.id)) a.hold.set(e.id, { ...e.location });
-        try { e.teleport(a.hold.get(e.id), { keepVelocity: false }); } catch {}
-        if (t % 4 === 0) wire(dim, up(a.hold.get(e.id), -3), center(e), 0.2);
-      }
-    }
-    if (now() >= a.until || (a.left <= 0 && now() > a.lastHit + 6)) return dive(ctx, a);
+    if (f.done || !p.isValid() || !dk.ok()) return finish(ctx, f);
+    f.t++;
+    let sneak = false; try { sneak = !!p.isSneaking; } catch {}
+    if (sneak && !f.sneakPrev && f.t > 6) return dive(ctx, f);
+    f.sneakPrev = sneak;
+    if (f.t >= FLY_T) return dive(ctx, f);
+    // 시선 쪽으로 서서히 꺾음 (빠른 선회) · 땅 · 벽에 닿으면 위로
+    const want = norm({ ...viewOf(p), y: Math.max(-0.6, Math.min(0.7, viewOf(p).y)) });
+    dir = norm(add(scl(dir, 0.82), want, 0.18));
+    const spd = 1.15 + (big ? 0.2 : 0);
+    let next = add(pos, dir, spd);
+    if (solidAt(dim, add(next, dir, 2 * size)) || solidAt(dim, up(next, -1))) { next = up(pos, 0.8); dir = norm(add(dir, UP, 0.6)); }
+    pos = next;
+    dk.move(pos, dir, 0.55);
+    ride(p, dk);
+    if (f.t % 3 === 0) wings(p, 0.8);
+    if (f.t % 2 === 0) speed(dim, up(pos, 0.5), dir, { n: 10, r: 2.2 * size });
+    for (const e of bodyHits(dk, 1.8)) if (hit(e, 0.35)) { burst(dim, center(e), { n: 12, tone: tn }); flame(dim, center(e), { n: 6 }); }
+    if (f.t - f.lastBreath === 8) dk.pose(0);
     later(1, tick);
   };
-  a.lastHit = 0;
   later(1, tick);
 }
-/** 승천 중 클릭: 다음 공중의 적에게 순간이동하며 X자 베기 */
-function ascHit(p) {
-  const s = st(p), a = s.asc; if (!a || a.done || a.left <= 0) return false;
-  const ctx = s.ctx, dim = p.dimension, hit = hitter(ctx, 41, 1);
-  const alive = a.mob.filter((e) => e.isValid());
-  if (!alive.length) { a.left = 0; return true; }
-  const e = alive[a.hits % alive.length];
-  const from = up(p.location, 1), c = center(e), ang = a.hits * 2.1 + Math.random(), off = { x: Math.cos(ang) * 1.8, y: 0.2, z: Math.sin(ang) * 1.8 };
-  const to = add(c, off);
-  try { p.teleport(up(to, -1), { facingLocation: c }); } catch {}
-  slash(dim, from, to, { h: 0.7, dens: 20 }); wire(dim, from, c, 0.25);
-  const yaw = yawOf(p);
-  arc(dim, c, yaw, { sweep: 170, r: 2.3, tilt: 45, dur: 0.05, n: 140, tone: tone(p) });
-  arc(dim, c, yaw, { sweep: 170, r: 2.3, tilt: -45, dir: -1, dur: 0.05, n: 140, tone: tone(p) });
-  hit(e, 0.5); burst(dim, c, { n: 14, spd: 4 });
-  snd(p, "mob.enderdragon.flap", 0.8, 1.5 + a.hits * 0.08); snd(p, "game.player.attack.sweep", 1, 1.3);
-  a.left--; a.hits++; a.lastHit = now(); a.until = Math.max(a.until, now() + 20);
-  notify(p, `§5§l승천 §d${"◆".repeat(a.hits)}§8${"◇".repeat(a.left)}`);
+/** 비행 중 클릭: 머리에서 시선 방향으로 보랏빛 숨결 (12칸 원뿔) */
+function breath(p) {
+  const s = st(p), f = s.fly;
+  if (!f || f.done || f.diving) return false;
+  if (f.t - f.lastBreath < 7 || f.breaths <= 0) return true;
+  f.lastBreath = f.t; f.breaths--;
+  const dk = f.dk, dim = p.dimension, v = viewOf(p), h = dk.head(), hit = hitter(s.ctx, 41, 1);
+  dk.pose(2);
+  for (let k = 0; k < 6; k++) later(k, () => {
+    for (let j = 1; j <= 6; j++) { const q = add(h, v, j * 2); flame(dim, q, { n: 10, r: 0.2 + j * 0.18, spd: 1.2, vd: scl(v, 2), life: 0.6, size: 1.2 }); }
+  });
+  for (const e of foes(dim, h, 13)) { const d = sub(center(e), h), L = len(d) || 1; if ((d.x * v.x + d.y * v.y + d.z * v.z) / L > 0.82) if (hit(e, 0.6)) burst(dim, center(e), { n: 14, spd: 3.5 }); }
+  snd(p, "mob.enderdragon.shoot", 1, 0.8); snd(p, "mob.blaze.shoot", 0.7, 0.6);
+  notify(p, `§5§l숨결 §d${"●".repeat(f.breaths)}§8${"○".repeat(5 - f.breaths)}`);
   return true;
 }
-/** 내리꽂기 */
-function dive(ctx, a) {
-  const { p } = ctx, dim = p.dimension, s = st(p), hit = hitter(ctx, 42, 1);
-  a.done = true; if (s.asc === a) s.asc = null;
+/** 급강하 내리꽂기: 날개를 접고 조준점(없으면 아래)으로 꽂힘 → 충격파, 나는 뛰어내림 */
+function dive(ctx, f) {
+  const { p } = ctx, dim = p.dimension, dk = f.dk, hit = hitter(ctx, 42, 1);
+  if (f.diving) return; f.diving = true;
   let land = null;
-  try { const b = p.getBlockFromViewDirection({ maxDistance: 18 }); if (b) land = add(b.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {}
-  if (!land) { try { const b = dim.getBlockFromRay(p.location, { x: 0, y: -1, z: 0 }, { maxDistance: 40 }); if (b) land = add(b.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {} }
-  land ??= up(p.location, -6);
-  const from = { ...p.location };
-  M.anim(p, "smash");
-  if (a.big) pt(dim, "hr_dragon", add(land, { x: 0, y: 16, z: 0 }), { vd: norm(sub(land, add(land, { x: 0, y: 16, z: 0 }))), u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, r: 14, h: 1.1, vs: 22, spin: 500, n: 420, life: 0.7, size: 1.4 }, 0);
-  snd(p, "mob.enderdragon.growl", a.big ? 1 : 0.5, 0.8);
+  try { const b = p.getBlockFromViewDirection({ maxDistance: 30 }); if (b) land = add(b.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {}
+  if (!land) { try { const b = dim.getBlockFromRay(dk.pos, { x: 0, y: -1, z: 0 }, { maxDistance: 60 }); if (b) land = add(b.block.location, { x: 0.5, y: 1, z: 0.5 }); } catch {} }
+  land ??= up(dk.pos, -8);
+  dk.pose(3);
+  snd(p, "mob.enderdragon.growl", 1, 0.7); snd(p, "mob.phantom.swoop", 1, 0.6);
   let t = 0;
   const fall = () => {
-    if (!p.isValid()) return;
+    if (!dk.ok() || !p.isValid()) return finish(ctx, f);
     t++;
-    const d = sub(land, p.location), L = len(d);
-    if (L > 1.2 && t < 14 && !(t > 2 && onGround(p))) {
-      push(p, { x: (d.x / L) * Math.min(2.6, L), y: Math.max(-3, (d.y / L) * Math.min(3, L)), z: (d.z / L) * Math.min(2.6, L) });
-      speed(dim, up(p.location, 1), d, { n: 10 }); if (t % 2 === 0) wings(p, a.big ? 1.3 : 1);
+    const d = sub(land, dk.pos), L = len(d);
+    if (L > 2 && t < 30) {
+      const stp = Math.min(L, 1.9);
+      dk.move(add(dk.pos, d, stp / L), d, 0.15);
+      ride(p, dk);
+      speed(dim, up(dk.pos, 0.5), d, { n: 12, r: 2 });
       later(1, fall); return;
     }
-    // 착지
-    const at = { ...p.location }, mul = (a.big ? 1.5 : 1) * 1.4;
-    pt(dim, "hr_shock", up(at, 0.1), { r: a.big ? 9 : 7, n: a.big ? 220 : 150, life: 0.7 }, 0);
-    for (let i = 0; i < 6; i++) { const q = add(at, { x: Math.cos(i * 1.047) * 2.5, y: 0.2, z: Math.sin(i * 1.047) * 2.5 }); flame(dim, q, { n: 14, r: 0.5, spd: 3, vd: { x: 0, y: 1.5, z: 0 }, life: 0.9 }); }
-    arc(dim, up(at, 0.8), yawOf(p), { sweep: 400, r: 4.2, dur: 0.12, n: 260 });
-    for (const e of foes(dim, at, a.big ? 7.5 : 6)) { hit(e, mul); push(e, { x: 0, y: -0.6, z: 0 }); }
-    snd(p, "random.explode", 1, 0.7); snd(p, "mob.enderdragon.hit", 0.8, 0.6); shake(p, a.big ? 0.8 : 0.5, 0.5);
-    notify(p, a.big ? "§5§l흑룡 강하!" : "§5§l승천 · 내리꽂기");
-    void from;
+    // 착지 충격
+    const at = { ...land }, mul = (f.big ? 1.5 : 1) * 1.5, R = 6 + dk.size * 1.5;
+    pt(dim, "hr_shock", up(at, 0.1), { r: R, n: f.big ? 240 : 170, life: 0.7 }, 0);
+    for (let i = 0; i < 8; i++) { const q = add(at, { x: Math.cos(i * 0.785) * R * 0.45, y: 0.2, z: Math.sin(i * 0.785) * R * 0.45 }); flame(dim, q, { n: 14, r: 0.5, spd: 3, vd: { x: 0, y: 1.6, z: 0 }, life: 0.9 }); }
+    arc(dim, up(at, 0.8), yawOf(p), { sweep: 400, r: R * 0.7, dur: 0.12, n: 260 });
+    for (const e of foes(dim, at, R)) { hit(e, mul); push(e, { x: 0, y: 0.6, z: 0 }); }
+    snd(p, "random.explode", 1, 0.7); snd(p, "mob.enderdragon.hit", 0.9, 0.6); shake(p, f.big ? 0.8 : 0.55, 0.5);
+    notify(p, f.big ? "§5§l흑룡 강하!" : "§5§l급강하");
+    push(p, { x: dk.dir.x * 0.5, y: 0.9, z: dk.dir.z * 0.5 });
+    finish(ctx, f);
   };
   later(1, fall);
+}
+function finish(ctx, f) {
+  const { p } = ctx, s = st(p);
+  if (f.done) return; f.done = true; if (s.fly === f) s.fly = null;
+  f.dk.remove(); safeLand(p, 3);
+  try { p.runCommand("camera @s fov_clear 0.5 in_out_sine"); } catch {}
 }
 
 // ═════════ 표 · HUD ═════════
 export const heukLine = (p) => {
   if (heldId(p) !== ID) return "";
   const n = veinN(p), c = charges(p), s = st(p);
-  let line = `§5용맥 §d${"◆".repeat(n)}§8${"◇".repeat(VEIN_MAX - n)} §7섬영 ${"§d●".repeat(c.n)}${"§8○".repeat(2 - c.n)}`;
-  if (s.asc && !s.asc.done) line += ` §5승천 §d${s.asc.left}`;
+  let line = `§5용맥 §d${"◆".repeat(n)}§8${"◇".repeat(VEIN_MAX - n)} §7질주 ${"§d●".repeat(c.n)}${"§8○".repeat(2 - c.n)}`;
+  if (s.fly && !s.fly.done) line += ` §5비행 §d${Math.ceil((FLY_T - s.fly.t) / 20)}초 §7숨결 ${s.fly.breaths}`;
   else if (odmActive(p)) line += ` §5천쇄 §d${"◆".repeat(odmLeft(p))}`;
   return line;
 };
 export const WEAPON_SKILLS = {
   [ID]: [
-    { id: "w_hr_1", key: 1, name: "흑룡 · 연참", short: "연참", lv: 1, mp: 6, cd: 0.35, pow: 1, run: hr_combo, pre: (p) => odmLeap(p) || ascHit(p),
-      desc: "4타: 칠 때마다 시선 쪽으로 미끄러지며 벤다. 공중에서 치면 체공이 유지되는 공중 콤보. 4타는 검은 불꽃 회전베기 + 사슬 채찍으로 먼 적 하나를 끌어온다. ② 직후 ① = 추격 베기(방금 꿰뚫은 적에게 사슬로 되돌아가 꽂음). ④ 승천 중 ① = 적 사이 순간이동 베기, ③ 천쇄 중 ① = 회전 도약." },
-    { id: "w_hr_2", key: 2, name: "흑룡 · 사슬 섬영", short: "섬영", lv: 1, mp: 14, cd: 6, pow: 1, run: hr_dash,
-      desc: "2회 충전(6초마다 1). 조준한 적 · 벽 · 허공(10칸)에 사슬을 박고 그쪽으로 끌려가며 그 선의 적을 모두 벤다. 0.5초 뒤 지나간 자리가 터진다. ① 4타 직후 ② = 역린(같은 선을 되짚어 X자 베기). ③ 천쇄 중이면 걸린 사슬을 끊고 그 속도 그대로 섬영." },
+    { id: "w_hr_1", key: 1, name: "흑룡 · 용조 연참", short: "연참", lv: 1, mp: 6, cd: 0.35, pow: 1, run: hr_combo, pre: (p) => odmLeap(p) || breath(p),
+      desc: "4타: 칠 때마다 미끄러지며 벤다(공중이면 체공). 4타는 회전베기 뒤 등 뒤에서 흑룡이 튀어나와 아가리를 벌리고 시선 쪽으로 꼬불꼬불 돌진하며, 나도 그 머리에 끌려 같이 날아간다. ② 직후 ① = 추격 베기, ④ 비행 중 ① = 숨결, ③ 천쇄 중 ① = 회전 도약(따라 나는 흑룡이 가까운 적에게 급강하)." },
+    { id: "w_hr_2", key: 2, name: "흑룡 · 질주", short: "질주", lv: 1, mp: 14, cd: 6, pow: 1, run: hr_rush, pre: hr_rush_pre,
+      desc: "2회 충전(6초마다 1). 흑룡 등에 올라타 시선 방향으로 일직선 질주(막히면 그 앞까지) → U자로 휘돌아 되돌아온다. 흑룡 몸에 닿는 적을 모두 벤다. 질주 중 ② 다시 = 뛰어내리며 높이 솟구침. ① 4타 직후 ② = 역린 질주(두 번 휘돌고 위력 1.3배)." },
     { id: "w_hr_3", key: 3, name: "흑룡 · 천쇄", short: "천쇄", lv: 1, mp: 18, cd: 25, pow: 1, run: hr_odm, pre: odmHop,
-      desc: "보이는 벽 · 나무 · 지형 · 적(앞쪽 56칸)에 사슬이 자동으로 박혀 휘돌아 날아가는 입체 기동. 등에 흑룡 날개가 펼쳐진다. 점프(또는 ③ 다시)마다 반대쪽에 다음 사슬(5번), 클릭 = 회전 도약 베기, 지나가며 베기 · 벽 차기 · 착지 구르기. ② = 사슬을 끊고 섬영, ④ = 승천. 다 쓰거나 12초 지나면 25초 대기." },
-    { id: "w_hr_4", key: 4, name: "흑룡 · 승천", short: "승천", lv: 1, mp: 40, cd: 90, pow: 1, run: hr_ascend,
-      desc: "땅에서 사슬이 솟아 둘레 8칸 적을 공중으로 끌어올리고 같이 솟구친다. 떠 있는 동안 클릭마다 적 사이를 순간이동하며 X자로 벤다(최대 6). 끝나면 조준점으로 내리꽂혀 흑염 충격파. 용맥 5단에서 쓰면 거대한 흑룡 형상이 함께 내리꽂히고 위력 1.5배." },
+      desc: "사슬 입체 기동(벽 · 나무 · 지형 · 적에 자동으로 박혀 휘돌아 날아감) + 등에 흑룡 날개. 흑룡이 내 위를 꼬불꼬불 돌며 따라 날고, 클릭(회전 도약)하면 가까운 적에게 급강하해 물어뜯는다. 점프 = 다음 사슬(5번). ② = 사슬을 끊고 질주, ④ = 비행. 끝나면 25초 대기." },
+    { id: "w_hr_4", key: 4, name: "흑룡 · 비행", short: "비행", lv: 1, mp: 40, cd: 90, pow: 1, run: hr_fly,
+      desc: "거대한 흑룡을 불러 등에 올라타 6초 동안 시선으로 조종하며 난다(빠르게 선회 · 벽 · 땅은 타고 넘음). 흑룡 몸에 닿는 적을 벤다. 클릭 = 보랏빛 숨결(5번), 쉬프트 = 날개를 접고 조준점으로 급강하해 내리꽂는 충격파. 용맥이 높을수록 흑룡이 커지고, 5단이면 더 크고 빠르며 위력 1.5배." },
   ],
 };

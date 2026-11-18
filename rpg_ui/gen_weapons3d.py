@@ -16,8 +16,8 @@ W = {
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=136, maxd=11, len=3.4, grip=0.3, kind="thrust",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
-    # V12.148: 칼끝이 아래로 (역수로 쥠 → flip180, 쥐는 곳은 위쪽) · 얇게 (깊이 3) · 번짐 지운 그림
-    "heukryong_sword": dict(item="rpg:heukryong_sword", src="heukryong_sword_clean.png", tip=(-1, 1), flip180=True, px=110, maxd=3, len=2.6, grip=0.86, kind="chop", vanilla=True,
+    # V12.149: 얇게 (깊이 3) · 번짐 지운 그림 · 칼끝은 다른 검처럼 손 위쪽 (1인칭 기울기 90° → 시선 정면, gen_weapon_moves FP_TILT)
+    "heukryong_sword": dict(item="rpg:heukryong_sword", src="heukryong_sword_clean.png", tip=(-1, 1), px=110, maxd=3, len=2.6, grip=0.2, kind="chop", vanilla=True,
                             tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),  # V12.146 흑룡의 검
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=104, maxd=11, len=2.4, grip=0.3, kind="chop",
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
