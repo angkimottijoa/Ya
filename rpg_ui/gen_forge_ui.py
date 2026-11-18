@@ -3,18 +3,17 @@
 import json
 T, U = "textures/ui/rpg/forge/", "textures/ui/rpg/"
 A = lambda a, b=None: {"anchor_from": a, "anchor_to": b or a}
-WV = "always_when_visible"
-def coll(): return {"binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons", "binding_condition": WV}
+def coll(): return {"binding_name": "#form_button_text", "binding_type": "collection", "binding_collection_name": "form_buttons"}
 def has(m): return f"(not ((#form_button_text - '{m}') = #form_button_text))"
 def hasnt(m): return f"((#form_button_text - '{m}') = #form_button_text)"
-def vis(expr): return [coll(), {"binding_type": "view", "source_property_name": expr, "target_property_name": "#visible", "binding_condition": WV}]
+def vis(expr): return [coll(), {"binding_type": "view", "source_property_name": expr, "target_property_name": "#visible"}]
 def strip(marks):
     e = "#form_button_text"
     for m in marks: e = f"({e} - '{m}')"
     return e
 def label(marks, size, align="left", scale=None, color=(0.96, 0.94, 0.9), **kw):
     d = {"type": "label", "text": "#display", "localize": False, "shadow": True, "layer": 8, "size": size, "text_alignment": align, "color": list(color),
-         "bindings": [coll(), {"binding_type": "view", "source_property_name": strip(marks), "target_property_name": "#display", "binding_condition": WV}]}
+         "bindings": [coll(), {"binding_type": "view", "source_property_name": strip(marks), "target_property_name": "#display"}]}
     if scale: d["font_scale_factor"] = scale
     d.update(kw); return d
 def static(text, size, color=(0.68, 0.69, 0.75), **kw):
@@ -22,9 +21,9 @@ def static(text, size, color=(0.68, 0.69, 0.75), **kw):
     d.update(kw); return d
 def icon(size, **kw):
     d = {"type": "image", "size": size, "layer": 7, "bindings": [
-        {"binding_name": "#form_button_texture", "binding_name_override": "#texture", "binding_type": "collection", "binding_collection_name": "form_buttons", "binding_condition": WV},
-        {"binding_name": "#form_button_texture_file_system", "binding_name_override": "#texture_file_system", "binding_type": "collection", "binding_collection_name": "form_buttons", "binding_condition": WV},
-        {"binding_type": "view", "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))", "target_property_name": "#visible", "binding_condition": WV}]}
+        {"binding_name": "#form_button_texture", "binding_name_override": "#texture", "binding_type": "collection", "binding_collection_name": "form_buttons"},
+        {"binding_name": "#form_button_texture_file_system", "binding_name_override": "#texture_file_system", "binding_type": "collection", "binding_collection_name": "form_buttons"},
+        {"binding_type": "view", "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))", "target_property_name": "#visible"}]}
     d.update(kw); return d
 def img(tex, size, layer=2, **kw):
     d = {"type": "image", "texture": tex if tex.startswith("textures/") else T + tex, "size": size, "layer": layer}
@@ -33,7 +32,7 @@ def entry(marker, size, controls, typ="panel"):
     return {"type": typ, "size": size, "controls": controls, "bindings": vis(has(marker))}
 def factory(name, ctrl, size, orient="vertical", **kw):
     d = {"type": "stack_panel", "orientation": orient, "size": size, "factory": {"name": "buttons", "control_ids": {"button": f"@rpg_forge.{ctrl}"}},
-         "collection_name": "form_buttons", "bindings": [{"binding_name": "#form_button_contents", "binding_name_override": "#collection_length", "binding_condition": WV}]}
+         "collection_name": "form_buttons", "bindings": [{"binding_name": "#form_button_contents", "binding_name_override": "#collection_length"}]}
     d.update(kw); return {name: d}
 def button(faces):
     return {"controls": [{"default@rpg_forge." + faces[0]: {}}, {"hover@rpg_forge." + faces[1]: {}}, {"pressed@rpg_forge." + faces[2]: {}}]}
@@ -127,7 +126,6 @@ ui["forge_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:F]", "layer": 2, "contr
         {"parts@rpg_forge.frame_parts": {}},
         {"title": title_label("[RPG:F]", 13, 1.45, [0.96, 0.87, 0.59])},
         {"sub": {"type": "panel", "size": [268, 9], "layer": 8, **A("top_middle"), "offset": [0, 27], "controls": [factory("s", "fu_entry", ["100%", "100%c"])]}},
-        factory("close", "fx_entry", [14, 14], layer=9, **A("top_right"), offset=[-10, 10]),
         stack("content", "vertical", [268, "100% - 46px"], [
             {"card": {"type": "image", "texture": T + "card", "size": [268, 74], "controls": [
                 factory("left", "fl_entry", [72, 64], **A("left_middle"), offset=[12, 1], layer=2),
@@ -171,7 +169,7 @@ ui["qi_entry"] = entry("[I]", ["100%", 27], [
     qline("td", "line_dim", True, f"({hasnt('[QF]')} and {hasnt('[QG]')})"),
     qline("bl", "line_gold", False, f"({hasnt('[QE]')} and {has('[Q0]')})"),
     qline("bd", "line_dim", False, f"({hasnt('[QE]')} and {hasnt('[Q0]')})"),
-    *[{f"n{i}": {"type": "image", "texture": T + f"node_{k}", "size": [18, 18], "layer": 4, **A("left_middle"), "offset": [6, 0], "bindings": vis(has(m))}} for i, (m, k) in enumerate(QN)],
+    {"node": icon([18, 18], **A("left_middle"), offset=[6, 0])},  # 마디 그림 = 버튼 아이콘 (스크립트가 상태별 그림을 줌)
     {"b@rpg_forge.qrow_btn": {"size": ["100% - 30px", 25], **A("right_middle")}}])
 # 오른쪽 상세: 예전 상세 카드 (머리 card_head · 몸 card_body · 금 점 액션 버튼)
 ui["qs_entry"] = entry("[S]", ["100%", 24], [

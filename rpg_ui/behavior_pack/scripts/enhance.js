@@ -251,7 +251,6 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   const scr = new Screen("F", `${weapon ? "무기" : "방어구"} 강화`);
   // 제목 아래 작은 줄: 방금 결과가 있으면 결과, 없으면 대장장이 이름
   scr.raw("[FU]", lastRes.get(p.id) ?? `§7${npcName}`, "", null);
-  scr.raw("[FX]", "", "", () => {});
   scr.tab("돌아가기", ICON("back"), back);
   scr.tab("닫기", ICON("close"), () => {});
   scr.chip(ICON("gold"), `${comma(d.gold)}G`);

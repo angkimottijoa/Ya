@@ -331,6 +331,9 @@ async function partySettings(p, pt) {
 
 // ═════════ 퀘스트 (원신식: 분류 레일 / 목록 / 상세 + 길 안내·우선순위) ═════════
 const STATE_TAG = { ready: "§a[완료 가능]", active: "§6[진행 중]", available: "§b[수락 가능]", locked: "§7[잠김]", done: "§7[완료]" };
+// 퀘스트 목록 마디 그림 (새 틀: 버튼 아이콘으로 넘김 — 칸마다 그림 5장을 겹쳐 두지 않아 가벼움)
+const QNODE = [["[Q0]", "done"], ["[Q1]", "ready"], ["[Q2]", "active"], ["[Q3]", "avail"], ["[Q4]", "lock"]];
+const qIcon = (mark) => `textures/ui/rpg/forge/node_${(QNODE.find(([m]) => mark.includes(m)) ?? QNODE[3])[1]}`;
 const QCATS = [
   { id: "active", name: "진행 중", icon: "nav" },
   { id: "all", name: "전체", icon: "all" },
@@ -370,7 +373,7 @@ export function openQuestFull(p, q, back, selIdx = 0) {
   cells.forEach((c, k) => {
     const done = c.cur >= c.need, prevDone = k > 0 && cells[k - 1].cur >= cells[k - 1].need;
     const mark = (done ? "[Q0]" : live ? "[Q2]" : st === "locked" ? "[Q4]" : "[Q3]") + (k === 0 ? "[QF]" : "") + (k === cells.length - 1 ? "[QE]" : "") + (prevDone ? "[QG]" : "");
-    scr.item([Q.objLine(p, q, c.i, live), `\n§r${done ? "§a완료" : `§7${c.cur}/${c.need} · ${Math.floor((c.cur / Math.max(1, c.need)) * 100)}%`}`], "", () => openQuestFull(p, q, back, c.i), { on: c.i === selIdx, mark });
+    scr.item([Q.objLine(p, q, c.i, live), `\n§r${done ? "§a완료" : `§7${c.cur}/${c.need} · ${Math.floor((c.cur / Math.max(1, c.need)) * 100)}%`}`], qIcon(mark), () => openQuestFull(p, q, back, c.i), { on: c.i === selIdx, mark });
   });
   scr.tab("돌아가기", ICON("back"), () => back(q.id));
   const stars = cells.map((c) => (c.cur >= c.need ? "§e★" : "§8☆")).join("");
@@ -434,7 +437,7 @@ function openMainChain(p, sel, page) {
     const mark = QM[x.st] + (i === 0 ? "[QF]" : "") + (i === chain.length - 1 ? "[QE]" : "") + (prevDone ? "[QG]" : "");
     const title = lock ? `§8${x.q.title}` : x.st === "done" ? `§7${x.q.title}` : `§f${x.q.title}`;
     const sub = { done: "§2완료", ready: "§e완료 보고 가능", active: "§6진행 중", available: "§b수락 가능", locked: "§8잠김 · 앞 장을 끝내면 열림" }[x.st];
-    scr.item(`${lock ? "§8" : "§e"}${i + 1}장  ${title}\n§r${sub}`, "", () => openQuests(p, "main", x.q.id, page), { on: x.q.id === sel, mark });
+    scr.item(`${lock ? "§8" : "§e"}${i + 1}장  ${title}\n§r${sub}`, qIcon(mark), () => openQuests(p, "main", x.q.id, page), { on: x.q.id === sel, mark });
   });
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === "main");
@@ -527,7 +530,7 @@ export function openQuests(p, cat = "active", sel, page) {
     const linkUp = depth > 0, linkDown = nextDepth > 0 && idx + 1 < list.length;
     const mark = QM[st] + (linkUp ? "" : "[QF]") + (linkDown ? "" : "[QE]") + (linkUp && list[idx - 1]?.st === "done" ? "[QG]" : "");
     const sub = { done: "§2완료", ready: "§e완료 보고 가능", active: "§6진행 중", available: "§b수락 가능", locked: "§8잠김" }[st];
-    scr.item(`${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] ${st === "locked" ? "§8" : "§f"}${q.title}\n§r${sub}§7${q.region ? ` · ${q.region}` : ""}${dist}`, "", () => openQuests(p, cat, q.id, page), { on: q.id === sel, mark });
+    scr.item(`${pr === 0 ? "§e▶ " : ""}${t.color}[${t.name}] ${st === "locked" ? "§8" : "§f"}${q.title}\n§r${sub}§7${q.region ? ` · ${q.region}` : ""}${dist}`, qIcon(mark), () => openQuests(p, cat, q.id, page), { on: q.id === sel, mark });
   });
   scr.tab("메뉴", ICON("back"), () => openHome(p));
   for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === cat);

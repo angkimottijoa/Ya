@@ -180,14 +180,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -205,14 +203,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -230,21 +226,18 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ],
      "anchor_from": "center",
@@ -273,14 +266,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -298,14 +289,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -323,21 +312,18 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ],
      "anchor_from": "center",
@@ -418,14 +404,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[FL]') - '[ON]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -442,14 +426,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FL]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -512,14 +494,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[FR]') - '[ON]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -536,14 +516,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FR]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -610,21 +588,18 @@
           "binding_name": "#form_button_texture",
           "binding_name_override": "#texture",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_name": "#form_button_texture_file_system",
           "binding_name_override": "#texture_file_system",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-          "target_property_name": "#visible",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#visible"
          }
         ],
         "anchor_from": "top_middle",
@@ -656,14 +631,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[FC]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "anchor_from": "bottom_middle",
@@ -675,14 +648,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FC]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -716,14 +687,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[FV]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "font_scale_factor": 1.6,
@@ -736,14 +705,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FV]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -777,14 +744,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[FS]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "font_scale_factor": 0.75,
@@ -797,14 +762,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FS]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -839,14 +802,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FU]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.75,
@@ -859,14 +820,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FU]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -898,14 +857,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FK]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "anchor_from": "left_middle",
@@ -921,14 +878,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FK]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -960,14 +915,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FW]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "anchor_from": "right_middle",
@@ -983,14 +936,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FW]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -1047,21 +998,18 @@
           "binding_name": "#form_button_texture",
           "binding_name_override": "#texture",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_name": "#form_button_texture_file_system",
           "binding_name_override": "#texture_file_system",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-          "target_property_name": "#visible",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#visible"
          }
         ],
         "anchor_from": "left_middle",
@@ -1093,14 +1041,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[FB]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "font_scale_factor": 1.15,
@@ -1117,14 +1063,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FB]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -1174,21 +1118,18 @@
           "binding_name": "#form_button_texture",
           "binding_name_override": "#texture",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_name": "#form_button_texture_file_system",
           "binding_name_override": "#texture_file_system",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-          "target_property_name": "#visible",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#visible"
          }
         ],
         "anchor_from": "left_middle",
@@ -1220,14 +1161,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[FP]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "anchor_from": "right_middle",
@@ -1243,14 +1182,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FP]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -1290,21 +1227,18 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -1336,14 +1270,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FM]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.8,
@@ -1360,14 +1292,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FM]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -1400,14 +1330,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FG]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 1.3,
@@ -1450,14 +1378,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FG]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 1.3,
@@ -1500,14 +1426,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FG]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 1.3,
@@ -1550,14 +1474,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FA]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1600,14 +1522,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FA]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1650,14 +1570,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FA]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1700,14 +1618,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FZ]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1750,14 +1666,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FZ]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1800,14 +1714,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[FZ]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1891,14 +1803,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FA]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -1924,14 +1834,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FG]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -1959,14 +1867,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[FZ]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2024,14 +1930,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FX]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -2133,43 +2037,11 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length",
-             "binding_condition": "always_when_visible"
+             "binding_name_override": "#collection_length"
             }
            ]
           }
          }
-        ]
-       }
-      },
-      {
-       "close": {
-        "type": "stack_panel",
-        "orientation": "vertical",
-        "size": [
-         14,
-         14
-        ],
-        "factory": {
-         "name": "buttons",
-         "control_ids": {
-          "button": "@rpg_forge.fx_entry"
-         }
-        },
-        "collection_name": "form_buttons",
-        "bindings": [
-         {
-          "binding_name": "#form_button_contents",
-          "binding_name_override": "#collection_length",
-          "binding_condition": "always_when_visible"
-         }
-        ],
-        "layer": 9,
-        "anchor_from": "top_right",
-        "anchor_to": "top_right",
-        "offset": [
-         -10,
-         10
         ]
        }
       },
@@ -2209,8 +2081,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "left_middle",
@@ -2240,8 +2111,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "right_middle",
@@ -2271,8 +2141,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "top_middle",
@@ -2322,8 +2191,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "top_left",
@@ -2348,8 +2216,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "top_left",
@@ -2406,8 +2273,7 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length",
-             "binding_condition": "always_when_visible"
+             "binding_name_override": "#collection_length"
             }
            ]
           }
@@ -2447,8 +2313,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "top_middle",
@@ -2493,8 +2358,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ],
               "anchor_from": "center",
@@ -2539,14 +2403,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2564,14 +2426,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2597,14 +2457,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[T]') - '[ON]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.8,
@@ -2638,14 +2496,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2663,14 +2519,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2696,14 +2550,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[T]') - '[ON]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.8,
@@ -2752,14 +2604,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[T]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -2792,21 +2642,18 @@
           "binding_name": "#form_button_texture",
           "binding_name_override": "#texture",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_name": "#form_button_texture_file_system",
           "binding_name_override": "#texture_file_system",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-          "target_property_name": "#visible",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#visible"
          }
         ]
        }
@@ -2841,14 +2688,12 @@
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons",
-          "binding_condition": "always_when_visible"
+          "binding_collection_name": "form_buttons"
          },
          {
           "binding_type": "view",
           "source_property_name": "(#form_button_text - '[C]')",
-          "target_property_name": "#display",
-          "binding_condition": "always_when_visible"
+          "target_property_name": "#display"
          }
         ],
         "font_scale_factor": 0.85
@@ -2871,14 +2716,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[C]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -2902,14 +2745,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2927,14 +2768,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -2960,14 +2799,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((((((((((#form_button_text - '[I]') - '[ON]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "anchor_from": "left_middle",
@@ -3004,14 +2841,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -3029,14 +2864,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -3062,14 +2895,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((((((((((#form_button_text - '[I]') - '[ON]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "anchor_from": "left_middle",
@@ -3125,14 +2956,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QF]') = #form_button_text) and (not ((#form_button_text - '[QG]') = #form_button_text)))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -3156,14 +2985,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QF]') = #form_button_text) and ((#form_button_text - '[QG]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -3187,14 +3014,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QE]') = #form_button_text) and (not ((#form_button_text - '[Q0]') = #form_button_text)))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
@@ -3218,170 +3043,48 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QE]') = #form_button_text) and ((#form_button_text - '[Q0]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ]
     }
    },
    {
-    "n0": {
+    "node": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/node_done",
      "size": [
       18,
       18
      ],
-     "layer": 4,
+     "layer": 7,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
       6,
       0
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#form_button_text - '[Q0]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
-      }
-     ]
-    }
-   },
-   {
-    "n1": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/node_ready",
-     "size": [
-      18,
-      18
-     ],
-     "layer": 4,
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      6,
-      0
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#form_button_text - '[Q1]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
-      }
-     ]
-    }
-   },
-   {
-    "n2": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/node_active",
-     "size": [
-      18,
-      18
-     ],
-     "layer": 4,
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      6,
-      0
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#form_button_text - '[Q2]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
-      }
-     ]
-    }
-   },
-   {
-    "n3": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/node_avail",
-     "size": [
-      18,
-      18
-     ],
-     "layer": 4,
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      6,
-      0
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#form_button_text - '[Q3]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
-      }
-     ]
-    }
-   },
-   {
-    "n4": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/node_lock",
-     "size": [
-      18,
-      18
-     ],
-     "layer": 4,
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      6,
-      0
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#form_button_text - '[Q4]') = #form_button_text))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
-      }
      ]
     }
    },
@@ -3400,14 +3103,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[I]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -3431,21 +3132,18 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -3477,14 +3175,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[S]') - '[P]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 1.1,
@@ -3501,14 +3197,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[S]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -3558,14 +3252,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[A]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.9,
@@ -3625,14 +3317,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[A]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.9,
@@ -3692,14 +3382,12 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons",
-       "binding_condition": "always_when_visible"
+       "binding_collection_name": "form_buttons"
       },
       {
        "binding_type": "view",
        "source_property_name": "(#form_button_text - '[A]')",
-       "target_property_name": "#display",
-       "binding_condition": "always_when_visible"
+       "target_property_name": "#display"
       }
      ],
      "font_scale_factor": 0.9,
@@ -3748,14 +3436,12 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons",
-    "binding_condition": "always_when_visible"
+    "binding_collection_name": "form_buttons"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[A]') = #form_button_text))",
-    "target_property_name": "#visible",
-    "binding_condition": "always_when_visible"
+    "target_property_name": "#visible"
    }
   ]
  },
@@ -3875,8 +3561,7 @@
         "bindings": [
          {
           "binding_name": "#form_button_contents",
-          "binding_name_override": "#collection_length",
-          "binding_condition": "always_when_visible"
+          "binding_name_override": "#collection_length"
          }
         ],
         "layer": 8,
@@ -3921,8 +3606,7 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length",
-             "binding_condition": "always_when_visible"
+             "binding_name_override": "#collection_length"
             }
            ],
            "anchor_from": "top_left",
@@ -3965,8 +3649,7 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length",
-             "binding_condition": "always_when_visible"
+             "binding_name_override": "#collection_length"
             }
            ],
            "anchor_from": "top_left",
@@ -4009,8 +3692,7 @@
                  "bindings": [
                   {
                    "binding_name": "#form_button_contents",
-                   "binding_name_override": "#collection_length",
-                   "binding_condition": "always_when_visible"
+                   "binding_name_override": "#collection_length"
                   }
                  ],
                  "anchor_from": "top_middle",
@@ -4093,8 +3775,7 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length",
-                "binding_condition": "always_when_visible"
+                "binding_name_override": "#collection_length"
                }
               ]
              }
