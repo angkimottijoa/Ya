@@ -13,11 +13,11 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28, kind="reap",
-                          tp=dict(rot=[97, -1.5, -49], pos=[1.5, -2.5, -10.5]), fp=dict(rot=[152, -9, 25], pos=[-7, -3, -2], scale=0.5), vanilla=True),
+                          tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
-                          tp=dict(rot=[97, -1.5, -49], pos=[1.5, -2.5, -10.5]), fp=dict(rot=[152, -9, 25], pos=[-7, -3, -2], scale=0.5), vanilla=True),
+                          tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
-                       tp=dict(rot=[97, -1.5, -49], pos=[1.5, -2.5, -10.5]), fp=dict(rot=[152, -9, 25], pos=[-7, -3, -2], scale=0.5), vanilla=True),
+                       tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src=None, px=24, len=1.3, grip=0.5, kind="bash",
@@ -191,7 +191,8 @@ def build(name, cfg):
     im_tex.save(RP / f"{tex}.png")
     u = cfg["len"] * 16 / max(Wd, Ht)  # 픽셀 하나 = u 단위 (16 단위 = 1블록)
     gx, gy = Wd / 2, Ht * (1 - cfg["grip"])  # 쥐는 곳 (그림 좌표)
-    GY = 5 if cfg.get("vanilla") else 0  # 마크 기본 삼지창처럼: 모델은 위로 세우고 쥐는 곳을 y=5 에 (삼지창 자루 아래쪽)
+    GY = 0
+    side = cfg.get("vanilla")  # 넓은 면이 옆을 보게: 그림 가로를 Z 로, 두께를 X 로 (석궁처럼 X +90° 로 앞을 향할 때 면이 세로로 섬)
     cubes = []
     for y in range(Ht):
         x = 0
@@ -202,10 +203,16 @@ def build(name, cfg):
             while x < Wd and dm[y][x] == t: x += 1
             w = x - x0
             T = t * u * (0.9 if cfg["src"] else 0.6)
-            cubes.append({"origin": [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(-T / 2, 4)], "size": [round(w * u, 4), round(u, 4), round(T, 4)],
-                          "uv": {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                                 "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
-                                 "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}})
+            o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(-T / 2, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
+            face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
+                    "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
+                    "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}
+            if side:  # 옆으로 돌린 모델: 그림 면이 동·서 쪽
+                o3 = [o3[2], o3[1], -(o3[0] + s3[0])]; s3 = [s3[2], s3[1], s3[0]]
+                face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
+                        "north": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "south": {"uv": [x0, y], "uv_size": [1, 1]},
+                        "up": {"uv": [x0, y], "uv_size": [1, w]}, "down": {"uv": [x0, y], "uv_size": [1, w]}}
+            cubes.append({"origin": o3, "size": s3, "uv": face})
     if aura:  # 머리 둘레를 휘감는 기운 띠 (그림 면 밖으로 입체적으로 돎): 띠마다 나선 호, 가운데 굵고 끝 가늘게
         head_y = Ht * 0.18
         for rb in range(aura["ribbons"]):
@@ -226,7 +233,7 @@ def build(name, cfg):
         "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
                         "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
         "bones": [{"name": "rpg_w3d", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"},
-                  {"name": "body", "parent": "rpg_w3d", "pivot": [0, 24 if cfg.get("vanilla") else 0, 0], "cubes": cubes}]}]}
+                  {"name": "body", "parent": "rpg_w3d", "pivot": [0, 0, 0], "cubes": cubes}]}]}
     (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
     (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
     att = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
@@ -250,10 +257,10 @@ def build(name, cfg):
         idle_r = "math.sin(q.life_time * 110) * 2.5"
         idle_p = "math.sin(q.life_time * 170) * 0.25"
         kind = cfg.get("kind", "chop")
-        if cfg.get("vanilla"):  # 삼지창식 들기: X 축이 앞뒤로 휘두르는 축
+        if cfg.get("vanilla"):  # 석궁식 들기 (X +90 = 앞으로 수평): X 축이 위아래로 휘두르는 축
             big = {"reap": (40, 90, 50, 35), "chop": (45, 100, 55, 0), "thrust": (15, 40, 25, 0)}[kind]
             rot = [f"{rx} + (-v.up * {big[0]} + v.dn * {big[1]} - v.rec * {big[2]}) * {m}", f"{ry} + v.dn * {big[3]} * {m} - v.rec * {big[3]} * {m}", f"{rz} + {idle_r}"]
-            pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}" + (f" + (v.up * 2 - v.dn * 6 + v.rec * 4) * {m}" if kind == "thrust" else "")]
+            pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}" + (f" + (-v.up * 2 + v.dn * 6 - v.rec * 4) * {m}" if kind == "thrust" else "")]
         elif kind == "reap":   # 낫: 뒤로 크게 젖혔다가 수평으로 크게 베어 넘김
             rot = [f"{rx}", f"{ry} + (v.up * 70 - v.dn * 170 + v.rec * 100) * {m}", f"{rz} + {idle_r} + (-v.up * 35 + v.dn * 60 - v.rec * 25) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}"]
         elif kind == "thrust":  # 창: 뒤로 당겼다가 앞으로 쭉 찌르고 돌아옴
