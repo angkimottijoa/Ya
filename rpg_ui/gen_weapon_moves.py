@@ -94,6 +94,15 @@ FP_GUARD_POS = {"hyeonmu_shield": [-3, 2.5, -9]}  # V12.84: 게임에서 본 축
 FP_POS_EXTRA = {"hyeonmu_shield": [2.5, 2.5, 0]}  # 방패 1인칭: 시점 후방(화면 오른쪽 아래 바깥)으로 (시뮬: +x 아래, +y 오른쪽 · z -4 는 화면 안쪽으로 들어와 보였음)
 
 
+FP_GUARD_SHRINK = {"hyeonmu_shield": 0.55}  # 패링 중 1인칭 방패 크기 배율 (손잡이 중심으로 줄어 멀리 든 것처럼 — V12.89 는 코앞에 붙어 보였음)
+
+
+def fp_scale(name):
+    s = FP_SCALE * FP_SIZE.get(name, 1)
+    k = FP_GUARD_SHRINK.get(name)
+    return s if k is None else f"{s} * (1 - {1 - k} * {FP_GUARD})"
+
+
 def fp_pos(name):
     e = FP_POS_EXTRA.get(name, [0, 0, 0])
     if name in FP_GUARD_POS:  # 기본 자리 ↔ 패링 자리 사이를 들어 올림 정도로 섞음
@@ -166,7 +175,7 @@ def build():
         else:  # 근접: 앞 · 아래로 내려침
             turn = f" + {FP_GUARD_TURN} + (1 - {FP_GUARD}) * ({FP_SHIELD_SIDE + FP_REST_TURN - FP_GUARD_TURN})" if "guard" in KINDS[W[name][1]] else ""  # 기본 -26° ↔ 패링 -90° (정면)
             spin = {"rotation": [f"{sw} * 70", f"{sw} * -30{turn}", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
-        anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * FP_SIZE.get(name, 1), "rotation": FP_ROT, "position": fp_pos(name)},  # 활은 1인칭에서 더 크게
+        anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": fp_scale(name), "rotation": FP_ROT, "position": fp_pos(name)},  # 활은 1인칭에서 더 크게
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
                                                                           "rpg_w3d_spin": spin}}
         ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"

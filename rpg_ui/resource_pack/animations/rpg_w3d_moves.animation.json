@@ -4464,7 +4464,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.1207368421052633,
+     "scale": "1.1207368421052633 * (1 - 0.44999999999999996 * (q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0))",
      "rotation": [
       0,
       55,
