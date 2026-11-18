@@ -14,11 +14,11 @@ W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.35, kind="reap", flipup=True,
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
-    "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
+    "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=136, maxd=11, len=3.4, grip=0.3, kind="thrust",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
-    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.3, kind="chop",
+    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=104, maxd=11, len=2.4, grip=0.3, kind="chop",
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
-    "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow", bowside=True,
+    "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=78, maxd=11, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
@@ -130,7 +130,7 @@ def shell_art(n=24):
     return im
 
 
-def depth_map(im, dome=False, dome_h=10, shell=False):
+def depth_map(im, dome=False, dome_h=10, shell=False, maxd=7):
     """두께(픽셀): 가장자리 1, 안쪽으로 갈수록 2·3 (돔이면 가운데가 볼록)"""
     Wd, Ht = im.size; p = im.load(); INF = 99
     d = [[0 if p[x, y][3] == 0 else INF for x in range(Wd)] for y in range(Ht)]
@@ -174,7 +174,7 @@ def depth_map(im, dome=False, dome_h=10, shell=False):
                 elif lum < 45: h -= 2     # 판 사이 어두운 홈은 파이게 → 등껍질 판이 하나하나 솟아 보임
                 out[y][x] = max(1, h)
             else:
-                out[y][x] = min(7, 2 * d[y][x] - 1)  # 둥근 단면: 그 자리 폭만큼 두껍게 (자루는 원통, 날은 가운데 볼록)
+                out[y][x] = min(maxd, 2 * d[y][x] - 1)  # 둥근 단면: 그 자리 폭만큼 두껍게 (자루는 원통, 날은 가운데 볼록)
     return out
 
 
@@ -185,7 +185,7 @@ def build(name, cfg):
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
         if cfg.get("stretch_y"): base = base.resize((base.width, round(base.height * cfg["stretch_y"])), Image.LANCZOS)  # 세로로 더 긴 타원
         im = shrink(base if cfg.get("noupright") else upright(base), cfg["px"])  # 방패는 그림 그대로 (둥글어서 돌리면 엉뚱하게 눕음)
-        dm = depth_map(im, dome=cfg.get("dome", False), dome_h=cfg.get("dome_h", 10), shell=cfg.get("shell", False))
+        dm = depth_map(im, dome=cfg.get("dome", False), dome_h=cfg.get("dome_h", 10), shell=cfg.get("shell", False), maxd=cfg.get("maxd", 7))
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)
     Wd, Ht = im.size
