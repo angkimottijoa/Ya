@@ -28,32 +28,20 @@ const cooldown = new Map(); // pid -> ready tick
 // 직업 스킬 마나 소모량
 const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
 
-// ═════════ 스탯 → 전투 수치 (V12.119 밸런스 V2) ═════════
-//  모든 퍼센트는 '점점 덜 오르는' 곡선 (상한 없이 끝없이 오르지만 몰빵할수록 효율 ↓) — 대가는 V12.121 에서 없앰
-//   힘   피해 +1.5%/점                         대가: 힘 > 100 이고 민첩×2 보다 크면 이동 속도 ↓ (무거운 몸, 최대 -15%)
-//   민첩 치명 확률 · 치명 피해 · 이동 속도 · 회피  대가: 민첩 > 100 이면 최대 체력 ↓ (가벼운 몸, 최대 -20%)
-//   지능 최대 마나 · 회복 · 마법 피해 · 재사용 대기 ↓  대가: 지능 > 100 이면 받는 물리 피해 ↑ (허약함, 최대 +15%)
-//   체력 최대 체력 · 받는 피해 ↓ · 받는 회복 ↑      대가: 체력 > 100 이면 주는 피해 ↓ (둔함, 최대 -15%)
+// ═════════ 스탯 → 전투 수치 (V12.123 밸런스 V3) ═════════
+//  네 스탯이 하나씩만 맡음 (부가 혜택 없음) · 공격 스탯 셋은 같은 곡선 (100에 +100% · 200에 +150% · 400에 +200%, 상한 없음)
+//   힘 = 근접 물리 위력 · 민첩 = 원거리 물리 위력 · 지능 = 마법 위력 · 체력 = 최대 체력 +40
+//   치명타는 스탯과 상관없이 모두 5% · 1.5배
 const soft = (x, k, max) => (max * Math.max(0, x)) / (Math.max(0, x) + k); // x 가 k 일 때 max 의 절반
 export function combatStats(p) {
   const str = stat(p, "str"), dex = stat(p, "dex"), int = stat(p, "int"), vit = stat(p, "vit");
-  const heavy = 0; // V12.121: 대가는 없앰 (복잡) — 몰빵은 '점점 덜 오르는 곡선'으로만 견제
+  const melee = Math.round(soft(str, 200, 300)), ranged = Math.round(soft(dex, 200, 300)), magic = Math.round(soft(int, 200, 300));
   return {
-    str, dex, int, vit,
-    atk: Math.round(soft(str, 200, 300)),                        // 피해 +% (100 → 100% · 200 → 150% · 400 → 200%)
-    crit: Math.round(soft(dex, 150, 50)),                        // 치명 확률 %
-    critDmg: Math.round(150 + soft(dex, 200, 100)),              // 치명 피해 % (150 → 100에 183 · 200에 200 · 최대 250)
-    spd: Math.round(soft(dex, 200, 30) - heavy),                 // 이동 속도 %
-    dodge: Math.round(soft(dex, 300, 20)),                       // 회피 %
-    def: Math.round(Math.min(75, soft(vit, 250, 50) + soft(str, 300, 15))), // 받는 물리 피해 감소 % (체력 + 힘 조금)
-    mres: Math.round(soft(int, 250, 30) + soft(vit, 250, 50) / 2), // 받는 마법 피해 감소 % (지능 + 체력의 절반)
-    cdr: Math.round(soft(int, 200, 30)),                         // 재사용 대기 감소 %
-    healIn: Math.round(vit * 0.2),                               // 받는 회복 +%
-    hpCut: 0, frail: 0, dull: 0,                                 // 대가 없음 (V12.121)
-    heavy,                                                       // 대가: 이동 속도 -%
+    str, dex, int, vit, melee, ranged, magic,
+    atk: melee, crit: 5, critDmg: 150,
+    spd: 0, dodge: 0, def: 0, mres: 0, cdr: 0, healIn: 0, hpCut: 0, frail: 0, dull: 0, heavy: 0, // 예전 부가 효과 (모두 없앰)
   };
 }
-/** 주는 피해 배율 (평타 · 스킬 공통): 힘 + 버프 - 둔함 */
 /** 공격 스탯 → 위력 배율 (힘 · 민첩 · 지능 공통 곡선) */
 export const powOf = (x) => 1 + soft(x, 200, 300) / 100;
 export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * (1 - s.dull / 100); }
@@ -63,7 +51,7 @@ export function rollCrit(p, s = combatStats(p)) { return Math.random() * 100 < s
 // ───────── 체력 (V12.119): 100 + 레벨 × 50 + 체력 스탯 × 40, 민첩 대가만큼 줄임 · 상한 없음(시스템 10만) ─────────
 //   behavior_pack/entities/player.json 의 체력 단계 (2%씩 커지는 단계, gen_player_hp.py) 중 가장 가까운 것
 export const HP_CAP = 100000;
-export function maxHpOf(p) { const s = combatStats(p); return Math.min(HP_CAP, (100 + data(p).lv * 50 + s.vit * 40) * (1 - s.hpCut / 100)); }
+export function maxHpOf(p) { return Math.min(HP_CAP, 100 + data(p).lv * 50 + stat(p, "vit") * 40); }
 const hpStep = new Map(); // pid -> 지금 단계
 function applyMaxHp(p) {
   const want = maxHpOf(p);
@@ -188,7 +176,7 @@ export function initCombat() {
       } catch {}
       const d = data(p);
       const max = maxMp(p);
-      const regen = 4 + stat(p, "int") * 0.12 + data(p).lv * 0.05;
+      const regen = 4 + data(p).lv * 0.1; // V12.123: 마나는 레벨만 (지능 혜택 없앰)
       const cur = d.mp ?? max;
       const next = Math.min(max, cur + regen);
       if (next !== d.mp) d.mp = next;

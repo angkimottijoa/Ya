@@ -50,7 +50,7 @@ export function stat(p, k) {
 
 /** 최대 마나: 지능과 레벨에 비례 */
 export function maxMp(p) {
-  return 200 + stat(p, "int") * 6 + data(p).lv * 6; // V12.109: 스킬 마나 개편에 맞춰 크게
+  return 200 + data(p).lv * 10; // V12.123: 레벨만 (Lv.100 = 1200)
 }
 
 export function addXp(p, amount, silent = false) {

@@ -206,7 +206,8 @@ function power(p, s) {
   const cfg = held ? weaponCfg()[held.typeId] : null;
   const atk = tool?.dmg ?? cfg?.atk ?? weaponInfo(held?.typeId ?? "")?.atk ?? 3;
   // V12.119: 아이템 공격력을 10배로 올린 것에 맞춰 스킬도 10배 · 직업 종류별 주 스탯 (근접 힘 · 원거리 힘+민첩 · 마법 지능)
-  const base = (s.kind === "magic" ? 5 + atk * 0.5 + stat(p, "int") * 0.6 : atk) * ((cfg?.mul ?? 100) / 100) * 10;
+  // V12.123: 직업 스킬 바탕 위력은 도구 공격력(직업마다 3~16 으로 들쭉날쭉) 대신 차수로 모든 직업 같게 · 지능은 아래 배율에서만
+  const base = ({ 0: 40, 1: 60, 2: 95, 3: 135 }[J.PATHS[s.path]?.tier ?? 1] ?? 60) * ((cfg?.mul ?? 100) / 100);
   const cs = combatStats(p);
   const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOf(cs.dex) : powOf(cs.int); // V12.122: 근접 = 힘 · 원거리 = 민첩 · 마법 = 지능 (같은 곡선)
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
@@ -313,8 +314,19 @@ export const skillMode = (p) => !!data(p).set?.adminSkill && isAdmin(p);
 export function resetCooldowns(p) { for (const k of [...cd.keys()]) if (k.startsWith(`${p.id}|`)) cd.delete(k); }
 
 /** 사신수 · 사흉수 스킬 기본 위력: 16 × 힘 × 버프 × 레벨 (V12.109: 12 → 16) */
-//   V12.119: ×10 (아이템 공격력 10배에 맞춤) · 사신수 · 사흉수는 모든 직업 무기라 가장 높은 공격 스탯(힘 · 민첩 · 지능)을 씀
-const weaponDmg = (p) => { const cs = combatStats(p); return 160 * powOf(Math.max(cs.str, cs.dex, cs.int)) * buffMul(p) * (1 + data(p).lv * 0.025); };
+// V12.123: 스킬마다 피해 비율 [근접 물리, 원거리 물리, 마법] — 설명 · 연출을 보고 정함. 비율대로 힘 · 민첩 · 지능 배율을 섞음
+export const WEAPON_MIX = {
+  w_cr_1: [0.7, 0, 0.3], w_cr_2: [0.5, 0, 0.5], w_cr_3: [0.1, 0, 0.9], w_cr_4: [0.5, 0, 0.5],   // 청룡: 창술 + 물 · 번개 · 용
+  w_bh_1: [1, 0, 0], w_bh_2: [1, 0, 0], w_bh_3: [1, 0, 0], w_bh_4: [0.7, 0, 0.3],               // 백호: 할퀴기 · 도끼 (천붕은 백호 영체)
+  w_jj_1: [0, 0.7, 0.3], w_jj_2: [0, 0.6, 0.4], w_jj_3: [0, 0.4, 0.6], w_jj_4: [0, 0.4, 0.6],   // 주작: 화살 + 불 · 주작 소환
+  w_hm_1: [0.9, 0, 0.1], w_hm_2: [0.5, 0, 0.5], w_hm_3: [0.6, 0, 0.4], w_hm_4: [0.3, 0, 0.7],   // 현무: 방패 + 뱀 독 · 대지 · 결계
+  w_hd_1: [0.8, 0, 0.2], w_hd_2: [0.3, 0, 0.7], w_hd_3: [0.8, 0, 0.2], w_hd_4: [0.6, 0, 0.4],   // 혼돈: 낫 + 혼돈 연기 · 사슬 · 불기둥
+  w_qq_1: [1, 0, 0], w_qq_2: [1, 0, 0], w_qq_3: [1, 0, 0], w_qq_4: [0.5, 0.5, 0],               // 궁기: 발톱 (흉익은 깃털 탄막)
+  w_tw_1: [1, 0, 0], w_tw_2: [1, 0, 0], w_tw_3: [0.5, 0.5, 0], w_tw_4: [1, 0, 0],               // 도올: 망치 (투척은 반쯤 원거리)
+  w_tt_1: [0.8, 0, 0.2], w_tt_2: [0.7, 0, 0.3], w_tt_3: [1, 0, 0], w_tt_4: [0.3, 0, 0.7],       // 도철: 물어뜯기 + 아가리 · 가면 소용돌이
+};
+const mixPow = (cs, m) => m[0] * powOf(cs.str) + m[1] * powOf(cs.dex) + m[2] * powOf(cs.int);
+const weaponDmg = (p, s) => 160 * mixPow(combatStats(p), WEAPON_MIX[s?.id] ?? [1, 0, 0]) * buffMul(p) * (1 + data(p).lv * 0.025);
 /** 재사용 대기가 긴 스킬일수록 세게: 120초 = 1.6배 (② 20초 ≈ 1.1배, ① 그대로) */
 const cdPow = (s) => (s.key === 1 ? 1 : 1 + 0.6 * Math.min(1, s.cd / 120));
 /** 스킬 무기 발동 (직업 조건 없음) */
@@ -328,7 +340,7 @@ function castWeaponSpecial(p, s) {
   const busy = () => { if (s.id === "w_cr_3") crBusy.set(p.id, system.currentTick + 170); }; // 강림 연출 약 8.5초
   if (skillMode(p)) {
     busy();
-    s.run({ p, dmg: weaponDmg(p) * cdPow(s), data: d, ...extra });
+    s.run({ p, dmg: weaponDmg(p, s) * cdPow(s), data: d, ...extra });
     notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
     return true;
   }
@@ -347,7 +359,7 @@ function castWeaponSpecial(p, s) {
   const cdr = 1 - combatStats(p).cdr / 100; // 지능: 점점 덜 오르는 재사용 대기 감소
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   busy();
-  s.run({ p, dmg: weaponDmg(p) * cdPow(s), data: d, ...extra });
+  s.run({ p, dmg: weaponDmg(p, s) * cdPow(s), data: d, ...extra });
   notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
   return true;
 }
