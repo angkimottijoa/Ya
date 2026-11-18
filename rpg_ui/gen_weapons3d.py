@@ -242,7 +242,9 @@ def build(name, cfg):
     geo = {"format_version": "1.16.0", "minecraft:geometry": [{
         "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
                         "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
-        "bones": [{"name": "body", "pivot": [0, 24, 0]},
+        "bones": [{"name": "root", "pivot": [0, 0, 0]},
+                  {"name": "waist", "parent": "root", "pivot": [0, 12, 0]},
+                  {"name": "body", "parent": "waist", "pivot": [0, 24, 0]},
                   {"name": "rightArm", "parent": "body", "pivot": [-5, 22, 0]},
                   {"name": "rightItem", "parent": "rightArm", "pivot": [-6, 15, 1]},
                   {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND, "cubes": cubes}]}]}
@@ -281,6 +283,7 @@ def main():
     (RP / "render_controllers" / "rpg_w3d.render_controllers.json").write_text(json.dumps({"format_version": "1.8.0", "render_controllers": rcs}, indent=1))
     old = RP / "animations" / "rpg_w3d.animation.json"
     if old.exists(): old.unlink()
+    import gen_weapon_moves; gen_weapon_moves.main()  # 무기 전용 동작(자세 · 걷기 · 3연타)도 플레이어 정의에 연결
 
 
 if __name__ == "__main__":
