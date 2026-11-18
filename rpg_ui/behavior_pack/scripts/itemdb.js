@@ -16,6 +16,20 @@ export const CATS = [
 
 const short = (id) => id.replace(/^minecraft:/, "");
 
+/** 이 애드온 아이템 희귀도 (V12.138): 사신수 · 사흉수 5 · 3차 도구 5 · 2차 4 · 1차 3 · 강화 재료는 등급대로 */
+function rpgRarity(id) {
+  if (!id.startsWith("rpg:")) return undefined;
+  if (/^rpg:(cheongryong|baekho|jujak|hyeonmu|hundun|qiongqi|taowu|taotie)_/.test(id)) return 5;
+  if (id.startsWith("rpg:jt_")) return RPG_TOOL_RARITY[id] ?? 3;
+  const m = id.match(/^rpg:enh_(stone|scroll)_(\d)$/);
+  if (m) return Math.min(5, Number(m[2]) + 1);
+  if (id === "rpg:enh_protect") return 4;
+  return 2;
+}
+const RPG_TOOL_RARITY = {};
+/** 직업 도구 희귀도 등록 (itemlore.js: 승급 단계 + 2) */
+export function setToolRarity(id, r) { RPG_TOOL_RARITY[id] = r; }
+
 export function category(id) {
   // 이 애드온 아이템 (V12.134): 사신수 · 사흉수 무기 · 직업 도구 = 무기, 강화 재료 = 재료
   if (id.startsWith("rpg:")) {
@@ -40,7 +54,7 @@ const SPECIAL_RARITY = {
 
 export function rarity(stack) {
   const s = short(stack.typeId);
-  let r = SPECIAL_RARITY[s];
+  let r = SPECIAL_RARITY[s] ?? rpgRarity(stack.typeId);
   if (!r) {
     if (s.includes("netherite")) r = 5;
     else if (s.includes("diamond")) r = 4;

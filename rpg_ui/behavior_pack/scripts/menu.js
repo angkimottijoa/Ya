@@ -751,12 +751,14 @@ const EQ = [
 ];
 const SORTS = { rarity: "희귀도", name: "종류", count: "수량" };
 
+const BAG_HIDE = new Set(["rpg:menu", "rpg:quest_tool", "rpg:skill"]);
 function bagEntries(p) {
   const out = [];
   const c = inv(p);
   for (let i = 0; i < c.size; i++) {
     const it = c.getItem(i);
-    if (it && !it.typeId.startsWith("rpg:")) out.push({ key: `i${i}`, it, slot: i });
+    // 메뉴 · 퀘스트 도구만 숨김 (사신수 · 사흉수 · 직업 도구 · 강화 재료는 보임, V12.138)
+    if (it && !BAG_HIDE.has(it.typeId)) out.push({ key: `i${i}`, it, slot: i });
   }
   const eq = p.getComponent("minecraft:equippable");
   for (const e of EQ) {

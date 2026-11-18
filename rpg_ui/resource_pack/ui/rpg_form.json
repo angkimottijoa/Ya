@@ -345,7 +345,8 @@
           "bindings": [
             {
               "binding_name": "#form_button_contents",
-              "binding_name_override": "#collection_length"
+              "binding_name_override": "#collection_length",
+              "binding_condition": "always_when_visible"
             }
           ],
           "anchor_from": "top_left",
@@ -502,7 +503,8 @@
                 "bindings": [
                   {
                     "binding_name": "#form_button_contents",
-                    "binding_name_override": "#collection_length"
+                    "binding_name_override": "#collection_length",
+                    "binding_condition": "always_when_visible"
                   }
                 ],
                 "size": [
@@ -915,7 +917,8 @@
           "bindings": [
             {
               "binding_name": "#form_button_contents",
-              "binding_name_override": "#collection_length"
+              "binding_name_override": "#collection_length",
+              "binding_condition": "always_when_visible"
             }
           ],
           "anchor_from": "top_left",
@@ -1053,7 +1056,8 @@
                 "bindings": [
                   {
                     "binding_name": "#form_button_contents",
-                    "binding_name_override": "#collection_length"
+                    "binding_name_override": "#collection_length",
+                    "binding_condition": "always_when_visible"
                   }
                 ],
                 "size": [
@@ -1134,7 +1138,8 @@
           "bindings": [
             {
               "binding_name": "#form_button_contents",
-              "binding_name_override": "#collection_length"
+              "binding_name_override": "#collection_length",
+              "binding_condition": "always_when_visible"
             }
           ],
           "size": [
@@ -1488,7 +1493,8 @@
           "bindings": [
             {
               "binding_name": "#form_button_contents",
-              "binding_name_override": "#collection_length"
+              "binding_name_override": "#collection_length",
+              "binding_condition": "always_when_visible"
             }
           ],
           "anchor_from": "right_middle",

@@ -97,11 +97,6 @@ def rune_strip(w, h, vertical, seed):
     add_glow(a, BLUE, glow[..., 3] * 0.75)
     over(a, BLUE_L, m * 0.9)
     return a
-save(rune_strip(8, 120, True, 3), "runes_v")
-save(rune_strip(8, 120, True, 7), "runes_v2")
-save(rune_strip(84, 8, False, 11), "runes_h")
-save(rune_strip(84, 8, False, 13), "runes_h2")
-save(rune_strip(22, 8, False, 17), "runes_btn")
 
 # ───────── 판 (가운데 바탕, 세로로 늘어남) ─────────
 def panel():
@@ -114,83 +109,41 @@ save(panel(), "panel")
 # ───────── 테두리 띠 (가로 · 세로) : 두께 12, 바깥 → 안: 검은 선 · 강철 경사면 · 홈 · 안쪽 푸른 선 ─────────
 def edge_profile(t):  # t: 바깥에서 안으로 화면 단위 거리 → (색, 알파)
     pass
+def frame_cols(d):  # 바깥에서 거리 d → 색 · 덮음 (두께 8: 검은 선 · 금 테 · 틈 · 가는 금 선)
+    col = np.zeros(d.shape + (3,), np.float32); cov = np.zeros(d.shape, np.float32)
+    def band(lo, hi, c0, c1=None, alpha=1.0):
+        m = (d >= lo) & (d < hi); c = grad((d - lo) / (hi - lo), c0, c1 or c0); col[m] = c[m]; cov[m] = alpha
+    band(0, 0.7, (10, 11, 18))
+    band(0.7, 2.9, (246, 222, 150), (150, 112, 50))   # 금 테 (위가 밝게)
+    band(2.9, 3.6, (10, 11, 18))
+    band(3.6, 5.4, (24, 27, 44))                      # 남색 틈
+    band(5.4, 6.1, (186, 146, 66))                    # 안쪽 가는 금 선
+    band(6.1, 8.01, PANEL_T, PANEL_T, 0.0)
+    return col, cov
 def edge(horizontal, top_side):
-    L, T = (16, 12) if horizontal else (12, 16)
+    L, T = (16, 8) if horizontal else (8, 16)
     a = canvas(L, T); x, y = grid(a)
-    d = (y if top_side else (T - y)) if horizontal else (x if top_side else (T - x))  # 바깥에서 거리 (가로: T=12 / 세로: L=12)
-    tot = 12
-    col = np.zeros(d.shape + (3,), np.float32)
-    def band(lo, hi, c0, c1=None):
-        m = (d >= lo) & (d < hi)
-        c = grad((d - lo) / (hi - lo), c0, c1 or c0)
-        col[m] = c[m]
-    band(0, 0.8, STEEL_D)
-    band(0.8, 4.2, STEEL_H, STEEL)        # 바깥 경사면 (빛 받는 쪽 → 어두운 쪽)
-    band(4.2, 5.2, STEEL_D)
-    band(5.2, 7.6, STEEL_L, BRONZE)       # 가운데 띠 (청동빛 강철)
-    band(7.6, 8.6, STEEL_D)
-    band(8.6, 10.0, STEEL, STEEL_D)
-    band(10.0, 12.01, PANEL_T, PANEL_T)
-    over(a, col, (d < 10.0).astype(np.float32))
-    # 안쪽 푸른 빛 선
-    g = np.exp(-((d - 10.6) / 0.45) ** 2)
-    add_glow(a, BLUE, g * 0.9)
-    over(a, BLUE_L, np.exp(-((d - 10.6) / 0.18) ** 2) * 0.8)
-    inner = d >= 10.0
-    a[..., 3] = np.where(inner, np.maximum(a[..., 3], np.exp(-((d - 10.6) / 0.6) ** 2)), a[..., 3])
-    # 바깥 쪽은 그림자 없이 불투명
-    a[..., 3] = np.where(d < 10.0, 1.0, a[..., 3])
-    noise(a, 0.03, 5)
+    d = (y if top_side else (T - y)) if horizontal else (x if top_side else (L - x))
+    col, cov = frame_cols(d)
+    over(a, col, cov)
     return a
 save(edge(True, True), "edge_t"); save(edge(True, False), "edge_b")
 save(edge(False, True), "edge_l"); save(edge(False, False), "edge_r")
 
 # ───────── 모서리 (30x30, 왼쪽 위 기준 → 뒤집어서 넷) ─────────
 def corner():
-    S = 30
+    S = 16
     a = canvas(S, S); x, y = grid(a)
-    # 바탕: 두 테두리 띠가 만나는 L자 (띠 모양 그대로)
-    for horizontal in (True, False):
-        e = edge(horizontal, True)
-        # edge 는 16x12 / 12x16 → 여기선 직접 계산
-    d = np.minimum(x, y)
-    col = np.zeros(d.shape + (3,), np.float32)
-    def band(lo, hi, c0, c1=None):
-        m = (d >= lo) & (d < hi); c = grad((d - lo) / (hi - lo), c0, c1 or c0); col[m] = c[m]
-    band(0, 0.8, STEEL_D); band(0.8, 4.2, STEEL_H, STEEL); band(4.2, 5.2, STEEL_D); band(5.2, 7.6, STEEL_L, BRONZE)
-    band(7.6, 8.6, STEEL_D); band(8.6, 10.0, STEEL, STEEL_D); band(10.0, 99, PANEL_T, PANEL_T)
-    over(a, col, ((x < 10) | (y < 10)).astype(np.float32))
-    g = np.exp(-((d - 10.6) / 0.45) ** 2) * ((x >= 10) & (y >= 10))
-    add_glow(a, BLUE, g * 0.9)
-    over(a, BLUE_L, np.exp(-((d - 10.6) / 0.18) ** 2) * 0.8 * ((x >= 10) & (y >= 10)))
-    a[..., 3] = np.where((x >= 10) & (y >= 10), np.exp(-((d - 10.6) / 0.6) ** 2) * (d < 12), a[..., 3])
-    # 장식판: 둥근 사각 + 안쪽 마름모 보석
-    cx, cy = 9.5, 9.5
-    plate = sd_rrect(x, y, cx, cy, 8.2, 8.2, 3.0)
-    rot = (np.abs(x - cx) + np.abs(y - cy))
-    over(a, (10, 11, 14), fill_sd(plate - 0.8))
-    over(a, grad((x + y - 4) / 26, STEEL_H, STEEL_D), fill_sd(plate))
-    over(a, STEEL_D, fill_sd(np.abs(plate + 1.6) - 0.35))
-    # 꽃잎 같은 덩굴 장식 (대각선 방향으로 뻗음)
-    for k, (dx, dy) in enumerate(((1, 0), (0, 1))):
-        px_, py_ = cx + dx * 13, cy + dy * 13
-        leaf = np.hypot((x - px_) * (1 if dx else 2.2), (y - py_) * (2.2 if dx else 1)) - 4.2
-        over(a, (10, 11, 14), fill_sd(leaf - 0.7) * ((x < 28) & (y < 28)))
-        over(a, grad((x + y) / 40, STEEL_L, STEEL), fill_sd(leaf))
-        over(a, BLUE, fill_sd(np.hypot((x - px_) * (1 if dx else 2.2), (y - py_) * (2.2 if dx else 1)) - 1.2) * 0.9)
-    # 보석
-    gem = rot - 5.0
-    glow = canvas(S, S); over(glow, BLUE, fill_sd(gem + 0.5)); glow = blur_layer(glow, 2.0)
-    add_glow(a, BLUE, glow[..., 3] * 0.9)
-    over(a, (60, 44, 18), fill_sd(gem))
-    facet = np.where((x - cx) + (y - cy) < 0, 1.0, 0.55) * np.where((x - cx) - (y - cy) < 0, 1.0, 0.8)
-    over(a, grad(facet, BLUE_D, BLUE), fill_sd(gem + 0.7))
-    over(a, BLUE_L, fill_sd(np.hypot(x - (cx - 1.5), y - (cy - 1.8)) - 1.1) * 0.95)
-    over(a, (255, 255, 255), fill_sd(np.hypot(x - (cx - 1.7), y - (cy - 2.0)) - 0.45))
-    noise(a, 0.02, 9)
+    cut = 4.0                              # 비스듬히 깎는 크기
+    d = np.minimum(np.minimum(x, y), (x + y - cut) / math.sqrt(2))
+    col, cov = frame_cols(d)
+    over(a, col, cov * ((x + y) >= cut - 0.01))
+    # 안쪽 작은 ㄱ자 장식 (금 선)
+    br = np.minimum(np.maximum(np.abs(y - 9.2) - 0.35, np.abs(x - 12.0) - 2.8), np.maximum(np.abs(x - 9.2) - 0.35, np.abs(y - 12.0) - 2.8))
+    over(a, (214, 172, 82), fill_sd(br) * 0.9)
     return a
 c = corner()
-im = save(c, "corner_tl")
+im = save(c, "corner_tl")  # 16x16
 im.transpose(Image.FLIP_LEFT_RIGHT).save(f"{OUT}/corner_tr.png")
 im.transpose(Image.FLIP_TOP_BOTTOM).save(f"{OUT}/corner_bl.png")
 im.transpose(Image.ROTATE_180).save(f"{OUT}/corner_br.png")
@@ -225,7 +178,6 @@ def crest():
     over(a, (255, 255, 255), fill_sd(np.hypot(x - (cx - 1.5), y - 11.5) - 0.8))
     noise(a, 0.02, 12)
     return a
-save(crest(), "crest")
 
 # ───────── 안쪽 카드 (268x80) ─────────
 def card(w, h, seed=4):
@@ -286,22 +238,6 @@ def halo():
     add_glow(a, (110, 84, 36), np.exp(-(r / 20) ** 2) * 0.5)
     add_glow(a, BLUE, np.exp(-((r - 21) / 2.2) ** 2) * 0.85)
     add_glow(a, BLUE_L, np.exp(-((r - 21) / 0.7) ** 2) * 0.9)
-    random.seed(5)
-    def bolts(d, s):
-        for _ in range(9):
-            ang = random.random() * math.tau; rr = 20 + random.random() * 2
-            px_, py_ = S / 2 + math.cos(ang) * rr, S / 2 + math.sin(ang) * rr
-            pts = [(px_, py_)]
-            for k in range(7):
-                ang2 = ang + (random.random() - 0.5) * 1.4
-                step = 1.6 + random.random()
-                px_ -= math.cos(ang2) * step; py_ -= math.sin(ang2) * step
-                pts.append((px_, py_))
-            d.line([(p0 * s, p1 * s) for p0, p1 in pts], fill=255, width=max(1, int(0.35 * s)))
-    m = draw_mask(S, S, bolts)
-    gl = blur_layer(np.dstack([np.zeros_like(m)] * 3 + [m]), 0.8)[..., 3]
-    add_glow(a, BLUE, gl * 0.9)
-    add_glow(a, BLUE_L, m * 0.9)
     return a
 save(halo(), "halo")
 def item_frame():
@@ -370,38 +306,22 @@ for L in range(16): save(pips(L), f"pips_{L}")
 
 # ───────── 큰 버튼 (150x30): 양끝 뾰족 · 강철 테 · 푸른 판 · 위 광택 ─────────
 def big_button(state):
-    W, H = 150, 30
+    W, H = 150, 26
     a = canvas(W, H); x, y = grid(a)
-    def hexd(inset):  # 끝이 뾰족한 육각 거리
-        hw, hh, tip = W / 2 - inset, H / 2 - inset, 10
-        qx, qy = np.abs(x - W / 2), np.abs(y - H / 2)
-        d1 = qy - hh
-        d2 = (qx - (hw - tip)) * (hh / math.hypot(hh, tip)) + qy * (tip / math.hypot(hh, tip)) - hh * (tip / math.hypot(hh, tip))
-        return np.maximum(d1, np.maximum(d2, qx - hw))
-    d0 = hexd(0.5)
-    over(a, (0, 0, 0), fill_sd(d0 - 0.8) * 0.7)
-    over(a, grad(y / H, STEEL_H, STEEL_D), fill_sd(d0))
-    over(a, (10, 11, 15), fill_sd(hexd(2.3)))
-    top, bot = {"idle": ((122, 96, 46), (60, 46, 22)), "hover": ((156, 124, 60), (80, 62, 30)), "down": ((52, 40, 20), (100, 78, 38))}[state]
-    d3 = hexd(3.0)
-    over(a, grad(y / H, top, bot), fill_sd(d3))
-    add_glow(a, BLUE, np.exp(-((d3 + 0.3) / 0.6) ** 2) * (0.9 if state != "down" else 0.5))
-    if state != "down":
-        shine = fill_sd(hexd(4.2)) * np.clip((H * 0.48 - y) / 6, 0, 1) * 0.22
-        over(a, (255, 255, 255), shine)
-    # 끝의 작은 보석
-    for sx in (-1, 1):
-        cx = W / 2 + sx * (W / 2 - 6.5)
-        gem = np.abs(x - cx) + np.abs(y - H / 2) - 3.0
-        over(a, (60, 44, 18), fill_sd(gem + 0.0))
-        over(a, BLUE_L, fill_sd(gem + 1.2))
-    noise(a, 0.015, 31)
+    d = sd_rrect(x, y, W / 2, H / 2, W / 2 - 0.5, H / 2 - 0.5, 5)
+    over(a, (0, 0, 0), fill_sd(d - 0.8) * 0.6)
+    over(a, grad(y / H, (246, 222, 150), (120, 90, 40)), fill_sd(d))
+    di = d + 1.3
+    top, bot = {"idle": ((112, 88, 42), (62, 48, 24)), "hover": ((146, 116, 56), (80, 62, 30)), "down": ((52, 40, 20), (96, 74, 36))}[state]
+    over(a, grad(y / H, top, bot), fill_sd(di))
+    if state != "down": over(a, (255, 240, 200), fill_sd(di + 1.0) * np.clip((H * 0.45 - y) / 5, 0, 1) * 0.16)
+    over(a, (255, 240, 200), fill_sd(np.abs(di + 0.5) - 0.18) * 0.25 * (y < H / 2))
     return a
 for st in ("idle", "hover", "down"): save(big_button(st), f"btn_{st}")
 
 # ───────── 작은 버튼 (66x20) ─────────
 def small_button(state):
-    W, H = 66, 20
+    W, H = 56, 20
     a = canvas(W, H); x, y = grid(a)
     d = sd_rrect(x, y, W / 2, H / 2, W / 2 - 0.5, H / 2 - 0.5, 4)
     over(a, (0, 0, 0), fill_sd(d - 0.6) * 0.6)
@@ -459,10 +379,6 @@ def plate(W, H, state, r=4, tones=None):
     if state in ("hover", "on"): add_glow(a, BLUE if state == "hover" else BLUE_L, np.exp(-((di + 0.3) / 0.55) ** 2) * (0.7 if state == "hover" else 0.9))
     over(a, (255, 255, 255), fill_sd(np.abs(di + 0.6) - 0.2) * 0.09 * (y < H / 2))
     return a
-for st in ("idle", "hover", "on"): save(plate(46, 18, st, 4), f"tab_{st}")
-for st in ("idle", "hover", "down"): save(plate(180, 18, st, 4), f"wbtn_{st}")
-for st in ("idle", "hover", "on"): save(plate(200, 26, st, 3, None), f"qrow_{st}")
-save(card(190, 150, 8), "qcard")
 
 def qnode(kind):
     S = 20
@@ -499,7 +415,6 @@ def qnode(kind):
         over(a, (110, 110, 128), fill_sd(np.abs(np.hypot(x - 10, y - 8.4) - 2.3) - 0.55) * (y < 9.2))
         over(a, (30, 32, 40), fill_sd(np.hypot(x - 10, y - 11.4) - 0.8))
     return a
-for k in ("done", "ready", "active", "avail", "lock"): save(qnode(k), f"qn_{k}")
 def qline(lit):
     a = canvas(4, 40); x, y = grid(a)
     if lit:
@@ -509,5 +424,4 @@ def qline(lit):
         over(a, (8, 9, 12), fill_sd(np.abs(x - 2) - 0.9))
         over(a, (64, 70, 100), fill_sd(np.abs(x - 2.4) - 0.3) * 0.8)
     return a
-save(qline(True), "ql_lit"); save(qline(False), "ql_dim")
 print("quest art ok")

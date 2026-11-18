@@ -3,7 +3,7 @@
 import { system, world } from "@minecraft/server";
 import * as J from "./jobs.js";
 import { ENH_LORE, STONES, PROTECT, SCROLLS, setInfoLookup, atkLine } from "./enhance.js";
-import { setRpgName } from "./itemdb.js";
+import { setRpgName, setToolRarity } from "./itemdb.js";
 
 export const LORE_INFO = {
   "rpg:cheongryong_sword": { cat: "사신수 무기 · 창", atk: 180, flavor: "동방을 지키는 푸른 용, 청룡의 창. 물살과 번개를 다스린다." },
@@ -51,6 +51,6 @@ system.runInterval(() => {
 const NAMES = { "rpg:cheongryong_sword": "§b청룡의 검", "rpg:baekho_axe": "§f백호의 도끼", "rpg:jujak_bow": "§6주작의 활", "rpg:hyeonmu_shield": "§2현무의 방패",
   "rpg:hundun_scythe": "§5혼돈의 낫", "rpg:qiongqi_claws": "§c궁기의 쌍발톱", "rpg:taowu_hammer": "§6도올의 대망치", "rpg:taotie_maw": "§2도철의 아가리" };
 for (const [id, n] of Object.entries(NAMES)) setRpgName(id, n);
-for (const [path, pt] of Object.entries(J.PATHS)) if (pt.tool?.name) setRpgName(`rpg:jt_${path}`, pt.tool.name);
+for (const [path, pt] of Object.entries(J.PATHS)) if (pt.tool?.name) { setRpgName(`rpg:jt_${path}`, pt.tool.name); setToolRarity(`rpg:jt_${path}`, Math.min(5, (pt.tier ?? 1) + 2)); }
 for (const st of [...STONES, ...SCROLLS, PROTECT]) setRpgName(st.id, `${st.color}${st.name}`);
 setInfoLookup(loreInfo); // 연성소의 「현재 공격력」 · 분류

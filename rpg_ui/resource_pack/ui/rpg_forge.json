@@ -12,8 +12,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/panel",
      "size": [
-      "100% - 16px",
-      "100% - 16px"
+      "100% - 8px",
+      "100% - 8px"
      ],
      "layer": 1,
      "anchor_from": "center",
@@ -25,8 +25,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/edge_t",
      "size": [
-      "100% - 60px",
-      12
+      "100% - 32px",
+      8
      ],
      "layer": 2,
      "anchor_from": "top_middle",
@@ -38,8 +38,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/edge_b",
      "size": [
-      "100% - 60px",
-      12
+      "100% - 32px",
+      8
      ],
      "layer": 2,
      "anchor_from": "bottom_middle",
@@ -51,8 +51,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/edge_l",
      "size": [
-      12,
-      "100% - 60px"
+      8,
+      "100% - 32px"
      ],
      "layer": 2,
      "anchor_from": "left_middle",
@@ -64,8 +64,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/edge_r",
      "size": [
-      12,
-      "100% - 60px"
+      8,
+      "100% - 32px"
      ],
      "layer": 2,
      "anchor_from": "right_middle",
@@ -77,8 +77,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/corner_tl",
      "size": [
-      30,
-      30
+      16,
+      16
      ],
      "layer": 3,
      "anchor_from": "top_left",
@@ -90,8 +90,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/corner_tr",
      "size": [
-      30,
-      30
+      16,
+      16
      ],
      "layer": 3,
      "anchor_from": "top_right",
@@ -103,8 +103,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/corner_bl",
      "size": [
-      30,
-      30
+      16,
+      16
      ],
      "layer": 3,
      "anchor_from": "bottom_left",
@@ -116,8 +116,8 @@
      "type": "image",
      "texture": "textures/ui/rpg/forge/corner_br",
      "size": [
-      30,
-      30
+      16,
+      16
      ],
      "layer": 3,
      "anchor_from": "bottom_right",
@@ -125,91 +125,36 @@
     }
    },
    {
-    "rl": {
+    "rule_l": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/runes_v",
+     "texture": "textures/ui/rpg/forge/divider",
      "size": [
-      8,
-      120
-     ],
-     "layer": 3,
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      13,
-      0
-     ],
-     "alpha": 0.85
-    }
-   },
-   {
-    "rr": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/runes_v2",
-     "size": [
-      8,
-      120
-     ],
-     "layer": 3,
-     "anchor_from": "right_middle",
-     "anchor_to": "right_middle",
-     "offset": [
-      -13,
-      0
-     ],
-     "alpha": 0.85
-    }
-   },
-   {
-    "rh1": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/runes_h",
-     "size": [
-      84,
-      8
+      70,
+      3
      ],
      "layer": 3,
      "anchor_from": "top_middle",
      "anchor_to": "top_middle",
      "offset": [
-      -82,
-      13
-     ],
-     "alpha": 0.85
+      -92,
+      18
+     ]
     }
    },
    {
-    "rh2": {
+    "rule_r": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/runes_h2",
+     "texture": "textures/ui/rpg/forge/divider",
      "size": [
-      84,
-      8
+      70,
+      3
      ],
      "layer": 3,
      "anchor_from": "top_middle",
      "anchor_to": "top_middle",
      "offset": [
-      82,
-      13
-     ],
-     "alpha": 0.85
-    }
-   },
-   {
-    "crest": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/crest",
-     "size": [
-      72,
-      30
-     ],
-     "layer": 4,
-     "anchor_from": "top_middle",
-     "anchor_to": "top_middle",
-     "offset": [
-      0,
-      -11
+      92,
+      18
      ]
     }
    }
@@ -235,12 +180,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -258,12 +205,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -281,18 +230,21 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "center",
@@ -321,12 +273,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -344,12 +298,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -367,18 +323,21 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "center",
@@ -451,20 +410,22 @@
      ],
      "text_alignment": "center",
      "color": [
-      0.95,
-      0.84,
-      0.62
+      0.96,
+      0.87,
+      0.59
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((#form_button_text - '[FL]') - '[ON]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.85,
@@ -481,12 +442,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FL]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -541,20 +504,22 @@
      ],
      "text_alignment": "center",
      "color": [
-      0.95,
-      0.84,
-      0.62
+      0.96,
+      0.87,
+      0.59
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((#form_button_text - '[FR]') - '[ON]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.85,
@@ -571,245 +536,278 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FR]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
- "fc_entry": {
-  "type": "panel",
+ "fcen_entry": {
+  "type": "stack_panel",
+  "orientation": "vertical",
   "size": [
    "100%",
-   47
+   "100%c"
   ],
   "controls": [
    {
-    "halo": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/halo",
-     "size": [
-      52,
-      52
-     ],
-     "layer": 2,
-     "anchor_from": "top_middle",
-     "anchor_to": "top_middle",
-     "offset": [
-      0,
-      -7
-     ]
-    }
-   },
-   {
-    "fr": {
-     "type": "image",
-     "texture": "textures/ui/rpg/forge/item_frame",
-     "size": [
-      36,
-      36
-     ],
-     "layer": 3,
-     "anchor_from": "top_middle",
-     "anchor_to": "top_middle",
-     "offset": [
-      0,
-      1
-     ]
-    }
-   },
-   {
-    "item": {
-     "type": "image",
-     "size": [
-      26,
-      26
-     ],
-     "layer": 7,
-     "bindings": [
-      {
-       "binding_name": "#form_button_texture",
-       "binding_name_override": "#texture",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_name": "#form_button_texture_file_system",
-       "binding_name_override": "#texture_file_system",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
-      }
-     ],
-     "anchor_from": "top_middle",
-     "anchor_to": "top_middle",
-     "offset": [
-      0,
-      6
-     ]
-    }
-   },
-   {
-    "name": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "c": {
+     "type": "panel",
      "size": [
       "100%",
-      10
+      47
      ],
-     "text_alignment": "center",
-     "color": [
-      0.96,
-      0.94,
-      0.9
+     "controls": [
+      {
+       "halo": {
+        "type": "image",
+        "texture": "textures/ui/rpg/forge/halo",
+        "size": [
+         52,
+         52
+        ],
+        "layer": 2,
+        "anchor_from": "top_middle",
+        "anchor_to": "top_middle",
+        "offset": [
+         0,
+         -7
+        ]
+       }
+      },
+      {
+       "fr": {
+        "type": "image",
+        "texture": "textures/ui/rpg/forge/item_frame",
+        "size": [
+         36,
+         36
+        ],
+        "layer": 3,
+        "anchor_from": "top_middle",
+        "anchor_to": "top_middle",
+        "offset": [
+         0,
+         1
+        ]
+       }
+      },
+      {
+       "item": {
+        "type": "image",
+        "size": [
+         26,
+         26
+        ],
+        "layer": 7,
+        "bindings": [
+         {
+          "binding_name": "#form_button_texture",
+          "binding_name_override": "#texture",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_name": "#form_button_texture_file_system",
+          "binding_name_override": "#texture_file_system",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+          "target_property_name": "#visible",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "anchor_from": "top_middle",
+        "anchor_to": "top_middle",
+        "offset": [
+         0,
+         6
+        ]
+       }
+      },
+      {
+       "name": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         "100%",
+         10
+        ],
+        "text_alignment": "center",
+        "color": [
+         0.96,
+         0.94,
+         0.9
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#form_button_text - '[FC]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "anchor_from": "bottom_middle",
+        "anchor_to": "bottom_middle"
+       }
+      }
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(not ((#form_button_text - '[FC]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
-     ],
-     "anchor_from": "bottom_middle",
-     "anchor_to": "bottom_middle"
+     ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
    },
    {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FC]') = #form_button_text))",
-    "target_property_name": "#visible"
-   }
-  ]
- },
- "fv_entry": {
-  "type": "panel",
-  "size": [
-   "100%",
-   14
-  ],
-  "controls": [
-   {
-    "t": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "v": {
+     "type": "panel",
      "size": [
       "100%",
       14
      ],
-     "text_alignment": "center",
-     "color": [
-      0.96,
-      0.87,
-      0.59
+     "controls": [
+      {
+       "t": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         "100%",
+         14
+        ],
+        "text_alignment": "center",
+        "color": [
+         0.96,
+         0.87,
+         0.59
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#form_button_text - '[FV]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "font_scale_factor": 1.6,
+        "anchor_from": "center",
+        "anchor_to": "center"
+       }
+      }
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(not ((#form_button_text - '[FV]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
-     ],
-     "font_scale_factor": 1.6,
-     "anchor_from": "center",
-     "anchor_to": "center"
+     ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
    },
    {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FV]') = #form_button_text))",
-    "target_property_name": "#visible"
-   }
-  ]
- },
- "fs_entry": {
-  "type": "panel",
-  "size": [
-   "100%",
-   9
-  ],
-  "controls": [
-   {
-    "t": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "s": {
+     "type": "panel",
      "size": [
       "100%",
       9
      ],
-     "text_alignment": "center",
-     "color": [
-      0.62,
-      0.63,
-      0.68
+     "controls": [
+      {
+       "t": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         "100%",
+         9
+        ],
+        "text_alignment": "center",
+        "color": [
+         0.62,
+         0.63,
+         0.68
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#form_button_text - '[FS]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "font_scale_factor": 0.75,
+        "anchor_from": "center",
+        "anchor_to": "center"
+       }
+      }
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(not ((#form_button_text - '[FS]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
-     ],
-     "font_scale_factor": 0.75,
-     "anchor_from": "center",
-     "anchor_to": "center"
+     ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
-   },
-   {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FS]') = #form_button_text))",
-    "target_property_name": "#visible"
    }
   ]
  },
@@ -841,12 +839,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FU]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.75,
@@ -859,12 +859,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FU]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -896,12 +898,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FK]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -917,12 +921,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FK]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -954,12 +960,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FW]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "right_middle",
@@ -975,247 +983,277 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FW]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
- "fb_entry": {
-  "type": "panel",
+ "frow_entry": {
+  "type": "stack_panel",
+  "orientation": "vertical",
   "size": [
    "100%",
-   13
+   "100%c"
   ],
   "controls": [
    {
-    "k": {
-     "type": "label",
-     "text": "성공 확률",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "b": {
+     "type": "panel",
      "size": [
-      56,
-      10
+      "100%",
+      13
      ],
-     "color": [
-      0.65,
-      0.66,
-      0.72
-     ],
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      4,
-      1
-     ]
-    }
-   },
-   {
-    "bar": {
-     "type": "image",
-     "size": [
-      150,
-      9
-     ],
-     "layer": 7,
-     "bindings": [
+     "controls": [
       {
-       "binding_name": "#form_button_texture",
-       "binding_name_override": "#texture",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "k": {
+        "type": "label",
+        "text": "성공 확률",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         56,
+         10
+        ],
+        "color": [
+         0.68,
+         0.69,
+         0.75
+        ],
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle",
+        "offset": [
+         4,
+         1
+        ]
+       }
       },
       {
-       "binding_name": "#form_button_texture_file_system",
-       "binding_name_override": "#texture_file_system",
+       "bar": {
+        "type": "image",
+        "size": [
+         150,
+         9
+        ],
+        "layer": 7,
+        "bindings": [
+         {
+          "binding_name": "#form_button_texture",
+          "binding_name_override": "#texture",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_name": "#form_button_texture_file_system",
+          "binding_name_override": "#texture_file_system",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+          "target_property_name": "#visible",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle",
+        "offset": [
+         62,
+         0
+        ]
+       }
+      },
+      {
+       "v": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         50,
+         12
+        ],
+        "text_alignment": "right",
+        "color": [
+         0.96,
+         0.87,
+         0.59
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#form_button_text - '[FB]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "font_scale_factor": 1.15,
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "offset": [
+         -4,
+         0
+        ]
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
+       "source_property_name": "(not ((#form_button_text - '[FB]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
-     ],
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      62,
-      0
      ]
     }
    },
    {
-    "v": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "p": {
+     "type": "panel",
      "size": [
-      50,
+      "100%",
       12
      ],
-     "text_alignment": "right",
-     "color": [
-      0.94,
-      0.84,
-      0.63
+     "controls": [
+      {
+       "k": {
+        "type": "label",
+        "text": "강화 진행도",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         70,
+         10
+        ],
+        "color": [
+         0.68,
+         0.69,
+         0.75
+        ],
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle",
+        "offset": [
+         4,
+         1
+        ]
+       }
+      },
+      {
+       "pips": {
+        "type": "image",
+        "size": [
+         110,
+         8
+        ],
+        "layer": 7,
+        "bindings": [
+         {
+          "binding_name": "#form_button_texture",
+          "binding_name_override": "#texture",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_name": "#form_button_texture_file_system",
+          "binding_name_override": "#texture_file_system",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+          "target_property_name": "#visible",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle",
+        "offset": [
+         80,
+         0
+        ]
+       }
+      },
+      {
+       "v": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         50,
+         10
+        ],
+        "text_alignment": "right",
+        "color": [
+         0.96,
+         0.94,
+         0.9
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(#form_button_text - '[FP]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
+         }
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle",
+        "offset": [
+         -4,
+         0
+        ]
+       }
+      }
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(not ((#form_button_text - '[FP]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
-     ],
-     "font_scale_factor": 1.15,
-     "anchor_from": "right_middle",
-     "anchor_to": "right_middle",
-     "offset": [
-      -4,
-      0
      ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
-   },
-   {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FB]') = #form_button_text))",
-    "target_property_name": "#visible"
-   }
-  ]
- },
- "fp_entry": {
-  "type": "panel",
-  "size": [
-   "100%",
-   12
-  ],
-  "controls": [
-   {
-    "k": {
-     "type": "label",
-     "text": "강화 진행도",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
-     "size": [
-      70,
-      10
-     ],
-     "color": [
-      0.65,
-      0.66,
-      0.72
-     ],
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      4,
-      1
-     ]
-    }
-   },
-   {
-    "pips": {
-     "type": "image",
-     "size": [
-      110,
-      8
-     ],
-     "layer": 7,
-     "bindings": [
-      {
-       "binding_name": "#form_button_texture",
-       "binding_name_override": "#texture",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_name": "#form_button_texture_file_system",
-       "binding_name_override": "#texture_file_system",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
-      }
-     ],
-     "anchor_from": "left_middle",
-     "anchor_to": "left_middle",
-     "offset": [
-      80,
-      0
-     ]
-    }
-   },
-   {
-    "v": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
-     "size": [
-      50,
-      10
-     ],
-     "text_alignment": "right",
-     "color": [
-      0.96,
-      0.94,
-      0.9
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
-      }
-     ],
-     "anchor_from": "right_middle",
-     "anchor_to": "right_middle",
-     "offset": [
-      -4,
-      0
-     ]
-    }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
-   },
-   {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FP]') = #form_button_text))",
-    "target_property_name": "#visible"
    }
   ]
  },
@@ -1252,18 +1290,21 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -1295,12 +1336,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FM]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.8,
@@ -1317,12 +1360,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FM]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -1342,7 +1387,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 30px",
+      "100% - 12px",
       12
      ],
      "text_alignment": "center",
@@ -1355,15 +1400,17 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FG]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
-     "font_scale_factor": 1.35,
+     "font_scale_factor": 1.3,
      "anchor_from": "center",
      "anchor_to": "center",
      "offset": [
@@ -1390,7 +1437,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 30px",
+      "100% - 12px",
       12
      ],
      "text_alignment": "center",
@@ -1403,15 +1450,17 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FG]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
-     "font_scale_factor": 1.35,
+     "font_scale_factor": 1.3,
      "anchor_from": "center",
      "anchor_to": "center",
      "offset": [
@@ -1438,7 +1487,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 30px",
+      "100% - 12px",
       12
      ],
      "text_alignment": "center",
@@ -1451,15 +1500,17 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FG]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
-     "font_scale_factor": 1.35,
+     "font_scale_factor": 1.3,
      "anchor_from": "center",
      "anchor_to": "center",
      "offset": [
@@ -1470,7 +1521,7 @@
    }
   ]
  },
- "sm_face": {
+ "sa_face": {
   "type": "image",
   "texture": "textures/ui/rpg/forge/sbtn_idle",
   "size": [
@@ -1486,7 +1537,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 8px",
+      "100% - 6px",
       12
      ],
      "text_alignment": "center",
@@ -1499,12 +1550,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FA]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1518,7 +1571,7 @@
    }
   ]
  },
- "sm_face_h": {
+ "sa_face_h": {
   "type": "image",
   "texture": "textures/ui/rpg/forge/sbtn_hover",
   "size": [
@@ -1534,7 +1587,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 8px",
+      "100% - 6px",
       12
      ],
      "text_alignment": "center",
@@ -1547,12 +1600,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FA]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1566,7 +1621,7 @@
    }
   ]
  },
- "sm_face_p": {
+ "sa_face_p": {
   "type": "image",
   "texture": "textures/ui/rpg/forge/sbtn_down",
   "size": [
@@ -1582,7 +1637,7 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 8px",
+      "100% - 6px",
       12
      ],
      "text_alignment": "center",
@@ -1595,12 +1650,164 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "(#form_button_text - '[FA]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sz_face": {
+  "type": "image",
+  "texture": "textures/ui/rpg/forge/sbtn_idle",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 6px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.92,
+      0.93,
+      0.97
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[FZ]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sz_face_h": {
+  "type": "image",
+  "texture": "textures/ui/rpg/forge/sbtn_hover",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 6px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.92,
+      0.93,
+      0.97
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[FZ]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sz_face_p": {
+  "type": "image",
+  "texture": "textures/ui/rpg/forge/sbtn_down",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 6px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.92,
+      0.93,
+      0.97
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[FZ]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.85,
@@ -1627,103 +1834,142 @@
    }
   ]
  },
- "sm_btn@rpg_form.form_btn": {
+ "sa_btn@rpg_form.form_btn": {
   "controls": [
    {
-    "default@rpg_forge.sm_face": {}
+    "default@rpg_forge.sa_face": {}
    },
    {
-    "hover@rpg_forge.sm_face_h": {}
+    "hover@rpg_forge.sa_face_h": {}
    },
    {
-    "pressed@rpg_forge.sm_face_p": {}
+    "pressed@rpg_forge.sa_face_p": {}
    }
   ]
  },
- "fg_entry": {
-  "type": "panel",
+ "sz_btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_forge.sz_face": {}
+   },
+   {
+    "hover@rpg_forge.sz_face_h": {}
+   },
+   {
+    "pressed@rpg_forge.sz_face_p": {}
+   }
+  ]
+ },
+ "fbtn_entry": {
+  "type": "stack_panel",
+  "orientation": "horizontal",
   "size": [
-   150,
-   30
+   "100%c",
+   26
   ],
   "controls": [
    {
-    "b@rpg_forge.go_btn": {
+    "a": {
+     "type": "panel",
+     "size": [
+      59,
+      26
+     ],
+     "controls": [
+      {
+       "b@rpg_forge.sa_btn": {
+        "size": [
+         56,
+         20
+        ],
+        "anchor_from": "left_middle",
+        "anchor_to": "left_middle"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#form_button_text - '[FA]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
+      }
+     ]
+    }
+   },
+   {
+    "g": {
+     "type": "panel",
      "size": [
       150,
-      30
+      26
+     ],
+     "controls": [
+      {
+       "b@rpg_forge.go_btn": {
+        "size": [
+         150,
+         26
+        ]
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#form_button_text - '[FG]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
+      }
      ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
    },
    {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FG]') = #form_button_text))",
-    "target_property_name": "#visible"
-   }
-  ]
- },
- "fa_entry": {
-  "type": "panel",
-  "size": [
-   62,
-   20
-  ],
-  "controls": [
-   {
-    "b@rpg_forge.sm_btn": {
+    "z": {
+     "type": "panel",
      "size": [
-      62,
-      20
+      59,
+      26
+     ],
+     "controls": [
+      {
+       "b@rpg_forge.sz_btn": {
+        "size": [
+         56,
+         20
+        ],
+        "anchor_from": "right_middle",
+        "anchor_to": "right_middle"
+       }
+      }
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#form_button_text - '[FZ]') = #form_button_text))",
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
+      }
      ]
     }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
-   },
-   {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FA]') = #form_button_text))",
-    "target_property_name": "#visible"
-   }
-  ]
- },
- "fz_entry": {
-  "type": "panel",
-  "size": [
-   62,
-   20
-  ],
-  "controls": [
-   {
-    "b@rpg_forge.sm_btn": {
-     "size": [
-      62,
-      20
-     ]
-    }
-   }
-  ],
-  "bindings": [
-   {
-    "binding_name": "#form_button_text",
-    "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
-   },
-   {
-    "binding_type": "view",
-    "source_property_name": "(not ((#form_button_text - '[FZ]') = #form_button_text))",
-    "target_property_name": "#visible"
    }
   ]
  },
@@ -1778,12 +2024,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[FX]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -1806,7 +2054,7 @@
     "frame": {
      "type": "panel",
      "size": [
-      320,
+      312,
       "100% - 6px"
      ],
      "layer": 1,
@@ -1827,7 +2075,7 @@
          14
         ],
         "text_alignment": "center",
-        "font_scale_factor": 1.5,
+        "font_scale_factor": 1.45,
         "color": [
          0.96,
          0.87,
@@ -1853,7 +2101,7 @@
        }
       },
       {
-       "sub_wrap": {
+       "sub": {
         "type": "panel",
         "size": [
          268,
@@ -1864,7 +2112,7 @@
         "anchor_to": "top_middle",
         "offset": [
          0,
-         29
+         27
         ],
         "controls": [
          {
@@ -1885,7 +2133,8 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length"
+             "binding_name_override": "#collection_length",
+             "binding_condition": "always_when_visible"
             }
            ]
           }
@@ -1911,15 +2160,16 @@
         "bindings": [
          {
           "binding_name": "#form_button_contents",
-          "binding_name_override": "#collection_length"
+          "binding_name_override": "#collection_length",
+          "binding_condition": "always_when_visible"
          }
         ],
         "layer": 9,
         "anchor_from": "top_right",
         "anchor_to": "top_right",
         "offset": [
-         -15,
-         14
+         -10,
+         10
         ]
        }
       },
@@ -1929,14 +2179,7 @@
         "orientation": "vertical",
         "size": [
          268,
-         "100% - 50px"
-        ],
-        "layer": 5,
-        "anchor_from": "top_middle",
-        "anchor_to": "top_middle",
-        "offset": [
-         0,
-         40
+         "100% - 46px"
         ],
         "controls": [
          {
@@ -1966,7 +2209,8 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "left_middle",
@@ -1996,7 +2240,8 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "right_middle",
@@ -2016,84 +2261,27 @@
                140,
                "100%c"
               ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fcen_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
+               }
+              ],
               "anchor_from": "top_middle",
               "anchor_to": "top_middle",
               "offset": [
                0,
                3
               ],
-              "layer": 2,
-              "controls": [
-               {
-                "a": {
-                 "type": "stack_panel",
-                 "orientation": "vertical",
-                 "size": [
-                  "100%",
-                  "100%c"
-                 ],
-                 "factory": {
-                  "name": "buttons",
-                  "control_ids": {
-                   "button": "@rpg_forge.fc_entry"
-                  }
-                 },
-                 "collection_name": "form_buttons",
-                 "bindings": [
-                  {
-                   "binding_name": "#form_button_contents",
-                   "binding_name_override": "#collection_length"
-                  }
-                 ]
-                }
-               },
-               {
-                "b": {
-                 "type": "stack_panel",
-                 "orientation": "vertical",
-                 "size": [
-                  "100%",
-                  "100%c"
-                 ],
-                 "factory": {
-                  "name": "buttons",
-                  "control_ids": {
-                   "button": "@rpg_forge.fv_entry"
-                  }
-                 },
-                 "collection_name": "form_buttons",
-                 "bindings": [
-                  {
-                   "binding_name": "#form_button_contents",
-                   "binding_name_override": "#collection_length"
-                  }
-                 ]
-                }
-               },
-               {
-                "c": {
-                 "type": "stack_panel",
-                 "orientation": "vertical",
-                 "size": [
-                  "100%",
-                  "100%c"
-                 ],
-                 "factory": {
-                  "name": "buttons",
-                  "control_ids": {
-                   "button": "@rpg_forge.fs_entry"
-                  }
-                 },
-                 "collection_name": "form_buttons",
-                 "bindings": [
-                  {
-                   "binding_name": "#form_button_contents",
-                   "binding_name_override": "#collection_length"
-                  }
-                 ]
-                }
-               }
-              ]
+              "layer": 2
              }
             }
            ]
@@ -2134,7 +2322,8 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "top_left",
@@ -2159,7 +2348,8 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "top_left",
@@ -2199,7 +2389,7 @@
           }
          },
          {
-          "bar": {
+          "rows": {
            "type": "stack_panel",
            "orientation": "vertical",
            "size": [
@@ -2209,37 +2399,15 @@
            "factory": {
             "name": "buttons",
             "control_ids": {
-             "button": "@rpg_forge.fb_entry"
+             "button": "@rpg_forge.frow_entry"
             }
            },
            "collection_name": "form_buttons",
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length"
-            }
-           ]
-          }
-         },
-         {
-          "prog": {
-           "type": "stack_panel",
-           "orientation": "vertical",
-           "size": [
-            "100%",
-            "100%c"
-           ],
-           "factory": {
-            "name": "buttons",
-            "control_ids": {
-             "button": "@rpg_forge.fp_entry"
-            }
-           },
-           "collection_name": "form_buttons",
-           "bindings": [
-            {
-             "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length"
+             "binding_name_override": "#collection_length",
+             "binding_condition": "always_when_visible"
             }
            ]
           }
@@ -2279,7 +2447,8 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "top_middle",
@@ -2303,87 +2472,45 @@
            "type": "panel",
            "size": [
             "100%",
-            30
+            26
            ],
            "controls": [
             {
              "l": {
               "type": "stack_panel",
-              "orientation": "vertical",
+              "orientation": "horizontal",
               "size": [
-               62,
-               "100%c"
+               "100%c",
+               26
               ],
               "factory": {
                "name": "buttons",
                "control_ids": {
-                "button": "@rpg_forge.fa_entry"
+                "button": "@rpg_forge.fbtn_entry"
                }
               },
               "collection_name": "form_buttons",
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
-               }
-              ],
-              "anchor_from": "left_middle",
-              "anchor_to": "left_middle"
-             }
-            },
-            {
-             "m": {
-              "type": "stack_panel",
-              "orientation": "vertical",
-              "size": [
-               150,
-               "100%c"
-              ],
-              "factory": {
-               "name": "buttons",
-               "control_ids": {
-                "button": "@rpg_forge.fg_entry"
-               }
-              },
-              "collection_name": "form_buttons",
-              "bindings": [
-               {
-                "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ],
               "anchor_from": "center",
               "anchor_to": "center"
              }
-            },
-            {
-             "r": {
-              "type": "stack_panel",
-              "orientation": "vertical",
-              "size": [
-               62,
-               "100%c"
-              ],
-              "factory": {
-               "name": "buttons",
-               "control_ids": {
-                "button": "@rpg_forge.fz_entry"
-               }
-              },
-              "collection_name": "form_buttons",
-              "bindings": [
-               {
-                "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
-               }
-              ],
-              "anchor_from": "right_middle",
-              "anchor_to": "right_middle"
-             }
             }
            ]
           }
          }
+        ],
+        "layer": 5,
+        "anchor_from": "top_middle",
+        "anchor_to": "top_middle",
+        "offset": [
+         0,
+         38
         ]
        }
       }
@@ -2402,7 +2529,7 @@
    {
     "off": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/tab_idle",
+     "texture": "textures/ui/rpg/row_default",
      "size": [
       "100%",
       "100%"
@@ -2412,12 +2539,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2425,7 +2554,7 @@
    {
     "on": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/tab_on",
+     "texture": "textures/ui/rpg/row_on",
      "size": [
       "100%",
       "100%"
@@ -2435,12 +2564,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2466,12 +2597,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((#form_button_text - '[T]') - '[ON]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.8,
@@ -2495,7 +2628,7 @@
    {
     "off": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/tab_hover",
+     "texture": "textures/ui/rpg/row_hover",
      "size": [
       "100%",
       "100%"
@@ -2505,12 +2638,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2518,7 +2653,7 @@
    {
     "on": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/tab_on",
+     "texture": "textures/ui/rpg/row_on",
      "size": [
       "100%",
       "100%"
@@ -2528,12 +2663,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2559,12 +2696,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((#form_button_text - '[T]') - '[ON]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 0.8,
@@ -2613,12 +2752,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[T]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -2651,18 +2792,21 @@
           "binding_name": "#form_button_texture",
           "binding_name_override": "#texture",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons"
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
          },
          {
           "binding_name": "#form_button_texture_file_system",
           "binding_name_override": "#texture_file_system",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons"
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
          },
          {
           "binding_type": "view",
           "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-          "target_property_name": "#visible"
+          "target_property_name": "#visible",
+          "binding_condition": "always_when_visible"
          }
         ]
        }
@@ -2689,20 +2833,22 @@
         ],
         "text_alignment": "left",
         "color": [
-         0.95,
-         0.84,
-         0.62
+         0.96,
+         0.87,
+         0.59
         ],
         "bindings": [
          {
           "binding_name": "#form_button_text",
           "binding_type": "collection",
-          "binding_collection_name": "form_buttons"
+          "binding_collection_name": "form_buttons",
+          "binding_condition": "always_when_visible"
          },
          {
           "binding_type": "view",
-          "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-          "target_property_name": "#display"
+          "source_property_name": "(#form_button_text - '[C]')",
+          "target_property_name": "#display",
+          "binding_condition": "always_when_visible"
          }
         ],
         "font_scale_factor": 0.85
@@ -2725,12 +2871,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[C]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -2744,7 +2892,7 @@
    {
     "off": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qrow_idle",
+     "texture": "textures/ui/rpg/row_default",
      "size": [
       "100%",
       "100%"
@@ -2754,12 +2902,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2767,7 +2917,7 @@
    {
     "on": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qrow_on",
+     "texture": "textures/ui/rpg/row_on",
      "size": [
       "100%",
       "100%"
@@ -2777,12 +2927,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2808,12 +2960,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((((((((((#form_button_text - '[I]') - '[ON]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -2840,7 +2994,7 @@
    {
     "off": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qrow_hover",
+     "texture": "textures/ui/rpg/row_hover",
      "size": [
       "100%",
       "100%"
@@ -2850,12 +3004,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2863,7 +3019,7 @@
    {
     "on": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qrow_on",
+     "texture": "textures/ui/rpg/row_on",
      "size": [
       "100%",
       "100%"
@@ -2873,12 +3029,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2904,12 +3062,14 @@
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((((((((((#form_button_text - '[I]') - '[ON]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "left_middle",
@@ -2943,34 +3103,36 @@
   "type": "panel",
   "size": [
    "100%",
-   28
+   27
   ],
   "controls": [
    {
     "tl": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/ql_lit",
+     "texture": "textures/ui/rpg/forge/line_gold",
      "size": [
-      4,
+      3,
       "50%"
      ],
      "layer": 2,
      "anchor_from": "top_left",
      "anchor_to": "top_left",
      "offset": [
-      13,
+      14,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QF]') = #form_button_text) and (not ((#form_button_text - '[QG]') = #form_button_text)))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -2978,28 +3140,30 @@
    {
     "td": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/ql_dim",
+     "texture": "textures/ui/rpg/forge/line_dim",
      "size": [
-      4,
+      3,
       "50%"
      ],
      "layer": 2,
      "anchor_from": "top_left",
      "anchor_to": "top_left",
      "offset": [
-      13,
+      14,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QF]') = #form_button_text) and ((#form_button_text - '[QG]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3007,28 +3171,30 @@
    {
     "bl": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/ql_lit",
+     "texture": "textures/ui/rpg/forge/line_gold",
      "size": [
-      4,
+      3,
       "50%"
      ],
      "layer": 2,
      "anchor_from": "bottom_left",
      "anchor_to": "bottom_left",
      "offset": [
-      13,
+      14,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QE]') = #form_button_text) and (not ((#form_button_text - '[Q0]') = #form_button_text)))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3036,28 +3202,30 @@
    {
     "bd": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/ql_dim",
+     "texture": "textures/ui/rpg/forge/line_dim",
      "size": [
-      4,
+      3,
       "50%"
      ],
      "layer": 2,
      "anchor_from": "bottom_left",
      "anchor_to": "bottom_left",
      "offset": [
-      13,
+      14,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(((#form_button_text - '[QE]') = #form_button_text) and ((#form_button_text - '[Q0]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3065,28 +3233,30 @@
    {
     "n0": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qn_done",
+     "texture": "textures/ui/rpg/forge/node_done",
      "size": [
-      20,
-      20
+      18,
+      18
      ],
      "layer": 4,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      5,
+      6,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[Q0]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3094,28 +3264,30 @@
    {
     "n1": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qn_ready",
+     "texture": "textures/ui/rpg/forge/node_ready",
      "size": [
-      20,
-      20
+      18,
+      18
      ],
      "layer": 4,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      5,
+      6,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[Q1]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3123,28 +3295,30 @@
    {
     "n2": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qn_active",
+     "texture": "textures/ui/rpg/forge/node_active",
      "size": [
-      20,
-      20
+      18,
+      18
      ],
      "layer": 4,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      5,
+      6,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[Q2]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3152,28 +3326,30 @@
    {
     "n3": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qn_avail",
+     "texture": "textures/ui/rpg/forge/node_avail",
      "size": [
-      20,
-      20
+      18,
+      18
      ],
      "layer": 4,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      5,
+      6,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[Q3]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3181,28 +3357,30 @@
    {
     "n4": {
      "type": "image",
-     "texture": "textures/ui/rpg/forge/qn_lock",
+     "texture": "textures/ui/rpg/forge/node_lock",
      "size": [
-      20,
-      20
+      18,
+      18
      ],
      "layer": 4,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      5,
+      6,
       0
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#form_button_text - '[Q4]') = #form_button_text))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ]
     }
@@ -3210,7 +3388,7 @@
    {
     "b@rpg_forge.qrow_btn": {
      "size": [
-      "100% - 32px",
+      "100% - 30px",
       25
      ],
      "anchor_from": "right_middle",
@@ -3222,12 +3400,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[I]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -3251,24 +3431,27 @@
        "binding_name": "#form_button_texture",
        "binding_name_override": "#texture",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_name": "#form_button_texture_file_system",
        "binding_name_override": "#texture_file_system",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
        "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
-       "target_property_name": "#visible"
+       "target_property_name": "#visible",
+       "binding_condition": "always_when_visible"
       }
      ],
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      2,
+      4,
       0
      ]
     }
@@ -3281,32 +3464,34 @@
      "shadow": true,
      "layer": 8,
      "size": [
-      "100% - 26px",
+      "100% - 28px",
       10
      ],
      "text_alignment": "left",
      "color": [
-      0.95,
-      0.84,
-      0.62
+      0.96,
+      0.87,
+      0.59
      ],
      "bindings": [
       {
        "binding_name": "#form_button_text",
        "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
       },
       {
        "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
+       "source_property_name": "((#form_button_text - '[S]') - '[P]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
       }
      ],
      "font_scale_factor": 1.1,
      "anchor_from": "left_middle",
      "anchor_to": "left_middle",
      "offset": [
-      24,
+      26,
       1
      ]
     }
@@ -3316,169 +3501,228 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[S]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
- "wb_face": {
+ "qa_face": {
   "type": "image",
-  "texture": "textures/ui/rpg/forge/wbtn_idle",
+  "texture": "textures/ui/rpg/action_default",
   "size": [
    "100%",
    "100%"
   ],
   "controls": [
    {
-    "t": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
      "size": [
-      "100% - 8px",
-      12
+      8,
+      8
      ],
-     "text_alignment": "center",
-     "color": [
-      0.93,
-      0.94,
-      0.98
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
-      }
-     ],
-     "font_scale_factor": 0.9,
-     "anchor_from": "center",
-     "anchor_to": "center",
+     "layer": 3,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
      "offset": [
-      0,
-      1
+      5,
+      0
      ]
     }
-   }
-  ]
- },
- "wb_face_h": {
-  "type": "image",
-  "texture": "textures/ui/rpg/forge/wbtn_hover",
-  "size": [
-   "100%",
-   "100%"
-  ],
-  "controls": [
-   {
-    "t": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
-     "size": [
-      "100% - 8px",
-      12
-     ],
-     "text_alignment": "center",
-     "color": [
-      0.93,
-      0.94,
-      0.98
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
-      }
-     ],
-     "font_scale_factor": 0.9,
-     "anchor_from": "center",
-     "anchor_to": "center",
-     "offset": [
-      0,
-      1
-     ]
-    }
-   }
-  ]
- },
- "wb_face_p": {
-  "type": "image",
-  "texture": "textures/ui/rpg/forge/wbtn_down",
-  "size": [
-   "100%",
-   "100%"
-  ],
-  "controls": [
-   {
-    "t": {
-     "type": "label",
-     "text": "#display",
-     "localize": false,
-     "shadow": true,
-     "layer": 8,
-     "size": [
-      "100% - 8px",
-      12
-     ],
-     "text_alignment": "center",
-     "color": [
-      0.93,
-      0.94,
-      0.98
-     ],
-     "bindings": [
-      {
-       "binding_name": "#form_button_text",
-       "binding_type": "collection",
-       "binding_collection_name": "form_buttons"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(((((((((((((((((((((((((((((((((((#form_button_text - '[I]') - '[T]') - '[C]') - '[S]') - '[P]') - '[A]') - '[ON]') - '[R1]') - '[R2]') - '[R3]') - '[R4]') - '[R5]') - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FU]') - '[FK]') - '[FW]') - '[FB]') - '[FP]') - '[FM]') - '[FG]') - '[FA]') - '[FZ]') - '[FX]') - '[Q0]') - '[Q1]') - '[Q2]') - '[Q3]') - '[Q4]') - '[QF]') - '[QE]') - '[QG]')",
-       "target_property_name": "#display"
-      }
-     ],
-     "font_scale_factor": 0.9,
-     "anchor_from": "center",
-     "anchor_to": "center",
-     "offset": [
-      0,
-      1
-     ]
-    }
-   }
-  ]
- },
- "wb_btn@rpg_form.form_btn": {
-  "controls": [
-   {
-    "default@rpg_forge.wb_face": {}
    },
    {
-    "hover@rpg_forge.wb_face_h": {}
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 20px",
+      10
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[A]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "qa_face_h": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_hover",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      8,
+      8
+     ],
+     "layer": 3,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      5,
+      0
+     ]
+    }
    },
    {
-    "pressed@rpg_forge.wb_face_p": {}
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 20px",
+      10
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[A]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "qa_face_p": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_pressed",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      8,
+      8
+     ],
+     "layer": 3,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      5,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 8,
+     "size": [
+      "100% - 20px",
+      10
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons",
+       "binding_condition": "always_when_visible"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[A]')",
+       "target_property_name": "#display",
+       "binding_condition": "always_when_visible"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "qa_btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_forge.qa_face": {}
+   },
+   {
+    "hover@rpg_forge.qa_face_h": {}
+   },
+   {
+    "pressed@rpg_forge.qa_face_p": {}
    }
   ]
  },
@@ -3490,7 +3734,7 @@
   ],
   "controls": [
    {
-    "b@rpg_forge.wb_btn": {
+    "b@rpg_forge.qa_btn": {
      "size": [
       "100%",
       17
@@ -3504,12 +3748,14 @@
    {
     "binding_name": "#form_button_text",
     "binding_type": "collection",
-    "binding_collection_name": "form_buttons"
+    "binding_collection_name": "form_buttons",
+    "binding_condition": "always_when_visible"
    },
    {
     "binding_type": "view",
     "source_property_name": "(not ((#form_button_text - '[A]') = #form_button_text))",
-    "target_property_name": "#visible"
+    "target_property_name": "#visible",
+    "binding_condition": "always_when_visible"
    }
   ]
  },
@@ -3538,8 +3784,8 @@
       2
      ],
      "color": [
+      0.95,
       0.94,
-      0.93,
       0.9
      ]
     }
@@ -3629,15 +3875,16 @@
         "bindings": [
          {
           "binding_name": "#form_button_contents",
-          "binding_name_override": "#collection_length"
+          "binding_name_override": "#collection_length",
+          "binding_condition": "always_when_visible"
          }
         ],
         "layer": 8,
         "anchor_from": "top_right",
         "anchor_to": "top_right",
         "offset": [
-         -26,
-         30
+         -14,
+         12
         ]
        }
       },
@@ -3645,7 +3892,7 @@
        "tabs": {
         "type": "panel",
         "size": [
-         "100% - 52px",
+         "100% - 28px",
          18
         ],
         "layer": 6,
@@ -3653,7 +3900,7 @@
         "anchor_to": "top_middle",
         "offset": [
          0,
-         44
+         34
         ],
         "controls": [
          {
@@ -3674,7 +3921,8 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length"
+             "binding_name_override": "#collection_length",
+             "binding_condition": "always_when_visible"
             }
            ],
            "anchor_from": "top_left",
@@ -3688,15 +3936,15 @@
        "body": {
         "type": "panel",
         "size": [
-         "100% - 52px",
-         "100% - 78px"
+         "100% - 28px",
+         "100% - 64px"
         ],
         "layer": 5,
         "anchor_from": "top_middle",
         "anchor_to": "top_middle",
         "offset": [
          0,
-         66
+         56
         ],
         "controls": [
          {
@@ -3717,7 +3965,8 @@
            "bindings": [
             {
              "binding_name": "#form_button_contents",
-             "binding_name_override": "#collection_length"
+             "binding_name_override": "#collection_length",
+             "binding_condition": "always_when_visible"
             }
            ],
            "anchor_from": "top_left",
@@ -3732,94 +3981,85 @@
             "42%",
             "100%"
            ],
-           "anchor_from": "top_right",
-           "anchor_to": "top_right",
            "controls": [
             {
-             "card": {
+             "head": {
               "type": "image",
-              "texture": "textures/ui/rpg/forge/qcard",
+              "texture": "textures/ui/rpg/card_head",
+              "size": [
+               "100%",
+               "100%c + 4px"
+              ],
+              "controls": [
+               {
+                "h": {
+                 "type": "stack_panel",
+                 "orientation": "vertical",
+                 "size": [
+                  "100%",
+                  "100%c"
+                 ],
+                 "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                   "button": "@rpg_forge.qs_entry"
+                  }
+                 },
+                 "collection_name": "form_buttons",
+                 "bindings": [
+                  {
+                   "binding_name": "#form_button_contents",
+                   "binding_name_override": "#collection_length",
+                   "binding_condition": "always_when_visible"
+                  }
+                 ],
+                 "anchor_from": "top_middle",
+                 "anchor_to": "top_middle",
+                 "offset": [
+                  0,
+                  2
+                 ],
+                 "layer": 2
+                }
+               }
+              ]
+             }
+            },
+            {
+             "body": {
+              "type": "image",
+              "texture": "textures/ui/rpg/card_body",
               "size": [
                "100%",
                "fill"
               ],
               "controls": [
                {
-                "in": {
-                 "type": "stack_panel",
-                 "orientation": "vertical",
+                "scroll@common.scrolling_panel": {
                  "size": [
-                  "100% - 10px",
-                  "100% - 8px"
+                  "100% - 4px",
+                  "100% - 4px"
                  ],
-                 "anchor_from": "top_middle",
-                 "anchor_to": "top_middle",
-                 "offset": [
-                  0,
-                  4
-                 ],
+                 "anchor_from": "center",
+                 "anchor_to": "center",
                  "layer": 2,
-                 "controls": [
-                  {
-                   "head": {
-                    "type": "stack_panel",
-                    "orientation": "vertical",
-                    "size": [
-                     "100%",
-                     "100%c"
-                    ],
-                    "factory": {
-                     "name": "buttons",
-                     "control_ids": {
-                      "button": "@rpg_forge.qs_entry"
-                     }
-                    },
-                    "collection_name": "form_buttons",
-                    "bindings": [
-                     {
-                      "binding_name": "#form_button_contents",
-                      "binding_name_override": "#collection_length"
-                     }
-                    ]
-                   }
-                  },
-                  {
-                   "div": {
-                    "type": "image",
-                    "texture": "textures/ui/rpg/forge/divider",
-                    "size": [
-                     "100%",
-                     3
-                    ],
-                    "layer": 2
-                   }
-                  },
-                  {
-                   "scroll@common.scrolling_panel": {
-                    "size": [
-                     "100%",
-                     "fill"
-                    ],
-                    "$show_background": false,
-                    "$scrolling_content": "rpg_forge.q_text",
-                    "$scroll_size": [
-                     4,
-                     "100% - 4px"
-                    ],
-                    "$scrolling_pane_size": [
-                     "100% - 4px",
-                     "100%"
-                    ],
-                    "$scrolling_pane_offset": [
-                     0,
-                     0
-                    ],
-                    "$scroll_bar_right_padding_size": [
-                     0,
-                     0
-                    ]
-                   }
-                  }
+                 "$show_background": false,
+                 "$scrolling_content": "rpg_forge.q_text",
+                 "$scroll_size": [
+                  4,
+                  "100% - 4px"
+                 ],
+                 "$scrolling_pane_size": [
+                  "100% - 4px",
+                  "100%"
+                 ],
+                 "$scrolling_pane_offset": [
+                  0,
+                  0
+                 ],
+                 "$scroll_bar_right_padding_size": [
+                  0,
+                  0
                  ]
                 }
                }
@@ -3853,12 +4093,15 @@
               "bindings": [
                {
                 "binding_name": "#form_button_contents",
-                "binding_name_override": "#collection_length"
+                "binding_name_override": "#collection_length",
+                "binding_condition": "always_when_visible"
                }
               ]
              }
             }
-           ]
+           ],
+           "anchor_from": "top_right",
+           "anchor_to": "top_right"
           }
          }
         ]
