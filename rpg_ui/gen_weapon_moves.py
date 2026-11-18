@@ -73,7 +73,7 @@ KINDS = {
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
     "tome": {  # 책: 가슴 앞에 펼쳐 들고(책장이 내 쪽) → 앞으로 내밀어 펼치기 · 높이 들어 올리기 · 내려 누르기
-        "stance": P(rightArm=[-55, 10, 0], rightItem=[40, 0, 0], leftArm=[-40, -20, 10], body=[0, 8, 0]),
+        "stance": P(rightArm=[-35, 0, 0], rightItem=[35, 0, 0], leftArm=[-30, -20, 10], body=[0, 8, 0]),  # V12.95: V자로 펼친 3D 책을 손바닥 위에 수평으로
         "hits": [
             (P(rightArm=[-35, 10, 0], rightItem=[35, 0, 0], body=[0, 12, 0]), P(rightArm=[-90, 0, 0], rightItem=[90, 0, 0], body=[8, -4, 0], root_pos=[0, 0, -2]), P(rightArm=[-85, 0, 0], rightItem=[85, 0, 0], body=[6, -4, 0], root_pos=[0, 0, -2])),
             (P(rightArm=[-60, 10, 0], rightItem=[60, 0, 0], body=[-4, 10, 0]), P(rightArm=[-150, 0, 0], rightItem=[150, 0, 0], body=[-10, 0, 0], leftArm=[-150, 0, 0]), P(rightArm=[-145, 0, 0], rightItem=[145, 0, 0], body=[-8, 0, 0], leftArm=[-140, 0, 0])),
@@ -93,8 +93,8 @@ FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = {n: 135 for n in W if n == "hyeonmu_shield" or W[n][1] in ("bow", "tome")}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
-FP_SPIN = {n: (180 if n == "hyeonmu_shield" or W[n][1] in ("bow", "tome") else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
+FP_TILT = {n: 135 for n in W if n == "hyeonmu_shield" or W[n][1] == "bow"}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
+FP_SPIN = {n: (180 if n == "hyeonmu_shield" or W[n][1] == "bow" else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -102,7 +102,7 @@ def chan(bone):
     return (bone[:-4], "position") if bone.endswith("_pos") else (bone, "rotation")
 
 
-FP_YAW = {n: 27 for n in W if W[n][1] == "tome"}  # 책은 모델 자체가 책장이 +Z (V12.93) → 방패 패링 각도(+27) 그대로면 책장이 정면  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
+FP_YAW = {}  # 책은 모델 자체가 책장이 +Z (V12.93) → 방패 패링 각도(+27) 그대로면 책장이 정면  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
 FP_GUARD_TURN = 27  # 관측: -63 모서리, -90·-117 은 앞면(무늬) 비스듬, +47(V12.83) 은 뒷면(손잡이)이 20° 비스듬 → 모서리에서 90° 인 +27 이 뒷면 정면. 이전 메모: V12.86 -90 은 왼쪽이 가깝게 비스듬 · V12.87 -63 은 모서리가 보였음 → 반대로 27°: 방패 1인칭 패링: 정면 (0° 는 비스듬, 47° 는 왼쪽을 봤음)

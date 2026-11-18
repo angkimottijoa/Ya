@@ -21,23 +21,23 @@ W = {
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=78, maxd=11, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     # 1차 직업 도구 (V12.91): 덜 화려하게 · 블록 적게
-    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", flip180=True, px=34, maxd=5, len=1.25, grip=0.13, kind="chop", vanilla=True,
+    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", flip180=True, px=34, maxd=5, len=1.75, grip=0.13, kind="chop", vanilla=True,
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "t1_mage": dict(item="rpg:jt_mage", src="t1_mage.png", px=40, maxd=5, len=1.8, grip=0.3, kind="thrust", vanilla=True,
                     tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "t1_archer": dict(item="rpg:jt_archer", src="t1_archer.png", mirror=True, string=(222, 206, 160), px=36, maxd=5, len=1.4, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "t1_cleric": dict(item="rpg:jt_cleric", src="t1_cleric.png", px=26, maxd=3, len=0.75, grip=0.5, kind="tome", noupright=True,
+    "t1_cleric": dict(item="rpg:jt_cleric", src="", book=dict(cover=None, leather=(92, 52, 34), trim=(206, 168, 80), tint=(255, 244, 222)), kind="tome",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     # 2차 직업 도구 (V12.92): 1차보다 화려하게 · 블록 더 많이
-    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", px=56, maxd=7, len=1.55, grip=0.1, kind="chop", vanilla=True),
-    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", px=60, maxd=9, len=1.8, grip=0.1, kind="chop", vanilla=True),
+    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", px=56, maxd=7, len=2.15, grip=0.1, kind="chop", vanilla=True),
+    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", px=60, maxd=4, len=2.3, grip=0.1, kind="chop", vanilla=True),
     "t2_hunter": dict(item="rpg:jt_hunter", src="t2_hunter.png", mirror=True, string=(200, 190, 170), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_sniper": dict(item="rpg:jt_sniper", src="t2_sniper.png", string=(230, 220, 160), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
-    "t2_elementalist": dict(item="rpg:jt_elementalist", src="t2_elementalist.png", px=40, maxd=4, len=0.85, grip=0.5, kind="tome", noupright=True),
+    "t2_elementalist": dict(item="rpg:jt_elementalist", src="", book=dict(cover=(150, 592, 488, 925), leather=(34, 44, 78), trim=(196, 150, 70), tint=(236, 236, 255)), kind="tome"),
     "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
-    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", flip180=True, px=56, maxd=7, len=1.45, grip=0.12, kind="chop", vanilla=True),
-    "t2_priest": dict(item="rpg:jt_priest", src="t2_priest.png", px=40, maxd=4, len=0.85, grip=0.5, kind="tome", noupright=True),
+    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", flip180=True, px=56, maxd=7, len=2.0, grip=0.12, kind="chop", vanilla=True),
+    "t2_priest": dict(item="rpg:jt_priest", src="", book=dict(cover=(1135, 588, 1495, 925), leather=(226, 214, 190), trim=(212, 172, 84), tint=(255, 248, 230)), kind="tome"),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
@@ -196,7 +196,124 @@ def depth_map(im, dome=False, dome_h=10, shell=False, maxd=7):
     return out
 
 
+def emit(name, cfg, cubes, im_tex, HAND, tex):
+    Ht = im_tex.size[1]
+    geo = {"format_version": "1.16.0", "minecraft:geometry": [{
+        "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
+                        "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
+        "bones": [{"name": "root", "pivot": [0, 0, 0]},
+                  {"name": "waist", "parent": "root", "pivot": [0, 12, 0]},
+                  {"name": "body", "parent": "waist", "pivot": [0, 24, 0]},
+                  {"name": "rightArm", "parent": "body", "pivot": [-5, 22, 0]},
+                  {"name": "rightItem", "parent": "rightArm", "pivot": [-6, 15, 1]},
+                  {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND},  # 1인칭 자리 · 크기 · 세우기
+                  {"name": "rpg_w3d_tilt", "parent": "rpg_w3d", "pivot": HAND},  # 1인칭: 화면 가로축으로 앞뒤 기울이기
+                  {"name": "rpg_w3d_spin", "parent": "rpg_w3d_tilt", "pivot": HAND, "cubes": cubes}]}]}  # 무기 긴 축(Z)으로만 돌리기
+    (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
+    (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
+    # 손에 든 납작한 아이템을 숨기는 빈 attachable (무기 모습은 플레이어 모델 쪽에서 그림)
+    empty = {"format_version": "1.16.0", "minecraft:geometry": [{"description": {"identifier": "geometry.rpg_w3d_empty", "texture_width": 16, "texture_height": 16},
+             "bones": [{"name": "rpg_w3d_empty", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"}]}]}
+    (RP / "models" / "entity" / "rpg_w3d_empty.geo.json").write_text(json.dumps(empty))
+    att = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
+        "identifier": cfg["item"], "materials": {"default": "entity_alphatest"}, "textures": {"default": tex},
+        "geometry": {"default": "geometry.rpg_w3d_empty"}, "render_controllers": ["controller.render.item_default"]}}}
+    (RP / "attachables").mkdir(parents=True, exist_ok=True)
+    (RP / "attachables" / f"{name}.json").write_text(json.dumps(att, ensure_ascii=False, indent=1))
+
+
+def fill_holes(im):
+    """가장자리와 이어지지 않은 투명 칸(갇힌 구멍)을 주변 색으로 채움"""
+    Wd, Ht = im.size; p = im.load()
+    out = [[False] * Wd for _ in range(Ht)]
+    q = deque((x, y) for x in range(Wd) for y in (0, Ht - 1)); q.extend((x, y) for y in range(Ht) for x in (0, Wd - 1))
+    while q:
+        x, y = q.popleft()
+        if not (0 <= x < Wd and 0 <= y < Ht) or out[y][x] or p[x, y][3]: continue
+        out[y][x] = True
+        q.extend(((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)))
+    holes = [(x, y) for y in range(Ht) for x in range(Wd) if not p[x, y][3] and not out[y][x]]
+    for _ in range(Wd + Ht):
+        if not holes: break
+        rest = []
+        for x, y in holes:
+            nb = [p[x + dx, y + dy] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)) if 0 <= x + dx < Wd and 0 <= y + dy < Ht and p[x + dx, y + dy][3]]
+            if nb: p[x, y] = (*(sum(c[i] for c in nb) // len(nb) for i in range(3)), 255)
+            else: rest.append((x, y))
+        holes = rest
+
+
+BOOK_PW, BOOK_PH = 20, 28  # 책장 · 표지 텍스처 칸 (가로 · 세로 픽셀)
+
+
+def book_texture(cfg):
+    """[왼쪽 책장 | 오른쪽 책장 | 앞표지 | 뒤표지 | 책장 옆 · 가죽 · 장식 · 책갈피 색]"""
+    b = cfg["book"]; PW, PH = BOOK_PW, BOOK_PH
+    tex = Image.new("RGBA", (PW * 4 + 4, PH), (0, 0, 0, 255))
+    photo = Image.open(ROOT / "art" / "book_open_ref.jpg").convert("RGB").rotate(-22, resample=Image.BICUBIC, center=(660, 440))
+    def tinted(im):
+        im = im.resize((PW, PH), Image.LANCZOS); px = im.load(); t = b["tint"]
+        for y in range(PH):
+            for x in range(PW):
+                r, g, bb = px[x, y]; px[x, y] = (r * t[0] // 255, g * t[1] // 255, bb * t[2] // 255)
+        return im
+    tex.paste(tinted(photo.crop((505, 215, 640, 650))), (0, 0))          # 왼쪽 책장 (글씨)
+    tex.paste(tinted(photo.crop((660, 225, 905, 632))), (PW, 0))         # 오른쪽 책장 (마법진)
+    lc, tc = b["leather"], b["trim"]
+    if b["cover"]:
+        cov = Image.open(ROOT / "art" / "book_covers_ref.png").convert("RGB"); k = cov.width / 2000
+        front = cov.crop(tuple(round(v * k) for v in b["cover"])).resize((PW, PH), Image.LANCZOS)
+    else:  # 성직자의 서: 가죽 표지 + 금빛 십자가 · 모서리 장식
+        front = Image.new("RGB", (PW, PH), lc); d = ImageDraw.Draw(front)
+        d.rectangle([1, 1, PW - 2, PH - 2], outline=tuple(max(0, c - 30) for c in lc))
+        cx, cy = PW // 2, PH // 2 - 2
+        d.rectangle([cx - 1, cy - 7, cx, cy + 8], fill=tc); d.rectangle([cx - 5, cy - 3, cx + 4, cy - 2], fill=tc)
+        for x0, y0 in ((0, 0), (PW - 3, 0), (0, PH - 3), (PW - 3, PH - 3)): d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=tc)
+    tex.paste(front, (PW * 2, 0))
+    back = Image.new("RGB", (PW, PH), lc); d = ImageDraw.Draw(back)
+    d.rectangle([1, 1, PW - 2, PH - 2], outline=tc)
+    for x0, y0 in ((0, 0), (PW - 3, 0), (0, PH - 3), (PW - 3, PH - 3)): d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=tc)
+    tex.paste(back, (PW * 3, 0))
+    for i, c in enumerate([(226, 208, 170), lc, tc, (170, 30, 40)]):
+        for y in range(PH): tex.putpixel((PW * 4 + i, y), (*c, 255))
+    return tex
+
+
+def build_book(name, cfg):
+    """V자로 펼친 책: 책등이 앞(-Z)으로 뻗어 손바닥 위에 놓이고, 양쪽 반이 30° 씩 들려 V 모양 (책장이 위, 표지가 바깥)"""
+    PW, PH = BOOK_PW, BOOK_PH
+    tex = f"textures/models/rpg_w3d_{name}"
+    im_tex = book_texture(cfg)
+    (RP / "textures" / "models").mkdir(parents=True, exist_ok=True)
+    im_tex.save(RP / f"{tex}.png")
+    HAND = [-6, 12.5, -1]
+    L, Wh, tc, tp, ang = 10.0, 7.0, 0.5, 1.4, 30   # 책 높이(책등 길이) · 한쪽 폭 · 표지 · 책장 두께 · 들린 각도
+    hx, y0, zc = HAND[0], HAND[1] - 3.0, HAND[2] - 3.5  # 책등: 주먹 바로 아래, 손에서 조금 앞
+    col = lambda i: {"uv": [PW * 4 + i, PH // 2], "uv_size": [1, 1]}
+    EDGE, LEATHER, TRIM, RIBBON = col(0), col(1), col(2), col(3)
+    def faces(**kw):
+        f = {k: kw.get("side") for k in ("north", "south", "east", "west", "up", "down")}
+        f.update({k: v for k, v in kw.items() if k != "side"}); return f
+    cubes = []
+    for sgn, page, cover in ((-1, 0, 2), (1, 1, 3)):  # -X 반쪽 · +X 반쪽
+        rot = [0, 0, ang if sgn < 0 else -ang]  # 바깥 끝이 위로 (베드락 Z 회전: +X 쪽은 - 로 들림)
+        x0 = hx - Wh if sgn < 0 else hx
+        cubes.append({"origin": [round(x0, 3), round(y0, 3), round(zc - L / 2 - 0.3, 3)], "size": [Wh, tc, L + 0.6], "pivot": [hx, y0, zc], "rotation": rot,
+                      "uv": faces(side=LEATHER, down={"uv": [PW * cover, 0], "uv_size": [PW, PH]})})
+        px0 = x0 + (0.35 if sgn < 0 else 0)
+        cubes.append({"origin": [round(px0, 3), round(y0 + tc, 3), round(zc - L / 2, 3)], "size": [Wh - 0.35, tp, L], "pivot": [hx, y0, zc], "rotation": rot,
+                      "uv": faces(side=EDGE, up={"uv": [PW * page, 0], "uv_size": [PW, PH]})})
+        for zz in (zc - L / 2 - 0.4, zc + L / 2 - 0.6):  # 모서리 금장식
+            cubes.append({"origin": [round(x0 + (0 if sgn < 0 else Wh - 1.0), 3), round(y0 - 0.1, 3), round(zz, 3)], "size": [1.0, tc + 0.2, 1.0], "pivot": [hx, y0, zc], "rotation": rot,
+                          "uv": faces(side=TRIM)})
+    cubes.append({"origin": [hx - 0.7, y0 - 0.5, zc - L / 2 - 0.3], "size": [1.4, 0.8, L + 0.6], "uv": faces(side=LEATHER)})  # 책등
+    cubes.append({"origin": [hx - 0.3, y0 - 3.2, zc + L / 2 - 1.2], "size": [0.6, 3.6, 0.1], "uv": faces(side=RIBBON)})  # 책갈피
+    emit(name, cfg, cubes, im_tex, HAND, tex)
+    return {}, len(cubes), im_tex.size
+
+
 def build(name, cfg):
+    if cfg.get("book"): return build_book(name, cfg)
     if cfg["src"]:
         src = Image.open(ROOT / "art" / cfg["src"])
         if cfg.get("shell_only"): base = shell_only(src).crop(shell_only(src).getbbox())  # 윤곽으로만 자름 (밝은 테두리·하이라이트가 배경으로 지워지지 않게)
@@ -207,6 +324,7 @@ def build(name, cfg):
         if cfg.get("flip180"): up = up.rotate(180)  # 무게 판정이 반대로 나온 그림 (칼끝이 위로)
         if cfg.get("mirror"): up = up.transpose(Image.FLIP_LEFT_RIGHT)  # 활: 활대 볼록한 쪽이 앞(그림 오른쪽)
         im = shrink(up, cfg["px"])
+        if cfg["src"].startswith("t"): fill_holes(im)  # 칼날 가운데 흰 하이라이트가 배경으로 지워져 뚫린 구멍
         if cfg.get("string"):  # 줄여서 사라진 활시위: 위·아래 끝을 잇는 1픽셀 선
             pp = im.load(); Wd0, Ht0 = im.size
             ys = [y for y in range(Ht0) if any(pp[x, y][3] for x in range(Wd0))]
@@ -232,7 +350,6 @@ def build(name, cfg):
             for y in range(Ht): big.putpixel((Wd + i, y), (*c, 255))
         im_tex = big
     else: im_tex = im
-    if cfg.get("vanilla"): im_tex = im.transpose(Image.TRANSPOSE)  # 옆으로 세운 무기: 면의 가로(u)가 그림 세로를 따라가므로 텍스처를 전치 (합친 블록 그림이 90° 돌지 않게)
     tex = f"textures/models/rpg_w3d_{name}"
     (RP / "textures" / "models").mkdir(parents=True, exist_ok=True)
     im_tex.save(RP / f"{tex}.png")
@@ -242,48 +359,38 @@ def build(name, cfg):
     GY = 0
     side = cfg.get("vanilla")  # 넓은 면이 옆을 보게: 그림 가로를 Z 로, 두께를 X 로 (석궁처럼 X +90° 로 앞을 향할 때 면이 세로로 섬)
     cubes = []
-    # 최적화 (V12.94): 같은 두께인 이웃 픽셀을 직사각형 블록 하나로 합침 (블록 속은 원래 비어 있음 — 픽셀 한 칸 = 앞뒤를 꿰는 블록 하나)
-    #   그림 면은 합친 직사각형 그대로 텍스처를 입힘. 면 방향 규칙(방패 앞면으로 확인): 보는 사람 오른쪽으로 u 증가, 아래로 v 증가
-    used = [[False] * Wd for _ in range(Ht)]
-    rects = []
     for y in range(Ht):
-        for x in range(Wd):
+        x = 0
+        while x < Wd:
             t = dm[y][x]
-            if not t or used[y][x]: continue
-            w = 1
-            while x + w < Wd and not used[y][x + w] and dm[y][x + w] == t: w += 1
-            h = 1
-            while y + h < Ht and all(not used[y + h][x + i] and dm[y + h][x + i] == t for i in range(w)): h += 1
-            for yy in range(y, y + h):
-                for xx in range(x, x + w): used[yy][xx] = True
-            rects.append((x, y, w, h, t))
-    flip = cfg.get("flipup")
-    for x0, y, w, h, t in rects:
+            if not t: x += 1; continue
+            x0 = x
+            while x < Wd and dm[y][x] == t and not (cfg.get("vanilla") or cfg.get("bowside")): x += 1  # 옆으로 세운 무기는 합치지 않음 (합친 줄 그림이 90° 돌아 노이즈처럼 보였음)
+            if x == x0: x += 1
+            w = x - x0
             if isinstance(t, tuple): T = (t[1] - t[0]) * u; Z0 = t[0] * u  # 껍데기: 그 자리 앞·뒤 면
             else: T = t * u * (0.9 if cfg["src"] else 0.6); Z0 = -T / 2
-            o3 = [round((x0 - gx) * u, 4), round((gy - y - h) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(h * u, 4), round(T, 4)]
-            xm, ym = x0 + w // 2, y + h // 2
-            if side:  # 텍스처 전치: 그림 (x, y) → 텍스처 (y, x)
-                one = {"uv": [ym, xm], "uv_size": [1, 1]}
-                vv, vs = (x0 + w, -w) if flip else (x0, w)
-                face = {"east": {"uv": [y, vv], "uv_size": [h, vs]}, "west": {"uv": [y + h, vv], "uv_size": [-h, vs]},
-                        "north": one, "south": one, "up": one, "down": one}
-            elif cfg.get("bowside"):
-                one = {"uv": [xm, ym], "uv_size": [1, 1]}
-                face = {"east": {"uv": [x0 + w, y], "uv_size": [-w, h]}, "west": {"uv": [x0, y], "uv_size": [w, h]},
-                        "north": one, "south": one, "up": one, "down": one}
-            else:  # 납작한 것(방패 · 책): 그림이 앞(-Z, north) · 뒤(south)
-                one = {"uv": [xm, ym], "uv_size": [1, 1]}
-                face = {"north": {"uv": [x0, y], "uv_size": [w, h]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, h]},
-                        "east": one, "west": one, "up": one, "down": one}
+            o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
+            face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
+                    "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
+                    "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}
             if cfg.get("bowside"):  # 활: 세로로 세우되 옆에서 보이게 — 그림 세로 → 위(Y), 그림 가로 → Z(그림 왼쪽 = 화살 쪽 = 앞 -Z), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
                 o3 = [round(oz, 4), oy, round(-(ox + sx), 4)]; s3 = [sz, sy, sx]  # 그림 오른쪽 → 앞(-Z) (게임에서 확인: 반대였음)
+                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 옆 테두리 면: 그 줄 가운데 색 한 칸 (줄을 세로로 늘려 노이즈처럼 보이던 것)
+                face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
+                        "north": {"uv": [x0, y], "uv_size": [1, 1]}, "south": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]},
+                        "up": mid, "down": mid}
             if side:  # 참고 팩(blades)처럼: 손에서 -Z(앞) 로 뻗은 모델 — 그림 세로(끝) → -Z, 그림 가로 → 위(Y, 그림 왼쪽이 위), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
-                o3 = [round(oz, 4), round(ox if flip else -(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]  # flipup: 그림 왼쪽이 아래 (낫 날 끝이 바닥 쪽)
-            if cfg.get("kind") == "tome":  # 책: 그림(펼친 책장)이 플레이어 쪽(+Z, south 면)을 보게 앞뒤를 뒤집어 만듦
+                o3 = [round(oz, 4), round(ox if cfg.get("flipup") else -(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]  # flipup: 그림 왼쪽이 아래 (낫 날 끝이 바닥 쪽)
+                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 줄 사이 계단 면: 가운데 색 한 칸 (줄을 두께 쪽으로 눌러 노이즈처럼 보이던 것)
+                face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
+                        "north": mid, "south": mid,
+                        "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
+            if cfg.get("kind") == "tome":  # 책: 그림(펼친 책장)이 플레이어 쪽(+Z)을 보게 앞뒤를 뒤집어 만듦 (손 회전 180° 없이)
                 o3 = [o3[0], o3[1], round(-(o3[2] + s3[2]), 4)]
+                face = dict(face); face["north"], face["south"] = face["south"], face["north"]
             cubes.append({"origin": o3, "size": s3, "uv": face})
     shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z)
     zoff = -5.5 if shield else 0
@@ -317,28 +424,7 @@ def build(name, cfg):
                 cubes.append({"origin": [round((X - gx + Wd / 2) * u - w * u / 2, 4) if False else round((X) * u - w * u / 2, 4), round((gy - yy) * u, 4), round(Z * u - w * u / 2, 4)],
                               "size": [round(w * u, 4), round(u * 1.1, 4), round(w * u, 4)],
                               "uv": {f: {"uv": [col, int(yy) % Ht], "uv_size": [1, 1]} for f in ("north", "south", "east", "west", "up", "down")}})
-    geo = {"format_version": "1.16.0", "minecraft:geometry": [{
-        "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
-                        "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
-        "bones": [{"name": "root", "pivot": [0, 0, 0]},
-                  {"name": "waist", "parent": "root", "pivot": [0, 12, 0]},
-                  {"name": "body", "parent": "waist", "pivot": [0, 24, 0]},
-                  {"name": "rightArm", "parent": "body", "pivot": [-5, 22, 0]},
-                  {"name": "rightItem", "parent": "rightArm", "pivot": [-6, 15, 1]},
-                  {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND},  # 1인칭 자리 · 크기 · 세우기
-                  {"name": "rpg_w3d_tilt", "parent": "rpg_w3d", "pivot": HAND},  # 1인칭: 화면 가로축으로 앞뒤 기울이기
-                  {"name": "rpg_w3d_spin", "parent": "rpg_w3d_tilt", "pivot": HAND, "cubes": cubes}]}]}  # 무기 긴 축(Z)으로만 돌리기
-    (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
-    (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
-    # 손에 든 납작한 아이템을 숨기는 빈 attachable (무기 모습은 플레이어 모델 쪽에서 그림)
-    empty = {"format_version": "1.16.0", "minecraft:geometry": [{"description": {"identifier": "geometry.rpg_w3d_empty", "texture_width": 16, "texture_height": 16},
-             "bones": [{"name": "rpg_w3d_empty", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"}]}]}
-    (RP / "models" / "entity" / "rpg_w3d_empty.geo.json").write_text(json.dumps(empty))
-    att = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
-        "identifier": cfg["item"], "materials": {"default": "entity_alphatest"}, "textures": {"default": tex},
-        "geometry": {"default": "geometry.rpg_w3d_empty"}, "render_controllers": ["controller.render.item_default"]}}}
-    (RP / "attachables").mkdir(parents=True, exist_ok=True)
-    (RP / "attachables" / f"{name}.json").write_text(json.dumps(att, ensure_ascii=False, indent=1))
+    emit(name, cfg, cubes, im_tex, HAND, tex)
     anims = {}
     return anims, len(cubes), (Wd, Ht)
 
