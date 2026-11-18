@@ -62,13 +62,13 @@ system.runInterval(() => {
       lastSlot.set(p.id, back);
       if (throttled(p)) continue;
       if (p.isSneaking) {
-        // 쉬프트+[메뉴] = 옆 창(퀘스트/정보) 접기 순환: 모두 펼침 → 정보 접힘 → 모두 접힘
+        // 쉬프트+[메뉴] = 옆 창 접기 순환 (V12.124: 정보창이 먼저 남고 퀘스트가 먼저 사라짐): 모두 펼침 → 퀘스트 접힘 → 모두 접힘
         const st = data(p).set;
-        if (st.card && st.quest) st.card = false;
-        else if (st.quest) st.quest = false;
+        if (st.card && st.quest) st.quest = false;
+        else if (st.card) st.card = false;
         else st.card = st.quest = true;
         save(p);
-        notify(p, `§7HUD 창: §f${st.quest ? (st.card ? "모두 펼침" : "정보 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
+        notify(p, `§7HUD 창: §f${st.card ? (st.quest ? "모두 펼침" : "퀘스트 접힘") : "모두 접힘"} §7(쉬프트+[메뉴]로 전환)`);
         continue;
       }
       // 터치를 뗄 시간을 준 뒤 화면을 연다 (누르고 있는 중에 열면 바로 닫히는 문제)
