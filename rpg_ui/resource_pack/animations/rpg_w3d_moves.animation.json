@@ -4120,7 +4120,7 @@
      "rotation": [
       "math.sin(variable.attack_time * 180) * -70",
       0,
-      12
+      -15
      ]
     }
    }
@@ -4152,7 +4152,7 @@
      "rotation": [
       "math.sin(variable.attack_time * 180) * -70",
       0,
-      12
+      -15
      ]
     }
    }
@@ -4184,7 +4184,7 @@
      "rotation": [
       "math.sin(variable.attack_time * 180) * -70",
       0,
-      12
+      -15
      ]
     }
    }
@@ -4207,21 +4207,21 @@
     },
     "rpg_w3d_tilt": {
      "rotation": [
-      -45,
+      135,
       0,
       0
      ]
     },
     "rpg_w3d_spin": {
      "rotation": [
-      "math.sin(variable.attack_time * 180) * -12",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(variable.attack_time * 180) * 14",
       0,
       180
      ],
      "position": [
       0,
-      0,
-      "math.sin(variable.attack_time * 180) * 4"
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(variable.attack_time * 180) * 2.5"
      ]
     }
    }
@@ -4253,7 +4253,7 @@
      "rotation": [
       "math.sin(variable.attack_time * 180) * -70",
       0,
-      12
+      -15
      ]
     }
    }

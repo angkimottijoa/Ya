@@ -72,8 +72,8 @@ T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = {"jujak_bow": -45}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활은 90° 더 (활 방향이 하늘 → 앞)
-FP_SPIN = {n: (180 if n == "jujak_bow" else 12) for n in W}  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 12°
+FP_TILT = {"jujak_bow": 135}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
+FP_SPIN = {n: (180 if n == "jujak_bow" else -15) for n in W}  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -130,7 +130,9 @@ def build():
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
         sw = "math.sin(variable.attack_time * 180)"  # 때리기 · 블록 · 몹 · 스킬 휘두름 (게임이 주는 휘두르기 시간)
         if name == "jujak_bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
-            spin = {"rotation": [f"{sw} * -12", 0, FP_SPIN.get(name, 0)], "position": [0, 0, f"{sw} * 4"]}
+            # 당기기(사용 중): 내 쪽으로 당기고 살짝 들림 · 쏘기(휘두르기 시간): 앞으로 튕겼다 반동으로 돌아옴
+            draw = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0)"
+            spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 0, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
             spin = {"rotation": [f"{sw} * -70", 0, FP_SPIN.get(name, 0)]}
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
