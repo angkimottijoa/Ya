@@ -69,6 +69,7 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6}  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
@@ -136,7 +137,7 @@ def build():
             spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
             spin = {"rotation": [f"{sw} * 70", f"{sw} * -30", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
-        anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * (1.45 if name == "jujak_bow" else 1), "rotation": FP_ROT, "position": FP_POS},  # 활은 1인칭에서 더 크게
+        anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * FP_SIZE.get(name, 1), "rotation": FP_ROT, "position": FP_POS},  # 활은 1인칭에서 더 크게
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
                                                                           "rpg_w3d_spin": spin}}
         ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"

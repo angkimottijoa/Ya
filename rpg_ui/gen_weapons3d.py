@@ -20,7 +20,7 @@ W = {
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src=None, px=24, len=1.3, grip=0.5, kind="bash",
+    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.4, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
@@ -174,7 +174,7 @@ def build(name, cfg):
         src = Image.open(ROOT / "art" / cfg["src"])
         if cfg.get("shell_only"): base = shell_only(src).crop(shell_only(src).getbbox())  # 윤곽으로만 자름 (밝은 테두리·하이라이트가 배경으로 지워지지 않게)
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
-        im = shrink(upright(base), cfg["px"])
+        im = shrink(base if cfg.get("noupright") else upright(base), cfg["px"])  # 방패는 그림 그대로 (둥글어서 돌리면 엉뚱하게 눕음)
         dm = depth_map(im, dome=cfg.get("dome", False))
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)

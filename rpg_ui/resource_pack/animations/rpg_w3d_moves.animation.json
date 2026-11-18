@@ -4161,7 +4161,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.63,
+     "scale": 1.008,
      "rotation": [
       0,
       55,
@@ -4193,7 +4193,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.9135,
+     "scale": 1.18755,
      "rotation": [
       0,
       55,
