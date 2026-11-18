@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.116.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.117.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.117 변경
+- 플레이어끼리 피해(평타 · 모든 스킬) 10배: 최대 체력을 1000 → 1만으로 10배 늘린 것에 맞춤 (몹에게 주는 피해는 그대로)
 
 ## V12.116 변경
 - 청룡 아이템 아이콘을 3D 와 같은 청룡의 창 그림으로 (32x32)

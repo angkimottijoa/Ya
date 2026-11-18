@@ -56,6 +56,8 @@ function applyMaxHp(p) {
 const hpLoaded = new Set();
 /** 몹 · 환경 피해 배율 (V12.111: 레벨 비례 최대 7배 → 1.1배) */
 export const incomingMul = (p) => 1.1;
+/** 플레이어끼리 피해 배율: 최대 체력을 1000 → 1만으로 10배 늘린 만큼 */
+export const PVP_MUL = 10;
 const lastHurt = new Map(); // pid -> tick (전투 밖 회복용)
 
 export function skillReadyIn(p) {
@@ -78,7 +80,7 @@ export function initCombat() {
       const red = combatStats(hurtEntity).def / 100;
       // V12.109: 체력이 최대 1000까지 크므로 몹 · 환경 피해도 레벨에 맞춰 키움 (플레이어끼리는 그대로)
       const fromPlayer = damageSource.damagingEntity?.typeId === "minecraft:player";
-      const mul = fromPlayer ? 1 : incomingMul(hurtEntity);
+      const mul = fromPlayer ? PVP_MUL : incomingMul(hurtEntity); // V12.117: 플레이어 공격(평타 · 스킬)은 체력 1만에 맞춰 10배
       const want = damage * mul * (1 - red); // 최종으로 잃을 양
       if (hp && hp.currentValue > 0 && Math.abs(want - damage) > 0.01) {
         const nv = hp.currentValue - (want - damage);
