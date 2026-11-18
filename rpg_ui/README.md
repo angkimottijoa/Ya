@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.112.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.113.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.113 변경
+- 관리자 도구 > 플레이어: 스탯 초기화 (레벨 유지, 쓴 포인트 돌려받기)
 
 ## V12.112 변경
 - 사신수 · 사흉수 ② 쉬프트+클릭은 다시 짧게(14~22초), ③ 쉬프트+점프 · ④ 쉬프트 두 번 을 청룡 강림 120초 기준으로 위력에 맞춰 60~120초

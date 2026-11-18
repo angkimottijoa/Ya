@@ -859,6 +859,15 @@ function playerTab(p, selId) {
   scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });
   scr.action("골드 +1000", () => { addGold(t, 1000); return re(); });
+  scr.action("§a스탯 초기화 (레벨 유지 · 포인트 돌려받기)", () => confirm(p, `${t.name}의 스탯을 초기화하고 쓴 포인트를 돌려줄까요? (레벨은 그대로)`, () => {
+    const back = Object.values(d.stat ?? {}).reduce((a, v) => a + (Number(v) || 0), 0);
+    d.pts = (d.pts ?? 0) + back;
+    d.stat = { str: 0, dex: 0, int: 0, vit: 0 };
+    save(t);
+    msg(p, `§a${t.name}의 스탯을 초기화했습니다 §7(포인트 ${back} 돌려받음)`);
+    if (t !== p) msg(t, `§a관리자가 스탯을 초기화했습니다 §7(포인트 ${back} 돌려받음, 메뉴에서 다시 분배)`);
+    return re();
+  }, re));
   scr.action("레벨/스탯 초기화", () => confirm(p, `${t.name}의 레벨과 스탯을 초기화할까요?`, () => {
     Object.assign(d, { lv: 1, xp: 0, pts: 0, stat: { str: 0, dex: 0, int: 0, vit: 0 } });
     save(t);
