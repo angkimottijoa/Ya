@@ -26,7 +26,7 @@
      "rotation": [
       "0",
       "0 + (v.up * 70 - v.dn * 170 + v.rec * 100) * 0.6",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (v.up * 35 - v.dn * 60 + v.rec * 25) * 0.6"
+      "-90 + math.sin(q.life_time * 110) * 2.5 + (v.up * 35 - v.dn * 60 + v.rec * 25) * 0.6"
      ],
      "position": [
       "0",
@@ -46,7 +46,7 @@
       "0 + math.sin(q.life_time * 110) * 2.5 + (v.up * 20 - v.dn * 35 + v.rec * 15) * 1"
      ],
      "position": [
-      "0 + (v.up * 3 - v.dn * 10 + v.rec * 7) * 1",
+      "0 + (-v.up * 3 + v.dn * 10 - v.rec * 7) * 1",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ],
@@ -61,10 +61,10 @@
      "rotation": [
       "0",
       "0 + (v.up * 10 - v.dn * 10) * 0.6",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (v.up * 20 - v.dn * 35 + v.rec * 15) * 0.6"
+      "-90 + math.sin(q.life_time * 110) * 2.5 + (v.up * 20 - v.dn * 35 + v.rec * 15) * 0.6"
      ],
      "position": [
-      "0 + (v.up * 3 - v.dn * 10 + v.rec * 7) * 0.6",
+      "0 + (-v.up * 3 + v.dn * 10 - v.rec * 7) * 0.6",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ]
@@ -96,7 +96,7 @@
      "rotation": [
       "0 + (v.dn * 15 - v.rec * 15) * 0.6",
       "0",
-      "0 + math.sin(q.life_time * 110) * 2.5 + (v.up * 80 - v.dn * 160 + v.rec * 80) * 0.6"
+      "-90 + math.sin(q.life_time * 110) * 2.5 + (v.up * 80 - v.dn * 160 + v.rec * 80) * 0.6"
      ],
      "position": [
       "0",
@@ -116,7 +116,7 @@
       "0 + math.sin(q.life_time * 110) * 2.5 + (-v.dn * 12 + v.rec * 12) * 1"
      ],
      "position": [
-      "0 + (v.dn * 1.5 - v.rec * 1.5) * 1",
+      "0 + (-v.dn * 1.5 + v.rec * 1.5) * 1",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ],
@@ -134,7 +134,7 @@
       "0 + math.sin(q.life_time * 110) * 2.5 + (-v.dn * 12 + v.rec * 12) * 0.6"
      ],
      "position": [
-      "0 + (v.dn * 1.5 - v.rec * 1.5) * 0.6",
+      "0 + (-v.dn * 1.5 + v.rec * 1.5) * 0.6",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ]
@@ -151,7 +151,7 @@
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0 + (v.up * 2 - v.dn * 7 + v.rec * 5) * 1",
+      "0 + (-v.up * 2 + v.dn * 7 - v.rec * 5) * 1",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ],
@@ -169,7 +169,7 @@
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
      "position": [
-      "0 + (v.up * 2 - v.dn * 7 + v.rec * 5) * 0.6",
+      "0 + (-v.up * 2 + v.dn * 7 - v.rec * 5) * 0.6",
       "0 + math.sin(q.life_time * 170) * 0.25",
       "0"
      ]
