@@ -29,7 +29,7 @@ const cooldown = new Map(); // pid -> ready tick
 const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
 
 // ═════════ 스탯 → 전투 수치 (V12.119 밸런스 V2) ═════════
-//  모든 퍼센트는 '점점 덜 오르는' 곡선 (상한 없이 끝없이 오르지만 몰빵할수록 효율 ↓) + 몰빵하면 대가
+//  모든 퍼센트는 '점점 덜 오르는' 곡선 (상한 없이 끝없이 오르지만 몰빵할수록 효율 ↓) — 대가는 V12.121 에서 없앰
 //   힘   피해 +1.5%/점                         대가: 힘 > 100 이고 민첩×2 보다 크면 이동 속도 ↓ (무거운 몸, 최대 -15%)
 //   민첩 치명 확률 · 치명 피해 · 이동 속도 · 회피  대가: 민첩 > 100 이면 최대 체력 ↓ (가벼운 몸, 최대 -20%)
 //   지능 최대 마나 · 회복 · 마법 피해 · 재사용 대기 ↓  대가: 지능 > 100 이면 받는 물리 피해 ↑ (허약함, 최대 +15%)
@@ -37,25 +37,25 @@ const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
 const soft = (x, k, max) => (max * Math.max(0, x)) / (Math.max(0, x) + k); // x 가 k 일 때 max 의 절반
 export function combatStats(p) {
   const str = stat(p, "str"), dex = stat(p, "dex"), int = stat(p, "int"), vit = stat(p, "vit");
-  const heavy = str > 100 && str > dex * 2 ? Math.min(15, (str - Math.max(100, dex * 2)) * 0.05) : 0;
+  const heavy = 0; // V12.121: 대가는 없앰 (복잡) — 몰빵은 '점점 덜 오르는 곡선'으로만 견제
   return {
     str, dex, int, vit,
-    atk: Math.round(str * 1.5),                                  // 피해 +%
+    atk: Math.round(soft(str, 200, 300)),                        // 피해 +% (100 → 100% · 200 → 150% · 400 → 200%)
     crit: Math.round(soft(dex, 150, 50)),                        // 치명 확률 %
-    critDmg: Math.round(150 + soft(dex, 300, 60)),               // 치명 피해 % (150 → 최대 210)
+    critDmg: Math.round(150 + soft(dex, 200, 100)),              // 치명 피해 % (150 → 100에 183 · 200에 200 · 최대 250)
     spd: Math.round(soft(dex, 200, 30) - heavy),                 // 이동 속도 %
     dodge: Math.round(soft(dex, 300, 20)),                       // 회피 %
     def: Math.round(soft(vit, 250, 50)),                         // 받는 물리 피해 감소 %
     mres: Math.round(soft(int, 250, 30) + soft(vit, 250, 50) / 2), // 받는 마법 피해 감소 % (지능 + 체력의 절반)
     cdr: Math.round(soft(int, 200, 30)),                         // 재사용 대기 감소 %
     healIn: Math.round(vit * 0.2),                               // 받는 회복 +%
-    hpCut: dex > 100 ? Math.min(20, (dex - 100) * 0.1) : 0,      // 대가: 최대 체력 -%
-    frail: int > 100 ? Math.min(15, (int - 100) * 0.05) : 0,     // 대가: 받는 물리 피해 +%
-    dull: vit > 100 ? Math.min(15, (vit - 100) * 0.05) : 0,      // 대가: 주는 피해 -%
+    hpCut: 0, frail: 0, dull: 0,                                 // 대가 없음 (V12.121)
     heavy,                                                       // 대가: 이동 속도 -%
   };
 }
 /** 주는 피해 배율 (평타 · 스킬 공통): 힘 + 버프 - 둔함 */
+/** 공격 스탯 → 위력 배율 (힘 · 민첩 · 지능 공통 곡선) */
+export const powOf = (x) => 1 + soft(x, 200, 300) / 100;
 export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * (1 - s.dull / 100); }
 /** 치명타 굴림: 맞으면 배율, 아니면 1 */
 export function rollCrit(p, s = combatStats(p)) { return Math.random() * 100 < s.crit ? s.critDmg / 100 : 1; }
