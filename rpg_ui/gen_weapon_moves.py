@@ -134,7 +134,7 @@ def build():
             draw = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0)"
             spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 0, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
-            spin = {"rotation": [f"{sw} * 70", f"{sw} * 30", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y 30, 반대면 -30)
+            spin = {"rotation": [f"{sw} * 70", f"{sw} * -30", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
                                                                           "rpg_w3d_spin": spin}}
