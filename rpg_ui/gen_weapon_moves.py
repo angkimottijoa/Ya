@@ -84,7 +84,7 @@ def chan(bone):
 
 
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
-FP_REST_TURN = 90  # 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
+FP_REST_TURN = -90  # (+90 은 반대쪽이었음) 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
 
 
 def fp_pos(name):
