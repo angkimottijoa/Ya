@@ -1,0 +1,72 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:hr_burst",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/particles"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     "(variable.particle_random_1 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_2 - 0.5) * 2 * variable.r",
+     "(variable.particle_random_3 - 0.5) * 2 * variable.r"
+    ],
+    "direction": [
+     "(variable.particle_random_1 - 0.5)",
+     "(variable.particle_random_2 - 0.5) + 0.3",
+     "(variable.particle_random_3 - 0.5)"
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life * (0.6 + variable.particle_random_4 * 0.6)"
+   },
+   "minecraft:particle_initial_speed": "variable.spd * (0.4 + variable.particle_random_4 * 0.8)",
+   "minecraft:particle_motion_dynamic": {
+    "linear_drag_coefficient": 2.4
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (variable.particle_random_4 < 0.5 ? 0.18 : 0.08) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.6)",
+     "variable.size * (variable.particle_random_4 < 0.5 ? 0.18 : 0.08) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.6)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 16,
+     "texture_height": 16,
+     "uv": [
+      "(variable.particle_random_4 < 0.5 ? (math.floor(variable.particle_random_3 * 4) + 3) : (math.floor(variable.particle_random_3 * 2) + 6))",
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp((variable.particle_age / variable.particle_lifetime) * 0.7 + variable.particle_random_4 * 0.2 + variable.tone, 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFE6D8",
+      "0.15": "#FFFF7A5A",
+      "0.33": "#FFE0202E",
+      "0.52": "#FF7A0A16",
+      "0.72": "#FF22060A",
+      "0.88": "#FF0A0204",
+      "1.0": "#C0000000"
+     }
+    }
+   }
+  }
+ }
+}

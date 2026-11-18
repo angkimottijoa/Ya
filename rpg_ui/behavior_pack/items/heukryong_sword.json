@@ -1,0 +1,30 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "rpg:heukryong_sword",
+      "menu_category": {
+        "category": "equipment",
+        "group": "itemGroup.name.sword"
+      }
+    },
+    "components": {
+      "minecraft:icon": "rpg_heukryong_sword",
+      "minecraft:display_name": {
+        "value": "§4흑룡의 검"
+      },
+      "minecraft:max_stack_size": 1,
+      "minecraft:hand_equipped": true,
+      "minecraft:enchantable": {
+        "slot": "sword",
+        "value": 22
+      },
+      "minecraft:glint": true,
+      "minecraft:can_destroy_in_creative": false,
+      "minecraft:use_modifiers": {
+        "use_duration": 0.05,
+        "movement_modifier": 1.0
+      }
+    }
+  }
+}

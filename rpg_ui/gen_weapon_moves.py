@@ -13,6 +13,7 @@ RP = ROOT / "resource_pack"
 W = {  # 무기 → 동작 종류 (gen_weapons3d.py 의 아이템과 같음)
     "hundun_scythe": ("hundun_scythe", "reap"),
     "cheongryong_lance": ("cheongryong_sword", "thrust"),
+    "heukryong_sword": ("heukryong_sword", "chop"),
     "baekho_axe": ("baekho_axe", "chop"),
     "jujak_bow": ("jujak_bow", "bow"),
     "hyeonmu_shield": ("hyeonmu_shield", "bash"),
@@ -98,7 +99,7 @@ T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7�
 # 가는 활(1·2·3차)은 1인칭에서 코앞에 뭉쳐 보였음 → 1.1
 FP_SIZE_SWORD = 1.12  # V12.114: 검은 3인칭 0.85배로 줄이고 1인칭은 약 0.95배 (0.85 × 1.12)
 FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.7, "t1_warrior": 1.3 * 1.12, "t1_cleric": 1.3, "t2_hunter": 1.5, "t2_sniper": 1.5, "t3_beastlord": 1.5, "t3_hawkeye": 1.5, "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
-for _n in ("t2_swordmaster", "t2_berserker", "t2_paladin", "t3_sword_emperor", "t3_abyss_knight"): FP_SIZE[_n] = FP_SIZE_SWORD
+for _n in ("t2_swordmaster", "t2_berserker", "t2_paladin", "t3_sword_emperor", "t3_abyss_knight", "heukryong_sword"): FP_SIZE[_n] = FP_SIZE_SWORD
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치

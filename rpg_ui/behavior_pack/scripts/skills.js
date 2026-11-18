@@ -16,6 +16,7 @@ import { WEAPON_SKILLS as BH_SKILLS } from "./baekho.js";
 import { WEAPON_SKILLS as JJ_SKILLS, releaseAim as jjRelease } from "./jujak.js";
 import * as HM from "./hyeonmu.js";
 import { WEAPON_SKILLS as FD_SKILLS } from "./fiends.js";
+import { WEAPON_SKILLS as HR_SKILLS } from "./heukryong.js";
 import { WR } from "./warrior.js";
 import { MG } from "./mage.js";
 import { RP } from "./reaper.js";
@@ -25,7 +26,7 @@ import { isSkillLocked } from "./skill_lock.js";
 import * as WRULES from "./world_rules.js";
 import { combatStats, powOf, powOfR } from "./combat.js";
 import { heldEnhMul } from "./enhance.js";
-const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
+const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS, ...HR_SKILLS };
 
 // ───────── 밸런스 (V12.109) ─────────
 // 사신수 · 사흉수 스킬: [재사용 대기(초), 마나]
@@ -34,7 +35,8 @@ const WEAPON_TUNE = { // V12.112: ③ 쉬프트+점프 · ④ 쉬프트 두 번 
   w_bh_1: [3, 35], w_bh_2: [16, 100], w_bh_3: [75, 200], w_bh_4: [110, 300],     // 습격 · 천붕
   w_jj_1: [0.35, 15], w_jj_2: [18, 110], w_jj_3: [80, 210], w_jj_4: [110, 300],  // 비상 · 홍련군무
   w_hm_1: [0.35, 12], w_hm_2: [22, 100], w_hm_3: [90, 240], w_hm_4: [120, 320],  // 붕지 · 천수진(방어 결계)
-  w_hd_1: [2.5, 25], w_hd_2: [18, 90], w_hd_3: [110, 200], w_hd_4: [100, 280],    // 천쇄(입체기동) · 사신 강하
+  w_hd_1: [2.5, 25], w_hd_2: [18, 90], w_hd_4: [100, 280],    // 사신 강하 (천쇄는 V12.146 흑룡으로)
+  w_hr_1: [0.35, 8], w_hr_2: [6, 45], w_hr_3: [25, 160], w_hr_4: [90, 260],     // 흑룡: 연참 · 사슬 섬영(2회 충전) · 천쇄 · 승천
   w_qq_1: [0.35, 15], w_qq_2: [14, 70], w_qq_3: [60, 140], w_qq_4: [110, 300],   // 표식 도약 · 흉익 강림
   w_tw_1: [0.45, 15], w_tw_2: [15, 75], w_tw_3: [60, 140], w_tw_4: [110, 300],   // 망치 투척 · 폭주
   w_tt_1: [0.4, 15], w_tt_2: [15, 75], w_tt_3: [60, 140], w_tt_4: [110, 300],    // 탐식 도약 · 현신
@@ -182,7 +184,7 @@ const W3D_MAP = {
   "rpg:jujak_bow": { reload: "w3d_bow_nock", shoot: "w3d_bow_shot", shoot_up: "w3d_bow_up", bow_draw: "w3d_bow_shot", bow_hold: "w3d_bow_hold", cast: "w3d_bow_shot", raise: "w3d_bow_up" },
   melee: { shoot: "w3d_m_thrust", cast: "w3d_m_thrust", shoot_up: "w3d_m_upslash", raise: "w3d_m_raise" },
 };
-const W3D_MELEE = new Set(["rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:hyeonmu_shield", "rpg:jt_warrior", "rpg:jt_mage", "rpg:jt_cleric", "rpg:jt_swordmaster", "rpg:jt_berserker", "rpg:jt_elementalist", "rpg:jt_stormcaller", "rpg:jt_paladin", "rpg:jt_priest", "rpg:jt_sword_emperor", "rpg:jt_abyss_knight", "rpg:jt_destroyer", "rpg:jt_soul_reaper"]);
+const W3D_MELEE = new Set(["rpg:heukryong_sword", "rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:hyeonmu_shield", "rpg:jt_warrior", "rpg:jt_mage", "rpg:jt_cleric", "rpg:jt_swordmaster", "rpg:jt_berserker", "rpg:jt_elementalist", "rpg:jt_stormcaller", "rpg:jt_paladin", "rpg:jt_priest", "rpg:jt_sword_emperor", "rpg:jt_abyss_knight", "rpg:jt_destroyer", "rpg:jt_soul_reaper"]);
 function w3dName(p, name) {
   let id; try { id = p.getComponent("minecraft:inventory")?.container?.getItem(p.selectedSlotIndex)?.typeId; } catch {}
   const m = ["rpg:jujak_bow", "rpg:jt_archer", "rpg:jt_hunter", "rpg:jt_sniper", "rpg:jt_beastlord", "rpg:jt_hawkeye"].includes(id) ? W3D_MAP["rpg:jujak_bow"] : W3D_MELEE.has(id) ? W3D_MAP.melee : null;
@@ -321,7 +323,8 @@ export const WEAPON_MIX = {
   w_bh_1: [1, 0, 0], w_bh_2: [1, 0, 0], w_bh_3: [1, 0, 0], w_bh_4: [0.7, 0, 0.3],               // 백호: 할퀴기 · 도끼 (천붕은 백호 영체)
   w_jj_1: [0, 0.7, 0.3], w_jj_2: [0, 0.6, 0.4], w_jj_3: [0, 0.4, 0.6], w_jj_4: [0, 0.4, 0.6],   // 주작: 화살 + 불 · 주작 소환
   w_hm_1: [0.9, 0, 0.1], w_hm_2: [0.5, 0, 0.5], w_hm_3: [0.6, 0, 0.4], w_hm_4: [0.3, 0, 0.7],   // 현무: 방패 + 뱀 독 · 대지 · 결계
-  w_hd_1: [0.8, 0, 0.2], w_hd_2: [0.3, 0, 0.7], w_hd_3: [0.8, 0, 0.2], w_hd_4: [0.6, 0, 0.4],   // 혼돈: 낫 + 혼돈 연기 · 사슬 · 불기둥
+  w_hd_1: [0.8, 0, 0.2], w_hd_2: [0.3, 0, 0.7], w_hd_4: [0.6, 0, 0.4],   // 혼돈: 낫 + 혼돈 연기 · 사슬 · 불기둥
+  w_hr_1: [1, 0, 0], w_hr_2: [1, 0, 0], w_hr_3: [0.9, 0, 0.1], w_hr_4: [0.8, 0, 0.2],   // 흑룡: 검술 + 흑염
   w_qq_1: [1, 0, 0], w_qq_2: [1, 0, 0], w_qq_3: [1, 0, 0], w_qq_4: [0.5, 0.5, 0],               // 궁기: 발톱 (흉익은 깃털 탄막)
   w_tw_1: [1, 0, 0], w_tw_2: [1, 0, 0], w_tw_3: [0.5, 0.5, 0], w_tw_4: [1, 0, 0],               // 도올: 망치 (투척은 반쯤 원거리)
   w_tt_1: [0.8, 0, 0.2], w_tt_2: [0.7, 0, 0.3], w_tt_3: [1, 0, 0], w_tt_4: [0.3, 0, 0.7],       // 도철: 물어뜯기 + 아가리 · 가면 소용돌이
@@ -336,7 +339,8 @@ const SKILL_K = {
   w_bh_1: 1.38, w_bh_2: 3.61, w_bh_3: 2.18, w_bh_4: 2.08,
   w_jj_1: 1.18, w_jj_2: 0.25, w_jj_3: 1.02, w_jj_4: 0.6,
   w_hm_1: 1.57, w_hm_2: 0.91, w_hm_3: 1.71, w_hm_4: 1.39,
-  w_hd_1: 5.18, w_hd_2: 2, w_hd_3: 3, w_hd_4: 6,
+  w_hd_1: 5.18, w_hd_2: 2, w_hd_4: 6,
+  w_hr_1: 3, w_hr_2: 4, w_hr_3: 1, w_hr_4: 2.3,   // V12.146 시뮬 측정 (①은 한 번 누를 때 · ②는 2회 충전)
   w_qq_1: 3.11, w_qq_2: 1.5, w_qq_3: 2, w_qq_4: 4,
   w_tw_1: 2.8, w_tw_2: 2.65, w_tw_3: 5, w_tw_4: 4,
   w_tt_1: 2.71, w_tt_2: 2.93, w_tt_3: 7.84, w_tt_4: 4,
@@ -469,7 +473,7 @@ export function initSkillTriggers() {
 
 // ───────── 더보기 정보 (V12.130, menu.js) ─────────
 export const WEAPON_NAMES = { "rpg:cheongryong_sword": "청룡의 검", "rpg:baekho_axe": "백호의 도끼", "rpg:jujak_bow": "주작의 활", "rpg:hyeonmu_shield": "현무의 방패",
-  "rpg:hundun_scythe": "혼돈의 낫", "rpg:qiongqi_claws": "궁기의 쌍발톱", "rpg:taowu_hammer": "도올의 대망치", "rpg:taotie_maw": "도철의 아가리" };
+  "rpg:heukryong_sword": "흑룡의 검", "rpg:hundun_scythe": "혼돈의 낫", "rpg:qiongqi_claws": "궁기의 쌍발톱", "rpg:taowu_hammer": "도올의 대망치", "rpg:taotie_maw": "도철의 아가리" };
 /** 사신수 · 사흉수 무기의 스킬 목록 + 지금 이 플레이어 기준 위력 */
 export function weaponSkillInfo(p, itemId) {
   return (WEAPON_SKILLS[itemId] ?? []).map((s) => ({ s, mp: mpCost(p, s.mp), mix: WEAPON_MIX[s.id] ?? [1, 0, 0], pow: Math.round(weaponDmg(p, s) * cdPow(s)) }));

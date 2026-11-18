@@ -23,6 +23,17 @@
     }
    ]
   },
+  "controller.render.rpg_w3d_heukryong_sword": {
+   "geometry": "Geometry.rpg_w3d_heukryong_sword",
+   "textures": [
+    "Texture.rpg_w3d_heukryong_sword"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
   "controller.render.rpg_w3d_baekho_axe": {
    "geometry": "Geometry.rpg_w3d_baekho_axe",
    "textures": [

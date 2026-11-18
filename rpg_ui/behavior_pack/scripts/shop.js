@@ -20,6 +20,7 @@ const DEFAULT_SHOP = [
   { id: "rpg:baekho_axe", n: 1, price: 30000, sell: false },
   { id: "rpg:jujak_bow", n: 1, price: 30000, sell: false },
   { id: "rpg:hyeonmu_shield", n: 1, price: 30000, sell: false },
+  { id: "rpg:heukryong_sword", n: 1, price: 30000, sell: false },
   { id: "rpg:hundun_scythe", n: 1, price: 25000, sell: false },
   { id: "rpg:qiongqi_claws", n: 1, price: 25000, sell: false },
   { id: "rpg:taowu_hammer", n: 1, price: 25000, sell: false },

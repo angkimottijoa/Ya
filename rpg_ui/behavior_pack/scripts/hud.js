@@ -14,6 +14,7 @@ import { rageLine, heldRageTool } from "./warrior.js";
 import { soulLine, heldScythe } from "./reaper.js";
 import { hiddenLine } from "./hidden_jobs.js";
 import { fiendLine } from "./fiends.js";
+import { heukLine } from "./heukryong.js";
 import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
@@ -60,6 +61,7 @@ export function card(p) {
     heldScythe(p) ? soulLine(p) : "",
     hiddenLine(p),
     fiendLine(p),
+    heukLine(p),
     d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
     `§7근접 §f+${s.melee}% §7원거리 §f+${s.ranged}% §7마법 §f+${s.magic}%`,

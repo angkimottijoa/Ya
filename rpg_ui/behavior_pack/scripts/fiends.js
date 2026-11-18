@@ -53,7 +53,7 @@ function hitter(ctx) {
     if (t - (last.get(e.id) ?? -99) < cd) return false;
     last.set(e.id, t);
     M.skillHit.set(e.id, t);
-    const d = Math.max(1, Math.round(ctx.dmg * FIEND * mul * (ctx.mulx ?? 1)));
+    const d = Math.max(1, Math.round(ctx.dmg * (ctx.power ?? FIEND) * mul * (ctx.mulx ?? 1) * (ctx.mulf?.() ?? 1)));
     try { e.applyDamage(d, { cause: EntityDamageCause.entityAttack, damagingEntity: ctx.p }); } catch {}
     ctx.onHit?.(e, d);
     return true;
@@ -251,16 +251,28 @@ function autoAnchor(p, side) {
   }
   return best;
 }
+/** 입체 기동 연출 테마 (V12.146): 혼돈 기본값 — 흑룡(heukryong.js)이 자기 테마로 같은 엔진을 씀 */
+const HD_THEME = {
+  name: "천쇄", col: "§5", col2: "§d", endCd: 8, reel: "hd_reelspark",
+  chain: (dim, a, b, life) => chain(dim, a, b, life),
+  hook: (dim, at) => hookHit(dim, at),
+  flame: (dim, at, o) => flame(dim, at, o),
+  burst: (dim, at) => pt(dim, "hd_burst", at, { n: 6, r: 0.3, spd: 2, life: 0.35 }, 2),
+  speed: (dim, at, v, o) => speedLines(dim, at, v, o),
+  leapFx: (dim, c, yaw) => { scythe(dim, c, { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { spin: 1100, life: 0.3, scale: 0.05, prio: 1 }); darc(dim, c, yaw, { sweep: 380, r: 2.8, thick: 1, dur: 0.15, n: 150, life: 0.4 }); pt(dim, "hd_swirl", c, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 3, r: 1.8, spin: 900, n: 40, life: 0.35 }, 2); },
+  passFx: (dim, cc, yaw, e) => { scythe(dim, cc, fwdOf(yaw), rightOf(yaw), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yaw, { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); },
+};
 function hd_mode_start(p, ctx) {
-  const s = st(p), dim = p.dimension, hit = hitter(ctx);
+  const s = st(p), dim = p.dimension, hit = hitter(ctx), TH = ctx.theme ?? HD_THEME;
   if (s.swing) s.swing.done = true;
   const m = { t: 0, until: now() + MODE_T, done: false, left: HOPS, side: 1, arc: null, jumpPrev: true, sneakPrev: true, lastHop: -99, fast: false, v: { x: 0, y: 0, z: 0 }, air: false };
   s.swing = m;
   const hip = (sd) => add(up(p.location, 0.9), rightOf(yawOf(p)), sd * 0.3);
   const anc = (A) => (A.ent ? (A.ent.isValid() ? add(A.ent.location, A.off) : null) : A.at);
   const play = (name) => M.anim(p, name);
-  m.end = () => { if (m.done) return; m.done = true; if (s.swing === m) s.swing = null; fov(p, false); s.setCd3?.(8); notify(p, "§5천쇄 종료 §7(8초)"); hd_keep(p); };
-  const release = (a) => { const q = anc(a.A) ?? a.A.at; for (let k = 1; k <= 4; k++) later(k, () => { const H = hip(a.sd); chain(dim, H, add(H, sub(q, H), 1 - k / 4), 0.08); }); snd(p, "item.armor.equip_chain", 0.7, 1.8); };
+  m.end = () => { if (m.done) return; m.done = true; if (s.swing === m) s.swing = null; fov(p, false); s.setCd3?.(TH.endCd); notify(p, `${TH.col}${TH.name} 종료 §7(${TH.endCd}초)`); hd_keep(p); TH.onEnd?.(p); };
+  m.theme = TH;
+  const release = (a) => { const q = anc(a.A) ?? a.A.at; for (let k = 1; k <= 4; k++) later(k, () => { const H = hip(a.sd); TH.chain(dim, H, add(H, sub(q, H), 1 - k / 4), 0.08); }); snd(p, "item.armor.equip_chain", 0.7, 1.8); };
   /** 한 번 휘돌기 */
   m.hop = () => {
     if (m.done || m.left <= 0 || m.t - m.lastHop < 5) return false;
@@ -298,10 +310,10 @@ function hd_mode_start(p, ctx) {
     snd(p, "item.armor.equip_chain", 1, 1.2 + Math.random() * 0.3); snd(p, "random.bow", 0.5, 1.8);
     // 사슬이 날아가 박힘: 길수록 조금 더 걸림 (2~4틱)
     const fly = L0 > 30 ? 4 : L0 > 15 ? 3 : 2;
-    for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = hip(sd), q = anc(A) ?? A.at; chain(dim, h, add(h, sub(q, h), k / fly), 0.1); });
-    later(fly, () => { const q = anc(A) ?? A.at; hookHit(dim, q); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { flame(dim, q, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
+    for (let k = 1; k <= fly; k++) later(k - 1, () => { const h = hip(sd), q = anc(A) ?? A.at; TH.chain(dim, h, add(h, sub(q, h), k / fly), 0.1); });
+    later(fly, () => { const q = anc(A) ?? A.at; TH.hook(dim, q); snd(p, "item.trident.hit_ground", 0.7, 1.3); if (A.ent) { TH.flame(dim, q, { n: 6, r: 0.2, spd: 2 }); hit(A.ent, 0.3, 6); } });
     m.arc.fly = fly;
-    notify(p, `§5천쇄 §d${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · ${m.arcKind} §8(점프: 다음 사슬 · 클릭/쉬프트: 회전 도약)`);
+    notify(p, `${TH.col}${TH.name} ${TH.col2}${"◆".repeat(m.left)}§8${"◇".repeat(HOPS - m.left)} §7사슬 ${Math.round(L0)}칸 · ${m.arcKind} §8(점프: 다음 사슬 · 클릭/쉬프트: 회전 도약)`);
     return true;
   };
   /** 클릭: 몸을 돌리며 위로 도약 (사슬 놓음), 둘레 베기 */
@@ -315,10 +327,8 @@ function hd_mode_start(p, ctx) {
     m.v = nv;
     play("gear_leap");
     const c = up(p.location, 1);
-    scythe(dim, c, { x: 1, y: 0, z: 0 }, { x: 0, y: 0, z: 1 }, { spin: 1100, life: 0.3, scale: 0.05, prio: 1 });
-    darc(dim, c, yawOf(p), { sweep: 380, r: 2.8, thick: 1, dur: 0.15, n: 150, life: 0.4 });
-    pt(dim, "hd_swirl", c, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 3, r: 1.8, spin: 900, n: 40, life: 0.35 }, 2);
-    for (const e of foes(dim, c, 3)) if (hit(e, 0.6, 6)) flame(dim, center(e), { n: 6, r: 0.3, spd: 2 });
+    TH.leapFx(dim, c, yawOf(p));
+    for (const e of foes(dim, c, 3)) if (hit(e, 0.6, 6)) TH.flame(dim, center(e), { n: 6, r: 0.3, spd: 2 });
     snd(p, "game.player.attack.sweep", 0.9, 1.4); snd(p, "mob.phantom.swoop", 0.7, 1.7);
   };
   M.anim(p, "gear_fire");
@@ -365,7 +375,7 @@ function hd_mode_start(p, ctx) {
         const hz = Math.hypot(v.x, v.z), ahead = hz > 0.1 ? { x: PP.x + (v.x / hz) * 0.9, y: PP.y, z: PP.z + (v.z / hz) * 0.9 } : null;
         if (ahead && kk > 3 && (solid(dim, ahead) || solid(dim, up(ahead, -0.6)))) {
           v = add(scl2({ x: -v.x, y: 0, z: -v.z }, 0.5), UP, 0.7);
-          pt(dim, "hd_burst", PP, { n: 6, r: 0.3, spd: 2, life: 0.35 }, 2); play("gear_kick"); snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
+          TH.burst(dim, PP); play("gear_kick"); snd(p, "step.stone", 1, 0.7); snd(p, "mob.phantom.swoop", 0.6, 1.6);
           release(a); m.arc = null; m.left = Math.min(HOPS, m.left + 1);
         } else if (tn >= 1 || dist < 1.6) { // 호 끝: 사슬 놓고 관성
           const T2 = bez(a.P0, a.C, a.P1, 0.92), vt = scl2(sub(a.P1, T2), a.n / (0.08 * a.n * a.n) * 1);
@@ -375,8 +385,8 @@ function hd_mode_start(p, ctx) {
         const h = Math.hypot(v.x, v.z);
         try { p.applyKnockback(h > 0.001 ? v.x / h : 0, h > 0.001 ? v.z / h : 0, h, v.y); } catch {}
         m.v = v;
-        if (m.arc && a.k % 2 === 0) chain(dim, q, hip(a.sd), 0.12);
-        if (m.arc && a.k % 6 === 0) { const dd = sub(hip(a.sd), q); pt(dim, "hd_reelspark", q, { u: norm(dd), r: len(dd), spd: 14, n: 3, life: Math.min(0.6, len(dd) / 16), size: 1 }, 2); }
+        if (m.arc && a.k % 2 === 0) TH.chain(dim, q, hip(a.sd), 0.12);
+        if (m.arc && a.k % 6 === 0) { const dd = sub(hip(a.sd), q); pt(dim, TH.reel, q, { u: norm(dd), r: len(dd), spd: 14, n: 3, life: Math.min(0.6, len(dd) / 16), size: 1 }, 2); }
       }
     } else {
       try { m.v = p.getVelocity(); } catch {}
@@ -388,10 +398,11 @@ function hd_mode_start(p, ctx) {
       if (hs > 0.35) { const f = flatN(m.v); try { p.applyKnockback(f.x, f.z, Math.min(1.2, hs), 0.05); } catch {} play("gear_roll"); snd(p, "step.grass", 1, 0.8); }
     }
     const sp = len(m.v);
-    if (sp > 0.8 && m.t % 2 === 1) speedLines(dim, PP, m.v, { n: Math.round(4 + Math.min(3, sp - 0.8) * 4) });
+    TH.onTick?.(p, m, dim);
+    if (sp > 0.8 && m.t % 2 === 1) TH.speed(dim, PP, m.v, { n: Math.round(4 + Math.min(3, sp - 0.8) * 4) });
     if (sp > 1.1 && !m.fast) { m.fast = true; fov(p, true); } else if (sp < 0.6 && m.fast) { m.fast = false; fov(p, false); }
     if (sp > 1.5 && m.t % 10 === 0) shake(p, 0.08, 0.3);
-    if (sp > 0.5) for (const e of foes(dim, P, 2.6)) if (hit(e, 0.45 + Math.min(0.5, sp * 0.2), 10)) { const cc = up(P, 1); play("gear_spin"); scythe(dim, cc, fwdOf(yawOf(p)), rightOf(yawOf(p)), { spin: 1000, life: 0.2, scale: 0.04, prio: 1 }); darc(dim, cc, yawOf(p), { sweep: 220, r: 2.4, dur: 0.08, n: 110, life: 0.35 }); flame(dim, center(e), { n: 8, r: 0.3, spd: 2.5 }); snd(p, "game.player.attack.sweep", 0.8, 1.2); shake(p, 0.15, 0.15); }
+    if (sp > 0.5) for (const e of foes(dim, P, 2.6)) if (hit(e, 0.45 + Math.min(0.5, sp * 0.2), 10)) { const cc = up(P, 1); play("gear_spin"); TH.passFx(dim, cc, yawOf(p), e); snd(p, "game.player.attack.sweep", 0.8, 1.2); shake(p, 0.15, 0.15); }
     if (now() >= m.until || (m.left <= 0 && !m.arc && g)) return m.end();
     later(1, tick);
   };
@@ -861,10 +872,9 @@ export const fiendLine = (p) => {
 /** 무기 스킬 표 (사신수와 같은 모양, pre = 재입력·모드 중 입력: true 면 쿨타임·마나 없이 처리) */
 export const WEAPON_SKILLS = {
   "rpg:hundun_scythe": [
-    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_leap(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다. 천쇄 중에는 클릭·공중에서 쉬프트·때리기 = 몸을 돌리며 위로 도약(둘레 베기), 쉬프트 두 번이면 도약 → ④ 사신 강하로 이어짐." },
+    { id: "w_hd_1", key: 1, name: "혼돈 · 낫 회전 돌진", short: "회전", lv: 1, mp: 7, cd: 2.5, pow: 1, run: hd_spin, pre: (p) => hd_leap(p) || hd_collide(p), desc: "낫이 몸 둘레를 보랏빛 불꽃과 함께 한 바퀴 돌며 베고, 이어서 앞으로 돌진하며 지나간 적을 날려 보낸다." },
     { id: "w_hd_2", key: 2, name: "혼돈 · 쇄박", short: "쇄박", lv: 1, mp: 16, cd: 9, pow: 1, run: hd_hook, pre: hd_hook_pre, desc: "조준한 적(24칸)의 둘레 허공에 혼돈의 연기 덩어리 넷이 피어오르고, 덩어리마다 사슬이 뻗어 적에게 박혀 그 자리에 묶어 멈춘다(3초, 큰 적 1.5초). 묶인 동안 조금씩 피해, 끝나면 사슬이 끊어지며 터진다. 묶인 동안 ② · ① 다시 = 몸을 부딪쳐 크게 날려 보냄." },
-    { id: "w_hd_3", key: 3, name: "혼돈 · 천쇄", short: "천쇄", lv: 1, mp: 18, cd: 8, pow: 1, run: hd_swing, pre: hd_swing_pre, desc: "보이는 벽·나무·지형·적(앞쪽 56칸 안)에 사슬이 자동으로 박히고 둥글게 휘돌아 앞으로 날아간다. 구조에 맞춰 바뀜: 높은 벽·나무는 위로 올라타 넘고, 천장은 밑으로 크게 휘돌고, 앞이 막히면 그 앞까지만, 땅 밑으로 처지지 않음. 움직임은 설계한 호와 박힌 곳 축 진자를 반반 섞어 줄 길이로 묶음. 시선으로 조종. 점프할 때마다 반대쪽에 다음 사슬(모두 5번, ③ 다시도 됨), 클릭 = 몸을 돌리며 위로 도약(둘레 베기). 벽 차기 · 지나가며 베기 · 착지 구르기. ④ = 사신 강하 연계. 다 쓰거나 12초 지나면 8초 대기." },
-    { id: "w_hd_4", key: 4, name: "혼돈 · 사신 강하", short: "강하", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_reap, desc: "위에서 아래로 내리꽂힌다(아래를 보면 시선이 닿는 곳으로). 떨어지는 동안 손에 든 거대한 혼돈의 낫을 몸 둘레로 빙빙 돌리며(매 틱 새 각도로, 점점 빨라짐) 지나가는 적을 벤다. 착지하면 낫을 땅에 박아 충격파 둘 · 보랏빛 불기둥 · 둘레 균열 · 큰 한 바퀴 베기. 땅에서 쓰면 낫을 머리 위로 돌리며 먼저 솟구친다. ③ 천쇄 중 공중에서 쓰면 바로 강하(위력 1.35배)." },
+    { id: "w_hd_4", key: 4, name: "혼돈 · 사신 강하", short: "강하", lv: 1, mp: 35, cd: 18, pow: 1, run: hd_reap, desc: "위에서 아래로 내리꽂힌다(아래를 보면 시선이 닿는 곳으로). 떨어지는 동안 손에 든 거대한 혼돈의 낫을 몸 둘레로 빙빙 돌리며(매 틱 새 각도로, 점점 빨라짐) 지나가는 적을 벤다. 착지하면 낫을 땅에 박아 충격파 둘 · 보랏빛 불기둥 · 둘레 균열 · 큰 한 바퀴 베기. 땅에서 쓰면 낫을 머리 위로 돌리며 먼저 솟구친다." },
   ],
   "rpg:qiongqi_claws": [
     { id: "w_qq_1", key: 1, name: "궁기 · 쌍조 연참", short: "쌍조", lv: 1, mp: 5, cd: 0.35, pow: 1, run: qq_combo, pre: (p) => (st(p).glide && now() < st(p).glide.until ? qq_dive(p) : qq_ult_pre(p)), desc: "4타: 칠 때마다 짧게 돌진, 4타는 함께 솟구치는 올려 베기. 맞힌 적에게 표식. 활공 중 클릭 = 급강하, ④ 중 클릭 = 깃털 탄막." },
@@ -885,3 +895,15 @@ export const WEAPON_SKILLS = {
     { id: "w_tt_4", key: 4, name: "도철 · 현신", short: "현신", lv: 1, mp: 45, cd: 35, pow: 1, run: tt_ult, desc: "하늘에 거대한 도철 가면, 소용돌이가 주변을 빨아들인다. 3초 동안 클릭 연타로 씹고(최대 12, 많이 씹을수록 강해짐) 마지막에 통째로 삼킨다. 허기 0." },
   ],
 };
+
+// ── 입체 기동 엔진 내보내기 (V12.146: 천쇄는 흑룡의 검 ③ 으로 옮김) ──
+/** 입체 기동 시작: ctx.theme 으로 연출, ctx.power 로 위력 배율 (기본 사흉수 0.75) */
+export const odmStart = (p, ctx) => { const s = st(p); s.ctx = ctx; s.setCd3 = ctx.setCd; ctx.setCd?.(99); if (!hd_mode_start(p, ctx)) { ctx.setCd?.(0.5); return false; } return true; };
+export const odmActive = (p) => { const m = st(p).swing; return !!(m && !m.done); };
+export const odmHop = (p) => { const m = st(p).swing; if (!m || m.done) return false; m.hop(); return true; };
+export const odmLeap = (p) => hd_leap(p);
+export const odmLeft = (p) => st(p).swing?.left ?? 0;
+export const odmEnd = (p) => st(p).swing?.end?.();
+/** 지금 걸린 사슬을 놓음 (기동은 그대로) — 다른 스킬로 끊고 이어 갈 때 */
+export const odmDetach = (p) => { const m = st(p).swing; if (m && m.arc) m.arc = null; };
+export { autoAnchor as odmAnchor };

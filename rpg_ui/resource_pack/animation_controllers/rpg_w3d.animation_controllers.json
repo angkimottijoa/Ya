@@ -197,6 +197,104 @@
     }
    }
   },
+  "controller.animation.rpg_w3d.heukryong_sword": {
+   "initial_state": "default",
+   "states": {
+    "default": {
+     "transitions": [
+      {
+       "atk1": "!v.rpg_fr && v.rpg_atk"
+      },
+      {
+       "idle": "1"
+      }
+     ]
+    },
+    "idle": {
+     "animations": [
+      "rpgw_chop_stance_up"
+     ],
+     "transitions": [
+      {
+       "atk1": "!v.rpg_fr && v.rpg_atk"
+      }
+     ],
+     "blend_transition": 0.15
+    },
+    "atk1": {
+     "animations": [
+      "rpgw_chop_atk1"
+     ],
+     "transitions": [
+      {
+       "atk1b": "q.any_animation_finished"
+      }
+     ],
+     "blend_transition": 0.05
+    },
+    "atk1b": {
+     "animations": [
+      "rpgw_chop_atk1b"
+     ],
+     "transitions": [
+      {
+       "atk2": "q.any_animation_finished && !v.rpg_fr && v.rpg_atk"
+      },
+      {
+       "idle": "q.any_animation_finished && !v.rpg_atk"
+      }
+     ]
+    },
+    "atk2": {
+     "animations": [
+      "rpgw_chop_atk2"
+     ],
+     "transitions": [
+      {
+       "atk2b": "q.any_animation_finished"
+      }
+     ],
+     "blend_transition": 0.05
+    },
+    "atk2b": {
+     "animations": [
+      "rpgw_chop_atk2b"
+     ],
+     "transitions": [
+      {
+       "atk3": "q.any_animation_finished && !v.rpg_fr && v.rpg_atk"
+      },
+      {
+       "idle": "q.any_animation_finished && !v.rpg_atk"
+      }
+     ]
+    },
+    "atk3": {
+     "animations": [
+      "rpgw_chop_atk3"
+     ],
+     "transitions": [
+      {
+       "atk3b": "q.any_animation_finished"
+      }
+     ],
+     "blend_transition": 0.05
+    },
+    "atk3b": {
+     "animations": [
+      "rpgw_chop_atk3b"
+     ],
+     "transitions": [
+      {
+       "atk1": "q.any_animation_finished && !v.rpg_fr && v.rpg_atk"
+      },
+      {
+       "idle": "q.any_animation_finished && !v.rpg_atk"
+      }
+     ]
+    }
+   }
+  },
   "controller.animation.rpg_w3d.baekho_axe": {
    "initial_state": "default",
    "states": {

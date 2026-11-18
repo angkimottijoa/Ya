@@ -32,7 +32,7 @@ const SAFE_TO = 5; // 여기까지는 실패해도 그대로
 const PROTECT_TO = 8; // 파괴방지석은 +8 까지
 const protectNeed = (L) => (L > SAFE_TO && L <= PROTECT_TO ? L - SAFE_TO : 0); // +6:1 · +7:2 · +8:3
 
-const RPG_WEAPONS = new Set(["rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield", "rpg:hundun_scythe", "rpg:qiongqi_claws", "rpg:taowu_hammer", "rpg:taotie_maw"]);
+const RPG_WEAPONS = new Set(["rpg:heukryong_sword", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield", "rpg:hundun_scythe", "rpg:qiongqi_claws", "rpg:taowu_hammer", "rpg:taotie_maw"]);
 /** "weapon" | "armor" | null */
 export function enhKind(it) {
   if (!it || it.maxAmount > 1) return null;

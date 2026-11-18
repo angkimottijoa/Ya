@@ -160,6 +160,9 @@
     },
     "rpg_enh_scroll_3": {
       "textures": "textures/items/rpg/enh_scroll_3"
+    },
+    "rpg_heukryong_sword": {
+      "textures": "textures/items/rpg/heukryong_sword"
     }
   }
 }
