@@ -13,11 +13,11 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28, kind="reap",
-                          tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
+                          tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
-                          tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
+                          tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
-                       tp=dict(rot=[90, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
+                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src=None, px=24, len=1.3, grip=0.5, kind="bash",
@@ -207,11 +207,12 @@ def build(name, cfg):
             face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                     "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
                     "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}
-            if side:  # 옆으로 돌린 모델: 그림 면이 동·서 쪽
-                o3 = [o3[2], o3[1], -(o3[0] + s3[0])]; s3 = [s3[2], s3[1], s3[0]]
+            if side:  # 참고 팩(blades)처럼: 손에서 -Z(앞) 로 뻗은 모델 — 그림 세로(끝) → -Z, 그림 가로 → 위(Y, 그림 왼쪽이 위), 두께 → X
+                ox, oy, oz = o3; sx, sy, sz = s3
+                o3 = [round(oz, 4), round(-(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                        "north": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "south": {"uv": [x0, y], "uv_size": [1, 1]},
-                        "up": {"uv": [x0, y], "uv_size": [1, w]}, "down": {"uv": [x0, y], "uv_size": [1, w]}}
+                        "north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0, y], "uv_size": [w, 1]},
+                        "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
             cubes.append({"origin": o3, "size": s3, "uv": face})
     if aura:  # 머리 둘레를 휘감는 기운 띠 (그림 면 밖으로 입체적으로 돎): 띠마다 나선 호, 가운데 굵고 끝 가늘게
         head_y = Ht * 0.18
@@ -257,7 +258,7 @@ def build(name, cfg):
         idle_r = "math.sin(q.life_time * 110) * 2.5"
         idle_p = "math.sin(q.life_time * 170) * 0.25"
         kind = cfg.get("kind", "chop")
-        if cfg.get("vanilla"):  # 석궁식 들기 (X +90 = 앞으로 수평): X 축이 위아래로 휘두르는 축
+        if cfg.get("vanilla"):  # 참고 팩식: 모델이 이미 앞(-Z)을 향함, 회전 없음. X 축 = 위아래로 휘두르는 축
             big = {"reap": (40, 90, 50, 35), "chop": (45, 100, 55, 0), "thrust": (15, 40, 25, 0)}[kind]
             rot = [f"{rx} + (-v.up * {big[0]} + v.dn * {big[1]} - v.rec * {big[2]}) * {m}", f"{ry} + v.dn * {big[3]} * {m} - v.rec * {big[3]} * {m}", f"{rz} + {idle_r}"]
             pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}" + (f" + (-v.up * 2 + v.dn * 6 - v.rec * 4) * {m}" if kind == "thrust" else "")]

@@ -6,7 +6,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "0 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 1",
+      "-90 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 1",
       "0 + v.dn * 35 * 1 - v.rec * 35 * 1",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
@@ -24,7 +24,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "90 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 0.6",
+      "0 + (-v.up * 40 + v.dn * 90 - v.rec * 50) * 0.6",
       "0 + v.dn * 35 * 0.6 - v.rec * 35 * 0.6",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
@@ -41,7 +41,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "0 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 1",
+      "-90 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 1",
       "0 + v.dn * 0 * 1 - v.rec * 0 * 1",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
@@ -59,7 +59,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "90 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 0.6",
+      "0 + (-v.up * 15 + v.dn * 40 - v.rec * 25) * 0.6",
       "0 + v.dn * 0 * 0.6 - v.rec * 0 * 0.6",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
@@ -76,7 +76,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "0 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 1",
+      "-90 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 1",
       "0 + v.dn * 0 * 1 - v.rec * 0 * 1",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
@@ -94,7 +94,7 @@
    "bones": {
     "body": {
      "rotation": [
-      "90 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 0.6",
+      "0 + (-v.up * 45 + v.dn * 100 - v.rec * 55) * 0.6",
       "0 + v.dn * 0 * 0.6 - v.rec * 0 * 0.6",
       "0 + math.sin(q.life_time * 110) * 2.5"
      ],
