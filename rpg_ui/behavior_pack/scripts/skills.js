@@ -212,7 +212,7 @@ function power(p, s) {
   const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOf(cs.dex) : powOf(cs.int); // V12.122: 근접 = 힘 · 원거리 = 민첩 · 마법 = 지능 (같은 곡선)
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
   const cls = (1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1) * (1 + data(p).lv * 0.015); // V12.120: 직업 스킬도 레벨 보정 (사신수 · 사흉수보다 약 20% 약하게)
-  return base * s.pow * statMul * buff * cls;
+  return base * s.pow * statMul * buff * cls * (JOB_K[s.id] ?? 1);
 }
 
 /** 이 스킬을 지금 쓸 수 있나: 그 단계 전용 도구를 들고 있어야 함 */
@@ -327,8 +327,42 @@ export const WEAPON_MIX = {
 };
 const mixPow = (cs, m) => m[0] * powOf(cs.str) + m[1] * powOf(cs.dex) + m[2] * powOf(cs.int);
 const weaponDmg = (p, s) => 160 * mixPow(combatStats(p), WEAPON_MIX[s?.id] ?? [1, 0, 0]) * buffMul(p) * (1 + data(p).lv * 0.025);
-/** 재사용 대기가 긴 스킬일수록 세게: 120초 = 1.6배 (② 20초 ≈ 1.1배, ① 그대로) */
-const cdPow = (s) => (s.key === 1 ? 1 : 1 + 0.6 * Math.min(1, s.cd / 120));
+/** V12.129 스킬 위력 보정: 가짜 표적 1마리에 스킬을 시뮬레이션해 '한 번 쓸 때 총 피해'를 재고,
+ *  목표 = ① 0.9 + 0.8 × 대기초 / ②~④ (2 + 10 × 대기/120 + 3 × 마나/300) × 성격(장판 · 광역 0.85, 지속 · 방어 · 구속 · 이동기 0.6~0.75)
+ *  에 맞도록 곱함. 클릭 연타 · 재입력 · 착지처럼 시뮬레이션에서 안 도는 단계가 있는 스킬은 따로 낮게 정함 */
+const SKILL_K = {
+  w_cr_1: 1.46, w_cr_2: 1.33, w_cr_3: 6.15, w_cr_4: 5.5,
+  w_bh_1: 1.38, w_bh_2: 3.61, w_bh_3: 2.18, w_bh_4: 2.08,
+  w_jj_1: 1.18, w_jj_2: 0.25, w_jj_3: 1.02, w_jj_4: 0.6,
+  w_hm_1: 1.57, w_hm_2: 0.91, w_hm_3: 1.71, w_hm_4: 1.39,
+  w_hd_1: 5.18, w_hd_2: 2, w_hd_3: 3, w_hd_4: 6,
+  w_qq_1: 3.11, w_qq_2: 1.5, w_qq_3: 2, w_qq_4: 4,
+  w_tw_1: 2.8, w_tw_2: 2.65, w_tw_3: 5, w_tw_4: 4,
+  w_tt_1: 2.71, w_tt_2: 2.93, w_tt_3: 7.84, w_tt_4: 4,
+};
+const cdPow = (s) => SKILL_K[s.id] ?? 1;
+/** 직업 스킬도 같은 방식 (V12.129): 측정한 총 피해 → 대기 · 마나 기준 목표에 맞춤 (회복 · 강화 스킬은 그대로) */
+const JOB_K = {
+  jw_warrior_1: 2.36, jw_warrior_2: 2.29, jw_warrior_3: 4.05, jw_swordmaster_1: 2.6,
+  jw_swordmaster_2: 3.01, jw_swordmaster_3: 4.66, jw_sword_emperor_1: 1.67, jw_sword_emperor_2: 1.69,
+  jw_sword_emperor_3: 1.42, jw_sword_emperor_4: 2.52, jw_berserker_1: 2.76, jw_berserker_3: 4.46,
+  jw_destroyer_1: 2.0, jw_destroyer_3: 2.72, jw_destroyer_4: 6.8, j_sniper_1: 4.56,
+  j_sniper_2: 2.99, j_sniper_3: 0.95, j_hawkeye_1: 5.21, j_hawkeye_2: 0.54,
+  j_hawkeye_3: 2.99, j_hunter_1: 1.74, j_hunter_2: 4.84, j_hunter_3: 1.33,
+  j_beastlord_1: 4.94, j_beastlord_2: 2.08, j_beastlord_3: 1.01, jr_soul_reaper_1: 1.88,
+  jr_soul_reaper_2: 2.17, jr_soul_reaper_3: 1.62, jr_soul_reaper_4: 3.16, jh_chrono_1: 1.88,
+  jh_chrono_2: 2.75, jh_chrono_4: 2.29, jh_abyss_1: 1.88, jh_abyss_2: 4.77,
+  jh_abyss_3: 2.27, jh_abyss_4: 3.59, jh_spirit_1: 1.73, jh_spirit_2: 4.77,
+  jh_spirit_3: 4.3, jh_spirit_4: 5.95, jm_mage_1: 2.89, jm_mage_2: 3.31,
+  jm_mage_3: 1, jm_elementalist_1: 2.6, jm_elementalist_2: 3.44, jm_elementalist_3: 3.1,
+  jm_archmage_1: 2.06, jm_archmage_2: 1.76, jm_archmage_3: 2.5, jm_archmage_4: 1.72,
+  jm_stormcaller_1: 2.6, jm_stormcaller_2: 1.0, jm_stormcaller_3: 4.2, jm_stormlord_1: 2.06,
+  jm_stormlord_2: 2.8, jm_stormlord_3: 2.29, jm_stormlord_4: 2.3, j_priest_1: 8,
+  j_priest_2: 8, j_priest_3: 8, j_paladin_1: 1.88, j_paladin_2: 0.62,
+  j_paladin_3: 1.34, j_archer_1: 4.9, j_archer_2: 1.3, j_archer_3: 1.33,
+  j_cleric_2: 3.09, j_archbishop_2: 4.12, j_archbishop_3: 3.21, j_crusader_1: 7.3,
+  j_crusader_2: 4.19, j_crusader_3: 4.1,
+};
 /** 스킬 무기 발동 (직업 조건 없음) */
 function castWeaponSpecial(p, s) {
   const d = data(p);
