@@ -1,0 +1,60 @@
+{
+ "format_version": "1.8.0",
+ "render_controllers": {
+  "controller.render.rpg_w3d_hundun_scythe": {
+   "geometry": "Geometry.rpg_w3d_hundun_scythe",
+   "textures": [
+    "Texture.rpg_w3d_hundun_scythe"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_cheongryong_lance": {
+   "geometry": "Geometry.rpg_w3d_cheongryong_lance",
+   "textures": [
+    "Texture.rpg_w3d_cheongryong_lance"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_baekho_axe": {
+   "geometry": "Geometry.rpg_w3d_baekho_axe",
+   "textures": [
+    "Texture.rpg_w3d_baekho_axe"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_jujak_bow": {
+   "geometry": "Geometry.rpg_w3d_jujak_bow",
+   "textures": [
+    "Texture.rpg_w3d_jujak_bow"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_hyeonmu_shield": {
+   "geometry": "Geometry.rpg_w3d_hyeonmu_shield",
+   "textures": [
+    "Texture.rpg_w3d_hyeonmu_shield"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  }
+ }
+}

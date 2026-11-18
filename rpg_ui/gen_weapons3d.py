@@ -12,7 +12,7 @@ ROOT = Path(__file__).parent
 RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
-    "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.06, kind="reap", flipup=True,
+    "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.06, kind="reap",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.07, kind="thrust",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
@@ -191,6 +191,7 @@ def build(name, cfg):
     im_tex.save(RP / f"{tex}.png")
     u = cfg["len"] * 16 / max(Wd, Ht)  # 픽셀 하나 = u 단위 (16 단위 = 1블록)
     gx, gy = Wd / 2, Ht * (1 - cfg["grip"])  # 쥐는 곳 (그림 좌표)
+    HAND = [-6, 12.5, -1]  # 플레이어 모델 좌표의 오른손 (참고 팩 blades 처럼 rightItem 아래에 무기를 둠)
     GY = 0
     side = cfg.get("vanilla")  # 넓은 면이 옆을 보게: 그림 가로를 Z 로, 두께를 X 로 (석궁처럼 X +90° 로 앞을 향할 때 면이 세로로 섬)
     cubes = []
@@ -219,6 +220,8 @@ def build(name, cfg):
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                         "north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0, y], "uv_size": [w, 1]},
                         "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
+            shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z), 몸 앞(z ≤ -3)에
+            o3 = [round(o3[0] + HAND[0], 4), round(o3[1] + HAND[1], 4), round(o3[2] + HAND[2] - (5.5 if shield else 0), 4)]
             cubes.append({"origin": o3, "size": s3, "uv": face})
     if aura:  # 머리 둘레를 휘감는 기운 띠 (그림 면 밖으로 입체적으로 돎): 띠마다 나선 호, 가운데 굵고 끝 가늘게
         head_y = Ht * 0.18
@@ -239,58 +242,45 @@ def build(name, cfg):
     geo = {"format_version": "1.16.0", "minecraft:geometry": [{
         "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
                         "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
-        "bones": [{"name": "rpg_w3d", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"},
-                  {"name": "body", "parent": "rpg_w3d", "pivot": [0, 0, 0], "cubes": cubes}]}]}
+        "bones": [{"name": "body", "pivot": [0, 24, 0]},
+                  {"name": "rightArm", "parent": "body", "pivot": [-5, 22, 0]},
+                  {"name": "rightItem", "parent": "rightArm", "pivot": [-6, 15, 1]},
+                  {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND, "cubes": cubes}]}]}
     (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
     (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
+    # 손에 든 납작한 아이템을 숨기는 빈 attachable (무기 모습은 플레이어 모델 쪽에서 그림)
+    empty = {"format_version": "1.16.0", "minecraft:geometry": [{"description": {"identifier": "geometry.rpg_w3d_empty", "texture_width": 16, "texture_height": 16},
+             "bones": [{"name": "rpg_w3d_empty", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"}]}]}
+    (RP / "models" / "entity" / "rpg_w3d_empty.geo.json").write_text(json.dumps(empty))
     att = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
-        "identifier": cfg["item"],
-        "materials": {"default": "entity_alphatest", "enchanted": "entity_alphatest_glint"},
-        "textures": {"default": tex, "enchanted": "textures/misc/enchanted_item_glint"},
-        "geometry": {"default": f"geometry.rpg_w3d_{name}"},
-        "animations": {"fp": f"animation.rpg_w3d.{name}.fp", "tp": f"animation.rpg_w3d.{name}.tp"},
-        "scripts": {"pre_animation": ["v.atk = c.owning_entity->v.attack_time ?? 0;", "v.a = math.clamp(v.atk, 0, 1);", "v.up = math.clamp(v.a / 0.3, 0, 1);", "v.dn = math.clamp((v.a - 0.3) / 0.4, 0, 1);", "v.rec = math.clamp((v.a - 0.7) / 0.3, 0, 1);"],
-                    "animate": [{"fp": "c.is_first_person"}, {"tp": "!c.is_first_person"}]},
-        "render_controllers": ["controller.render.item_default"]}}}
+        "identifier": cfg["item"], "materials": {"default": "entity_alphatest"}, "textures": {"default": tex},
+        "geometry": {"default": "geometry.rpg_w3d_empty"}, "render_controllers": ["controller.render.item_default"]}}}
     (RP / "attachables").mkdir(parents=True, exist_ok=True)
     (RP / "attachables" / f"{name}.json").write_text(json.dumps(att, ensure_ascii=False, indent=1))
     anims = {}
-    for k in ("fp", "tp"):
-        c = cfg[k]; m = 1 if k == "fp" else 0.6
-        # 때리기 3단: 준비(0~0.3 뒤로 젖힘) → 내려침(0.3~0.7) → 되돌림(0.7~1) · v.up / v.dn / v.rec (0→1)
-        # 손 슬롯 축 (스크린샷 V12.20·V12.21 로 확인): 로컬 Z + 회전 = 끝이 몸 왼쪽으로 눕음, turn 뼈 Y + = 몸 뒤쪽으로 → 앞은 -.
-        # 3인칭 기본 = Z 65 (수평보다 25° 위) + turn -90 (왼쪽 → 앞) = 마크 기본 검·도끼처럼 앞을 향해 듦
-        rx, ry, rz = c["rot"]; px_, py_, pz_ = c["pos"]
-        idle_r = "math.sin(q.life_time * 110) * 2.5"
-        idle_p = "math.sin(q.life_time * 170) * 0.25"
-        kind = cfg.get("kind", "chop")
-        if cfg.get("vanilla"):  # 참고 팩식: 모델이 이미 앞(-Z)을 향함, 회전 없음. X 축 = 위아래로 휘두르는 축
-            big = {"reap": (40, 90, 50, 35), "chop": (45, 100, 55, 0), "thrust": (15, 40, 25, 0)}[kind]
-            rot = [f"{rx} + (-v.up * {big[0]} + v.dn * {big[1]} - v.rec * {big[2]}) * {m}", f"{ry} + v.dn * {big[3]} * {m} - v.rec * {big[3]} * {m}", f"{rz} + {idle_r}"]
-            pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}" + (f" + (-v.up * 2 + v.dn * 6 - v.rec * 4) * {m}" if kind == "thrust" else "")]
-        elif kind == "reap":   # 낫: 뒤로 크게 젖혔다가 수평으로 크게 베어 넘김
-            rot = [f"{rx}", f"{ry} + (v.up * 70 - v.dn * 170 + v.rec * 100) * {m}", f"{rz} + {idle_r} + (-v.up * 35 + v.dn * 60 - v.rec * 25) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}"]
-        elif kind == "thrust":  # 창: 뒤로 당겼다가 앞으로 쭉 찌르고 돌아옴
-            rot = [f"{rx}", f"{ry} + (v.up * 10 - v.dn * 10) * {m}", f"{rz} + {idle_r} + (-v.up * 20 + v.dn * 35 - v.rec * 15) * {m}"]; pos = [f"{px_} + (v.up * 3 - v.dn * 10 + v.rec * 7) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
-        elif kind == "chop":    # 도끼: 머리 위로 크게 들었다가 아래로 내려찍음
-            rot = [f"{rx} + (v.dn * 15 - v.rec * 15) * {m}", f"{ry}", f"{rz} + {idle_r} + (-v.up * 80 + v.dn * 160 - v.rec * 80) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p} + (v.up * 2 - v.dn * 3 + v.rec * 1) * {m}", f"{pz_}"]
-        elif kind == "bow":     # 활: 쏘면 반동으로 살짝 튐
-            rot = [f"{rx}", f"{ry}", f"{rz} + {idle_r} + (-v.dn * 12 + v.rec * 12) * {m}"]; pos = [f"{px_} + (v.dn * 1.5 - v.rec * 1.5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
-        else:                   # 방패: 앞으로 밀쳐 침
-            rot = [f"{rx}", f"{ry} + (v.dn * 12 - v.rec * 12) * {m}", f"{rz} + {idle_r}"]; pos = [f"{px_} + (v.up * 2 - v.dn * 7 + v.rec * 5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
-        b = {"rotation": rot, "position": pos}
-        if "scale" in c: b["scale"] = c["scale"]
-        bones = {"body": b}
-        anims[f"animation.rpg_w3d.{name}.{k}"] = {"loop": True, "bones": bones}
     return anims, len(cubes), (Wd, Ht)
 
 
 def main():
-    allan = {}
+    """플레이어 모델에 무기 모델을 붙임 (참고 팩 blades 방식): 마크 기본 player.entity.json 을 바탕으로
+    무기마다 geometry · texture · render controller 를 더하고, 그 무기를 들고 있을 때만 그림. 팔 애니메이션이 같은 이름의 뼈(rightArm·rightItem)를 움직여 무기가 손을 따라감"""
+    van = json.loads((ROOT / "art" / "vanilla_player.entity.json").read_text())
+    de = van["minecraft:client_entity"]["description"]
+    rcs = {}
     for name, cfg in W.items():
-        an, n, sz = build(name, cfg); allan.update(an)
+        _, n, sz = build(name, cfg)
         print(f"{name}: {sz[0]}x{sz[1]} px, {n} cubes")
-    (RP / "animations" / "rpg_w3d.animation.json").write_text(json.dumps({"format_version": "1.8.0", "animations": allan}, indent=1))
+        key = f"rpg_w3d_{name}"
+        de["geometry"][key] = f"geometry.{key}"
+        de["textures"][key] = f"textures/models/{key}"
+        short = cfg["item"].split(":")[1]
+        de["render_controllers"].append({f"controller.render.{key}": f"!variable.map_face_icon && query.get_equipped_item_name == '{short}'"})
+        rcs[f"controller.render.{key}"] = {"geometry": f"Geometry.{key}", "textures": [f"Texture.{key}"], "materials": [{"*": "Material.default"}]}
+    (RP / "entity").mkdir(parents=True, exist_ok=True)
+    (RP / "entity" / "player.entity.json").write_text(json.dumps(van, indent=1))
+    (RP / "render_controllers" / "rpg_w3d.render_controllers.json").write_text(json.dumps({"format_version": "1.8.0", "render_controllers": rcs}, indent=1))
+    old = RP / "animations" / "rpg_w3d.animation.json"
+    if old.exists(): old.unlink()
 
 
 if __name__ == "__main__":

@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.27.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.28.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,13 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.28 변경
+- 3D 무기를 **참고 팩(blades) 방식 그대로**: 무기 모델을 플레이어 모델에 직접 붙임
+  - resource_pack/entity/player.entity.json (마크 기본 플레이어 정의 + 무기별 geometry · texture · render controller, 그 무기를 들 때만 그림)
+  - 무기 geometry 는 플레이어 뼈 이름(body → rightArm → rightItem) 그대로, 무기는 rightItem 아래 플레이어 좌표의 오른손(-6, 12.5, -1)에서 앞(-Z)으로 → 팔 애니메이션(때리기 · 스킬 모션 포함)을 그대로 따라감
+  - 손에 드는 납작한 아이템은 빈 attachable 로 숨김
+  - 낫 날은 손 아래로 · 방패는 몸 앞에
 
 ## V12.27 변경
 - 주작의 활 3D: 다른 무기처럼 모델 자체를 들었을 때 방향으로 — 세로로 서고(활대 위아래), 화살 쪽이 앞(-Z), 옆에서 넓은 면이 보임, 가운데를 쥠

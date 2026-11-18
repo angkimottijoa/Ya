@@ -1,0 +1,1 @@
+{"format_version": "1.16.0", "minecraft:geometry": [{"description": {"identifier": "geometry.rpg_w3d_empty", "texture_width": 16, "texture_height": 16}, "bones": [{"name": "rpg_w3d_empty", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"}]}]}

@@ -4,36 +4,13 @@
   "description": {
    "identifier": "rpg:cheongryong_sword",
    "materials": {
-    "default": "entity_alphatest",
-    "enchanted": "entity_alphatest_glint"
+    "default": "entity_alphatest"
    },
    "textures": {
-    "default": "textures/models/rpg_w3d_cheongryong_lance",
-    "enchanted": "textures/misc/enchanted_item_glint"
+    "default": "textures/models/rpg_w3d_cheongryong_lance"
    },
    "geometry": {
-    "default": "geometry.rpg_w3d_cheongryong_lance"
-   },
-   "animations": {
-    "fp": "animation.rpg_w3d.cheongryong_lance.fp",
-    "tp": "animation.rpg_w3d.cheongryong_lance.tp"
-   },
-   "scripts": {
-    "pre_animation": [
-     "v.atk = c.owning_entity->v.attack_time ?? 0;",
-     "v.a = math.clamp(v.atk, 0, 1);",
-     "v.up = math.clamp(v.a / 0.3, 0, 1);",
-     "v.dn = math.clamp((v.a - 0.3) / 0.4, 0, 1);",
-     "v.rec = math.clamp((v.a - 0.7) / 0.3, 0, 1);"
-    ],
-    "animate": [
-     {
-      "fp": "c.is_first_person"
-     },
-     {
-      "tp": "!c.is_first_person"
-     }
-    ]
+    "default": "geometry.rpg_w3d_empty"
    },
    "render_controllers": [
     "controller.render.item_default"
