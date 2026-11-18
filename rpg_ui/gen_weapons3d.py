@@ -20,7 +20,7 @@ W = {
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.4, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18,
+    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.4, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
@@ -130,7 +130,7 @@ def shell_art(n=24):
     return im
 
 
-def depth_map(im, dome=False, dome_h=10):
+def depth_map(im, dome=False, dome_h=10, shell=False):
     """두께(픽셀): 가장자리 1, 안쪽으로 갈수록 2·3 (돔이면 가운데가 볼록)"""
     Wd, Ht = im.size; p = im.load(); INF = 99
     d = [[0 if p[x, y][3] == 0 else INF for x in range(Wd)] for y in range(Ht)]
@@ -157,7 +157,16 @@ def depth_map(im, dome=False, dome_h=10):
     for y in range(Ht):
         for x in range(Wd):
             if not d[y][x]: continue
-            if dome:
+            if shell:  # 껍데기: 앞은 둥글게 튀어나오고 뒤는 같은 곡면으로 움푹 (속이 빈 등껍질)
+                r = math.hypot((x - (Wd - 1) / 2) / (Wd / 2), (y - (Ht - 1) / 2) / (Ht / 2))
+                H = dome_h * max(0, 1 - r * r) ** 0.7  # 가운데가 가장 앞
+                cr, cg, cb2, _ = p[x, y]; lum = (cr + cg + cb2) / 3
+                rel = 1.5 if lum > 150 else -1 if lum < 45 else 0  # 판 하나하나 솟고 홈은 파임
+                zf = -round(H + rel + 1.5)                         # 앞면 (-Z 가 앞)
+                zb = -round(H) + (3 if d[y][x] <= 2 else 1)         # 뒷면: 얇은 껍데기, 가장자리 테두리는 두껍게
+                sh = round(dome_h * 0.4)                         # 손 쪽으로 당겨 가운데가 너무 멀리 뜨지 않게
+                out[y][x] = (zf + sh, max(zb, zf + 1) + sh)
+            elif dome:
                 r = math.hypot((x - (Wd - 1) / 2) / (Wd / 2), (y - (Ht - 1) / 2) / (Ht / 2))
                 h = 1 + round(dome_h * math.sqrt(max(0, 1 - r * r)))  # 등껍질: 높은 둥근 돔
                 cr, cg, cb2, _ = p[x, y]; lum = (cr + cg + cb2) / 3
@@ -176,7 +185,7 @@ def build(name, cfg):
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
         if cfg.get("stretch_y"): base = base.resize((base.width, round(base.height * cfg["stretch_y"])), Image.LANCZOS)  # 세로로 더 긴 타원
         im = shrink(base if cfg.get("noupright") else upright(base), cfg["px"])  # 방패는 그림 그대로 (둥글어서 돌리면 엉뚱하게 눕음)
-        dm = depth_map(im, dome=cfg.get("dome", False), dome_h=cfg.get("dome_h", 10))
+        dm = depth_map(im, dome=cfg.get("dome", False), dome_h=cfg.get("dome_h", 10), shell=cfg.get("shell", False))
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)
     Wd, Ht = im.size
@@ -205,8 +214,9 @@ def build(name, cfg):
             while x < Wd and dm[y][x] == t and not (cfg.get("vanilla") or cfg.get("bowside")): x += 1  # 옆으로 세운 무기는 합치지 않음 (합친 줄 그림이 90° 돌아 노이즈처럼 보였음)
             if x == x0: x += 1
             w = x - x0
-            T = t * u * (0.9 if cfg["src"] else 0.6)
-            o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(-T / 2, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
+            if isinstance(t, tuple): T = (t[1] - t[0]) * u; Z0 = t[0] * u  # 껍데기: 그 자리 앞·뒤 면
+            else: T = t * u * (0.9 if cfg["src"] else 0.6); Z0 = -T / 2
+            o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
             face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                     "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
                     "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}
