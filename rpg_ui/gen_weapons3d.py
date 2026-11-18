@@ -21,7 +21,7 @@ W = {
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=78, maxd=11, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     # 1차 직업 도구 (V12.91): 덜 화려하게 · 블록 적게
-    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", tip=(1, -1), px=34, maxd=3, len=2.3, grip=0.13, kind="chop", vanilla=True,
+    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", tscale=0.45, tip=(1, -1), px=34, maxd=3, len=2.3, grip=0.13, kind="chop", vanilla=True,
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "t1_mage": dict(item="rpg:jt_mage", src="t1_mage.png", tip=(1, -1), px=40, maxd=5, len=1.8, grip=0.3, kind="thrust", vanilla=True,
                     tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
@@ -30,17 +30,17 @@ W = {
     "t1_cleric": dict(item="rpg:jt_cleric", src="", book=dict(cover=None, pages=("book_pages_ref2.png", (1195, 650, 1595, 945), (0.09, 0.09, 0.49, 0.85), (0.51, 0.09, 0.92, 0.85)), leather=(92, 52, 34), trim=(206, 168, 80)), kind="tome",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     # 2차 직업 도구 (V12.92): 1차보다 화려하게 · 블록 더 많이
-    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", tip=(1, -1), px=56, maxd=3, len=2.8, grip=0.1, kind="chop", vanilla=True),
-    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", tip=(1, -1), px=60, maxd=3, len=2.9, grip=0.1, kind="chop", vanilla=True),
+    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", tscale=0.45, tip=(1, -1), px=56, maxd=3, len=2.8, grip=0.1, kind="chop", vanilla=True),
+    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", tscale=0.45, tip=(1, -1), px=60, maxd=3, len=2.9, grip=0.1, kind="chop", vanilla=True),
     "t2_hunter": dict(item="rpg:jt_hunter", src="t2_hunter.png", mirror=True, string=(200, 190, 170), px=56, maxd=3, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_sniper": dict(item="rpg:jt_sniper", src="t2_sniper.png", string=(230, 220, 160), px=56, maxd=3, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_elementalist": dict(item="rpg:jt_elementalist", src="", book=dict(cover=(150, 592, 488, 925), pages=("book_pages_ref.png", (135, 645, 522, 940), (0.05, 0.03, 0.48, 0.90), (0.52, 0.03, 0.95, 0.90)), leather=(34, 44, 78), trim=(196, 150, 70)), kind="tome"),
     "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", tip=(1, -1), px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
-    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", tip=(1, -1), px=56, maxd=3, len=2.6, grip=0.12, kind="chop", vanilla=True),
+    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", tscale=0.45, tip=(1, -1), px=56, maxd=3, len=2.6, grip=0.12, kind="chop", vanilla=True),
     "t2_priest": dict(item="rpg:jt_priest", src="", book=dict(cover=(1135, 588, 1495, 925), pages=("book_pages_ref.png", (1180, 650, 1585, 930), (0.08, 0.08, 0.49, 0.85), (0.51, 0.08, 0.92, 0.85)), leather=(226, 214, 190), trim=(212, 172, 84)), kind="tome"),
     # 3차 직업 도구 일부 (V12.97)
-    "t3_sword_emperor": dict(item="rpg:jt_sword_emperor", src="t3_sword_emperor.png", tip=(1, 0), px=84, maxd=6, len=3.0, grip=0.1, kind="chop", vanilla=True),
-    "t3_abyss_knight": dict(item="rpg:jt_abyss_knight", src="t3_abyss_knight.png", tip=(1, 0), px=84, maxd=6, len=3.1, grip=0.1, kind="chop", vanilla=True),
+    "t3_sword_emperor": dict(item="rpg:jt_sword_emperor", src="t3_sword_emperor.png", tscale=0.45, tip=(1, 0), px=84, maxd=6, len=3.0, grip=0.1, kind="chop", vanilla=True),
+    "t3_abyss_knight": dict(item="rpg:jt_abyss_knight", src="t3_abyss_knight.png", tscale=0.45, tip=(1, 0), px=84, maxd=6, len=3.1, grip=0.1, kind="chop", vanilla=True),
     "t3_destroyer": dict(item="rpg:jt_destroyer", src="t3_destroyer.png", tip=(-1, 0), px=84, maxd=6, len=2.3, grip=0.15, kind="chop", vanilla=True),
     "t3_beastlord": dict(item="rpg:jt_beastlord", src="t3_beastlord.png", mirror=True, px=80, maxd=3, len=1.8, grip=0.5, kind="bow", bowside=True),
     "t3_hawkeye": dict(item="rpg:jt_hawkeye", src="t3_hawkeye.png", mirror=True, px=80, maxd=3, len=1.8, grip=0.5, kind="bow", bowside=True),
@@ -414,7 +414,7 @@ def build(name, cfg):
             if x == x0: x += 1
             w = x - x0
             if isinstance(t, tuple): T = (t[1] - t[0]) * u; Z0 = t[0] * u  # 껍데기: 그 자리 앞·뒤 면
-            else: T = t * u * (0.9 if cfg["src"] else 0.6); Z0 = -T / 2
+            else: T = t * u * (0.9 if cfg["src"] else 0.6) * cfg.get("tscale", 1); Z0 = -T / 2  # tscale: 검은 길이가 길어도 얇게
             o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
             face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                     "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
