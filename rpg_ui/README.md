@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.114.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.115.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,10 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.115 변경
+- 최대 체력 1만: 바닐라 '체력 강화' 효과(최대 약 1000) 대신 플레이어 정의(behavior_pack/entities/player.json, 1.26.60 샘플 기준)에 체력 단계 100개(100 단위)를 넣고 스크립트가 고름 → 효과 아이콘도 사라짐
+- 최대 체력 = 20 + 레벨 × 40 + 체력 스탯 × 30 (최대 10000)
 
 ## V12.114 변경
 - 활(주작 제외) 1인칭 크게: 장궁 1.3 → 1.7, 피의 곡궁 · 뇌격의 궁 · 짐승의 장궁 · 시련의 활 1.1 → 1.5

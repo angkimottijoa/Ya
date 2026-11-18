@@ -37,9 +37,23 @@ export function combatStats(p) {
   };
 }
 
-// ───────── 체력 (V12.109): 최대 1000 = 20 + 레벨 × 4 + 체력 스탯 × 3 ─────────
-export const HP_CAP = 1000;
-export function maxHpOf(p) { return Math.min(HP_CAP, 20 + data(p).lv * 4 + stat(p, "vit") * 3); }
+// ───────── 체력 (V12.115): 최대 1만 = 20 + 레벨 × 40 + 체력 스탯 × 30 (100 단위) ─────────
+//   바닐라 '체력 강화' 효과 대신 behavior_pack/entities/player.json 의 체력 단계(rpg:hp_1 ~ rpg:hp_100)를 바꿈
+export const HP_CAP = 10000, HP_STEP = 100;
+export function maxHpOf(p) { return Math.min(HP_CAP, 20 + data(p).lv * 40 + stat(p, "vit") * 30); }
+const hpStep = new Map(); // pid -> 지금 단계
+function applyMaxHp(p) {
+  const k = Math.max(1, Math.min(HP_CAP / HP_STEP, Math.round(maxHpOf(p) / HP_STEP)));
+  if (hpStep.get(p.id) === k) return;
+  const hc = p.getComponent("minecraft:health");
+  const cur = hc?.currentValue ?? 20, oldMax = hc?.effectiveMax ?? 20;
+  try { p.triggerEvent(`rpg:hp_${k}`); } catch { return; }
+  hpStep.set(p.id, k);
+  // 단계를 바꾸면 체력이 최대치로 채워지므로, 바로 다음 틱에 원래 비율로 되돌림 (처음 접속 · 레벨업 땐 그대로 가득)
+  const first = !hpLoaded.has(p.id); hpLoaded.add(p.id);
+  if (!first) system.runTimeout(() => { try { const h = p.getComponent("minecraft:health"); h.setCurrentValue(Math.max(1, Math.min(h.effectiveMax, (cur / Math.max(1, oldMax)) * h.effectiveMax))); } catch {} }, 1);
+}
+const hpLoaded = new Set();
 /** 몹 · 환경 피해 배율 (V12.111: 레벨 비례 최대 7배 → 1.1배) */
 export const incomingMul = (p) => 1.1;
 const lastHurt = new Map(); // pid -> tick (전투 밖 회복용)
@@ -129,7 +143,8 @@ export function initCombat() {
   system.runInterval(() => {
     for (const p of world.getAllPlayers()) {
       applySpeed(p);
-      applyStatEffect(p, "health_boost", Math.round((maxHpOf(p) - 20) / 4) - 1);
+      applyStatEffect(p, "health_boost", -1); // 예전 '체력 강화' 효과 정리
+      applyMaxHp(p);
       // 전투 밖(6초 동안 안 맞음): 초당 최대 체력의 2% 회복
       try {
         if (system.currentTick - (lastHurt.get(p.id) ?? -999) > 120) {
