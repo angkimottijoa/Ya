@@ -844,7 +844,7 @@ function playerTab(p, selId) {
     }
     return re();
   });
-  scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기 (쿨다운·마나 없음, 모든 스킬)", () => {
+  scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기", () => {
     if (!isAdmin(t)) { msg(p, "§c관리자에게만 켤 수 있습니다."); return re(); }
     d.set = d.set ?? {};
     d.set.adminSkill = !d.set.adminSkill;
@@ -852,22 +852,46 @@ function playerTab(p, selId) {
     msg(t, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐 §7(쿨다운·마나 없음, 모든 직업 도구 사용 가능)" : "§7관리자 스킬 모드 꺼짐");
     return re();
   });
-  scr.action("§b청룡의 검 지급", () => { giveItem(t, "rpg:cheongryong_sword", 1); msg(p, "§b청룡의 검을 지급했습니다."); return re(); });
-  for (const [id, nm] of [["rpg:hundun_scythe", "§5혼돈의 낫"], ["rpg:qiongqi_claws", "§c궁기의 쌍발톱"], ["rpg:taowu_hammer", "§6도올의 대망치"], ["rpg:taotie_maw", "§2도철의 아가리"]]) scr.action(`${nm} 지급`, () => { giveItem(t, id, 1); msg(p, `${nm}§f을(를) 지급했습니다.`); return re(); });
-  scr.action("§2현무의 방패 지급", () => { giveItem(t, "rpg:hyeonmu_shield", 1); msg(p, "§2현무의 방패를 지급했습니다."); return re(); });
-  scr.action("§6주작의 활 지급", () => { giveItem(t, "rpg:jujak_bow", 1); msg(p, "§6주작의 활을 지급했습니다."); return re(); });
-  scr.action("§f백호의 도끼 지급", () => { giveItem(t, "rpg:baekho_axe", 1); msg(p, "§f백호의 도끼를 지급했습니다."); return re(); });
+  scr.action("§b무기 지급 (사신수 · 사흉수)", async () => { // V12.118: 버튼이 많아 아래가 잘리던 것 → 한 창에서 고름
+    const WEAPONS = [["rpg:cheongryong_sword", "청룡의 검"], ["rpg:baekho_axe", "백호의 도끼"], ["rpg:jujak_bow", "주작의 활"], ["rpg:hyeonmu_shield", "현무의 방패"],
+      ["rpg:hundun_scythe", "혼돈의 낫"], ["rpg:qiongqi_claws", "궁기의 쌍발톱"], ["rpg:taowu_hammer", "도올의 대망치"], ["rpg:taotie_maw", "도철의 아가리"]];
+    const r = await new ModalFormData().title(`${t.name} - 무기 지급`)
+      .dropdown("무기", ["§e전부", ...WEAPONS.map((w) => w[1])], 0)
+      .show(p);
+    if (!r.canceled) {
+      const k = Number(r.formValues[0]);
+      const list = k === 0 ? WEAPONS : [WEAPONS[k - 1]];
+      for (const [id] of list) giveItem(t, id, 1);
+      msg(p, `§a${list.map((w) => w[1]).join(", ")} 지급`);
+    }
+    return re();
+  });
+  scr.action("§a스탯 관리 (초기화 · 숫자 조절)", async () => {
+    const st = d.stat ?? (d.stat = { str: 0, dex: 0, int: 0, vit: 0 });
+    const r = await new ModalFormData().title(`${t.name} - 스탯 관리`)
+      .toggle("분배한 스탯 초기화 (쓴 포인트 돌려받기)", false)
+      .toggle("남은 스탯 포인트 0 으로", false)
+      .textField("힘 (분배한 값)", "0", String(st.str ?? 0))
+      .textField("민첩 (분배한 값)", "0", String(st.dex ?? 0))
+      .textField("지능 (분배한 값)", "0", String(st.int ?? 0))
+      .textField("체력 (분배한 값)", "0", String(st.vit ?? 0))
+      .textField("남은 스탯 포인트", "0", String(d.pts ?? 0))
+      .show(p);
+    if (r.canceled) return re();
+    const [reset, zero, ...vals] = r.formValues;
+    const n = (v, def) => (Number.isFinite(Number(v)) ? Math.max(0, Math.floor(Number(v))) : def);
+    // 숫자 칸 먼저 적용 → 그다음 체크한 초기화
+    st.str = n(vals[0], st.str); st.dex = n(vals[1], st.dex); st.int = n(vals[2], st.int); st.vit = n(vals[3], st.vit);
+    d.pts = n(vals[4], d.pts ?? 0);
+    if (reset) { const back = st.str + st.dex + st.int + st.vit; d.pts += back; d.stat = { str: 0, dex: 0, int: 0, vit: 0 }; }
+    if (zero) d.pts = 0;
+    save(t);
+    msg(p, `§a${t.name} 스탯: §f힘 ${d.stat.str} · 민첩 ${d.stat.dex} · 지능 ${d.stat.int} · 체력 ${d.stat.vit} §7/ 남은 포인트 ${d.pts}`);
+    if (t !== p) msg(t, "§a관리자가 스탯을 바꿨습니다.");
+    return re();
+  });
   scr.action("경험치 +100", () => { addXp(t, 100); return re(); });
   scr.action("골드 +1000", () => { addGold(t, 1000); return re(); });
-  scr.action("§a스탯 초기화 (레벨 유지 · 포인트 돌려받기)", () => confirm(p, `${t.name}의 스탯을 초기화하고 쓴 포인트를 돌려줄까요? (레벨은 그대로)`, () => {
-    const back = Object.values(d.stat ?? {}).reduce((a, v) => a + (Number(v) || 0), 0);
-    d.pts = (d.pts ?? 0) + back;
-    d.stat = { str: 0, dex: 0, int: 0, vit: 0 };
-    save(t);
-    msg(p, `§a${t.name}의 스탯을 초기화했습니다 §7(포인트 ${back} 돌려받음)`);
-    if (t !== p) msg(t, `§a관리자가 스탯을 초기화했습니다 §7(포인트 ${back} 돌려받음, 메뉴에서 다시 분배)`);
-    return re();
-  }, re));
   scr.action("레벨/스탯 초기화", () => confirm(p, `${t.name}의 레벨과 스탯을 초기화할까요?`, () => {
     Object.assign(d, { lv: 1, xp: 0, pts: 0, stat: { str: 0, dex: 0, int: 0, vit: 0 } });
     save(t);
