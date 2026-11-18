@@ -13,14 +13,14 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28, kind="reap",
-                          tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[0, 0, 60], pos=[0, 0, 0], yaw=30), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
-                          tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[0, 0, 60], pos=[0, 0, 0], yaw=30), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
-                       tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                       tp=dict(rot=[0, 0, 60], pos=[0, 0, 0], yaw=30), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_ref.jpg", px=60, len=1.5, grip=0.5, kind="bash", dome=True, keep=0.03, shell_only=True,
+    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src=None, px=24, len=1.3, grip=0.5, kind="bash",
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
@@ -244,7 +244,7 @@ def build(name, cfg):
     for k in ("fp", "tp"):
         c = cfg[k]; m = 1 if k == "fp" else 0.6
         # 때리기 3단: 준비(0~0.3 뒤로 젖힘) → 내려침(0.3~0.7) → 되돌림(0.7~1) · v.up / v.dn / v.rec (0→1)
-        # 손 슬롯 축: 로컬 Z 회전 = 앞뒤로 숙이기(+ = 끝이 앞·아래로), 로컬 Y 회전 = 좌우로 휘두르기, 로컬 -X 이동 = 앞으로 찌르기 (3인칭 기본 Z 70 = 다이아 검처럼 앞 · 살짝 위)
+        # 손 슬롯 축 (스크린샷으로 확인): 로컬 Z + 회전 = 끝이 몸 왼쪽으로 눕음, turn 뼈 Y = 수평으로 몸 앞쪽으로. 3인칭 기본 = Z 60 + turn 30 → 몸 앞을 대각선으로 가로질러 듦
         rx, ry, rz = c["rot"]; px_, py_, pz_ = c["pos"]
         idle_r = "math.sin(q.life_time * 110) * 2.5"
         idle_p = "math.sin(q.life_time * 170) * 0.25"
