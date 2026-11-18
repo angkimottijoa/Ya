@@ -2100,32 +2100,7 @@
     }
    },
    {
-    "gate": {
-     "type": "stack_panel",
-     "orientation": "vertical",
-     "size": [
-      "100%",
-      "100%"
-     ],
-     "layer": 1,
-     "factory": {
-      "name": "buttons",
-      "control_ids": {
-       "button": "@rpg_forge.forge_inner"
-      }
-     },
-     "collection_name": "form_buttons",
-     "bindings": [
-      {
-       "binding_name": "#title_text"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#title_text - '[RPG:F]') = #title_text))",
-       "target_property_name": "#collection_length"
-      }
-     ]
-    }
+    "inner@rpg_forge.forge_inner": {}
    }
   ]
  },
@@ -3740,32 +3715,7 @@
     }
    },
    {
-    "gate": {
-     "type": "stack_panel",
-     "orientation": "vertical",
-     "size": [
-      "100%",
-      "100%"
-     ],
-     "layer": 1,
-     "factory": {
-      "name": "buttons",
-      "control_ids": {
-       "button": "@rpg_forge.quest_inner"
-      }
-     },
-     "collection_name": "form_buttons",
-     "bindings": [
-      {
-       "binding_name": "#title_text"
-      },
-      {
-       "binding_type": "view",
-       "source_property_name": "(not ((#title_text - '[RPG:Q]') = #title_text))",
-       "target_property_name": "#collection_length"
-      }
-     ]
-    }
+    "inner@rpg_forge.quest_inner": {}
    }
   ]
  },

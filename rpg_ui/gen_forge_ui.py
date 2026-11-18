@@ -130,7 +130,7 @@ def gate(flag, inner):
         "factory": {"name": "buttons", "control_ids": {"button": f"@rpg_forge.{inner}"}}, "collection_name": "form_buttons",
         "bindings": [{"binding_name": "#title_text"}, {"binding_type": "view", "source_property_name": f"(not ((#title_text - '{flag}') = #title_text))", "target_property_name": "#collection_length"}]}}
 ui["forge_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:F]", "layer": 2, "controls": [
-    {"dim": img("vignette", ["100%", "100%"], 0)}, gate("[RPG:F]", "forge_inner")]}
+    {"dim": img("vignette", ["100%", "100%"], 0)}, {"inner@rpg_forge.forge_inner": {}}]}
 ui["forge_inner"] = {"type": "panel", "size": ["100%", "100%"], "controls": [
     {"frame": {"type": "panel", "size": [312, "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
@@ -195,7 +195,7 @@ ui["qa_entry"] = entry("[A]", ["100%", 19], [{"b@rpg_forge.qa_btn": {"size": ["1
 ui["q_text"] = {"type": "panel", "size": ["100%", "100%c + 4px"], "controls": [
     {"t": {"type": "label", "text": "#form_text", "localize": False, "shadow": True, "layer": 8, "size": ["100% - 6px", "default"], **A("top_left"), "offset": [4, 2], "color": [0.95, 0.94, 0.9]}}]}
 ui["quest_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:Q]", "layer": 2, "controls": [
-    {"dim": img("vignette", ["100%", "100%"], 0)}, gate("[RPG:Q]", "quest_inner")]}
+    {"dim": img("vignette", ["100%", "100%"], 0)}, {"inner@rpg_forge.quest_inner": {}}]}
 ui["quest_inner"] = {"type": "panel", "size": ["100%", "100%"], "controls": [
     {"frame": {"type": "panel", "size": ["100% - 12px", "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
