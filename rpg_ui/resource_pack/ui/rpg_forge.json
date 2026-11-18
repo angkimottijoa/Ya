@@ -905,11 +905,57 @@
          },
          {
           "binding_type": "view",
-          "source_property_name": "(#form_button_text - '[C]')",
+          "source_property_name": "((#form_button_text - '[C]') - '[SM]')",
           "target_property_name": "#display"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#form_button_text - '[SM]') = #form_button_text)",
+          "target_property_name": "#visible"
          }
         ],
         "font_scale_factor": 0.8
+       }
+      },
+      {
+       "ts": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         "default",
+         10
+        ],
+        "text_alignment": "left",
+        "color": [
+         0.93,
+         0.92,
+         0.88
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#form_button_text - '[C]') - '[SM]')",
+          "target_property_name": "#display"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#form_button_text - '[SM]') = #form_button_text))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "font_scale_factor": 0.64,
+        "offset": [
+         0,
+         1
+        ]
        }
       },
       {
@@ -2846,11 +2892,57 @@
          },
          {
           "binding_type": "view",
-          "source_property_name": "(#form_button_text - '[C]')",
+          "source_property_name": "((#form_button_text - '[C]') - '[SM]')",
           "target_property_name": "#display"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#form_button_text - '[SM]') = #form_button_text)",
+          "target_property_name": "#visible"
          }
         ],
         "font_scale_factor": 0.85
+       }
+      },
+      {
+       "ts": {
+        "type": "label",
+        "text": "#display",
+        "localize": false,
+        "shadow": true,
+        "layer": 8,
+        "size": [
+         "default",
+         10
+        ],
+        "text_alignment": "left",
+        "color": [
+         0.96,
+         0.87,
+         0.59
+        ],
+        "bindings": [
+         {
+          "binding_name": "#form_button_text",
+          "binding_type": "collection",
+          "binding_collection_name": "form_buttons"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "((#form_button_text - '[C]') - '[SM]')",
+          "target_property_name": "#display"
+         },
+         {
+          "binding_type": "view",
+          "source_property_name": "(not ((#form_button_text - '[SM]') = #form_button_text))",
+          "target_property_name": "#visible"
+         }
+        ],
+        "font_scale_factor": 0.68,
+        "offset": [
+         0,
+         1
+        ]
        }
       },
       {

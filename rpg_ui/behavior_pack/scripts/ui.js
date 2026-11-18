@@ -51,6 +51,8 @@ export class Screen {
     return this;
   }
   chip(icon, text) {
+    // 긴 숫자(6글자 이상, 예: 12,840 · 123.5만)는 작은 글씨로 — 화면 칩에 [SM] 표시 (V12.143)
+    if (typeof text === "string" && text.replace(/§./g, "").length >= 6) text = `[SM]${text}`;
     this.chips.push({ text, icon });
     return this;
   }

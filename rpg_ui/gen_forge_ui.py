@@ -86,7 +86,7 @@ ui["fcen_entry"] = {"type": "stack_panel", "orientation": "vertical", "size": ["
     {"p": entry("[FP]", ["100%", 10], [{"pips": icon([110, 8], **A("center"))}])}]}  # +단계 아래 15칸 구슬
 ui["fu_entry"] = entry("[FU]", ["100%", 9], [{"t": label(["[FU]"], ["100%", 9], "center", 0.75, (0.74, 0.69, 0.57), **A("center"))}])
 ui["fch_entry"] = entry("[C]", ["100%c", 12], [{"st": {"type": "stack_panel", "orientation": "horizontal", "size": ["100%c", 12], "controls": [
-    {"i": icon([11, 11])}, {"g": {"type": "panel", "size": [2, 10]}}, {"t": label(["[C]"], ["default", 10], "left", 0.8, (0.93, 0.92, 0.88))}, {"g2": {"type": "panel", "size": [7, 10]}}]}}])
+    {"i": icon([11, 11])}, {"g": {"type": "panel", "size": [2, 10]}}, {"t": {**label(["[C]", "[SM]"], ["default", 10], "left", 0.8, (0.93, 0.92, 0.88)), "bindings": label(["[C]", "[SM]"], [1, 1])["bindings"] + vis(hasnt("[SM]"))[1:]}}, {"ts": {**label(["[C]", "[SM]"], ["default", 10], "left", 0.64, (0.93, 0.92, 0.88)), "offset": [0, 1], "bindings": label(["[C]", "[SM]"], [1, 1])["bindings"] + vis(has("[SM]"))[1:]}}, {"g2": {"type": "panel", "size": [7, 10]}}]}}])
 # 결과 띠: [FT] + [OK] 성공(초록 빛) / 없으면 실패(붉은 빛)
 ui["ft_entry"] = entry("[FT]", ["100%", 17], [
     {"ok": marked_img("ribbon_ok", has("[OK]"), (240, 15), 1)},
@@ -166,7 +166,7 @@ for nm, tex in (("tab_face", "row_default"), ("tab_face_h", "row_hover")):
 ui["tab_btn@rpg_form.form_btn"] = button(("tab_face", "tab_face_h", "tab_face_h"))
 ui["qt_entry"] = entry("[T]", [40, 18], [{"b@rpg_forge.tab_btn": {"size": [39, 18], **A("left_middle")}}])
 ui["qc_entry"] = entry("[C]", ["100%c", 12], [{"st": {"type": "stack_panel", "orientation": "horizontal", "size": ["100%c", 12], "controls": [
-    {"i": icon([10, 10])}, {"g": {"type": "panel", "size": [2, 10]}}, {"t": label(["[C]"], ["default", 10], "left", 0.85, (0.96, 0.87, 0.59))}, {"g2": {"type": "panel", "size": [8, 10]}}]}}])
+    {"i": icon([10, 10])}, {"g": {"type": "panel", "size": [2, 10]}}, {"t": {**label(["[C]", "[SM]"], ["default", 10], "left", 0.85, (0.96, 0.87, 0.59)), "bindings": label(["[C]", "[SM]"], [1, 1])["bindings"] + vis(hasnt("[SM]"))[1:]}}, {"ts": {**label(["[C]", "[SM]"], ["default", 10], "left", 0.68, (0.96, 0.87, 0.59)), "offset": [0, 1], "bindings": label(["[C]", "[SM]"], [1, 1])["bindings"] + vis(has("[SM]"))[1:]}}, {"g2": {"type": "panel", "size": [8, 10]}}]}}])
 for nm, tex in (("qrow_face", "row_default"), ("qrow_face_h", "row_hover")):
     ui[nm] = {"type": "panel", "size": ["100%", "100%"], "controls": [
         {"off": marked_img(U + tex, hasnt("[ON]"))}, {"on": marked_img(U + "row_on", has("[ON]"))},
