@@ -73,7 +73,7 @@ FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
 FP_TILT = 45  # 가로축(두께 X, V12.46 스크린샷으로 확인) 둘레로 45° — 위로 들린 날 축을 정면(화면 중심 쪽)으로 숙이고 무기 끝을 카메라 쪽으로 세움. 반대로 넘어가면 -45
-FP_SPIN = {}
+FP_SPIN = {"jujak_bow": 180}  # 1인칭: 주작의 활만 앞뒤 반대였음
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
