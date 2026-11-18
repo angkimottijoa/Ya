@@ -85,7 +85,9 @@ def chan(bone):
 
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
-FP_REST_TURN = -90  # (+90 은 반대쪽이었음) 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
+FP_REST_TURN = -73  # (V12.76 -90 → 73°)
+FP_GUARD_POS = {"hyeonmu_shield": [-6, -7, 0]}  # 패링(우클릭) 중: 화면 가운데 위로 들어 올림 (시뮬: -x 위, -y 왼쪽; V12.74 는 x 부호가 반대여서 아래로 갔음)
+# (+90 은 반대쪽이었음) 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
 
 
 FP_POS_EXTRA = {"hyeonmu_shield": [2.5, 2.5, 0]}  # 방패 1인칭: 시점 후방(화면 오른쪽 아래 바깥)으로 (시뮬: +x 아래, +y 오른쪽 · z -4 는 화면 안쪽으로 들어와 보였음)
@@ -93,6 +95,9 @@ FP_POS_EXTRA = {"hyeonmu_shield": [2.5, 2.5, 0]}  # 방패 1인칭: 시점 후�
 
 def fp_pos(name):
     e = FP_POS_EXTRA.get(name, [0, 0, 0])
+    if name in FP_GUARD_POS:  # 기본 자리 ↔ 패링 자리 사이를 들어 올림 정도로 섞음
+        gp = FP_GUARD_POS[name]
+        return [f"{FP_POS[i]} + {e[i]} + ({gp[i] - e[i]}) * {FP_GUARD}" for i in range(3)]
     return [FP_POS[i] + e[i] for i in range(3)]
 
 
