@@ -8,6 +8,8 @@ import { skillHit as weaponSkillHit, buffMul } from "./skills.js";
 import { HP_STEPS } from "./hp_steps.js";
 import { heldEnhMul, defenseOf } from "./enhance.js";
 import * as WRULES from "./world_rules.js";
+import { ITEM_ATK } from "./item_atk.js";
+import { inv } from "./itemdb.js";
 
 // 처치 보상 [경험치, 골드]
 const MOB_REWARD = {
@@ -121,7 +123,12 @@ export function initCombat() {
     if (!hp || hp.currentValue <= 0) return;
     const as = combatStats(atk);
     const crit = rollCrit(atk, as);
-    let extra = damage * (dealMul(atk, as) * crit - 1); // 평타: 힘 · 버프 · 둔함 · 치명
+    // V12.141: 이 애드온 무기 · 직업 도구는 아이템에 피해 값이 없음(툴팁 「+N 공격 피해」 없애려고) → 맨손 1 대신 표의 공격력
+    let base = damage;
+    if (damageSource.cause === "entityAttack") {
+      try { const held = inv(atk).getItem(atk.selectedSlotIndex); const ia = held && ITEM_ATK[held.typeId]; if (ia) base = damage - 1 + ia; } catch {}
+    }
+    let extra = base * dealMul(atk, as) * crit - damage; // 평타: 힘 · 버프 · 둔함 · 치명
     if (crit > 1) {
       hurtEntity.dimension.spawnParticle("minecraft:critical_hit_emitter", { ...hurtEntity.location, y: hurtEntity.location.y + 1 });
       atk.playSound("random.anvil_land", { volume: 0.3, pitch: 2 });

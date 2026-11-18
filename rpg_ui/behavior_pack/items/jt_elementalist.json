@@ -15,7 +15,6 @@
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
-      "minecraft:damage": 90,
       "minecraft:enchantable": {
         "slot": "sword",
         "value": 18

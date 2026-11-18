@@ -186,17 +186,15 @@ function showResult(p, r) {
   if (r.ok) {
     p.playSound("random.totem", { volume: 0.6, pitch: 1.4 });
     try { p.dimension.spawnParticle("minecraft:totem_particle", at); } catch {}
-    p.onScreenDisplay.setTitle(`§e§l+${r.NL} 성공!`, { subtitle: rt("§f", baseName(r.it)), fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
     pushHist(p, `§a성공 §f+${r.L} → +${r.NL} §7(${r.rate}%)`);
-    lastRes.set(p.id, `§a§l강화 성공!  §r§f+${r.L} → §a§l+${r.NL}`);
+    lastRes.set(p.id, { ok: true, text: `§a§l강화 성공!  §r§f+${r.L} → §e§l+${r.NL}` });
     if (r.NL >= 12) world.sendMessage(rt(`§6§l[강화] §r§f${p.name} 님이 §e§l+${r.NL} `, baseName(r.it), "§r§f 강화에 성공했습니다!"));
   } else {
     p.playSound("random.anvil_land", { volume: 0.6, pitch: 0.7 });
     try { p.dimension.spawnParticle("minecraft:large_smoke_particle", at); } catch {}
     const sub = r.NL < r.L ? `§c+${r.L} → +${r.NL}` : r.prot ? "§6파괴방지석이 하락을 막았습니다" : "§7단계 유지";
-    p.onScreenDisplay.setTitle("§c§l강화 실패", { subtitle: sub, fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
     pushHist(p, `§c실패 §f+${r.L} → +${r.NL} §7(${r.rate}%)${r.prot ? " §6방지" : ""}`);
-    lastRes.set(p.id, `§c§l강화 실패  §r${r.NL < r.L ? `§f+${r.L} → §c+${r.NL}` : r.prot ? "§6방지석이 단계를 지켰습니다" : "§7단계 유지"}`);
+    lastRes.set(p.id, { ok: false, text: `§c§l강화 실패  §r${r.NL < r.L ? `§f+${r.L} → §c+${r.NL}` : r.prot ? "§6방지석이 단계를 지켰습니다" : "§7단계 유지"}` });
   }
   return true;
 }
@@ -250,12 +248,13 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   const weapon = kind === "weapon";
   const scr = new Screen("F", `${weapon ? "무기" : "방어구"} 강화`);
   // 제목 아래 작은 줄: 방금 결과가 있으면 결과, 없으면 대장장이 이름
-  scr.raw("[FU]", lastRes.get(p.id) ?? `§7${npcName}`, "", null);
-  scr.tab("돌아가기", ICON("back"), back);
-  scr.tab("닫기", ICON("close"), () => {});
-  scr.chip(ICON("gold"), `${comma(d.gold)}G`);
+  // 위 줄: 관련 재료 보유 개수 · 결과 띠 (방금 강화한 결과가 있으면)
   STONES.forEach((st, i) => scr.chip(STONE_TEX(i), `${countItem(p, st.id)}`));
+  SCROLLS.forEach((sc, i) => scr.chip(SCROLL_TEX(i), `${countItem(p, sc.id)}`));
   scr.chip("textures/items/rpg/enh_protect", `${countItem(p, PROTECT.id)}`);
+  scr.chip(ICON("gold"), `${comma(d.gold)}`);
+  const res = lastRes.get(p.id);
+  if (res) scr.raw(res.ok ? "[FT][OK]" : "[FT]", res.text, "", null);
 
   const T = L + 1, n = L < MAX_ENH ? needOf(T) : null, sc = SCROLLS[ch.scroll];
   // 위 왼쪽: 주문서 칸
@@ -271,7 +270,7 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   // 가운데: 아이템 · 큰 +단계 · 분류
   scr.raw("[FC]", rt("§f", baseName(it)), iconOf(it.typeId), null);
   scr.raw("[FV]", `${L ? TIER_COL[tierOf(L)] : "§7"}+${L}`, "", null);
-  scr.raw("[FS]", `${catOf(it.typeId)}`, "", null);
+  scr.raw("[FP]", "", `${FORGE}pips_${L}`, null); // +단계 아래 구슬
   // 아래: 수치
   const base = weapon ? baseAtk(it.typeId) : (weaponInfo(it.typeId)?.def ?? 0) * 10;
   const val = (l) => (weapon ? Math.round(base * (1 + weaponBonus(l))) : base + armorDef(l));
@@ -281,7 +280,6 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   if (!n) {
     row("강화 단계", "§6최대 강화 달성");
     scr.raw("[FB]", "§a완료", `${FORGE}bar_100`, null);
-    scr.raw("[FP]", `§f${L} §7/ ${MAX_ENH}`, `${FORGE}pips_${L}`, null);
     scr.raw("[FG]", "§6최대 강화", "", reopen);
     scr.raw("[FZ]", "돌아가기", "", back);
     scr.reopen = reopen;
@@ -294,7 +292,6 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   row("실패 시", T <= SAFE_TO ? "§a단계 유지" : useP ? "§6방지석으로 유지" : `§c+${L - 1} 로 하락`);
   const rc = rate >= 70 ? "§a" : rate >= 40 ? "§e" : rate >= 20 ? "§6" : "§c";
   scr.raw("[FB]", `${rc}${rate}%`, `${FORGE}bar_${Math.round(rate / 5) * 5}`, null);
-  scr.raw("[FP]", `§f${L} §7/ ${MAX_ENH}`, `${FORGE}pips_${L}`, null);
   // 재료
   scr.raw("[FM]", `${have >= n.count ? "§f" : "§c"}${n.stone.name.replace(" 강화석", "석")} ×${n.count}`, STONE_TEX(tierOf(T)), null);
   scr.raw("[FM]", `${d.gold >= n.gold ? "§f" : "§c"}${comma(n.gold)}G`, ICON("gold"), null);

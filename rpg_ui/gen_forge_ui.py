@@ -83,8 +83,16 @@ ui["fcen_entry"] = {"type": "stack_panel", "orientation": "vertical", "size": ["
         {"item": icon([26, 26], **A("top_middle"), offset=[0, 6])},
         {"name": label(["[FC]"], ["100%", 10], "center", None, **A("bottom_middle"))}])},
     {"v": entry("[FV]", ["100%", 14], [{"t": label(["[FV]"], ["100%", 14], "center", 1.6, (0.96, 0.87, 0.59), **A("center"))}])},
-    {"s": entry("[FS]", ["100%", 9], [{"t": label(["[FS]"], ["100%", 9], "center", 0.75, (0.62, 0.63, 0.68), **A("center"))}])}]}
+    {"p": entry("[FP]", ["100%", 10], [{"pips": icon([110, 8], **A("center"))}])}]}  # +단계 아래 15칸 구슬
 ui["fu_entry"] = entry("[FU]", ["100%", 9], [{"t": label(["[FU]"], ["100%", 9], "center", 0.75, (0.74, 0.69, 0.57), **A("center"))}])
+ui["fch_entry"] = entry("[C]", ["100%c", 12], [{"st": {"type": "stack_panel", "orientation": "horizontal", "size": ["100%c", 12], "controls": [
+    {"i": icon([11, 11])}, {"g": {"type": "panel", "size": [2, 10]}}, {"t": label(["[C]"], ["default", 10], "left", 0.8, (0.93, 0.92, 0.88))}, {"g2": {"type": "panel", "size": [7, 10]}}]}}])
+# 결과 띠: [FT] + [OK] 성공(초록 빛) / 없으면 실패(붉은 빛)
+ui["ft_entry"] = entry("[FT]", ["100%", 17], [
+    {"ok": marked_img("ribbon_ok", has("[OK]"), (240, 15), 1)},
+    {"ng": marked_img("ribbon_fail", hasnt("[OK]"), (240, 15), 1)},
+    {"t": label(["[FT]", "[OK]"], ["100%", 10], "center", 1.0, **A("center"), offset=[0, 0])}])
+for k in ("ok", "ng"): ui["ft_entry"]["controls"][0 if k == "ok" else 1][k].update(A("center"))
 ui["fk_entry"] = entry("[FK]", ["100%", 10], [{"t": label(["[FK]"], ["100%", 10], "left", None, (0.66, 0.67, 0.72), **A("left_middle"), offset=[4, 0])}])
 ui["fw_entry"] = entry("[FW]", ["100%", 10], [{"t": label(["[FW]"], ["100%", 10], "right", **A("right_middle"), offset=[-4, 0])}])
 # 아래 줄: [FB] 확률 막대 · [FP] 진행도
@@ -93,10 +101,7 @@ ui["frow_entry"] = {"type": "stack_panel", "orientation": "vertical", "size": ["
         {"k": static("성공 확률", [56, 10], **A("left_middle"), offset=[4, 1])},
         {"bar": icon([150, 9], **A("left_middle"), offset=[62, 0])},
         {"v": label(["[FB]"], [50, 12], "right", 1.15, (0.96, 0.87, 0.59), **A("right_middle"), offset=[-4, 0])}])},
-    {"p": entry("[FP]", ["100%", 12], [
-        {"k": static("강화 진행도", [70, 10], **A("left_middle"), offset=[4, 1])},
-        {"pips": icon([110, 8], **A("left_middle"), offset=[80, 0])},
-        {"v": label(["[FP]"], [50, 10], "right", **A("right_middle"), offset=[-4, 0])}])}]}
+]}
 ui["fm_entry"] = entry("[FM]", [66, 20], [
     {"bg": img("mslot", [20, 20], 3, **A("left_middle"))},
     {"i": icon([14, 14], **A("left_middle"), offset=[3, 0])},
@@ -120,13 +125,19 @@ for nm, tex in (("x_face", "close"), ("x_face_h", "close_hover")):
 ui["x_btn@rpg_form.form_btn"] = button(("x_face", "x_face_h", "x_face_h"))
 ui["fx_entry"] = entry("[FX]", [14, 14], [{"b@rpg_forge.x_btn": {"size": [14, 14]}}])
 
+def gate(flag, inner):
+    return {"gate": {"type": "stack_panel", "orientation": "vertical", "size": ["100%", "100%"], "layer": 1,
+        "factory": {"name": "buttons", "control_ids": {"button": f"@rpg_forge.{inner}"}}, "collection_name": "form_buttons",
+        "bindings": [{"binding_name": "#title_text"}, {"binding_type": "view", "source_property_name": f"(not ((#title_text - '{flag}') = #title_text))", "target_property_name": "#collection_length"}]}}
 ui["forge_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:F]", "layer": 2, "controls": [
-    {"dim": img("vignette", ["100%", "100%"], 0)},
+    {"dim": img("vignette", ["100%", "100%"], 0)}, gate("[RPG:F]", "forge_inner")]}
+ui["forge_inner"] = {"type": "panel", "size": ["100%", "100%"], "controls": [
     {"frame": {"type": "panel", "size": [312, "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
         {"title": title_label("[RPG:F]", 13, 1.45, [0.96, 0.87, 0.59])},
-        {"sub": {"type": "panel", "size": [268, 9], "layer": 8, **A("top_middle"), "offset": [0, 27], "controls": [factory("s", "fu_entry", ["100%", "100%c"])]}},
-        stack("content", "vertical", [268, "100% - 46px"], [
+        stack("content", "vertical", [268, "100% - 34px"], [
+            {"chips": {"type": "panel", "size": ["100%", 12], "controls": [factory("l", "fch_entry", ["100%c", 12], "horizontal", **A("top_middle"))]}},
+            factory("result", "ft_entry", ["100%", "100%c"]),
             {"card": {"type": "image", "texture": T + "card", "size": [268, 74], "controls": [
                 factory("left", "fl_entry", [72, 64], **A("left_middle"), offset=[12, 1], layer=2),
                 factory("right", "fr_entry", [72, 64], **A("right_middle"), offset=[-12, 1], layer=2),
@@ -142,7 +153,7 @@ ui["forge_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:F]", "layer": 2, "contr
             {"mats": {"type": "panel", "size": ["100%", 20], "controls": [factory("l", "fm_entry", ["100%c", 20], "horizontal", **A("top_middle"))]}},
             {"fill": {"type": "panel", "size": ["100%", "fill"]}},
             {"btns": {"type": "panel", "size": ["100%", 26], "controls": [factory("l", "fbtn_entry", ["100%c", 26], "horizontal", **A("center"))]}},
-        ], layer=5, **A("top_middle"), offset=[0, 38]),
+        ], layer=5, **A("top_middle"), offset=[0, 28]),
     ]}},
 ]}
 
@@ -184,7 +195,8 @@ ui["qa_entry"] = entry("[A]", ["100%", 19], [{"b@rpg_forge.qa_btn": {"size": ["1
 ui["q_text"] = {"type": "panel", "size": ["100%", "100%c + 4px"], "controls": [
     {"t": {"type": "label", "text": "#form_text", "localize": False, "shadow": True, "layer": 8, "size": ["100% - 6px", "default"], **A("top_left"), "offset": [4, 2], "color": [0.95, 0.94, 0.9]}}]}
 ui["quest_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:Q]", "layer": 2, "controls": [
-    {"dim": img("vignette", ["100%", "100%"], 0)},
+    {"dim": img("vignette", ["100%", "100%"], 0)}, gate("[RPG:Q]", "quest_inner")]}
+ui["quest_inner"] = {"type": "panel", "size": ["100%", "100%"], "controls": [
     {"frame": {"type": "panel", "size": ["100% - 12px", "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
         {"title": title_label("[RPG:Q]", 13, 1.4, [0.96, 0.87, 0.59])},

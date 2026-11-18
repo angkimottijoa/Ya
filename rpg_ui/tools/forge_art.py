@@ -425,3 +425,15 @@ def qline(lit):
         over(a, (64, 70, 100), fill_sd(np.abs(x - 2.4) - 0.3) * 0.8)
     return a
 print("quest art ok")
+
+# ───────── 결과 띠 (240x15): 어두운 띠 + 위아래 가는 금선 (양끝 흐려짐) — 성공 · 실패 글자를 얹음 ─────────
+def ribbon(glow_rgb):
+    W, H = 240, 15
+    a = canvas(W, H); x, y = grid(a)
+    fade = np.clip(np.minimum(x, W - x) / 50, 0, 1)
+    over(a, (12, 14, 24), fade * 0.82)
+    add_glow(a, glow_rgb, np.exp(-((y - H / 2) / 5.0) ** 2) * fade * 0.18)
+    for yy in (1.0, H - 1.0):
+        over(a, (214, 172, 82), fill_sd(np.abs(y - yy) - 0.35) * fade * 0.9)
+    return a
+save(ribbon((90, 220, 120)), "ribbon_ok"); save(ribbon((230, 80, 70)), "ribbon_fail")

@@ -45,9 +45,16 @@ class Scr:
 def forge(path):
     s = Scr(420, 250)
     X, Y, W, H = 54, 3, 312, 244
-    s.frame(X, Y, W, H, "무기 강화", "대장장이")
+    s.frame(X, Y, W, H, "무기 강화")
     cx, cw = X + 22, 268
-    y = Y + 38
+    chips = [("enh_stone_1", "12"), ("enh_stone_2", "30"), ("enh_stone_3", "4"), ("enh_stone_4", "0"), ("enh_scroll_1", "5"), ("enh_scroll_2", "3"), ("enh_scroll_3", "1"), ("enh_protect", "5"), ("/gold", "12,840")]
+    widths = [11 + 2 + len(t) * 4.2 + 7 for _, t in chips]; xx = cx + cw / 2 - sum(widths) / 2
+    for (ic, t), w in zip(chips, widths):
+        ipath = "resource_pack/textures/ui/rpg/icons/gold.png" if ic == "/gold" else f"resource_pack/textures/items/rpg/{ic}.png"
+        s.c.alpha_composite(Image.open(ipath).convert("RGBA").resize((11 * Z, 11 * Z), Image.NEAREST), (int(xx * Z), int((Y + 28) * Z)))
+        s.text(t, xx + 13, Y + 29, (236, 232, 222), 0.8); xx += w
+    s.put("ribbon_fail", cx + 14, Y + 41, 240, 15); s.text("강화 실패   +8 → +7", cx + cw / 2, Y + 44, (240, 110, 100), 1.0, "ma")
+    y = Y + 57
     s.put("card", cx, y, cw, 74)
     # 양옆 칸
     for sx, icon, name, on in ((cx + 18, "resource_pack/textures/items/rpg/enh_scroll_2.png", "중급 주문서", True), (cx + cw - 52, "resource_pack/textures/items/rpg/enh_protect.png", "파괴방지석", False)):
@@ -62,13 +69,12 @@ def forge(path):
     s.c.alpha_composite(Image.open("resource_pack/textures/items/rpg/cheongryong_sword.png").convert("RGBA").resize((28 * Z, 28 * Z), Image.NEAREST), (int((mx - 14) * Z), int((y + 10) * Z)))
     s.text("청룡의 검", mx, y + 46, (240, 236, 226), 1.0, "ma")
     s.text("+8", mx, y + 54, (245, 222, 150), 1.6, "ma")
-    s.text("사신수 무기 · 창", mx, y + 66, (160, 160, 170), 0.75, "ma")
+    s.put("pips_8", mx - 55, y + 64, 110, 8)
     y += 77
     for k, v, col in (("현재 공격력", "246", (240, 236, 226)), ("강화 성공 시", "246 → 259", (110, 220, 140)), ("실패 시", "+7 로 하락", (240, 110, 100))):
         s.text(k, cx + 4, y, (165, 168, 180)); s.text(v, cx + cw - 4, y, col, 1.0, "ra"); y += 10
     s.put("divider", cx, y + 1, cw, 3); y += 5
     s.text("성공 확률", cx + 4, y + 1, (165, 168, 180)); s.put("bar_55", cx + 60, y + 1, 150, 9); s.text("55%", cx + cw - 4, y - 1, (240, 214, 160), 1.15, "ra"); y += 13
-    s.text("강화 진행도", cx + 4, y + 1, (165, 168, 180)); s.put("pips_8", cx + 80, y + 2, 110, 8); s.text("8 / 15", cx + cw - 4, y + 1, (240, 236, 226), 1.0, "ra"); y += 12
     mats = [("enh_stone_2", "중급석 ×3"), ("/gold", "12,800G"), ("enh_scroll_2", "주문서 ×1")]
     tw = len(mats) * 74; mxs = cx + cw / 2 - tw / 2
     for i, (ic, t) in enumerate(mats):

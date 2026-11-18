@@ -4,6 +4,7 @@ import { system, world } from "@minecraft/server";
 import * as J from "./jobs.js";
 import { ENH_LORE, STONES, PROTECT, SCROLLS, setInfoLookup, atkLine } from "./enhance.js";
 import { setRpgName, setToolRarity } from "./itemdb.js";
+import { ITEM_ATK } from "./item_atk.js";
 
 export const LORE_INFO = {
   "rpg:cheongryong_sword": { cat: "사신수 무기 · 창", atk: 180, flavor: "동방을 지키는 푸른 용, 청룡의 창. 물살과 번개를 다스린다." },
@@ -18,15 +19,15 @@ export const LORE_INFO = {
 const TIER_TXT = ["", "1차", "2차", "3차"];
 /** 이 아이템의 정보 { cat, atk, flavor } (없으면 null) */
 export function loreInfo(typeId) {
-  if (LORE_INFO[typeId]) return LORE_INFO[typeId];
+  if (LORE_INFO[typeId]) return { ...LORE_INFO[typeId], atk: ITEM_ATK[typeId] ?? LORE_INFO[typeId].atk };
   const path = J.pathOfTool(typeId), pt = path && J.PATHS[path];
   if (!pt) return null;
-  return { cat: `${TIER_TXT[pt.tier] ?? ""} ${pt.name} 전용 도구`, atk: Math.round((pt.tool?.dmg ?? 0) * 1.5) * 10, flavor: pt.desc ?? "" };
+  return { cat: `${TIER_TXT[pt.tier] ?? ""} ${pt.name} 전용 도구`, atk: ITEM_ATK[typeId] ?? Math.round((pt.tool?.dmg ?? 0) * 1.5) * 10, flavor: pt.desc ?? "" };
 }
 function wantLore(it) {
   const i = loreInfo(it.typeId);
   if (!i) return null;
-  return [`§7${i.cat}`, ...(i.flavor ? [`§8${i.flavor}`] : []), `§b● 공격력 §f${atkLine(i.atk, it)}`, "§8자세히: 배낭 > 자세히 보기"];
+  return [`§7${i.cat}`, `§b● 공격력 §f${atkLine(i.atk, it)}`, "§8자세히: 배낭 > 자세히 보기"]; // 한 줄 설정은 배낭 > 자세히 보기에만
 }
 /** 2초마다: 가방의 무기 설명줄이 다르면 고침 (강화 줄은 그대로 맨 위) */
 system.runInterval(() => {

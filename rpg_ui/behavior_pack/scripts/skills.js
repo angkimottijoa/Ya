@@ -327,7 +327,7 @@ export const WEAPON_MIX = {
   w_tt_1: [0.8, 0, 0.2], w_tt_2: [0.7, 0, 0.3], w_tt_3: [1, 0, 0], w_tt_4: [0.3, 0, 0.7],       // 도철: 물어뜯기 + 아가리 · 가면 소용돌이
 };
 const mixPow = (cs, m) => m[0] * powOf(cs.str) + m[1] * powOfR(cs.dex) + m[2] * powOf(cs.int);
-const weaponDmg = (p, s) => 160 * mixPow(combatStats(p), WEAPON_MIX[s?.id] ?? [1, 0, 0]) * buffMul(p) * (1 + data(p).lv * 0.025) * heldEnhMul(p); // 강화 포함
+const weaponDmg = (p, s) => 200 * mixPow(combatStats(p), WEAPON_MIX[s?.id] ?? [1, 0, 0]) * buffMul(p) * (1 + data(p).lv * 0.025) * heldEnhMul(p); // 강화 포함
 /** V12.129 스킬 위력 보정: 가짜 표적 1마리에 스킬을 시뮬레이션해 '한 번 쓸 때 총 피해'를 재고,
  *  목표 = ① 0.9 + 0.8 × 대기초 / ②~④ (2 + 10 × 대기/120 + 3 × 마나/300) × 성격(장판 · 광역 0.85, 지속 · 방어 · 구속 · 이동기 0.6~0.75)
  *  에 맞도록 곱함. 클릭 연타 · 재입력 · 착지처럼 시뮬레이션에서 안 도는 단계가 있는 스킬은 따로 낮게 정함 */
