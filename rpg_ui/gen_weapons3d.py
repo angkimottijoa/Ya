@@ -13,11 +13,11 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28, kind="reap",
-                          tp=dict(rot=[0, 0, -90], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
-                          tp=dict(rot=[0, 0, -90], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
-                       tp=dict(rot=[0, 0, -90], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                       tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_ref.jpg", px=60, len=1.5, grip=0.5, kind="bash", dome=True, keep=0.03, shell_only=True,
@@ -159,7 +159,11 @@ def depth_map(im, dome=False):
             if not d[y][x]: continue
             if dome:
                 r = math.hypot((x - (Wd - 1) / 2) / (Wd / 2), (y - (Ht - 1) / 2) / (Ht / 2))
-                out[y][x] = 1 + round(5 * math.sqrt(max(0, 1 - r * r)))  # 등껍질: 매끈한 둥근 돔
+                h = 1 + round(10 * math.sqrt(max(0, 1 - r * r)))  # 등껍질: 높은 둥근 돔
+                cr, cg, cb2, _ = p[x, y]; lum = (cr + cg + cb2) / 3
+                if lum > 150: h += 2      # 밝은 테두리 · 하이라이트는 도드라지게
+                elif lum < 45: h -= 2     # 판 사이 어두운 홈은 파이게 → 등껍질 판이 하나하나 솟아 보임
+                out[y][x] = max(1, h)
             else:
                 out[y][x] = min(7, 2 * d[y][x] - 1)  # 둥근 단면: 그 자리 폭만큼 두껍게 (자루는 원통, 날은 가운데 볼록)
     return out
@@ -221,7 +225,8 @@ def build(name, cfg):
         "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
                         "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
         "bones": [{"name": "rpg_w3d", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"},
-                  {"name": "body", "parent": "rpg_w3d", "pivot": [0, 0, 0], "cubes": cubes}]}]}
+                  {"name": "turn", "parent": "rpg_w3d", "pivot": [0, 0, 0]},  # 옆으로(수평) 돌리기 전용
+                  {"name": "body", "parent": "turn", "pivot": [0, 0, 0], "cubes": cubes}]}]}
     (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
     (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
     att = {"format_version": "1.10.0", "minecraft:attachable": {"description": {
@@ -256,7 +261,9 @@ def build(name, cfg):
             rot = [f"{rx}", f"{ry} + (v.dn * 12 - v.rec * 12) * {m}", f"{rz} + {idle_r}"]; pos = [f"{px_} + (-v.up * 2 + v.dn * 7 - v.rec * 5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
         b = {"rotation": rot, "position": pos}
         if "scale" in c: b["scale"] = c["scale"]
-        anims[f"animation.rpg_w3d.{name}.{k}"] = {"loop": True, "bones": {"body": b}}
+        bones = {"body": b}
+        if c.get("yaw"): bones["turn"] = {"rotation": [0, c["yaw"], 0]}  # 눕힌 무기를 옆으로 90° → 바라보는 쪽
+        anims[f"animation.rpg_w3d.{name}.{k}"] = {"loop": True, "bones": bones}
     return anims, len(cubes), (Wd, Ht)
 
 
