@@ -201,21 +201,37 @@ function showResult(p, r) {
   return true;
 }
 
-/** 주문서 고르기 (대화창 모양) */
-function openScrollPick(p, back) {
+/** 재료 고르기 창 (V12.139): 배낭처럼 칸에서 고르고 → 오른쪽 상세 → 「사용하기」/「사용 안 함」
+ *  kind: "scroll" (주문서 3종) | "protect" (파괴방지석, need = 이번 강화에 필요한 개수) */
+function openMatPick(p, kind, back, selIdx, need = 0) {
+  const d = data(p);
   const ch = pick.get(p.id) ?? { scroll: -1, protect: false };
   pick.set(p.id, ch);
-  const scr = new Screen("D", "강화 주문서");
-  scr.body("§f강화할 때마다 §e1장§f 써서 성공 확률을 더합니다.\n§7다 쓰면 저절로 「안 씀」으로 돌아갑니다.");
-  scr.item(`${ch.scroll < 0 ? "§a▶ " : ""}§f안 씀`, ICON("close"), () => { ch.scroll = -1; return back(); });
-  SCROLLS.forEach((sc, i) => {
-    const have = countItem(p, sc.id);
-    scr.item(`${ch.scroll === i ? "§a▶ " : ""}${sc.color}${sc.name} §f+${sc.bonus}% §7(보유 ${have})`, SCROLL_TEX(i), () => {
-      if (have < 1) { notify(p, `§c${sc.name}이(가) 없습니다 §7(몹 · 보스에게서)`); p.playSound("note.bass"); } else ch.scroll = i;
-      return back();
-    });
-  });
-  scr.reopen = back;
+  const list = kind === "scroll"
+    ? SCROLLS.map((sc, i) => ({ id: sc.id, name: sc.name, color: sc.color, tex: SCROLL_TEX(i), rarity: i + 2, idx: i,
+        desc: `§f강화할 때 §e1장§f 써서 성공 확률 §a+${sc.bonus}%`, get: "§7몹이 가끔 떨어뜨리고, 보스는 상급 · 중급을 줍니다." }))
+    : [{ id: PROTECT.id, name: PROTECT.name, color: PROTECT.color, tex: "textures/items/rpg/enh_protect", rarity: 4, idx: 0,
+        desc: `§f강화에 실패해도 §a단계가 떨어지지 않게§f 지켜 줍니다.\n§7+6 ~ +8 에서만 · 이번 강화에 §f${need}개§7 필요`, get: "§7몹이 드물게 떨어뜨리고, 보스는 3개를 줍니다." }];
+  const cur = kind === "scroll" ? ch.scroll : ch.protect ? 0 : -1;
+  if (selIdx === undefined) selIdx = cur >= 0 ? cur : Math.max(0, list.findIndex((x) => countItem(p, x.id) > 0));
+  const reopen = (i = selIdx) => openMatPick(p, kind, back, i, need);
+  const scr = new Screen("G", `무기 강화 / ${kind === "scroll" ? "강화 주문서" : "파괴방지석"} 고르기`);
+  for (const x of list) {
+    const have = countItem(p, x.id);
+    scr.item(`${have ? "§f" : "§c"}${have}${x.idx === cur ? " §a✔" : ""}`, x.tex, () => reopen(x.idx), { on: x.idx === selIdx, rarity: x.rarity });
+  }
+  scr.tab("돌아가기", ICON("back"), back);
+  scr.chip(ICON("gold"), `${comma(d.gold)}G`);
+  const x = list[selIdx] ?? list[0], have = countItem(p, x.id), using = x.idx === cur;
+  const enough = kind === "scroll" ? have >= 1 : have >= need;
+  scr.select(`${x.color}${x.name}`, x.tex);
+  scr.body(`${x.desc}\n\n§7보유 ${enough ? "§f" : "§c"}${have}개${kind === "protect" ? ` §7/ 필요 ${need}개` : ""}\n${using ? "§a지금 사용 중\n" : ""}\n${x.get}`);
+  if (using) scr.action("§7사용 안 함", () => { if (kind === "scroll") ch.scroll = -1; else ch.protect = false; return back(); });
+  else if (enough) scr.action("§a§l사용하기", () => { if (kind === "scroll") ch.scroll = x.idx; else ch.protect = true; return back(); });
+  else scr.action(`§8사용하기 (${kind === "scroll" ? "없음" : "부족"})`, () => { notify(p, `§c${x.name}이(가) ${kind === "scroll" ? "없습니다" : "부족합니다"}`); p.playSound("note.bass"); return reopen(); });
+  if (!using && cur >= 0) scr.action("§7사용 안 함", () => { if (kind === "scroll") ch.scroll = -1; else ch.protect = false; return back(); });
+  scr.action("돌아가기", back);
+  scr.reopen = () => reopen();
   return scr.show(p);
 }
 
@@ -244,12 +260,12 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
 
   const T = L + 1, n = L < MAX_ENH ? needOf(T) : null, sc = SCROLLS[ch.scroll];
   // 위 왼쪽: 주문서 칸
-  scr.raw(`[FL]${sc ? "[ON]" : ""}`, sc ? `${sc.color}${sc.name.replace(" 강화", "")}\n§a확률 +${sc.bonus}%` : "§e강화 주문서\n§7비어 있음", SCROLL_TEX(sc ? ch.scroll : 0), () => openScrollPick(p, reopen));
+  scr.raw(`[FL]${sc ? "[ON]" : ""}`, sc ? `${sc.color}${sc.name.replace(" 강화", "")}\n§a확률 +${sc.bonus}%` : "§e강화 주문서\n§7비어 있음", SCROLL_TEX(sc ? ch.scroll : 0), () => openMatPick(p, "scroll", reopen));
   // 위 오른쪽: 파괴방지석 칸
   const useP = !!(ch.protect && n?.protect);
   if (n?.protect) {
     const haveP = countItem(p, PROTECT.id);
-    scr.raw(`[FR]${useP ? "[ON]" : ""}`, `§e파괴방지석\n${useP ? `§a사용 · ${n.protect}개` : `§7${n.protect}개 · 누르면 사용`}${haveP < n.protect ? " §c(부족)" : ""}`, "textures/items/rpg/enh_protect", () => { ch.protect = !ch.protect; return reopen(); });
+    scr.raw(`[FR]${useP ? "[ON]" : ""}`, `§e파괴방지석\n${useP ? `§a사용 · ${n.protect}개` : `§7${n.protect}개 필요 · 고르기`}${haveP < n.protect ? " §c(부족)" : ""}`, "textures/items/rpg/enh_protect", () => openMatPick(p, "protect", reopen, 0, n.protect));
   } else {
     scr.raw("[FR]", `§7파괴방지석\n§8${!n ? "-" : T <= SAFE_TO ? "+6 부터 필요" : "+9 부터 못 씀"}`, "textures/items/rpg/enh_protect", () => { notify(p, !n ? "§6최대 강화입니다" : T <= SAFE_TO ? "§7+5 까지는 실패해도 단계가 떨어지지 않습니다" : "§c+9 부터는 파괴방지석을 쓸 수 없습니다"); return reopen(); });
   }

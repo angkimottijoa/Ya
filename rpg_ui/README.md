@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.138.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.139.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.139 변경
+- 무기 강화 화면의 주문서 칸 · 파괴방지석 칸(+)을 누르면 배낭 같은 아이템 창으로 넘어감: 칸(보유 개수 · 사용 중 ✔)에서 고르면 오른쪽에 설명 · 보유/필요 개수 · 얻는 곳 → 「사용하기」 / 「사용 안 함」 / 돌아가기
 
 ## V12.138 변경
 - 메뉴 버벅임(약 1초) 줄임: 숨어 있는 화면(연성소 · 퀘스트 · 격자 · 목록 · 대화)의 칸 목록은 그 화면이 보일 때만 만들고 갱신 (binding_condition always_when_visible), 새 틀 글자칸은 자기 마커만 지움(35개 → 1~10개), 새 틀 목록 22개 → 15개
