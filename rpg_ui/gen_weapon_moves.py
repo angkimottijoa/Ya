@@ -88,8 +88,12 @@ FP_SHIELD_SIDE = 15  # (-15 는 오른쪽이 보였음) 방패 1인칭: 세로�
 FP_REST_TURN = -90  # (+90 은 반대쪽이었음) 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
 
 
+FP_POS_EXTRA = {"hyeonmu_shield": [0, 0, -4]}  # 방패 1인칭: 플레이어 쪽(뒤)으로 당김 (시뮬: z - 가 카메라 쪽)
+
+
 def fp_pos(name):
-    return FP_POS
+    e = FP_POS_EXTRA.get(name, [0, 0, 0])
+    return [FP_POS[i] + e[i] for i in range(3)]
 
 
 def keyed(frames):
