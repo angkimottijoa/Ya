@@ -208,7 +208,7 @@ function power(p, s) {
   // V12.119: 아이템 공격력을 10배로 올린 것에 맞춰 스킬도 10배 · 직업 종류별 주 스탯 (근접 힘 · 원거리 힘+민첩 · 마법 지능)
   const base = (s.kind === "magic" ? 5 + atk * 0.5 + stat(p, "int") * 0.6 : atk) * ((cfg?.mul ?? 100) / 100) * 10;
   const cs = combatStats(p);
-  const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOf((cs.str + cs.dex) / 2) : powOf(cs.int); // 공통 곡선 (V12.121)
+  const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOf(cs.dex) : powOf(cs.int); // V12.122: 근접 = 힘 · 원거리 = 민첩 · 마법 = 지능 (같은 곡선)
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
   const cls = (1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1) * (1 + data(p).lv * 0.015); // V12.120: 직업 스킬도 레벨 보정 (사신수 · 사흉수보다 약 20% 약하게)
   return base * s.pow * statMul * buff * cls;

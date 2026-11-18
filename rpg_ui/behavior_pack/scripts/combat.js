@@ -45,7 +45,7 @@ export function combatStats(p) {
     critDmg: Math.round(150 + soft(dex, 200, 100)),              // 치명 피해 % (150 → 100에 183 · 200에 200 · 최대 250)
     spd: Math.round(soft(dex, 200, 30) - heavy),                 // 이동 속도 %
     dodge: Math.round(soft(dex, 300, 20)),                       // 회피 %
-    def: Math.round(soft(vit, 250, 50)),                         // 받는 물리 피해 감소 %
+    def: Math.round(Math.min(75, soft(vit, 250, 50) + soft(str, 300, 15))), // 받는 물리 피해 감소 % (체력 + 힘 조금)
     mres: Math.round(soft(int, 250, 30) + soft(vit, 250, 50) / 2), // 받는 마법 피해 감소 % (지능 + 체력의 절반)
     cdr: Math.round(soft(int, 200, 30)),                         // 재사용 대기 감소 %
     healIn: Math.round(vit * 0.2),                               // 받는 회복 +%
