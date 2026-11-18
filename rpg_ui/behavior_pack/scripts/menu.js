@@ -16,7 +16,7 @@ import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
 import * as SK from "./skills.js";
 import { combatStats } from "./combat.js";
-import { enhLines, defenseOf, heldEnhMul, getEnh, enhKind } from "./enhance.js";
+import { enhLines, defenseOf, heldEnhMul, getEnh, enhKind, atkLine, defLine } from "./enhance.js";
 import { loreInfo } from "./itemlore.js";
 import * as WP from "./waypoints.js";
 import { npcRegistry } from "./npcdb.js";
@@ -122,8 +122,8 @@ export function openItemDetail(p, it, back) {
   const li = loreInfo(it.typeId);
   scr.tab("돌아가기", ICON("back"), back);
   const lines = ["§l§f", itemName(it), "§r\n"];
-  if (li) lines.push(`§7${li.cat}\n\n§f${li.flavor}\n\n§b● 공격력 §f${li.atk}\n`);
-  else { const w = weaponInfo(it.typeId); if (w?.atk) lines.push(`§7${w.kind}\n§b● 공격력 §f${w.atk}\n`); if (w?.def) lines.push(`§7${w.kind}\n§b● 방어 §f${w.def}\n`); }
+  if (li) lines.push(`§7${li.cat}\n\n§f${li.flavor}\n\n§b● 공격력 §f${atkLine(li.atk, it)}\n`);
+  else { const w = weaponInfo(it.typeId); if (w?.atk) lines.push(`§7${w.kind}\n§b● 공격력 §f${atkLine(w.atk, it)}\n`); if (w?.def) lines.push(`§7${w.kind}\n§b● 방어력 §f${defLine(w.def, it)}\n`); }
   lines.push(enhLines(it));
   const KT = { 1: "①", 2: "②", 3: "③", 4: "④" };
   if (SK.WEAPON_NAMES[it.typeId]) {
@@ -797,8 +797,8 @@ export function openBag(p, cat = "all", selKey, page = 0) {
     const r = rarity(it);
     const info = weaponInfo(it.typeId);
     const lines = ["§l§f", itemName(it), "§r\n", `§7${info?.kind ?? CATS.find((c) => c.id === category(it.typeId)).name}\n`];
-    if (info?.atk) lines.push(`\n§7기초 공격력\n§l§f${info.atk}§r\n`);
-    if (info?.def !== undefined && info.def) lines.push(`\n§7방어력\n§l§f${info.def}§r\n`);
+    if (info?.atk) lines.push(`\n§7공격력\n§l§f${atkLine(info.atk, it)}§r\n`);
+    if (info?.def !== undefined && info.def) lines.push(`\n§7방어력\n§l§f${defLine(info.def, it)}§r\n`);
     lines.push(`§6${STARS(r)}§r  §7×${it.amount}\n`);
     const dur = it.getComponent("minecraft:durability");
     if (dur) lines.push(`§7내구도 §r${dur.maxDurability - dur.damage}/${dur.maxDurability}\n`);
@@ -808,7 +808,7 @@ export function openBag(p, cat = "all", selKey, page = 0) {
     } catch {}
     // V12.132: 긴 설명 · 강화 표 · 스킬은 「자세히 보기」로 (여기엔 요약만)
     const li = loreInfo(it.typeId), L = getEnh(it);
-    if (li) lines.push(`§7${li.cat}\n§b공격력 §f${li.atk}\n`);
+    if (li) lines.push(`§7${li.cat}\n§b공격력 §f${atkLine(li.atk, it)}\n`);
     if (enhKind(it)) lines.push(`§6강화 §f+${L}§7/15\n`);
     const lore = it.getLore().filter((l) => !l.startsWith("§6§l강화 +") && !(li && (l.startsWith("§7") || l.startsWith("§8") || l.startsWith("§b●"))));
     if (lore.length) lines.push("\n§7", lore.join("\n"), "\n");

@@ -82,7 +82,7 @@ ui["fc_entry"] = entry("[FC]", ["100%", 47], [
     {"fr": img("item_frame", [36, 36], 3, **A("top_middle"), offset=[0, 1])},
     {"item": icon([26, 26], **A("top_middle"), offset=[0, 6])},
     {"name": label(["100%", 10], "center", None, **A("bottom_middle"))}])
-ui["fv_entry"] = entry("[FV]", ["100%", 14], [{"t": label(["100%", 14], "center", 1.6, (0.55, 0.76, 1.0), **A("center"))}])
+ui["fv_entry"] = entry("[FV]", ["100%", 14], [{"t": label(["100%", 14], "center", 1.6, (0.96, 0.87, 0.59), **A("center"))}])
 ui["fs_entry"] = entry("[FS]", ["100%", 9], [{"t": label(["100%", 9], "center", 0.75, (0.62, 0.63, 0.68), **A("center"))}])
 ui["fu_entry"] = entry("[FU]", ["100%", 9], [{"t": label(["100%", 9], "center", 0.75, (0.74, 0.69, 0.57), **A("center"))}])
 ui["fk_entry"] = entry("[FK]", ["100%", 10], [{"t": label(["100%", 10], "left", None, (0.66, 0.67, 0.72), **A("left_middle"), offset=[4, 0])}])
@@ -102,7 +102,7 @@ ui["fm_entry"] = entry("[FM]", [66, 20], [
 def faces(prefix, texs, scale, color, lw):
     for nm, tex in zip((prefix, prefix + "_h", prefix + "_p"), texs):
         ui[nm] = {"type": "image", "texture": T + tex, "size": ["100%", "100%"], "controls": [{"t": label([lw, 12], "center", scale, color, **A("center"), offset=[0, 1])}]}
-faces("go_face", ("btn_idle", "btn_hover", "btn_down"), 1.35, (1.0, 0.92, 0.72), "100% - 30px")
+faces("go_face", ("btn_idle", "btn_hover", "btn_down"), 1.35, (0.98, 0.93, 0.8), "100% - 30px")
 faces("sm_face", ("sbtn_idle", "sbtn_hover", "sbtn_down"), 0.85, (0.92, 0.93, 0.97), "100% - 8px")
 ui["go_btn@rpg_form.form_btn"] = button(("go_face", "go_face_h", "go_face_p"))
 ui["sm_btn@rpg_form.form_btn"] = button(("sm_face", "sm_face_h", "sm_face_p"))
@@ -119,7 +119,7 @@ ui["forge_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:F]", "layer": 2, "contr
     {"dim": img("vignette", ["100%", "100%"], 0)},
     {"frame": {"type": "panel", "size": [320, "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
-        {"title": title_label("[RPG:F]", 13, 1.5, [0.95, 0.84, 0.62])},
+        {"title": title_label("[RPG:F]", 13, 1.5, [0.96, 0.87, 0.59])},
         {"sub_wrap": {"type": "panel", "size": [268, 9], "layer": 8, **A("top_middle"), "offset": [0, 29], "controls": [factory("s", "fu_entry", ["100%", "100%c"])]}},
         factory("close", "fx_entry", [14, 14], layer=9, **A("top_right"), offset=[-15, 14]),
         {"content": {"type": "stack_panel", "orientation": "vertical", "size": [268, "100% - 50px"], "layer": 5, **A("top_middle"), "offset": [0, 40], "controls": [
@@ -184,7 +184,7 @@ ui["quest_screen@rpg_form.mode_panel"] = {"$flag": "[RPG:Q]", "layer": 2, "contr
     {"dim": img("vignette", ["100%", "100%"], 0)},
     {"frame": {"type": "panel", "size": ["100% - 12px", "100% - 6px"], "layer": 1, **A("center"), "controls": [
         {"parts@rpg_forge.frame_parts": {}},
-        {"title": title_label("[RPG:Q]", 13, 1.4, [0.95, 0.84, 0.62])},
+        {"title": title_label("[RPG:Q]", 13, 1.4, [0.96, 0.87, 0.59])},
         factory("chips", "qc_entry", ["100%c", 12], "horizontal", layer=8, **A("top_right"), offset=[-26, 30]),
         {"tabs": {"type": "panel", "size": ["100% - 52px", 18], "layer": 6, **A("top_middle"), "offset": [0, 44], "controls": [
             factory("l", "qt_entry", ["100%c", 18], "horizontal", **A("top_left"))]}},

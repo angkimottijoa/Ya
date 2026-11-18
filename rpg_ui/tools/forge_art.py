@@ -8,11 +8,13 @@ SS = 2         # 계단 없애기용 2배로 그린 뒤 줄임
 OUT = "resource_pack/textures/ui/rpg/forge"
 os.makedirs(OUT, exist_ok=True)
 
-STEEL_D, STEEL, STEEL_L, STEEL_H = (22, 24, 30), (54, 58, 70), (104, 110, 124), (176, 182, 196)
-BRONZE = (120, 98, 70)
-PANEL_T, PANEL_B = (30, 35, 48), (17, 20, 28)
-BLUE, BLUE_L, BLUE_D = (64, 160, 255), (190, 230, 255), (24, 70, 150)
-GOLD = (233, 204, 148)
+# 기존 메뉴 색: 남색 판(#141826 · #1e2234 · #282c44) · 금테(#785a28 · #d6ac52 · #f6de96) · 크림(#ece5d8)
+STEEL_D, STEEL, STEEL_L, STEEL_H = (14, 16, 26), (120, 90, 40), (214, 172, 82), (246, 222, 150)   # 테두리 = 금
+BRONZE = (92, 74, 36)
+PANEL_T, PANEL_B = (34, 38, 60), (20, 24, 38)
+BLUE, BLUE_L, BLUE_D = (214, 172, 82), (246, 222, 150), (120, 90, 40)                          # 빛 · 보석 = 금
+GOLD = (236, 229, 216)
+NAVY_L, NAVY, NAVY_D = (58, 64, 92), (40, 44, 68), (22, 25, 40)
 
 def canvas(w, h):  # 화면 단위 크기 → 그릴 배열 (RGBA float 0~1)
     return np.zeros((h * K * SS, w * K * SS, 4), np.float32)
@@ -180,7 +182,7 @@ def corner():
     gem = rot - 5.0
     glow = canvas(S, S); over(glow, BLUE, fill_sd(gem + 0.5)); glow = blur_layer(glow, 2.0)
     add_glow(a, BLUE, glow[..., 3] * 0.9)
-    over(a, (8, 20, 50), fill_sd(gem))
+    over(a, (60, 44, 18), fill_sd(gem))
     facet = np.where((x - cx) + (y - cy) < 0, 1.0, 0.55) * np.where((x - cx) - (y - cy) < 0, 1.0, 0.8)
     over(a, grad(facet, BLUE_D, BLUE), fill_sd(gem + 0.7))
     over(a, BLUE_L, fill_sd(np.hypot(x - (cx - 1.5), y - (cy - 1.8)) - 1.1) * 0.95)
@@ -217,9 +219,9 @@ def crest():
     gem = np.abs(x - cx) / 5.2 + np.abs(y - 15.5) / 10.5 - 1
     glow = canvas(W, H); over(glow, BLUE, np.clip(-gem * 6, 0, 1)); glow = blur_layer(glow, 2.6)
     add_glow(a, BLUE, glow[..., 3])
-    over(a, (8, 20, 50), np.clip(-gem * 8 + 0.6, 0, 1))
+    over(a, (60, 44, 18), np.clip(-gem * 8 + 0.6, 0, 1))
     facet = np.where(x < cx, 1.0, 0.65) * np.where(y < 15.5, 1.0, 0.8)
-    over(a, grad(facet, BLUE_D, (120, 200, 255)), np.clip(-gem * 8 - 1.0, 0, 1))
+    over(a, grad(facet, BLUE_D, (255, 236, 170)), np.clip(-gem * 8 - 1.0, 0, 1))
     over(a, (255, 255, 255), fill_sd(np.hypot(x - (cx - 1.5), y - 11.5) - 0.8))
     noise(a, 0.02, 12)
     return a
@@ -230,11 +232,11 @@ def card(w, h, seed=4):
     a = canvas(w, h); x, y = grid(a)
     d = sd_rrect(x, y, w / 2, h / 2, w / 2 - 0.6, h / 2 - 0.6, 5)
     over(a, (0, 0, 0), fill_sd(d - 0.5) * 0.6)
-    over(a, grad(y / h, (38, 44, 60), (24, 28, 39)), fill_sd(d))
-    over(a, (96, 104, 124), fill_sd(np.abs(d + 0.5) - 0.3) * 0.9)
+    over(a, grad(y / h, (30, 34, 54), (20, 23, 38)), fill_sd(d))
+    over(a, (120, 90, 40), fill_sd(np.abs(d + 0.5) - 0.3) * 0.95)
     over(a, (255, 255, 255), fill_sd(np.abs(d + 1.2) - 0.18) * 0.07 * (y < h / 2))
     # 위쪽 가운데에서 내려오는 아주 옅은 빛
-    add_glow(a, (60, 120, 220), np.exp(-(((x - w / 2) / (w * 0.35)) ** 2 + ((y - h * 0.45) / (h * 0.6)) ** 2)) * 0.08 * fill_sd(d))
+    add_glow(a, (120, 96, 50), np.exp(-(((x - w / 2) / (w * 0.35)) ** 2 + ((y - h * 0.45) / (h * 0.6)) ** 2)) * 0.08 * fill_sd(d))
     noise(a, 0.015, seed)
     return a
 save(card(268, 80), "card")
@@ -249,7 +251,7 @@ def slot(state):
     di = sd_rrect(x, y, S / 2, S / 2, S / 2 - 2.6, S / 2 - 2.6, 2.0)
     over(a, (8, 10, 14), fill_sd(di + 0.0))
     di2 = di + 0.7
-    base = grad(np.hypot(x - S / 2, y - S * 0.38) / (S * 0.75), (44, 92, 170) if state != "idle" else (36, 72, 140), (12, 24, 52))
+    base = grad(np.hypot(x - S / 2, y - S * 0.38) / (S * 0.75), (74, 60, 30) if state == "on" else (64, 70, 100) if state == "hover" else (52, 58, 84), (18, 21, 34))
     over(a, base, fill_sd(di2))
     over(a, (0, 0, 0), fill_sd(np.abs(di2 + 1.2) - 1.2) * 0.35)              # 안쪽 그림자
     over(a, (255, 255, 255), fill_sd(np.abs(di2) - 0.18) * 0.12 * (y < S / 2))
@@ -268,10 +270,10 @@ def plus():
     a = canvas(S, S); x, y = grid(a)
     r = np.hypot(x - 6, y - 6)
     over(a, (0, 0, 0), fill_sd(r - 5.9) * 0.6)
-    over(a, grad(y / S, STEEL_H, STEEL_D), fill_sd(r - 5.5))
-    over(a, grad(y / S, (110, 190, 255), (20, 90, 200)), fill_sd(r - 4.4))
-    over(a, (255, 255, 255), fill_sd(np.maximum(np.abs(x - 6) - 2.6, np.abs(y - 6) - 0.65)))
-    over(a, (255, 255, 255), fill_sd(np.maximum(np.abs(y - 6) - 2.6, np.abs(x - 6) - 0.65)))
+    over(a, grad(y / S, (120, 90, 40), (40, 30, 14)), fill_sd(r - 5.5))
+    over(a, grad(y / S, (246, 222, 150), (190, 146, 62)), fill_sd(r - 4.4))
+    over(a, (40, 30, 14), fill_sd(np.maximum(np.abs(x - 6) - 2.6, np.abs(y - 6) - 0.65)))
+    over(a, (40, 30, 14), fill_sd(np.maximum(np.abs(y - 6) - 2.6, np.abs(x - 6) - 0.65)))
     over(a, (255, 255, 255), fill_sd(np.hypot(x - 4.2, y - 3.6) - 1.4) * 0.25)
     return a
 save(plus(), "plus")
@@ -281,7 +283,7 @@ def halo():
     S = 56
     a = canvas(S, S); x, y = grid(a)
     r = np.hypot(x - S / 2, y - S / 2)
-    add_glow(a, (30, 90, 200), np.exp(-(r / 20) ** 2) * 0.55)
+    add_glow(a, (110, 84, 36), np.exp(-(r / 20) ** 2) * 0.5)
     add_glow(a, BLUE, np.exp(-((r - 21) / 2.2) ** 2) * 0.85)
     add_glow(a, BLUE_L, np.exp(-((r - 21) / 0.7) ** 2) * 0.9)
     random.seed(5)
@@ -307,8 +309,8 @@ def item_frame():
     a = canvas(S, S); x, y = grid(a)
     d = sd_rrect(x, y, S / 2, S / 2, S / 2 - 0.6, S / 2 - 0.6, 4)
     over(a, (0, 0, 0), fill_sd(d - 0.6) * 0.5)
-    over(a, (120, 170, 230), fill_sd(np.abs(d + 0.4) - 0.35) * 0.55)
-    over(a, grad(y / S, (40, 70, 130), (10, 20, 46)), fill_sd(d + 1.0) * 0.55)
+    over(a, (214, 172, 82), fill_sd(np.abs(d + 0.4) - 0.35) * 0.6)
+    over(a, grad(y / S, (52, 58, 86), (16, 19, 32)), fill_sd(d + 1.0) * 0.7)
     over(a, (255, 255, 255), fill_sd(np.abs(d + 1.4) - 0.2) * 0.12 * (y < S / 2))
     return a
 save(item_frame(), "item_frame")
@@ -329,7 +331,7 @@ def bar(k):
     d = sd_rrect(x, y, W / 2, H / 2, W / 2 - 0.4, H / 2 - 0.4, H / 2 - 0.4)
     over(a, grad(y / H, STEEL_L, STEEL_D), fill_sd(d))
     di = d + 1.0
-    over(a, (6, 8, 13), fill_sd(di))
+    over(a, (12, 14, 24), fill_sd(di))
     seg_n = 10; gap = 1.4; inner_w = W - 3.0
     fillw = inner_w * k / 20
     seg_w = (inner_w - gap * (seg_n - 1)) / seg_n
@@ -342,7 +344,7 @@ def bar(k):
         lit = np.maximum(lit, fill_sd(sd))
     gl = blur_layer(np.dstack([np.zeros_like(lit)] * 3 + [lit]), 1.0)[..., 3]
     add_glow(a, BLUE, gl * 0.8 * fill_sd(d))
-    over(a, grad((y - 2) / (H - 4), BLUE_L, (40, 120, 230)), lit)
+    over(a, grad((y - 2) / (H - 4), BLUE_L, (190, 140, 56)), lit)
     over(a, (255, 255, 255), lit * fill_sd(np.abs(y - 3.0) - 0.35) * 0.55)
     return a
 for k in range(21): save(bar(k), f"bar_{k * 5}")
@@ -362,7 +364,7 @@ def pips(L):
             over(a, grad((y - 1) / 6, (255, 255, 255), TIER[t]), fill_sd(dm + 0.6))
         else:
             over(a, (10, 12, 18), fill_sd(dm) * 0.9)
-            over(a, (70, 76, 92), fill_sd(np.abs(dm + 0.5) - 0.3))
+            over(a, (120, 90, 40), fill_sd(np.abs(dm + 0.5) - 0.3))
     return a
 for L in range(16): save(pips(L), f"pips_{L}")
 
@@ -380,7 +382,7 @@ def big_button(state):
     over(a, (0, 0, 0), fill_sd(d0 - 0.8) * 0.7)
     over(a, grad(y / H, STEEL_H, STEEL_D), fill_sd(d0))
     over(a, (10, 11, 15), fill_sd(hexd(2.3)))
-    top, bot = {"idle": ((70, 140, 235), (16, 44, 100)), "hover": ((100, 175, 255), (26, 66, 140)), "down": ((20, 56, 120), (50, 110, 210))}[state]
+    top, bot = {"idle": ((122, 96, 46), (60, 46, 22)), "hover": ((156, 124, 60), (80, 62, 30)), "down": ((52, 40, 20), (100, 78, 38))}[state]
     d3 = hexd(3.0)
     over(a, grad(y / H, top, bot), fill_sd(d3))
     add_glow(a, BLUE, np.exp(-((d3 + 0.3) / 0.6) ** 2) * (0.9 if state != "down" else 0.5))
@@ -391,7 +393,7 @@ def big_button(state):
     for sx in (-1, 1):
         cx = W / 2 + sx * (W / 2 - 6.5)
         gem = np.abs(x - cx) + np.abs(y - H / 2) - 3.0
-        over(a, (8, 20, 50), fill_sd(gem + 0.0))
+        over(a, (60, 44, 18), fill_sd(gem + 0.0))
         over(a, BLUE_L, fill_sd(gem + 1.2))
     noise(a, 0.015, 31)
     return a
@@ -405,7 +407,7 @@ def small_button(state):
     over(a, (0, 0, 0), fill_sd(d - 0.6) * 0.6)
     over(a, grad(y / H, STEEL_L, STEEL_D), fill_sd(d))
     di = d + 1.6
-    top, bot = {"idle": ((44, 52, 70), (22, 26, 36)), "hover": ((56, 80, 120), (26, 36, 58)), "down": ((20, 24, 34), (40, 48, 66))}[state]
+    top, bot = {"idle": ((40, 44, 68), (26, 29, 46)), "hover": ((92, 74, 36), (60, 54, 34)), "down": ((26, 29, 46), (40, 44, 68))}[state]
     over(a, grad(y / H, top, bot), fill_sd(di))
     if state == "hover": add_glow(a, BLUE, np.exp(-((di + 0.3) / 0.5) ** 2) * 0.8)
     over(a, (255, 255, 255), fill_sd(np.abs(di + 0.6) - 0.2) * 0.1 * (y < H / 2))
@@ -419,7 +421,7 @@ def close_btn(state):
     r = np.hypot(x - 8, y - 8)
     over(a, (0, 0, 0), fill_sd(r - 7.8) * 0.6)
     over(a, grad(y / S, STEEL_H, STEEL_D), fill_sd(r - 7.4))
-    over(a, grad(y / S, (40, 46, 62) if state == "idle" else (70, 40, 46), (16, 18, 26)), fill_sd(r - 5.8))
+    over(a, grad(y / S, (40, 44, 68) if state == "idle" else (92, 74, 36), (20, 23, 38)), fill_sd(r - 5.8))
     u, v = (x - 8 + y - 8) / math.sqrt(2), (x - 8 - (y - 8)) / math.sqrt(2)
     xm = np.minimum(np.maximum(np.abs(u) - 3.0, np.abs(v) - 0.7), np.maximum(np.abs(v) - 3.0, np.abs(u) - 0.7))
     over(a, (230, 220, 200) if state == "idle" else (255, 200, 190), fill_sd(xm))
@@ -430,7 +432,7 @@ save(close_btn("idle"), "close"); save(close_btn("hover"), "close_hover")
 def vignette():
     a = canvas(64, 64); x, y = grid(a)
     r = np.hypot((x - 32) / 32, (y - 32) / 32)
-    over(a, (4, 6, 12), np.clip(0.55 + 0.4 * r ** 2, 0, 0.92))
+    over(a, (8, 10, 20), np.clip(0.55 + 0.4 * r ** 2, 0, 0.92))
     return a
 save(vignette(), "vignette")
 
@@ -440,7 +442,7 @@ def mslot():
     a = canvas(S, S); x, y = grid(a)
     d = sd_rrect(x, y, S / 2, S / 2, S / 2 - 0.5, S / 2 - 0.5, 2.4)
     over(a, grad(y / S, STEEL_L, STEEL_D), fill_sd(d))
-    over(a, grad(y / S, (36, 72, 140), (12, 24, 52)), fill_sd(d + 1.4))
+    over(a, grad(y / S, (52, 58, 84), (18, 21, 34)), fill_sd(d + 1.4))
     return a
 save(mslot(), "mslot")
 print("art ok")
@@ -450,9 +452,9 @@ def plate(W, H, state, r=4, tones=None):
     a = canvas(W, H); x, y = grid(a)
     d = sd_rrect(x, y, W / 2, H / 2, W / 2 - 0.5, H / 2 - 0.5, r)
     over(a, (0, 0, 0), fill_sd(d - 0.6) * 0.6)
-    over(a, grad(y / H, STEEL_L if state != "on" else (150, 200, 255), STEEL_D), fill_sd(d))
+    over(a, grad(y / H, STEEL_L if state != "on" else STEEL_H, STEEL), fill_sd(d))
     di = d + 1.4
-    top, bot = tones or {"idle": ((40, 46, 62), (22, 26, 36)), "hover": ((52, 70, 104), (26, 34, 54)), "on": ((40, 88, 170), (16, 36, 80)), "down": ((20, 24, 34), (40, 48, 66))}[state]
+    top, bot = tones or {"idle": ((40, 44, 68), (26, 29, 46)), "hover": ((70, 58, 30), (48, 42, 28)), "on": ((96, 78, 38), (64, 52, 26)), "down": ((26, 29, 46), (40, 44, 68))}[state]
     over(a, grad(y / H, top, bot), fill_sd(di))
     if state in ("hover", "on"): add_glow(a, BLUE if state == "hover" else BLUE_L, np.exp(-((di + 0.3) / 0.55) ** 2) * (0.7 if state == "hover" else 0.9))
     over(a, (255, 255, 255), fill_sd(np.abs(di + 0.6) - 0.2) * 0.09 * (y < H / 2))
@@ -472,10 +474,10 @@ def qnode(kind):
         add_glow(a, GOLD if kind == "ready" else BLUE, gl[..., 3] * 0.8)
     over(a, (0, 0, 0), fill_sd(r - 8.6) * 0.8)
     over(a, grad(y / S, STEEL_H, STEEL_D), fill_sd(r - 8.0))
-    inner = {"done": ((70, 150, 240), (20, 60, 140)), "ready": ((255, 226, 150), (190, 130, 50)), "active": ((30, 50, 90), (12, 20, 40)),
-             "avail": ((26, 32, 46), (14, 17, 24)), "lock": ((34, 36, 44), (18, 19, 24))}[kind]
+    inner = {"done": ((240, 210, 130), (170, 124, 48)), "ready": ((250, 244, 228), (214, 200, 170)), "active": ((40, 44, 68), (20, 23, 38)),
+             "avail": ((34, 38, 60), (18, 21, 34)), "lock": ((30, 32, 46), (16, 17, 26))}[kind]
     over(a, grad(y / S, *inner), fill_sd(r - 6.3))
-    ink = (255, 255, 255)
+    ink = (60, 42, 16)
     if kind == "done":
         def chk(d, s): d.line([(6.0 * s, 10.2 * s), (8.8 * s, 13.0 * s), (14.2 * s, 7.2 * s)], fill=255, width=int(1.5 * s), joint="curve")
         over(a, ink, draw_mask(S, S, chk))
@@ -483,18 +485,18 @@ def qnode(kind):
         def star(d, s):
             pts = [(10 + (4.6 if k % 2 == 0 else 2.0) * math.sin(k * math.pi / 5), 10.4 - (4.6 if k % 2 == 0 else 2.0) * math.cos(k * math.pi / 5)) for k in range(10)]
             d.polygon([(p0 * s, p1 * s) for p0, p1 in pts], fill=255)
-        over(a, (255, 252, 235), draw_mask(S, S, star))
+        over(a, (200, 150, 60), draw_mask(S, S, star))
     if kind == "active":
         over(a, BLUE, np.exp(-((r - 5.6) / 0.6) ** 2))
         def tri(d, s): d.polygon([(8.4 * s, 6.6 * s), (13.6 * s, 10 * s), (8.4 * s, 13.4 * s)], fill=255)
         over(a, BLUE_L, draw_mask(S, S, tri))
     if kind == "avail":
-        over(a, (150, 200, 255), fill_sd(np.abs(r - 4.2) - 0.45) * 0.9)
-        over(a, (150, 200, 255), fill_sd(r - 1.4))
+        over(a, (236, 229, 216), fill_sd(np.abs(r - 4.2) - 0.45) * 0.9)
+        over(a, (236, 229, 216), fill_sd(r - 1.4))
     if kind == "lock":
         body = sd_rrect(x, y, 10, 11.6, 3.4, 2.6, 0.8)
-        over(a, (130, 134, 148), fill_sd(body))
-        over(a, (130, 134, 148), fill_sd(np.abs(np.hypot(x - 10, y - 8.4) - 2.3) - 0.55) * (y < 9.2))
+        over(a, (110, 110, 128), fill_sd(body))
+        over(a, (110, 110, 128), fill_sd(np.abs(np.hypot(x - 10, y - 8.4) - 2.3) - 0.55) * (y < 9.2))
         over(a, (30, 32, 40), fill_sd(np.hypot(x - 10, y - 11.4) - 0.8))
     return a
 for k in ("done", "ready", "active", "avail", "lock"): save(qnode(k), f"qn_{k}")
@@ -505,7 +507,7 @@ def qline(lit):
         over(a, BLUE_L, fill_sd(np.abs(x - 2) - 0.45))
     else:
         over(a, (8, 9, 12), fill_sd(np.abs(x - 2) - 0.9))
-        over(a, (70, 76, 92), fill_sd(np.abs(x - 2.4) - 0.3) * 0.8)
+        over(a, (64, 70, 100), fill_sd(np.abs(x - 2.4) - 0.3) * 0.8)
     return a
 save(qline(True), "ql_lit"); save(qline(False), "ql_dim")
 print("quest art ok")

@@ -52,6 +52,19 @@ const pct = (x) => `${Math.round(x * 100)}%`;
 const baseName = (it) => itemName(it); // 번역 이름(RawMessage) — 화면 · 메시지는 rt 로 이어 붙임
 export const ENH_LORE = "§6§l강화 +"; // 아이템 설명 첫 줄 (이름은 바꾸지 않음: 이름표는 글자만 되어 번역 이름이 깨짐)
 
+/** 설명 · 배낭에 쓰는 공격력 글자: 강화되면 「100 (+10)」처럼 강화 반영 값 + 늘어난 만큼 (V12.136) */
+export function atkLine(base, it) {
+  const L = enhKind(it) === "weapon" ? getEnh(it) : 0;
+  if (!L || !base) return `${base}`;
+  const v = Math.round(base * (1 + weaponBonus(L)));
+  return `${v} §a(+${v - base})`;
+}
+/** 방어구 방어력 글자: 기본(갑옷 수치 × 10) + 강화 */
+export function defLine(baseDef, it) {
+  const L = enhKind(it) === "armor" ? getEnh(it) : 0, b = baseDef * 10;
+  return L ? `${b + armorDef(L)} §a(+${armorDef(L)})` : `${b}`;
+}
+
 /** 손에 든 무기의 강화 배율 (평타 · 스킬) */
 export function heldEnhMul(p) {
   try { const it = inv(p).getItem(p.selectedSlotIndex); return enhKind(it) === "weapon" ? 1 + weaponBonus(getEnh(it)) : 1; } catch { return 1; }

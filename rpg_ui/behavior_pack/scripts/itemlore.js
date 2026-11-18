@@ -2,7 +2,7 @@
 //   첫 줄 강화 (enhance.js) · 분류 · 한 줄 설정 · 공격력 · 「자세히: 배낭」 — 긴 설명은 배낭 > 자세히 보기
 import { system, world } from "@minecraft/server";
 import * as J from "./jobs.js";
-import { ENH_LORE, STONES, PROTECT, SCROLLS, setInfoLookup } from "./enhance.js";
+import { ENH_LORE, STONES, PROTECT, SCROLLS, setInfoLookup, atkLine } from "./enhance.js";
 import { setRpgName } from "./itemdb.js";
 
 export const LORE_INFO = {
@@ -23,10 +23,10 @@ export function loreInfo(typeId) {
   if (!pt) return null;
   return { cat: `${TIER_TXT[pt.tier] ?? ""} ${pt.name} 전용 도구`, atk: Math.round((pt.tool?.dmg ?? 0) * 1.5) * 10, flavor: pt.desc ?? "" };
 }
-function wantLore(typeId) {
-  const i = loreInfo(typeId);
+function wantLore(it) {
+  const i = loreInfo(it.typeId);
   if (!i) return null;
-  return [`§7${i.cat}`, ...(i.flavor ? [`§8${i.flavor}`] : []), `§b● 공격력 ${i.atk}`, "§8자세히: 배낭 > 자세히 보기"];
+  return [`§7${i.cat}`, ...(i.flavor ? [`§8${i.flavor}`] : []), `§b● 공격력 §f${atkLine(i.atk, it)}`, "§8자세히: 배낭 > 자세히 보기"];
 }
 /** 2초마다: 가방의 무기 설명줄이 다르면 고침 (강화 줄은 그대로 맨 위) */
 system.runInterval(() => {
@@ -34,7 +34,7 @@ system.runInterval(() => {
     let c; try { c = p.getComponent("minecraft:inventory").container; } catch { continue; }
     for (let i = 0; i < c.size; i++) {
       const it = c.getItem(i);
-      const want = it && wantLore(it.typeId);
+      const want = it && wantLore(it);
       if (!want) continue;
       try {
         const cur = it.getLore(), enh = cur.filter((l) => l.startsWith(ENH_LORE));

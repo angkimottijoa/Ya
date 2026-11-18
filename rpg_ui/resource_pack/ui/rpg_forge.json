@@ -723,9 +723,9 @@
      ],
      "text_alignment": "center",
      "color": [
-      0.55,
-      0.76,
-      1.0
+      0.96,
+      0.87,
+      0.59
      ],
      "bindings": [
       {
@@ -1347,9 +1347,9 @@
      ],
      "text_alignment": "center",
      "color": [
-      1.0,
-      0.92,
-      0.72
+      0.98,
+      0.93,
+      0.8
      ],
      "bindings": [
       {
@@ -1395,9 +1395,9 @@
      ],
      "text_alignment": "center",
      "color": [
-      1.0,
-      0.92,
-      0.72
+      0.98,
+      0.93,
+      0.8
      ],
      "bindings": [
       {
@@ -1443,9 +1443,9 @@
      ],
      "text_alignment": "center",
      "color": [
-      1.0,
-      0.92,
-      0.72
+      0.98,
+      0.93,
+      0.8
      ],
      "bindings": [
       {
@@ -1829,9 +1829,9 @@
         "text_alignment": "center",
         "font_scale_factor": 1.5,
         "color": [
-         0.95,
-         0.84,
-         0.62
+         0.96,
+         0.87,
+         0.59
         ],
         "layer": 8,
         "anchor_from": "top_middle",
@@ -3588,9 +3588,9 @@
         "text_alignment": "center",
         "font_scale_factor": 1.4,
         "color": [
-         0.95,
-         0.84,
-         0.62
+         0.96,
+         0.87,
+         0.59
         ],
         "layer": 8,
         "anchor_from": "top_middle",
