@@ -13,15 +13,15 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28,
-                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, -1]), fp=dict(rot=[-60, 10, -15], pos=[0, 1, -2], scale=0.6)),
+                          tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3,
-                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, -1]), fp=dict(rot=[-65, 10, -15], pos=[0, 1, -2], scale=0.55)),
-    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe_ref.png", px=56, len=2.2, grip=0.2,
-                       tp=dict(rot=[-90, 0, 0], pos=[0, 0, -1]), fp=dict(rot=[-60, 10, -15], pos=[0, 1, -2], scale=0.65)),
+                          tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe_ref.png", px=56, len=2.2, grip=0.2, aura=dict(cols=[(250, 252, 255), (210, 230, 255), (255, 226, 140), (180, 190, 210)], ribbons=3),
+                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5,
-                      tp=dict(rot=[-10, 0, 0], pos=[0, 0, -1]), fp=dict(rot=[-5, -20, -10], pos=[1, 1, -2], scale=0.7)),
+                      tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src=None, px=24, len=1.3, grip=0.5,
-                           tp=dict(rot=[0, 90, 0], pos=[-1, 0, 0]), fp=dict(rot=[0, 80, 0], pos=[-2, 0, -3], scale=0.8)),
+                           tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
 
@@ -151,7 +151,7 @@ def depth_map(im, dome=False):
                 r = math.hypot(x - (Wd - 1) / 2, y - (Ht - 1) / 2) / (Wd / 2)
                 out[y][x] = 1 + round(4 * max(0, 1 - r * r))
             else:
-                out[y][x] = 1 if d[y][x] <= 1 else 2 if d[y][x] <= 3 else 3
+                out[y][x] = min(7, 2 * d[y][x] - 1)  # 둥근 단면: 그 자리 폭만큼 두껍게 (자루는 원통, 날은 가운데 볼록)
     return out
 
 
@@ -162,9 +162,16 @@ def build(name, cfg):
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)
     Wd, Ht = im.size
+    aura = cfg.get("aura")
+    if aura:  # 기운 색을 텍스처 오른쪽에 한 줄씩 덧붙임
+        big = Image.new("RGBA", (Wd + len(aura["cols"]), Ht), (0, 0, 0, 0)); big.paste(im, (0, 0))
+        for i, c in enumerate(aura["cols"]):
+            for y in range(Ht): big.putpixel((Wd + i, y), (*c, 255))
+        im_tex = big
+    else: im_tex = im
     tex = f"textures/models/rpg_w3d_{name}"
     (RP / "textures" / "models").mkdir(parents=True, exist_ok=True)
-    im.save(RP / f"{tex}.png")
+    im_tex.save(RP / f"{tex}.png")
     u = cfg["len"] * 16 / max(Wd, Ht)  # 픽셀 하나 = u 단위 (16 단위 = 1블록)
     gx, gy = Wd / 2, Ht * (1 - cfg["grip"])  # 쥐는 곳 (그림 좌표)
     cubes = []
@@ -176,13 +183,29 @@ def build(name, cfg):
             x0 = x
             while x < Wd and dm[y][x] == t: x += 1
             w = x - x0
-            T = t * u * (0.8 if cfg["src"] else 0.6)
+            T = t * u * (0.9 if cfg["src"] else 0.6)
             cubes.append({"origin": [round((x0 - gx) * u, 4), round((gy - y - 1) * u, 4), round(-T / 2, 4)], "size": [round(w * u, 4), round(u, 4), round(T, 4)],
                           "uv": {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                                  "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
                                  "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}})
+    if aura:  # 머리 둘레를 휘감는 기운 띠 (그림 면 밖으로 입체적으로 돎): 띠마다 나선 호, 가운데 굵고 끝 가늘게
+        head_y = Ht * 0.18
+        for rb in range(aura["ribbons"]):
+            off = rb * 360 / aura["ribbons"]
+            N = 64
+            for k in range(N):
+                sk = k / (N - 1)
+                th = math.radians(off + sk * 250)
+                rad = Wd * (0.55 + 0.25 * math.sin(sk * math.pi))
+                yy = head_y + (sk - 0.5) * Ht * 0.42
+                X, Z = rad * math.cos(th), rad * math.sin(th) * 0.9
+                w = 2.6 * math.sin(sk * math.pi) + 0.6
+                col = Wd + (2 if k % 9 == 0 else 0 if sk > 0.5 else 1 if sk > 0.2 else 3)
+                cubes.append({"origin": [round((X - gx + Wd / 2) * u - w * u / 2, 4) if False else round((X) * u - w * u / 2, 4), round((gy - yy) * u, 4), round(Z * u - w * u / 2, 4)],
+                              "size": [round(w * u, 4), round(u * 1.1, 4), round(w * u, 4)],
+                              "uv": {f: {"uv": [col, int(yy) % Ht], "uv_size": [1, 1]} for f in ("north", "south", "east", "west", "up", "down")}})
     geo = {"format_version": "1.16.0", "minecraft:geometry": [{
-        "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": Wd, "texture_height": Ht,
+        "description": {"identifier": f"geometry.rpg_w3d_{name}", "texture_width": im_tex.size[0], "texture_height": Ht,
                         "visible_bounds_width": 6, "visible_bounds_height": 6, "visible_bounds_offset": [0, 1, 0]},
         "bones": [{"name": "rpg_w3d", "pivot": [0, 0, 0], "binding": "q.item_slot_to_bone_name(context.item_slot)"},
                   {"name": "body", "parent": "rpg_w3d", "pivot": [0, 0, 0], "cubes": cubes}]}]}
@@ -194,13 +217,18 @@ def build(name, cfg):
         "textures": {"default": tex, "enchanted": "textures/misc/enchanted_item_glint"},
         "geometry": {"default": f"geometry.rpg_w3d_{name}"},
         "animations": {"fp": f"animation.rpg_w3d.{name}.fp", "tp": f"animation.rpg_w3d.{name}.tp"},
-        "scripts": {"animate": [{"fp": "c.is_first_person"}, {"tp": "!c.is_first_person"}]},
+        "scripts": {"pre_animation": ["v.atk = c.owning_entity->v.attack_time ?? 0;", "v.swing = math.sin(math.clamp(v.atk, 0, 1) * 180);"],
+                    "animate": [{"fp": "c.is_first_person"}, {"tp": "!c.is_first_person"}]},
         "render_controllers": ["controller.render.item_default"]}}}
     (RP / "attachables").mkdir(parents=True, exist_ok=True)
     (RP / "attachables" / f"{name}.json").write_text(json.dumps(att, ensure_ascii=False, indent=1))
     anims = {}
     for k in ("fp", "tp"):
-        c = cfg[k]; b = {"rotation": c["rot"], "position": c["pos"]}
+        c = cfg[k]
+        # 때리기: 공격하는 동안(v.swing 0→1→0) 위에서 앞으로 크게 내려 벰 (1인칭은 화면 쪽으로 휘두름)
+        sw = cfg.get("swing", 75)
+        rot = [f"{c['rot'][0]} - v.swing * {sw if k == 'fp' else sw * 0.5}", f"{c['rot'][1]} + v.swing * {25 if k == 'fp' else 10}", f"{c['rot'][2]} - v.swing * {sw * 0.6 if k == 'fp' else sw * 0.4}"]
+        b = {"rotation": rot, "position": c["pos"]}
         if "scale" in c: b["scale"] = c["scale"]
         anims[f"animation.rpg_w3d.{name}.{k}"] = {"loop": True, "bones": {"body": b}}
     return anims, len(cubes), (Wd, Ht)
