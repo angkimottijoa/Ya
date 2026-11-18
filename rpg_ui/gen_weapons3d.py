@@ -16,11 +16,11 @@ W = {
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
-    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop", aura=dict(cols=[(250, 252, 255), (210, 230, 255), (255, 226, 140), (180, 190, 210)], ribbons=2),
+    "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_ref.jpg", px=44, len=1.5, grip=0.5, kind="bash", dome=True, keep=0.03,
+    "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_ref.jpg", px=44, len=1.5, grip=0.5, kind="bash", dome=True, keep=0.03, shell_only=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
 
@@ -58,6 +58,16 @@ def cutout(im):
             if len(pts) > Wd * Ht * 0.002:
                 for x, y in pts: px[x, y] = (0, 0, 0, 0)
     return im.crop(im.getbbox())
+
+
+SHELL_POLY = [(470, 140), (570, 175), (665, 245), (660, 430), (625, 620), (540, 770), (340, 860), (235, 760), (212, 560), (218, 360), (262, 220), (330, 170)]
+
+
+def shell_only(src):
+    """방패 그림에서 둘레의 청록 기운을 빼고 등껍질만 (원본 그림 좌표의 등껍질 윤곽 다각형 안쪽만 남김)"""
+    mask = Image.new("L", src.size, 0); ImageDraw.Draw(mask).polygon(SHELL_POLY, fill=255)
+    out = Image.new("RGBA", src.size, (0, 0, 0, 0)); out.paste(src.convert("RGBA"), (0, 0), mask)
+    return out
 
 
 def keep_big(im, frac=0.004):
@@ -157,7 +167,10 @@ def depth_map(im, dome=False):
 
 def build(name, cfg):
     if cfg["src"]:
-        im = shrink(upright(keep_big(cutout(Image.open(ROOT / "art" / cfg["src"])), cfg.get("keep", 0.004))), cfg["px"])
+        src = Image.open(ROOT / "art" / cfg["src"])
+        if cfg.get("shell_only"): src = shell_only(src)
+        base = keep_big(cutout(src), cfg.get("keep", 0.004))
+        im = shrink(upright(base), cfg["px"])
         dm = depth_map(im, dome=cfg.get("dome", False))
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)

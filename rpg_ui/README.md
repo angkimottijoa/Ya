@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.16.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.17.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,10 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.17 변경
+- 현무의 방패 3D: 둘레의 청록 기운을 빼고 등껍질만 (원본 그림의 등껍질 윤곽 다각형으로 잘라냄) → 가운데 볼록한 돔
+- 백호의 도끼 3D: 둘레 기운 띠 제거
 
 ## V12.16 변경
 - 3D 무기 그림 교체: 현무의 방패(art/hyeonmu_shield_ref.jpg, 등껍질 + 청록 기운 · 가운데 볼록한 돔) · 백호의 도끼(art/baekho_axe3d_ref.jpg, 흑백 · 금빛 + 기운 띠 둘)
