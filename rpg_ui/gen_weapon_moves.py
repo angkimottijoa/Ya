@@ -69,9 +69,10 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.63  # 1인칭 무기 크기 (내 화면에서만)
+FP_SCALE = 0.45  # 1인칭 무기 크기 (내 화면에서만)
 FP_POS = [0.2, 0, 0]  # 1인칭: + = 화면 가운데 쪽 (V12.33→V12.34 스크린샷으로 확인: -4→-1.5 에 손잡이가 왼쪽으로 약 190px)
 FP_ROT = [0, 55, 0]  # 1인칭: 화면 오른쪽에 세움 (V12.34 에서 자리는 맞았음)
+FP_TILT = -45  # 1인칭: 무기 끝을 카메라 쪽으로 45° 당겨 세움 (사용자 축 그림: 파란 축은 깊이로 45° 누움 → 빨간 축은 화면에 곧게 · 두 번째 축이 카메라 쪽)
 FP_SPIN = {"hundun_scythe": -90}  # 1인칭 긴 축 돌리기: 낫 날(모델 +Y)을 화면 왼쪽 위로 (Blockbench 규칙: 베드락 X·Y 회전 부호 반대 → 안쪽 뼈 +X 가 화면 왼쪽 위)
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
@@ -128,6 +129,7 @@ def build():
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
+                                                                          "rpg_w3d_tilt": {"rotation": [FP_TILT, 0, 0]},
                                                                           "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN.get(name, 0)]}}}
         ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"
     return anims, ctrls, ent_anims
