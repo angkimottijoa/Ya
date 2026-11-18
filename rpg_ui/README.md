@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.31.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.32.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,10 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.32 변경
+- 1인칭(내 화면에서만) 무기: 왼쪽 위로 비스듬히 가로지르던 것 → 화면 안에서 오른쪽으로 40° 돌려 세움 (오른쪽 아래에서 위로) · 크기 0.45배
+  - gen_weapon_moves.py 의 FP_ROT · FP_SCALE 로 조절
 
 ## V12.31 변경
 - 1인칭에서 3D 무기가 화면을 가리던 것: 1인칭일 때만 무기를 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만 줄임) · 3인칭은 그대로
