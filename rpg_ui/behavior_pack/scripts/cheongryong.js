@@ -6,6 +6,7 @@
 //   ④ 쉬프트 두 번 청룡 · 천룡추 : 돌진하며 검기 → 솟구쳐 큰 청룡 머리 → 함께 내리꽂기 → 번개
 // 파티클: gen_cheongryong.py (물빛 픽셀 먼지 + ✱ 눈꽃, 머리는 윤곽선 점 찍기)
 // ═══════════════════════════════════════════════════════════════════════
+import * as WR from "./world_rules.js";
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 import { SPEAR } from "./cr_spear_meta.js";
@@ -656,7 +657,7 @@ function bind(ctx, c, r, dur) {
   let list = [];
   try {
     list = dim.getEntities({ location: c, maxDistance: r, excludeTypes: ["minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] })
-      .filter((e) => e.id !== p.id);
+      .filter((e) => e.id !== p.id && WR.canHit(p, e));
   } catch {}
   for (const e of list) {
     M.potion(e, "slowness", 255, dur / 20);

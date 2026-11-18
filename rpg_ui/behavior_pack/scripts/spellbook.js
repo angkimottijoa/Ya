@@ -32,7 +32,7 @@ function healAll(ctx, amt, r = 8) {
   for (const t of list) {
     try {
       const hp = t.getComponent("minecraft:health");
-      hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt));
+      hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt * Math.max(1, hp.effectiveMax / 60)));  // V12.109: 체력 최대 1000 → 고정 회복량도 비례
       M.helix(t.dimension, t.location, { strands: 2, r: 0.7, h: 2.2, twist: 540, n: 70, dur: 0.4, color: ctx.pal[1] ?? ctx.pal[0], life: 0.8 });
     } catch {}
   }

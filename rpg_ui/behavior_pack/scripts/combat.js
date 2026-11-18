@@ -37,6 +37,13 @@ export function combatStats(p) {
   };
 }
 
+// ───────── 체력 (V12.109): 최대 1000 = 20 + 레벨 × 4 + 체력 스탯 × 3 ─────────
+export const HP_CAP = 1000;
+export function maxHpOf(p) { return Math.min(HP_CAP, 20 + data(p).lv * 4 + stat(p, "vit") * 3); }
+/** 몹 · 환경 피해 배율: 레벨 1 → 1.06배 · 레벨 100 → 7배 */
+export const incomingMul = (p) => 1 + data(p).lv * 0.06;
+const lastHurt = new Map(); // pid -> tick (전투 밖 회복용)
+
 export function skillReadyIn(p) {
   return Math.max(0, ((cooldown.get(p.id) ?? 0) - system.currentTick) / 20);
 }
@@ -52,9 +59,18 @@ function isMonster(e) {
 export function initCombat() {
   world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource, damage }) => {
     if (hurtEntity.typeId === "minecraft:player") {
+      lastHurt.set(hurtEntity.id, system.currentTick);
       const hp = hurtEntity.getComponent("minecraft:health");
       const red = combatStats(hurtEntity).def / 100;
-      if (hp && hp.currentValue > 0 && red > 0) hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + damage * red));
+      // V12.109: 체력이 최대 1000까지 크므로 몹 · 환경 피해도 레벨에 맞춰 키움 (플레이어끼리는 그대로)
+      const fromPlayer = damageSource.damagingEntity?.typeId === "minecraft:player";
+      const mul = fromPlayer ? 1 : incomingMul(hurtEntity);
+      const want = damage * mul * (1 - red); // 최종으로 잃을 양
+      if (hp && hp.currentValue > 0 && Math.abs(want - damage) > 0.01) {
+        const nv = hp.currentValue - (want - damage);
+        if (nv <= 0) hurtEntity.kill();
+        else hp.setCurrentValue(Math.min(hp.effectiveMax, nv));
+      }
     }
     const atk = damageSource.damagingEntity;
     if (atk?.typeId !== "minecraft:player" || hurtEntity.typeId === "rpg:npc") return;
@@ -113,10 +129,17 @@ export function initCombat() {
   system.runInterval(() => {
     for (const p of world.getAllPlayers()) {
       applySpeed(p);
-      applyStatEffect(p, "health_boost", Math.floor(stat(p, "vit") / 4) - 1);
+      applyStatEffect(p, "health_boost", Math.round((maxHpOf(p) - 20) / 4) - 1);
+      // 전투 밖(6초 동안 안 맞음): 초당 최대 체력의 2% 회복
+      try {
+        if (system.currentTick - (lastHurt.get(p.id) ?? -999) > 120) {
+          const hc = p.getComponent("minecraft:health");
+          if (hc && hc.currentValue > 0 && hc.currentValue < hc.effectiveMax) hc.setCurrentValue(Math.min(hc.effectiveMax, hc.currentValue + hc.effectiveMax * 0.02));
+        }
+      } catch {}
       const d = data(p);
       const max = maxMp(p);
-      const regen = 1 + stat(p, "int") * 0.1;
+      const regen = 4 + stat(p, "int") * 0.12 + data(p).lv * 0.05;
       const cur = d.mp ?? max;
       const next = Math.min(max, cur + regen);
       if (next !== d.mp) d.mp = next;
@@ -145,7 +168,7 @@ function applyStatEffect(p, effect, amp) {
     if (cur && cur.duration > 1000000) p.removeEffect(effect);
     return;
   }
-  amp = Math.min(amp, 9);
+  amp = Math.min(amp, 244); // 체력 최대 1000
   if (cur && cur.amplifier === amp && cur.duration > 1000000) return;
   p.addEffect(effect, 19999999, { amplifier: amp, showParticles: false });
 }
@@ -236,7 +259,7 @@ export function castSkill(p) {
       const amt = 6 + vit * 0.3 + int * 0.3;
       for (const t of [p, ...nearbyMembers(p, 8)]) {
         const hp = t.getComponent("minecraft:health");
-        hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt));
+        hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt * Math.max(1, hp.effectiveMax / 60)));  // V12.109: 체력 최대 1000 → 고정 회복량도 비례
         t.addEffect("regeneration", 100, { amplifier: 0, showParticles: true });
         t.dimension.spawnParticle("minecraft:heart_particle", { ...t.location, y: t.location.y + 2 });
         if (t !== p) msg(t, `§e${p.name}§r 님의 치유의 빛 (+${Math.round(amt)})`);
@@ -246,7 +269,7 @@ export function castSkill(p) {
     }
     default: {
       const hp = p.getComponent("minecraft:health");
-      hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + 4));
+      hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + 4 * Math.max(1, hp.effectiveMax / 60)));  // V12.109: 체력 최대 1000 → 고정 회복량도 비례
       dim.spawnParticle("minecraft:heart_particle", { ...loc, y: loc.y + 2 });
       p.playSound("random.orb");
     }

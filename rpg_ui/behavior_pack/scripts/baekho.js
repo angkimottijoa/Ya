@@ -7,6 +7,7 @@
 //                                → 함께 떨어지며 도끼(사용자 그림 점 찍기, 사진 그대로 45도로 박힘)를 내리찍음 → 땅이 갈라지는 파문 · 폭발
 // 파티클: gen_baekho.py (bh_claw 발톱 자국 · bh_cluster 흑백 먼지 · bh_shock 충격파)
 // ═══════════════════════════════════════════════════════════════════════
+import * as WR from "./world_rules.js";
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import * as M from "./ms.js";
 import { AXE_ART } from "./bh_art_meta.js";
@@ -373,7 +374,7 @@ function apex(ctx) {
   // 0: 발밑 폭발과 함께 아주 높이 솟구침
   let crowd = [];
   try {
-    crowd = dim.getEntities({ location: o, maxDistance: 11, excludeTypes: ["minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] }).filter((e) => e.id !== p.id);
+    crowd = dim.getEntities({ location: o, maxDistance: 11, excludeTypes: ["minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] }).filter((e) => e.id !== p.id && WR.canHit(p, e));
   } catch {}
   M.anim(p, "raise");
   M.sound(p, "mob.ravager.roar", 1.4, 0.7);

@@ -19,6 +19,7 @@ import { openNpc, SKINS, ANIMS, CAMS, npcId, npcHasShop, npcShopList, npcDialog,
 import * as R from "./rules.js";
 import { npcRegistry, registerNpcEntity, unregisterNpc } from "./npcdb.js";
 import { SKILL_OPTS, skillOpt, setSkillOpt } from "./skill_opts.js";
+import * as WR from "./world_rules.js";
 
 const QT = Object.entries(Q.QTYPES);
 
@@ -1089,9 +1090,13 @@ function skillHelpTab(p, sel) {
   scr.body(rt(
     "§e§l시험 도구§r\n§f- 재사용 대기 초기화 · 마나 가득 · 관리자 스킬 모드(대기·마나 없음)\n§f- 사신수 · 사흉수 무기 한 번에 받기\n\n",
     o ? `§e§l${o.name}§r ${skillOpt(o.id) ? "§a켜짐" : "§8꺼짐"}\n§7${o.desc}\n\n` : "",
+    `§e§lPvP§r ${WR.pvpOn() ? "§c켜짐" : "§a꺼짐"}\n§7켜면 플레이어끼리 일반 공격과 모든 스킬(사신수 · 사흉수 · 직업)이 맞음. 자기 자신 · 같은 파티는 항상 제외\n\n`,
+    `§e§l파티클 최적화§r §f${WR.FX_MODES[WR.fxMode()]}\n§7항상: 모든 스킬 파티클 개수 35%로 · 자동: 화면 파티클이 6만 개를 넘으면 그동안만 줄임 · 끄기: 줄이지 않음\n§7지금 파티클 약 ${WR.particlesAlive()}개\n\n`,
     "§7옵션은 월드 전체에 적용됩니다.",
   ));
   if (o) scr.action(skillOpt(o.id) ? `§c${o.name} 끄기` : `§a${o.name} 켜기`, () => { setSkillOpt(o.id, !skillOpt(o.id)); msg(p, `§f${o.name} ${skillOpt(o.id) ? "§a켜짐" : "§8꺼짐"}`); return skillHelpTab(p, o.id); });
+  scr.action(WR.pvpOn() ? "§cPvP 끄기 §7(지금: 켜짐)" : "§aPvP 켜기 §7(지금: 꺼짐)", () => { WR.setPvp(!WR.pvpOn()); msg(p, WR.pvpOn() ? "§cPvP 켜짐 §7- 플레이어끼리 일반 공격 · 모든 스킬 피해 (파티원 제외)" : "§aPvP 꺼짐 §7- 플레이어끼리 피해 없음"); return skillHelpTab(p, sel); });
+  for (const [m, label] of Object.entries(WR.FX_MODES)) scr.action(`${WR.fxMode() === m ? "§e● " : "§7○ "}파티클 최적화: ${label}`, () => { WR.setFxMode(m); msg(p, `§f파티클 최적화: §e${label}`); return skillHelpTab(p, sel); });
   scr.action("재사용 대기 초기화", () => { SK.resetCooldowns(p); msg(p, "§a모든 스킬 재사용 대기를 초기화했습니다."); return skillHelpTab(p, sel); });
   scr.action("마나 가득", () => { d.mp = 99999; save(p); msg(p, "§9마나를 채웠습니다."); return skillHelpTab(p, sel); });
   scr.action(d.set?.adminSkill ? "§d관리자 스킬 모드 끄기" : "§d관리자 스킬 모드 켜기 (대기·마나 없음)", () => { d.set ??= {}; d.set.adminSkill = !d.set.adminSkill; save(p); msg(p, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐" : "§7관리자 스킬 모드 꺼짐"); return skillHelpTab(p, sel); });

@@ -22,7 +22,31 @@ import { RP } from "./reaper.js";
 import { HJ } from "./hidden_jobs.js";
 const RUN = { ...WR, ...MG, ...RP, ...HJ }; // 직업 스킬 (전사 · 마법사 계열 · 히든 영혼 수확자)
 import { isSkillLocked } from "./skill_lock.js";
+import * as WRULES from "./world_rules.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
+
+// ───────── 밸런스 (V12.109) ─────────
+// 사신수 · 사흉수 스킬: [재사용 대기(초), 마나] — ② 쉬프트+클릭 · ③ 쉬프트+점프 · ④ 쉬프트 두 번 은 크게 늘림
+const WEAPON_TUNE = {
+  w_cr_1: [4, 40], w_cr_2: [20, 120], w_cr_3: [120, 320], w_cr_4: [45, 230],
+  w_bh_1: [3, 35], w_bh_2: [16, 100], w_bh_3: [30, 160], w_bh_4: [55, 260],
+  w_jj_1: [0.35, 15], w_jj_2: [18, 110], w_jj_3: [32, 170], w_jj_4: [50, 260],
+  w_hm_1: [0.35, 12], w_hm_2: [22, 100], w_hm_3: [42, 220], w_hm_4: [65, 300],
+  w_hd_1: [2.5, 25], w_hd_2: [18, 90], w_hd_3: [22, 100], w_hd_4: [40, 190],
+  w_qq_1: [0.35, 15], w_qq_2: [14, 70], w_qq_3: [18, 85], w_qq_4: [60, 250],
+  w_tw_1: [0.45, 15], w_tw_2: [15, 75], w_tw_3: [16, 75], w_tw_4: [60, 250],
+  w_tt_1: [0.4, 15], w_tt_2: [15, 75], w_tt_3: [16, 75], w_tt_4: [60, 250],
+};
+for (const list of Object.values(WEAPON_SKILLS)) for (const sk of list) { const t = WEAPON_TUNE[sk.id]; if (t) { sk.cd = t[0]; sk.mp = t[1]; } }
+// 직업 스킬: 마나 ×4 · 재사용 대기 ② ×1.25 ③ ×1.3 ④ ×1.4 (① 연타는 그대로)
+const JOB_CD = { 1: 1, 2: 1.25, 3: 1.3, 4: 1.4 };
+const tunedJob = new WeakSet();
+function tuneJob(s) { if (!s || tunedJob.has(s)) return s; tunedJob.add(s); s.mp = Math.round(s.mp * 4); s.cd = Math.round(s.cd * (JOB_CD[s.key] ?? 1) * 10) / 10; return s; }
+/** 레벨이 낮으면 마나 소모도 낮게 (Lv.1 40% → Lv.100 100%) */
+for (const sk of J.JOB_SKILLS) tuneJob(sk); // 메뉴 표시도 같은 값
+/** 메뉴 표시용: 지금 레벨에서 실제 마나 소모 */
+export const mpCost = (p, base) => Math.max(1, Math.round(base * (0.4 + 0.6 * Math.min(1, data(p).lv / 100))));
+const crBusy = new Map(); // 청룡 강림(③) 중: 같은 청룡 ③ · ④ 막음
 
 export const WCLASS = {
   sword: { name: "검", icon: "class" },
@@ -37,7 +61,7 @@ export const WCLASS = {
 
 // ───────── 스킬 효과 목록 (직업 스킬의 fx, 제작자 도구에서 고를 수 있음) ─────────
 export const FX = SB.SPELL_LIST; // V2.9: spellbook.js 의 스펠 목록
-export const getSkill = (id) => J.getJobSkill(id);
+export const getSkill = (id) => tuneJob(J.getJobSkill(id));
 
 // ───────── 무기 분류 판별 + 자동 등록 ─────────
 let overrides = null; // 제작자 지정 { typeId: wclass }
@@ -233,17 +257,17 @@ export function castWeaponSkill(p, id) {
     notify(p, `§7${s.name} 재사용 대기 §f${Math.ceil(left)}초`);
     return false;
   }
-  const mp = d.mp ?? maxMp(p);
-  if (mp < s.mp) {
-    notify(p, `§9마나 부족 §f(${Math.floor(mp)}/${s.mp})`);
+  const mp = d.mp ?? maxMp(p), cost = mpCost(p, s.mp);
+  if (mp < cost) {
+    notify(p, `§9마나 부족 §f(${Math.floor(mp)}/${cost})`);
     p.playSound("note.bass");
     return false;
   }
-  d.mp = mp - s.mp;
-  const cdr = 1 - Math.min(0.4, stat(p, "int") * 0.01);
+  d.mp = mp - cost;
+  const cdr = 1 - Math.min(0.3, stat(p, "int") * 0.003);
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   runEffect(p, s, power(p, s));
-  notify(p, `§b§l${s.name}! §r§9-${s.mp} MP`);
+  notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
   return true;
 }
 
@@ -285,6 +309,8 @@ export const skillMode = (p) => !!data(p).set?.adminSkill && isAdmin(p);
 /** 이 플레이어의 모든 스킬 재사용 대기 초기화 (관리자 도구 > 스킬 도움) */
 export function resetCooldowns(p) { for (const k of [...cd.keys()]) if (k.startsWith(`${p.id}|`)) cd.delete(k); }
 
+/** 사신수 · 사흉수 스킬 기본 위력: 16 × 힘 × 버프 × 레벨 (V12.109: 12 → 16) */
+const weaponDmg = (p) => 16 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + data(p).lv * 0.025);
 /** 스킬 무기 발동 (직업 조건 없음) */
 function castWeaponSpecial(p, s) {
   const d = data(p);
@@ -292,8 +318,11 @@ function castWeaponSpecial(p, s) {
   try { if (s.pre?.(p)) return true; } catch {}
   const cdOf = (sec) => cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(sec * 20));
   const extra = { setCd: (sec) => { if (!skillMode(p)) cdOf(sec); }, resetCd: () => cd.delete(`${p.id}|${s.id}`) };
+  if ((s.id === "w_cr_3" || s.id === "w_cr_4") && (crBusy.get(p.id) ?? 0) > system.currentTick) { notify(p, `§7청룡 강림 중에는 §f${s.short ?? s.name}§7 을(를) 쓸 수 없습니다`); return false; }
+  const busy = () => { if (s.id === "w_cr_3") crBusy.set(p.id, system.currentTick + 170); }; // 강림 연출 약 8.5초
   if (skillMode(p)) {
-    s.run({ p, dmg: 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02), data: d, ...extra });
+    busy();
+    s.run({ p, dmg: weaponDmg(p), data: d, ...extra });
     notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
     return true;
   }
@@ -302,22 +331,25 @@ function castWeaponSpecial(p, s) {
     notify(p, `§7${s.name} 재사용 대기 §f${Math.ceil(left)}초`);
     return false;
   }
-  const mp = d.mp ?? maxMp(p);
-  if (mp < s.mp) {
-    notify(p, `§9마나 부족 §f(${Math.floor(mp)}/${s.mp})`);
+  const mp = d.mp ?? maxMp(p), cost = mpCost(p, s.mp);
+  if (mp < cost) {
+    notify(p, `§9마나 부족 §f(${Math.floor(mp)}/${cost})`);
     p.playSound("note.bass");
     return false;
   }
-  d.mp = mp - s.mp;
-  const cdr = 1 - Math.min(0.4, stat(p, "int") * 0.01);
+  d.mp = mp - cost;
+  const cdr = 1 - Math.min(0.3, stat(p, "int") * 0.003);
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
-  const dmg = 12 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + d.lv * 0.02);
-  s.run({ p, dmg, data: d, ...extra });
-  notify(p, `§b§l${s.name}! §r§9-${s.mp} MP`);
+  busy();
+  s.run({ p, dmg: weaponDmg(p), data: d, ...extra });
+  notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
   return true;
 }
 
 export function castKey(p, key) {
+  return WRULES.withCaster(p, () => castKeyIn(p, key)); // 스킬이 나중에 예약하는 동작까지 시전자를 이어 줌 (PvP 대상 · 피해 규칙)
+}
+function castKeyIn(p, key) {
   if (isSkillLocked(p)) return false; // 주작 3단 조준 중: 다른 스킬은 모두 무시
   const ws = heldWeaponSkills(p);
   if (ws) {

@@ -9,8 +9,10 @@
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 import { SPELLS } from "./msdata.js";
 import { skillHit } from "./ms.js";
+import * as WR from "./world_rules.js";
 
 const EXCLUDE = { excludeTypes: ["minecraft:player", "minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] };
+const EXCLUDE_NP = { excludeTypes: ["minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] };
 export const msHit = skillHit; // victimId -> tick (combat.js 보너스 중복 방지)
 const buffs = new Map(); // `${pid}|${dummy}` -> 만료 tick
 
@@ -76,12 +78,16 @@ function playLine(ctx, sp, a, b) {
 const yawOf = (p) => p.getRotation().y;
 function around(dim, loc, r, vr) {
   try {
-    return dim.getEntities({ location: loc, maxDistance: Math.max(r, vr ?? 0), ...EXCLUDE })
-      .filter((e) => Math.hypot(e.location.x - loc.x, e.location.z - loc.z) <= r && Math.abs(e.location.y - loc.y) <= (vr ?? r) + 1);
+    const pv = WR.pvpScan(); // PvP: 다른 플레이어도 (자신 · 파티원 제외)
+    return dim.getEntities({ location: loc, maxDistance: Math.max(r, vr ?? 0), ...(pv ? EXCLUDE_NP : EXCLUDE) })
+      .filter((e) => (!pv || WR.keepTarget(e)) && Math.hypot(e.location.x - loc.x, e.location.z - loc.z) <= r && Math.abs(e.location.y - loc.y) <= (vr ?? r) + 1);
   } catch { return []; }
 }
 function lookTarget(p, range = 20) {
-  try { return p.getEntitiesFromViewDirection({ maxDistance: range, ...EXCLUDE })[0]?.entity; } catch { return undefined; }
+  try {
+    if (WR.pvpScan()) return p.getEntitiesFromViewDirection({ maxDistance: range, ...EXCLUDE_NP }).map((h) => h.entity).find((e) => e && e.id !== p.id && WR.keepTarget(e));
+    return p.getEntitiesFromViewDirection({ maxDistance: range, ...EXCLUDE })[0]?.entity;
+  } catch { return undefined; }
 }
 // 자바처럼 맞은 뒤 10틱 무적: 그 사이엔 이전보다 큰 피해의 차이만 들어감
 const lastHit = new Map(); // victimId -> { t, amt }

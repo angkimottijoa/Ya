@@ -62,7 +62,7 @@ function onLine(ctx, a, b, w, fn) {
 function heal(t, amt) {
   try {
     const hp = t.getComponent("minecraft:health");
-    hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt));
+    hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + amt * Math.max(1, hp.effectiveMax / 60)));  // V12.109: 체력 최대 1000 → 고정 회복량도 비례
   } catch {}
 }
 const snd = (p, id, pitch = 1, v = 1) => M.sound(p, id, pitch, v);

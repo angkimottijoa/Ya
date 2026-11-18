@@ -539,7 +539,7 @@ export function openSkills(p, tab, sel) {
     const has = myPath && d.lv >= s.lv;
     const left = SK.readyIn(p, s.id);
     const k = s.key ?? 1;
-    scr.item(`${has ? "§f" : "§7"}${J.KEY_ICONS[k]} ${s.name}\n§7${!myPath ? `${J.PATHS[s.path].name} 승급 시` : has ? `${J.KEY_NAMES[k]} · MP ${s.mp} · ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}` : `Lv.${s.lv} 필요`}`, ICON(J.PATHS[s.path].icon), () => openSkills(p, tab, s.id), { on: s.id === sel });
+    scr.item(`${has ? "§f" : "§7"}${J.KEY_ICONS[k]} ${s.name}\n§7${!myPath ? `${J.PATHS[s.path].name} 승급 시` : has ? `${J.KEY_NAMES[k]} · MP ${SK.mpCost(p, s.mp)} · ${s.cd}초${left > 0 ? ` §c(${Math.ceil(left)}s)` : ""}` : `Lv.${s.lv} 필요`}`, ICON(J.PATHS[s.path].icon), () => openSkills(p, tab, s.id), { on: s.id === sel });
   }
   railOf(scr);
   const s = J.getJobSkill(sel);
@@ -551,7 +551,7 @@ export function openSkills(p, tab, sel) {
     scr.body(rt(
       `${t.color}§l${J.TIER_NAMES[t.tier]} ${t.name}§r  ${has ? "§a[사용 가능]" : `§c[${myPath ? `Lv.${s.lv} 필요` : "승급 필요"}]`}\n\n`,
       `§f${s.desc}\n\n`,
-      `§7발동 §e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]}\n§7마나 §9${s.mp}   §7재사용 §f${s.cd}초\n§7전용 도구 §f${tName(t)}\n\n`,
+      `§7발동 §e${J.KEY_ICONS[k]} ${J.KEY_NAMES[k]}\n§7마나 §9${SK.mpCost(p, s.mp)}   §7재사용 §f${s.cd}초\n§7전용 도구 §f${tName(t)}\n\n`,
       `§e§l조작 (${tName(t)}을(를) 들고)§r\n§e① 클릭§f(모바일: 길게 누르기)\n§e② 쉬프트 + 클릭\n§e③ 쉬프트 + 점프`,
     ));
     if (myPath && countItem(p, J.toolId(myPath)) === 0) scr.action(`전용 도구 받기 (${tName(J.PATHS[myPath])})`, () => { giveTool(p, myPath); return openSkills(p, tab, s.id); });

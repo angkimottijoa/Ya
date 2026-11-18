@@ -29,6 +29,7 @@
 // 식 표기: 한 축 = (a + g·t)·sin|cos(w·t + p) + b·t + c ,  t ∈ [0, 1]  (각도 단위: 도)
 //   EffectLib 의 "3.8sin(0.0125t)", particles 255 → a 3.8, w = 0.0125·255 rad = 183°
 // ═══════════════════════════════════════════════════════════════════════
+import * as WR from "./world_rules.js";
 import { system, MolangVariableMap, EntityDamageCause } from "@minecraft/server";
 
 // ───────── 색 / 팔레트 ─────────
@@ -222,8 +223,12 @@ export function multiOn(ctx, target, steps) {
 // ───────── 대상 / 판정 ─────────
 const EXCLUDE = { excludeTypes: ["minecraft:player", "minecraft:item", "minecraft:xp_orb", "rpg:npc", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] };
 export const skillHit = new Map(); // victimId -> tick (combat.js 가 스탯 보너스 중복 방지에 참조)
+const EXCLUDE_NP = { excludeTypes: EXCLUDE.excludeTypes.filter((t) => t !== "minecraft:player"), excludeFamilies: EXCLUDE.excludeFamilies };
 export function around(dim, loc, r) {
-  try { return dim.getEntities({ location: loc, maxDistance: r, ...EXCLUDE }); } catch { return []; }
+  try {
+    if (WR.pvpScan()) return dim.getEntities({ location: loc, maxDistance: r, ...EXCLUDE_NP }).filter(WR.keepTarget); // PvP: 다른 플레이어도 (자신 · 파티원 제외)
+    return dim.getEntities({ location: loc, maxDistance: r, ...EXCLUDE });
+  } catch { return []; }
 }
 /** AreaEffectSpell: 중심 반경 r 안의 적에게 fn (max-targets) */
 export function area(ctx, center, r, fn, max = 1000) {
@@ -232,6 +237,7 @@ export function area(ctx, center, r, fn, max = 1000) {
   return list;
 }
 export function looked(p, max = 24) {
+  if (WR.pvpScan()) return p.getEntitiesFromViewDirection({ maxDistance: max, ...EXCLUDE_NP }).map((h) => h.entity).find((e) => e && e.id !== p.id && WR.keepTarget(e));
   return p.getEntitiesFromViewDirection({ maxDistance: max, ...EXCLUDE })[0]?.entity;
 }
 export function lookPoint(p, max = 24) {
@@ -259,7 +265,7 @@ export function drain(ctx, e, mul = 1, heal = 2, color = ctx.pal[0]) {
   pain(ctx, e, mul);
   try {
     const hp = ctx.p.getComponent("minecraft:health");
-    hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + heal));
+    hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + heal * Math.max(1, hp.effectiveMax / 60)));  // V12.109: 체력 최대 1000 → 고정 회복량도 비례
   } catch {}
   line(ctx.p.dimension, { ...e.location, y: e.location.y + 1 }, { ...ctx.p.location, y: ctx.p.location.y + 1 }, color, { dur: 0.25 });
 }

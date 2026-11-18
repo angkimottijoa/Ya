@@ -358,7 +358,7 @@ function bk_spin(ctx0) { // 광전사 ① 혈참 회전 (2타, 흡혈)
   if (emp) pt(dim, "bl_mist", up(p.location, 0.6), { n: 12, r: R * 0.6, spd: 1.5, life: 1.2, size: 1.4 }, 2);
   later(3, () => {
     for (const e of foes(dim, p.location, R + 0.4)) if (hit(e, n ? 0.6 : 0.5)) pt(dim, "bl_drop", center(e), { n: 6, r: 0.3, spd: 3, life: 0.8 }, 2);
-    if (healed > 0) { try { const hp = p.getComponent("minecraft:health"); hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + healed)); } catch {} }
+    if (healed > 0) { try { const hp = p.getComponent("minecraft:health"); hp.setCurrentValue(Math.min(hp.effectiveMax, hp.currentValue + healed * Math.max(1, hp.effectiveMax / 60))); } catch {} } // V12.109: 체력 최대 1000 → 고정 회복량도 비례
     snd(p, "game.player.attack.sweep", 1, 0.7);
     if (emp) snd(p, "mob.ravager.roar", 0.5, 1.4);
   });

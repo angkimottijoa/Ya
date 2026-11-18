@@ -1,4 +1,5 @@
 // Arcania RPG - 진입점
+import "./world_rules.js"; // 가장 먼저: PvP · 시전자 문맥 · 파티클 최적화 (다른 모듈이 예약하는 동작까지 감쌈)
 import { world, system, ItemStack, ItemLockMode } from "@minecraft/server";
 import { demoCircle } from "./magic.js";
 import { data, save, forget, msg, notify, isAdmin, setLevel } from "./player.js";
