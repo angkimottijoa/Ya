@@ -272,8 +272,24 @@ A = {
 }
 
 
+def weapon_hold(A):
+    """3D 무기(gen_weapons3d)를 들었을 때만: 팔을 들어 올리는 스킬 동작에서 무기가 하늘을 향하지 않게 손 뼈를 팔과 반대로 돌림
+    (활 100% → 늘 앞을 겨눔, 근접 70% → 팔 따라 조금 휘어 휘두름). 다른 도구 · 기본 아이템은 영향 없음 (v.rpg_w)"""
+    k = "(query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7)"
+    for nm, an in A.items():
+        bones = an.get("bones", {})
+        ra = bones.get("rightArm", {}).get("rotation")
+        if not ra or "rightItem" in bones: continue
+        if isinstance(ra, dict):
+            keys = {t: [f"v.rpg_w ? -({v[0]}) * {k} : 0", 0, 0] for t, v in ra.items()}
+        else:
+            keys = [f"v.rpg_w ? -({ra[0]}) * {k} : 0", 0, 0]
+        bones["rightItem"] = {"rotation": keys}
+
+
 def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
+    weapon_hold(A)
     data = {"format_version": "1.8.0", "animations": {f"animation.rpg.{k}": v for k, v in A.items()}}
     OUT.write_text(json.dumps(data, ensure_ascii=False, indent=2))
     print("anims ->", OUT, len(A))

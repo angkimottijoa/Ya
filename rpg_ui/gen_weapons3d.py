@@ -211,14 +211,16 @@ def build(name, cfg):
             if cfg.get("bowside"):  # 활: 세로로 세우되 옆에서 보이게 — 그림 세로 → 위(Y), 그림 가로 → Z(그림 왼쪽 = 화살 쪽 = 앞 -Z), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
                 o3 = [round(oz, 4), oy, round(-(ox + sx), 4)]; s3 = [sz, sy, sx]  # 그림 오른쪽 → 앞(-Z) (게임에서 확인: 반대였음)
+                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 옆 테두리 면: 그 줄 가운데 색 한 칸 (줄을 세로로 늘려 노이즈처럼 보이던 것)
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                         "north": {"uv": [x0, y], "uv_size": [1, 1]}, "south": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]},
-                        "up": {"uv": [x0, y], "uv_size": [1, w]}, "down": {"uv": [x0, y], "uv_size": [1, w]}}
+                        "up": mid, "down": mid}
             if side:  # 참고 팩(blades)처럼: 손에서 -Z(앞) 로 뻗은 모델 — 그림 세로(끝) → -Z, 그림 가로 → 위(Y, 그림 왼쪽이 위), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
                 o3 = [round(oz, 4), round(ox if cfg.get("flipup") else -(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]  # flipup: 그림 왼쪽이 아래 (낫 날 끝이 바닥 쪽)
+                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 줄 사이 계단 면: 가운데 색 한 칸 (줄을 두께 쪽으로 눌러 노이즈처럼 보이던 것)
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                        "north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0, y], "uv_size": [w, 1]},
+                        "north": mid, "south": mid,
                         "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
             shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z), 몸 앞(z ≤ -3)에
             o3 = [round(o3[0] + HAND[0], 4), round(o3[1] + HAND[1], 4), round(o3[2] + HAND[2] - (5.5 if shield else 0), 4)]
