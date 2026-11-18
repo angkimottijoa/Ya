@@ -210,7 +210,7 @@ function power(p, s) {
   const cs = combatStats(p);
   const statMul = (s.kind === "melee" ? 1 + cs.str * 0.015 : s.kind === "ranged" ? 1 + (cs.str + cs.dex) * 0.0075 : 1 + cs.int * 0.015) * (1 - cs.dull / 100);
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
-  const cls = 1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1;
+  const cls = (1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1) * (1 + data(p).lv * 0.015); // V12.120: 직업 스킬도 레벨 보정 (사신수 · 사흉수보다 약 20% 약하게)
   return base * s.pow * statMul * buff * cls;
 }
 
@@ -227,7 +227,7 @@ export function castWeaponSkill(p, id) {
   if (god) {
     if (!weaponOk(p, s)) { notify(p, `§7${s.name} §c- ${J.PATHS[s.path]?.tool?.name ?? "전용 도구"}를 들어야 사용 가능`); return false; }
     if (s.next && MSR.canCast(p, s.next)) { anim(p, "smash"); MSR.cast({ p, scale: Math.max(0.2, power(p, s) / 25), size: 1 }, s.next); }
-    else runEffect(p, s, power(p, s));
+    else WRULES.withCaster(p, () => runEffect(p, s, power(p, s)), s.kind === "magic" ? "magic" : "phys");
     notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
     return true;
   }
@@ -251,7 +251,7 @@ export function castWeaponSkill(p, id) {
     return true;
   }
   if (s.ms && MSR.comboReady(p, s.ms)) {
-    runEffect(p, s, power(p, s));
+    WRULES.withCaster(p, () => runEffect(p, s, power(p, s)), s.kind === "magic" ? "magic" : "phys");
     notify(p, `§b§l${s.name}! §r§7(연계)`);
     return true;
   }
@@ -269,7 +269,7 @@ export function castWeaponSkill(p, id) {
   d.mp = mp - cost;
   const cdr = 1 - combatStats(p).cdr / 100; // 지능: 점점 덜 오르는 재사용 대기 감소
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
-  runEffect(p, s, power(p, s));
+  WRULES.withCaster(p, () => runEffect(p, s, power(p, s)), s.kind === "magic" ? "magic" : "phys");
   notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
   return true;
 }
@@ -353,7 +353,7 @@ function castWeaponSpecial(p, s) {
 }
 
 export function castKey(p, key) {
-  return WRULES.withCaster(p, () => castKeyIn(p, key)); // 스킬이 나중에 예약하는 동작까지 시전자를 이어 줌 (PvP 대상 · 피해 규칙)
+  return WRULES.withCaster(p, () => castKeyIn(p, key), "phys"); // 사신수 · 사흉수 · 근접 · 원거리 = 물리, 마법 직업 스킬은 안에서 "magic" // 스킬이 나중에 예약하는 동작까지 시전자를 이어 줌 (PvP 대상 · 피해 규칙)
 }
 function castKeyIn(p, key) {
   if (isSkillLocked(p)) return false; // 주작 3단 조준 중: 다른 스킬은 모두 무시

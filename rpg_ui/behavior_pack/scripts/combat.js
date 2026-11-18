@@ -45,11 +45,12 @@ export function combatStats(p) {
     critDmg: Math.round(150 + soft(dex, 300, 60)),               // 치명 피해 % (150 → 최대 210)
     spd: Math.round(soft(dex, 200, 30) - heavy),                 // 이동 속도 %
     dodge: Math.round(soft(dex, 300, 20)),                       // 회피 %
-    def: Math.round(soft(vit, 250, 50)),                         // 받는 피해 감소 %
+    def: Math.round(soft(vit, 250, 50)),                         // 받는 물리 피해 감소 %
+    mres: Math.round(soft(int, 250, 30) + soft(vit, 250, 50) / 2), // 받는 마법 피해 감소 % (지능 + 체력의 절반)
     cdr: Math.round(soft(int, 200, 30)),                         // 재사용 대기 감소 %
     healIn: Math.round(vit * 0.2),                               // 받는 회복 +%
     hpCut: dex > 100 ? Math.min(20, (dex - 100) * 0.1) : 0,      // 대가: 최대 체력 -%
-    frail: int > 100 ? Math.min(15, (int - 100) * 0.05) : 0,     // 대가: 받는 피해 +%
+    frail: int > 100 ? Math.min(15, (int - 100) * 0.05) : 0,     // 대가: 받는 물리 피해 +%
     dull: vit > 100 ? Math.min(15, (vit - 100) * 0.05) : 0,      // 대가: 주는 피해 -%
     heavy,                                                       // 대가: 이동 속도 -%
   };
@@ -101,11 +102,15 @@ export function initCombat() {
     if (hurtEntity.typeId === "minecraft:player") {
       lastHurt.set(hurtEntity.id, system.currentTick);
       const hp = hurtEntity.getComponent("minecraft:health");
-      const red = combatStats(hurtEntity).def / 100;
+      // 피해 종류: 마법 = 마법 직업 스킬 · 몹 마법(마녀 등) / 물리 = 나머지 (평타 · 사신수 · 사흉수 · 근접 · 원거리 · 몹 공격 · 환경)
+      const lk = WRULES.lastKind.get(hurtEntity.id);
+      const magic = (lk && system.currentTick - lk.t <= 1 ? lk.kind === "magic" : damageSource.cause === "magic");
+      const cs0 = combatStats(hurtEntity);
+      const red = (magic ? Math.min(75, cs0.mres) : cs0.def) / 100;
       // V12.109: 체력이 최대 1000까지 크므로 몹 · 환경 피해도 레벨에 맞춰 키움 (플레이어끼리는 그대로)
       const fromPlayer = damageSource.damagingEntity?.typeId === "minecraft:player";
       const cs = combatStats(hurtEntity);
-      const mul = (fromPlayer ? pvpMul(damageSource.damagingEntity) : incomingMul(hurtEntity)) * (1 + cs.frail / 100);
+      const mul = (fromPlayer ? pvpMul(damageSource.damagingEntity) : incomingMul(hurtEntity)) * (magic ? 1 : 1 + cs.frail / 100);
       // 회피 (민첩): 이번 피해를 통째로 무름
       const dodged = damageSource.cause !== "override" && damageSource.cause !== "void" && Math.random() * 100 < cs.dodge;
       const want = dodged ? 0 : damage * mul * (1 - red); // 최종으로 잃을 양

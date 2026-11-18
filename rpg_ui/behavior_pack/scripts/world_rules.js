@@ -28,20 +28,23 @@ export function canHit(src, target) {
 system.runTimeout(() => { try { world.getDimension("overworld").runCommand(`gamerule pvp ${pvpOn() ? "true" : "false"}`); } catch {} }, 60); // 월드 열 때 설정 다시 적용
 
 // ───────── 시전자 문맥: 스킬이 예약한 나중 동작(system.run · runTimeout · runInterval)에도 시전자를 이어 줌 ─────────
-let CUR = null;
+let CUR = null, KIND = "phys";
 export const caster = () => CUR;
 export let contextOk = false;
-export function withCaster(p, fn) {
-  const prev = CUR; CUR = p;
-  try { return fn(); } finally { CUR = prev; }
+/** kind: "phys"(물리) | "magic"(마법) — 이 스킬이 주는 피해 종류 (나중 동작까지 이어짐) */
+export function withCaster(p, fn, kind = KIND) {
+  const prev = CUR, pk = KIND; CUR = p; KIND = kind;
+  try { return fn(); } finally { CUR = prev; KIND = pk; }
 }
+/** 대상 id -> { kind, t } : 방금 받은 스킬 피해의 종류 (combat.js 가 방어 계산에 씀) */
+export const lastKind = new Map();
 try {
   for (const k of ["run", "runTimeout", "runInterval"]) {
     const orig = system[k].bind(system);
     system[k] = (fn, ...rest) => {
-      const c = CUR;
+      const c = CUR, k = KIND;
       if (!c) return orig(fn, ...rest);
-      return orig((...a) => { const prev = CUR; CUR = c; try { return fn(...a); } finally { CUR = prev; } }, ...rest);
+      return orig((...a) => { const prev = CUR, pk = KIND; CUR = c; KIND = k; try { return fn(...a); } finally { CUR = prev; KIND = pk; } }, ...rest);
     };
   }
   contextOk = true;
@@ -63,6 +66,7 @@ try {
         const src = o?.damagingEntity ?? CUR;
         if (src?.typeId === "minecraft:player" && !canHit(src, this)) return false;
       }
+      if (CUR) lastKind.set(this.id, { kind: KIND, t: system.currentTick });
       // 스킬 치명타 (민첩): 플레이어가 준 스킬 피해 (평타는 combat.js 가 따로 굴림)
       const src = o?.damagingEntity ?? CUR;
       if (critHook && src?.typeId === "minecraft:player" && src.id !== this.id) {
