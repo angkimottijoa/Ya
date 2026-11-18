@@ -16,13 +16,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_reap_stance_up",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_stance_up"
      ],
      "transitions": [
       {
@@ -33,13 +27,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_reap_atk1",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk1"
      ],
      "transitions": [
       {
@@ -50,13 +38,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_reap_atk1b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk1b"
      ],
      "transitions": [
       {
@@ -69,13 +51,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_reap_atk2",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk2"
      ],
      "transitions": [
       {
@@ -86,13 +62,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_reap_atk2b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk2b"
      ],
      "transitions": [
       {
@@ -105,13 +75,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_reap_atk3",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk3"
      ],
      "transitions": [
       {
@@ -122,13 +86,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_reap_atk3b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk3b"
      ],
      "transitions": [
       {
@@ -156,13 +114,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_thrust_stance_up",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_stance_up"
      ],
      "transitions": [
       {
@@ -173,13 +125,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_thrust_atk1",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1"
      ],
      "transitions": [
       {
@@ -190,13 +136,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_thrust_atk1b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1b"
      ],
      "transitions": [
       {
@@ -209,13 +149,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_thrust_atk2",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2"
      ],
      "transitions": [
       {
@@ -226,13 +160,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_thrust_atk2b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2b"
      ],
      "transitions": [
       {
@@ -245,13 +173,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_thrust_atk3",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3"
      ],
      "transitions": [
       {
@@ -262,13 +184,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_thrust_atk3b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3b"
      ],
      "transitions": [
       {
@@ -296,13 +212,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -313,13 +223,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -330,13 +234,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -349,13 +247,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -366,13 +258,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -385,13 +271,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -402,13 +282,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -436,13 +310,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -453,13 +321,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -470,13 +332,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -489,13 +345,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -506,13 +356,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -525,13 +369,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -542,13 +380,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -576,13 +408,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bash_stance_up",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_stance_up"
      ],
      "transitions": [
       {
@@ -596,13 +422,7 @@
     },
     "guard_in": {
      "animations": [
-      "rpgw_bash_guard_in",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_guard_in"
      ],
      "transitions": [
       {
@@ -615,13 +435,7 @@
     },
     "guard": {
      "animations": [
-      "rpgw_bash_guard",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_guard"
      ],
      "transitions": [
       {
@@ -635,13 +449,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bash_atk1",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk1"
      ],
      "transitions": [
       {
@@ -652,13 +460,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bash_atk1b",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk1b"
      ],
      "transitions": [
       {
@@ -671,13 +473,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bash_atk2",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk2"
      ],
      "transitions": [
       {
@@ -688,13 +484,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bash_atk2b",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk2b"
      ],
      "transitions": [
       {
@@ -707,13 +497,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bash_atk3",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk3"
      ],
      "transitions": [
       {
@@ -724,13 +508,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bash_atk3b",
-      {
-       "rpgw_bash_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bash_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bash_atk3b"
      ],
      "transitions": [
       {
@@ -758,13 +536,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -775,13 +547,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -792,13 +558,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -811,13 +571,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -828,13 +582,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -847,13 +595,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -864,13 +606,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -898,13 +634,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_thrust_stance_up",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_stance_up"
      ],
      "transitions": [
       {
@@ -915,13 +645,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_thrust_atk1",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1"
      ],
      "transitions": [
       {
@@ -932,13 +656,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_thrust_atk1b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1b"
      ],
      "transitions": [
       {
@@ -951,13 +669,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_thrust_atk2",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2"
      ],
      "transitions": [
       {
@@ -968,13 +680,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_thrust_atk2b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2b"
      ],
      "transitions": [
       {
@@ -987,13 +693,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_thrust_atk3",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3"
      ],
      "transitions": [
       {
@@ -1004,13 +704,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_thrust_atk3b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3b"
      ],
      "transitions": [
       {
@@ -1038,13 +732,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -1055,13 +743,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -1072,13 +754,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -1091,13 +767,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -1108,13 +778,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -1127,13 +791,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -1144,13 +802,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -1178,13 +830,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_tome_stance_up",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_stance_up"
      ],
      "transitions": [
       {
@@ -1195,13 +841,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_tome_atk1",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1"
      ],
      "transitions": [
       {
@@ -1212,13 +852,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_tome_atk1b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1b"
      ],
      "transitions": [
       {
@@ -1231,13 +865,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_tome_atk2",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2"
      ],
      "transitions": [
       {
@@ -1248,13 +876,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_tome_atk2b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2b"
      ],
      "transitions": [
       {
@@ -1267,13 +889,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_tome_atk3",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3"
      ],
      "transitions": [
       {
@@ -1284,13 +900,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_tome_atk3b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3b"
      ],
      "transitions": [
       {
@@ -1318,13 +928,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -1335,13 +939,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -1352,13 +950,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -1371,13 +963,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -1388,13 +974,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -1407,13 +987,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -1424,13 +998,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -1458,13 +1026,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -1475,13 +1037,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -1492,13 +1048,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -1511,13 +1061,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -1528,13 +1072,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -1547,13 +1085,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -1564,13 +1096,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -1598,13 +1124,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -1615,13 +1135,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -1632,13 +1146,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -1651,13 +1159,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -1668,13 +1170,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -1687,13 +1183,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -1704,13 +1194,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -1738,13 +1222,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -1755,13 +1233,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -1772,13 +1244,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -1791,13 +1257,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -1808,13 +1268,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -1827,13 +1281,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -1844,13 +1292,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -1878,13 +1320,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_tome_stance_up",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_stance_up"
      ],
      "transitions": [
       {
@@ -1895,13 +1331,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_tome_atk1",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1"
      ],
      "transitions": [
       {
@@ -1912,13 +1342,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_tome_atk1b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1b"
      ],
      "transitions": [
       {
@@ -1931,13 +1355,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_tome_atk2",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2"
      ],
      "transitions": [
       {
@@ -1948,13 +1366,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_tome_atk2b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2b"
      ],
      "transitions": [
       {
@@ -1967,13 +1379,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_tome_atk3",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3"
      ],
      "transitions": [
       {
@@ -1984,13 +1390,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_tome_atk3b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3b"
      ],
      "transitions": [
       {
@@ -2018,13 +1418,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_thrust_stance_up",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_stance_up"
      ],
      "transitions": [
       {
@@ -2035,13 +1429,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_thrust_atk1",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1"
      ],
      "transitions": [
       {
@@ -2052,13 +1440,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_thrust_atk1b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk1b"
      ],
      "transitions": [
       {
@@ -2071,13 +1453,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_thrust_atk2",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2"
      ],
      "transitions": [
       {
@@ -2088,13 +1464,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_thrust_atk2b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk2b"
      ],
      "transitions": [
       {
@@ -2107,13 +1477,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_thrust_atk3",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3"
      ],
      "transitions": [
       {
@@ -2124,13 +1488,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_thrust_atk3b",
-      {
-       "rpgw_thrust_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_thrust_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_thrust_atk3b"
      ],
      "transitions": [
       {
@@ -2158,13 +1516,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -2175,13 +1527,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -2192,13 +1538,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -2211,13 +1551,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -2228,13 +1562,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -2247,13 +1575,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -2264,13 +1586,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -2298,13 +1614,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_tome_stance_up",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_stance_up"
      ],
      "transitions": [
       {
@@ -2315,13 +1625,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_tome_atk1",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1"
      ],
      "transitions": [
       {
@@ -2332,13 +1636,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_tome_atk1b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk1b"
      ],
      "transitions": [
       {
@@ -2351,13 +1649,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_tome_atk2",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2"
      ],
      "transitions": [
       {
@@ -2368,13 +1660,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_tome_atk2b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk2b"
      ],
      "transitions": [
       {
@@ -2387,13 +1673,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_tome_atk3",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3"
      ],
      "transitions": [
       {
@@ -2404,13 +1684,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_tome_atk3b",
-      {
-       "rpgw_tome_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_tome_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_tome_atk3b"
      ],
      "transitions": [
       {
@@ -2438,13 +1712,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -2455,13 +1723,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -2472,13 +1734,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -2491,13 +1747,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -2508,13 +1758,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -2527,13 +1771,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -2544,13 +1782,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -2578,13 +1810,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -2595,13 +1821,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -2612,13 +1832,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -2631,13 +1845,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -2648,13 +1856,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -2667,13 +1869,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -2684,13 +1880,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -2718,13 +1908,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_chop_stance_up",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_stance_up"
      ],
      "transitions": [
       {
@@ -2735,13 +1919,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_chop_atk1",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1"
      ],
      "transitions": [
       {
@@ -2752,13 +1930,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_chop_atk1b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk1b"
      ],
      "transitions": [
       {
@@ -2771,13 +1943,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_chop_atk2",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2"
      ],
      "transitions": [
       {
@@ -2788,13 +1954,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_chop_atk2b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk2b"
      ],
      "transitions": [
       {
@@ -2807,13 +1967,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_chop_atk3",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3"
      ],
      "transitions": [
       {
@@ -2824,13 +1978,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_chop_atk3b",
-      {
-       "rpgw_chop_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_chop_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_chop_atk3b"
      ],
      "transitions": [
       {
@@ -2858,13 +2006,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -2875,13 +2017,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -2892,13 +2028,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -2911,13 +2041,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -2928,13 +2052,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -2947,13 +2065,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -2964,13 +2076,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -2998,13 +2104,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_bow_stance_up",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_stance_up"
      ],
      "transitions": [
       {
@@ -3015,13 +2115,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_bow_atk1",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1"
      ],
      "transitions": [
       {
@@ -3032,13 +2126,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_bow_atk1b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk1b"
      ],
      "transitions": [
       {
@@ -3051,13 +2139,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_bow_atk2",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2"
      ],
      "transitions": [
       {
@@ -3068,13 +2150,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_bow_atk2b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk2b"
      ],
      "transitions": [
       {
@@ -3087,13 +2163,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_bow_atk3",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3"
      ],
      "transitions": [
       {
@@ -3104,13 +2174,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_bow_atk3b",
-      {
-       "rpgw_bow_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_bow_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_bow_atk3b"
      ],
      "transitions": [
       {
@@ -3138,13 +2202,7 @@
     },
     "idle": {
      "animations": [
-      "rpgw_reap_stance_up",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_stance_up"
      ],
      "transitions": [
       {
@@ -3155,13 +2213,7 @@
     },
     "atk1": {
      "animations": [
-      "rpgw_reap_atk1",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk1"
      ],
      "transitions": [
       {
@@ -3172,13 +2224,7 @@
     },
     "atk1b": {
      "animations": [
-      "rpgw_reap_atk1b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk1b"
      ],
      "transitions": [
       {
@@ -3191,13 +2237,7 @@
     },
     "atk2": {
      "animations": [
-      "rpgw_reap_atk2",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk2"
      ],
      "transitions": [
       {
@@ -3208,13 +2248,7 @@
     },
     "atk2b": {
      "animations": [
-      "rpgw_reap_atk2b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk2b"
      ],
      "transitions": [
       {
@@ -3227,13 +2261,7 @@
     },
     "atk3": {
      "animations": [
-      "rpgw_reap_atk3",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk3"
      ],
      "transitions": [
       {
@@ -3244,13 +2272,7 @@
     },
     "atk3b": {
      "animations": [
-      "rpgw_reap_atk3b",
-      {
-       "rpgw_reap_walk_down": "q.modified_move_speed >= 0.1"
-      },
-      {
-       "rpgw_reap_stance_down": "q.modified_move_speed < 0.1"
-      }
+      "rpgw_reap_atk3b"
      ],
      "transitions": [
       {

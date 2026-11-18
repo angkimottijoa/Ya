@@ -87,18 +87,7 @@
      "v.rpg_atk = variable.attack_time > 0.0;"
     ],
     "animate": [
-     {
-      "root": "!v.rpg_w || v.rpg_fr"
-     },
-     {
-      "humanoid_base_pose": "v.rpg_w && !v.rpg_fr"
-     },
-     {
-      "look_at_target_default": "v.rpg_w && !v.rpg_fr"
-     },
-     {
-      "cape": "v.rpg_w && !v.rpg_fr"
-     },
+     "root",
      {
       "rpgw_ctrl_hundun_scythe": "!v.rpg_fr && query.get_equipped_item_name == 'hundun_scythe'"
      },
@@ -167,9 +156,6 @@
      },
      {
       "rpgw_ctrl_t3_soul_reaper": "!v.rpg_fr && query.get_equipped_item_name == 'jt_soul_reaper'"
-     },
-     {
-      "rpgw_vswing": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
      },
      {
       "rpgw_fp_hundun_scythe": "variable.is_first_person && query.get_equipped_item_name == 'hundun_scythe'"

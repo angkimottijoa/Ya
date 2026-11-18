@@ -174,7 +174,7 @@ def build():
         a = lambda s: f"rpgw_{kind}_{s}"
         for s in ["stance_up", "stance_down", "walk_down", "atk1", "atk1b", "atk2", "atk2b", "atk3", "atk3b"] + (["guard", "guard_in"] if "guard" in KINDS[kind] else []):
             ent_anims[a(s)] = f"{base}.{s}"
-        legs = [{a("walk_down"): "q.modified_move_speed >= 0.1"}, {a("stance_down"): "q.modified_move_speed < 0.1"}]
+        legs = []  # 다리는 마크 기본 걷기 (root) 그대로
         go = "!v.rpg_fr && v.rpg_atk"
         states = {
             "default": {"transitions": [{"atk1": go}, {"idle": "1"}]},
@@ -230,10 +230,10 @@ def main():
         "v.rpg_fr = variable.is_first_person || query.is_riding || query.is_sleeping || query.is_swimming || query.is_gliding;",
         "v.rpg_atk = variable.attack_time > 0.0;",
     ]
-    anim = [{"root": "!v.rpg_w || v.rpg_fr"}, {"humanoid_base_pose": "v.rpg_w && !v.rpg_fr"}, {"look_at_target_default": "v.rpg_w && !v.rpg_fr"}, {"cape": "v.rpg_w && !v.rpg_fr"}]
+    anim = ["root"]  # V12.98: 마크 기본 동작은 항상 켬 (꺼 두면 블록 캐기 · 때리기 휘두르기까지 사라졌음) — 무기 자세는 그 위에 더함
     for name, (item, _) in W.items():
         anim.append({f"rpgw_ctrl_{name}": f"!v.rpg_fr && query.get_equipped_item_name == '{item}'"})
-    anim.append({"rpgw_vswing": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"})  # V12.97: 마크 기본 팔 휘두르기(때리기 · 블록 캐기)를 직접 — 기본 attack.rotations 는 3D 무기 자세에서 안 보였음  # 3인칭: 마크 기본 팔 휘두르기도 겹침 (때리기 · 블록 · 몹)
+    pass  # 기본 휘두르기는 root 안에 있음  # V12.97: 마크 기본 팔 휘두르기(때리기 · 블록 캐기)를 직접 — 기본 attack.rotations 는 3D 무기 자세에서 안 보였음  # 3인칭: 마크 기본 팔 휘두르기도 겹침 (때리기 · 블록 · 몹)
     for name, (item, _) in W.items():
         anim.append({f"rpgw_fp_{name}": f"variable.is_first_person && query.get_equipped_item_name == '{item}'"})
     de["scripts"]["animate"] = anim
