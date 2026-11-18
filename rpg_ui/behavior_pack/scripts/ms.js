@@ -172,7 +172,19 @@ export function mark(dim, e, color, h = 2.6) {
 }
 
 // ───────── 플레이어 모션 ─────────
+// 3D 무기(사신수 · 혼돈)를 들고 있으면 스킬 동작을 무기에 맞는 것으로 바꿈 (gen_anims.py w3d_moves)
+const W3D_MAP = {
+  "rpg:jujak_bow": { reload: "w3d_bow_nock", shoot: "w3d_bow_shot", shoot_up: "w3d_bow_up", bow_draw: "w3d_bow_shot", bow_hold: "w3d_bow_hold", cast: "w3d_bow_shot", raise: "w3d_bow_up" },
+  melee: { shoot: "w3d_m_thrust", cast: "w3d_m_thrust", shoot_up: "w3d_m_upslash", raise: "w3d_m_raise" },
+};
+const W3D_MELEE = new Set(["rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:hyeonmu_shield"]);
+function w3dName(p, name) {
+  let id; try { id = p.getComponent("minecraft:inventory")?.container?.getItem(p.selectedSlotIndex)?.typeId; } catch {}
+  const m = id === "rpg:jujak_bow" ? W3D_MAP["rpg:jujak_bow"] : W3D_MELEE.has(id) ? W3D_MAP.melee : null;
+  return (m && m[name]) || name;
+}
 export function anim(p, name) {
+  name = w3dName(p, name);
   try {
     p.playAnimation(`animation.rpg.${name}`, { blendOutTime: 0.15 });
   } catch {

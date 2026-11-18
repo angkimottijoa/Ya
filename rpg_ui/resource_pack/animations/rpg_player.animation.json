@@ -66,30 +66,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-110) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.08": [
-              "v.rpg_w ? -(-115) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.18": [
-              "v.rpg_w ? -(-75) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.42": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -158,30 +134,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.12": [
-              "v.rpg_w ? -(-180) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.24": [
-              "v.rpg_w ? -(-35) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.50": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -245,25 +197,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.50": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -321,25 +254,6 @@
             ],
             "0.40": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-70) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.10": [
-              "v.rpg_w ? -(-92) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -432,30 +346,6 @@
             ],
             "0.60": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-170) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.25": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.35": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.60": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -561,25 +451,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(55) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(55) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.45": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -648,30 +519,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.25": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-85) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.50": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -736,30 +583,6 @@
             ],
             "0.55": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-145) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-140) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.35": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.55": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -833,30 +656,6 @@
             ],
             "0.55": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.15": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.55": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -954,30 +753,6 @@
             ],
             "0.70": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-20) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.20": [
-              "v.rpg_w ? -(-170) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.50": [
-              "v.rpg_w ? -(-170) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.70": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -1126,25 +901,6 @@
               -12
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.15": [
-              "v.rpg_w ? -(-38) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "1.15": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -1289,30 +1045,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.06": [
-              "v.rpg_w ? -(-85) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.45": [
-              "v.rpg_w ? -(-80) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.60": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -1421,40 +1153,6 @@
             ],
             "2.50": [
               0,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.20": [
-              "v.rpg_w ? -(-92) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "2.00": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "2.30": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "2.36": [
-              "v.rpg_w ? -(-70) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "2.50": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -1581,40 +1279,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.50": [
-              "v.rpg_w ? -(-170) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "1.10": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "1.70": [
-              "v.rpg_w ? -(-100) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "2.40": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "3.00": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -1674,20 +1338,6 @@
             "1.10": [
               0,
               -28,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "1.10": [
-              "v.rpg_w ? -(-95) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
               0
             ]
           }
@@ -1769,25 +1419,6 @@
             ],
             "0.30": [
               -8,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.07": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-145) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -1903,25 +1534,6 @@
             ],
             "0.80": [
               -20,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-142) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.80": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -2046,25 +1658,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.10": [
-              "v.rpg_w ? -(45) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.45": [
-              "v.rpg_w ? -(40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -2176,25 +1769,6 @@
               -40
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-120) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.16": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.35": [
-              "v.rpg_w ? -(-80) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -2282,25 +1856,6 @@
             ],
             "0.35": [
               -10,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.35": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -2444,25 +1999,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.35": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.55": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -2576,25 +2112,6 @@
               -15,
               0,
               -10
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-165) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-160) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.80": [
-              "v.rpg_w ? -(-165) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
             ]
           }
         }
@@ -2712,25 +2229,6 @@
               -10
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.80": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -2817,20 +2315,6 @@
             ],
             "0.30": [
               35,
-              0,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
               0,
               0
             ]
@@ -2974,30 +2458,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.06": [
-              "v.rpg_w ? -(-20) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.45": [
-              "v.rpg_w ? -(-25) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.70": [
-              "v.rpg_w ? -(0) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3113,25 +2573,6 @@
               -3
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-160) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-155) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.80": [
-              "v.rpg_w ? -(-160) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3218,25 +2659,6 @@
               -5
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.40": [
-              "v.rpg_w ? -(-25) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.80": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3300,25 +2722,6 @@
               0
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.05": [
-              "v.rpg_w ? -(-20) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-35) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3379,25 +2782,6 @@
             "0.30": [
               0,
               6,
-              0
-            ]
-          }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-70) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.05": [
-              "v.rpg_w ? -(-100) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
               0
             ]
           }
@@ -3546,30 +2930,6 @@
               -3
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.55": [
-              "v.rpg_w ? -(-90) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.75": [
-              "v.rpg_w ? -(-70) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3715,30 +3075,6 @@
               -3
             ]
           }
-        },
-        "rightItem": {
-          "rotation": {
-            "0.00": [
-              "v.rpg_w ? -(-170) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.30": [
-              "v.rpg_w ? -(-175) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.55": [
-              "v.rpg_w ? -(-150) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ],
-            "0.75": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
-              0,
-              0
-            ]
-          }
         }
       }
     },
@@ -3879,26 +3215,566 @@
               0
             ]
           }
+        }
+      }
+    },
+    "animation.rpg.w3d_bow_nock": {
+      "animation_length": 0.6,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -60,
+              0,
+              0
+            ],
+            "0.60": [
+              -80,
+              -10,
+              0
+            ]
+          }
         },
         "rightItem": {
           "rotation": {
             "0.00": [
-              "v.rpg_w ? -(-40) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
+              60,
               0,
               0
             ],
-            "0.08": [
-              "v.rpg_w ? -(-30) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
+            "0.60": [
+              80,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              10,
+              0,
+              -25
+            ],
+            "0.25": [
+              35,
+              30,
+              -20
+            ],
+            "0.60": [
+              -80,
+              30,
+              0
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              0,
               0,
               0
             ],
             "0.25": [
-              "v.rpg_w ? -(-100) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
+              0,
+              -15,
+              0
+            ],
+            "0.60": [
+              0,
+              10,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_bow_shot": {
+      "animation_length": 0.5,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -88,
+              0,
+              0
+            ],
+            "0.30": [
+              -90,
+              0,
+              0
+            ],
+            "0.36": [
+              -98,
               0,
               0
             ],
             "0.50": [
-              "v.rpg_w ? -(-60) * (query.get_equipped_item_name == 'jujak_bow' ? 1 : 0.7) : 0",
+              -60,
+              0,
+              0
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              88,
+              0,
+              0
+            ],
+            "0.30": [
+              90,
+              0,
+              0
+            ],
+            "0.36": [
+              98,
+              0,
+              0
+            ],
+            "0.50": [
+              60,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              -88,
+              40,
+              0
+            ],
+            "0.30": [
+              -85,
+              70,
+              0
+            ],
+            "0.34": [
+              -80,
+              30,
+              -15
+            ],
+            "0.50": [
+              -40,
+              10,
+              -10
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              0,
+              15,
+              0
+            ],
+            "0.30": [
+              0,
+              20,
+              0
+            ],
+            "0.50": [
+              0,
+              5,
+              0
+            ]
+          }
+        },
+        "head": {
+          "rotation": {
+            "0.00": [
+              0,
+              10,
+              0
+            ],
+            "0.50": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_bow_up": {
+      "animation_length": 0.55,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -130,
+              0,
+              0
+            ],
+            "0.40": [
+              -135,
+              0,
+              0
+            ],
+            "0.55": [
+              -80,
+              0,
+              0
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              85,
+              0,
+              0
+            ],
+            "0.40": [
+              90,
+              0,
+              0
+            ],
+            "0.55": [
+              60,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              -130,
+              40,
+              0
+            ],
+            "0.35": [
+              -125,
+              70,
+              0
+            ],
+            "0.40": [
+              -120,
+              30,
+              -15
+            ],
+            "0.55": [
+              -60,
+              10,
+              0
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              -10,
+              15,
+              0
+            ],
+            "0.55": [
+              0,
+              5,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_bow_hold": {
+      "animation_length": 1.1,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -90,
+              0,
+              0
+            ],
+            "1.10": [
+              -90,
+              0,
+              0
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              90,
+              0,
+              0
+            ],
+            "1.10": [
+              90,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              -85,
+              70,
+              0
+            ],
+            "0.55": [
+              -86,
+              72,
+              0
+            ],
+            "1.10": [
+              -85,
+              70,
+              0
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              0,
+              20,
+              0
+            ],
+            "1.10": [
+              0,
+              20,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_m_thrust": {
+      "animation_length": 0.45,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -40,
+              0,
+              10
+            ],
+            "0.12": [
+              -30,
+              0,
+              15
+            ],
+            "0.22": [
+              -90,
+              0,
+              0
+            ],
+            "0.45": [
+              -30,
+              0,
+              5
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              40,
+              0,
+              0
+            ],
+            "0.12": [
+              30,
+              0,
+              0
+            ],
+            "0.22": [
+              90,
+              0,
+              0
+            ],
+            "0.45": [
+              30,
+              0,
+              0
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              0,
+              20,
+              0
+            ],
+            "0.22": [
+              8,
+              -10,
+              0
+            ],
+            "0.45": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              -30,
+              0,
+              -20
+            ],
+            "0.22": [
+              20,
+              0,
+              -25
+            ],
+            "0.45": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_m_upslash": {
+      "animation_length": 0.45,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              10,
+              0,
+              20
+            ],
+            "0.12": [
+              20,
+              0,
+              25
+            ],
+            "0.25": [
+              -150,
+              0,
+              -10
+            ],
+            "0.45": [
+              -40,
+              0,
+              0
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              30,
+              0,
+              0
+            ],
+            "0.25": [
+              30,
+              0,
+              0
+            ],
+            "0.45": [
+              20,
+              0,
+              0
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              10,
+              15,
+              0
+            ],
+            "0.25": [
+              -12,
+              -10,
+              0
+            ],
+            "0.45": [
+              0,
+              0,
+              0
+            ]
+          }
+        }
+      }
+    },
+    "animation.rpg.w3d_m_raise": {
+      "animation_length": 0.6,
+      "blend_weight": 1.0,
+      "bones": {
+        "rightArm": {
+          "rotation": {
+            "0.00": [
+              -60,
+              0,
+              0
+            ],
+            "0.20": [
+              -170,
+              0,
+              0
+            ],
+            "0.60": [
+              -170,
+              0,
+              0
+            ]
+          }
+        },
+        "rightItem": {
+          "rotation": {
+            "0.00": [
+              0,
+              0,
+              0
+            ],
+            "0.60": [
+              0,
+              0,
+              0
+            ]
+          }
+        },
+        "leftArm": {
+          "rotation": {
+            "0.00": [
+              -30,
+              0,
+              -15
+            ],
+            "0.60": [
+              -30,
+              0,
+              -20
+            ]
+          }
+        },
+        "body": {
+          "rotation": {
+            "0.00": [
+              0,
+              0,
+              0
+            ],
+            "0.20": [
+              -8,
+              0,
+              0
+            ],
+            "0.60": [
+              -6,
               0,
               0
             ]

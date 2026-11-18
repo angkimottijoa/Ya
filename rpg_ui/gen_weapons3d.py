@@ -201,7 +201,8 @@ def build(name, cfg):
             t = dm[y][x]
             if not t: x += 1; continue
             x0 = x
-            while x < Wd and dm[y][x] == t: x += 1
+            while x < Wd and dm[y][x] == t and not (cfg.get("vanilla") or cfg.get("bowside")): x += 1  # 옆으로 세운 무기는 합치지 않음 (합친 줄 그림이 90° 돌아 노이즈처럼 보였음)
+            if x == x0: x += 1
             w = x - x0
             T = t * u * (0.9 if cfg["src"] else 0.6)
             o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(-T / 2, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]

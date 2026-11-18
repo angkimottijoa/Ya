@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.59.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.60.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,13 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.60 변경
+- 스킬 때 손이 위로 올라가던 것: 3D 무기를 들면 스크립트가 무기 전용 동작으로 바꿔 재생 (ms.js · skills.js anim → W3D_MAP)
+  - 주작의 활: reload → 화살 꺼내 메기기(활은 앞에 세움) · shoot/bow_draw → 앞으로 겨눠 당겼다 쏘고 반동 · shoot_up/raise → 하늘로 겨눠 쏨 · bow_hold → 당긴 채 버팀
+  - 근접(낫 · 창 · 도끼 · 방패): shoot/cast → 앞으로 찌르기 · shoot_up → 올려 베기 · raise → 머리 위로 치켜듦
+  - 동작마다 손 뼈 각도를 직접 정해 무기가 늘 맞는 방향 (V12.59 의 변수 보정은 제거)
+- 텍스처 노이즈 진짜 원인: 같은 두께 픽셀을 한 줄로 합친 블록이 옆으로 세운 모델에서 그림이 90° 돌아 붙음 → 낫 · 창 · 도끼 · 활은 픽셀마다 블록 (무기당 약 600개)
 
 ## V12.59 변경
 - 1인칭 주작의 활 1.45배 크게
