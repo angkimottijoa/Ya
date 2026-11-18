@@ -95,7 +95,7 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
-FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3, "t2_hunter": 1.45 * 1.3 * 1.8 / 1.6, "t2_sniper": 1.45 * 1.3 * 1.8 / 1.6, "t3_beastlord": 1.45 * 1.3, "t3_hawkeye": 1.45 * 1.3, "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.3, "t1_warrior": 1.3, "t1_cleric": 1.3, "t2_hunter": 1.1, "t2_sniper": 1.1, "t3_beastlord": 1.1, "t3_hawkeye": 1.1,  # 가는 활은 1인칭에서 코앞에 뭉쳐 보였음 → 작게 "t2_elementalist": 1.3, "t2_priest": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
