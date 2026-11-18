@@ -79,6 +79,9 @@
       "rpgw_ctrl_hyeonmu_shield": "!v.rpg_fr && query.get_equipped_item_name == 'hyeonmu_shield'"
      },
      {
+      "attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
+     },
+     {
       "rpgw_fp_hundun_scythe": "variable.is_first_person && query.get_equipped_item_name == 'hundun_scythe'"
      },
      {

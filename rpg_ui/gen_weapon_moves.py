@@ -72,8 +72,8 @@ T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = 45  # 가로축(두께 X, V12.46 스크린샷으로 확인) 둘레로 45° — 위로 들린 날 축을 정면(화면 중심 쪽)으로 숙이고 무기 끝을 카메라 쪽으로 세움. 반대로 넘어가면 -45
-FP_SPIN = {"jujak_bow": 180}  # 1인칭: 주작의 활만 앞뒤 반대였음
+FP_TILT = {"jujak_bow": -45}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활은 90° 더 (활 방향이 하늘 → 앞)
+FP_SPIN = {n: (0 if n == "jujak_bow" else 12) for n in W}  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 12°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -128,9 +128,14 @@ def build():
         ent_anims[f"rpgw_ctrl_{name}"] = f"controller.animation.rpg_w3d.{name}"
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
+        sw = "math.sin(variable.attack_time * 180)"  # 때리기 · 블록 · 몹 · 스킬 휘두름 (게임이 주는 휘두르기 시간)
+        if name == "jujak_bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
+            spin = {"rotation": [f"{sw} * -12", 0, FP_SPIN.get(name, 0)], "position": [0, 0, f"{sw} * 4"]}
+        else:  # 근접: 앞 · 아래로 내려침
+            spin = {"rotation": [f"{sw} * -70", 0, FP_SPIN.get(name, 0)]}
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
-                                                                          "rpg_w3d_tilt": {"rotation": [FP_TILT, 0, 0]},
-                                                                          "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN.get(name, 0)]}}}
+                                                                          "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
+                                                                          "rpg_w3d_spin": spin}}
         ent_anims[f"rpgw_fp_{name}"] = f"animation.rpg_w3d.fp_{name}"
     return anims, ctrls, ent_anims
 
@@ -154,6 +159,7 @@ def main():
     anim = [{"root": "!v.rpg_w || v.rpg_fr"}, {"humanoid_base_pose": "v.rpg_w && !v.rpg_fr"}, {"look_at_target_default": "v.rpg_w && !v.rpg_fr"}, {"cape": "v.rpg_w && !v.rpg_fr"}]
     for name, (item, _) in W.items():
         anim.append({f"rpgw_ctrl_{name}": f"!v.rpg_fr && query.get_equipped_item_name == '{item}'"})
+    anim.append({"attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"})  # 3인칭: 마크 기본 팔 휘두르기도 겹침 (때리기 · 블록 · 몹)
     for name, (item, _) in W.items():
         anim.append({f"rpgw_fp_{name}": f"variable.is_first_person && query.get_equipped_item_name == '{item}'"})
     de["scripts"]["animate"] = anim

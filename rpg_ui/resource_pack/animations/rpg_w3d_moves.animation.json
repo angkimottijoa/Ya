@@ -4118,9 +4118,9 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
+      "math.sin(variable.attack_time * 180) * -70",
       0,
-      0,
-      0
+      12
      ]
     }
    }
@@ -4150,9 +4150,9 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
+      "math.sin(variable.attack_time * 180) * -70",
       0,
-      0,
-      0
+      12
      ]
     }
    }
@@ -4182,9 +4182,9 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
+      "math.sin(variable.attack_time * 180) * -70",
       0,
-      0,
-      0
+      12
      ]
     }
    }
@@ -4207,16 +4207,21 @@
     },
     "rpg_w3d_tilt": {
      "rotation": [
-      45,
+      -45,
       0,
       0
      ]
     },
     "rpg_w3d_spin": {
      "rotation": [
+      "math.sin(variable.attack_time * 180) * -12",
+      0,
+      0
+     ],
+     "position": [
       0,
       0,
-      180
+      "math.sin(variable.attack_time * 180) * 4"
      ]
     }
    }
@@ -4246,9 +4251,9 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
+      "math.sin(variable.attack_time * 180) * -70",
       0,
-      0,
-      0
+      12
      ]
     }
    }
