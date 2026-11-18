@@ -61,7 +61,7 @@ KINDS = {
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
     "bash": {  # 방패: 앞에 세워 들고 → 밀쳐 치기 · 몸통 박치기 · 내려찍기
-        "stance": P(rightArm=[0, 0, 0], rightArm_pos=[-2.5, 0, 0], rightItem=[0, 90, 0], rightItem_pos=[0, 3, 0], leftArm=[-10, 0, -8], body=[0, 6, 0]),  # 팔 X 와 손 Y 를 섞으면 방패가 비스듬히 기울었음 → 팔은 곧게 내리고 손은 Y 만 (방패가 땅과 직각)  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
+        "stance": P(rightArm=[0, 0, 0], rightItem=[0, 90, 0], rightItem_pos=[-2.5, 3, 0], leftArm=[-10, 0, -8], body=[0, 6, 0]),  # 팔 X 와 손 Y 를 섞으면 방패가 비스듬히 기울었음 → 팔은 곧게 내리고 손은 Y 만 (방패가 땅과 직각)  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
         "guard": P(rightArm=[-70, 15, 0], rightItem=[70, 0, 0], leftArm=[-20, 0, -15], body=[4, 10, 0]),  # 패링 · 막기(우클릭 누름): 앞으로 세워 듦
         "hits": [
             (P(rightArm=[-50, 25, 0], rightItem=[50, 0, 0], body=[0, 25, 0]), P(rightArm=[-95, 0, 0], rightItem=[95, 0, 0], body=[14, -5, 0], root_pos=[0, 0, -3]), P(rightArm=[-90, 0, 0], rightItem=[90, 0, 0], body=[12, -5, 0], root_pos=[0, 0, -3])),
@@ -84,13 +84,11 @@ def chan(bone):
 
 
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
-FP_REST, FP_RAISE = [-1.5, 1.5, 0], [7, -9, 0]  # 방패 1인칭: 기본은 오른쪽 아래로 내려 거치 · 패링은 화면 가운데 위로 (시뮬: +x 위, -y 왼쪽)
+FP_REST_TURN = 90  # 방패 1인칭: 기본은 방패를 세로축으로 90° 돌려 옆을 봄 · 패링(우클릭) 중엔 0° (정면)
 
 
 def fp_pos(name):
-    if KINDS.get(W[name][1], {}).get("guard") is None: return FP_POS
-    g = FP_GUARD
-    return [f"{FP_POS[i]} + {FP_REST[i]} + ({FP_RAISE[i] - FP_REST[i]}) * {g}" for i in range(3)]
+    return FP_POS
 
 
 def keyed(frames):
@@ -155,7 +153,8 @@ def build():
             # Y +15: 활은 세로축 둘레로 돌려 왼쪽 옆면이 살짝 (-15 는 반대쪽이었음)
             spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
-            spin = {"rotation": [f"{sw} * 70", f"{sw} * -30", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
+            turn = f" + (1 - {FP_GUARD}) * {FP_REST_TURN}" if "guard" in KINDS[W[name][1]] else ""
+            spin = {"rotation": [f"{sw} * 70", f"{sw} * -30{turn}", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * FP_SIZE.get(name, 1), "rotation": FP_ROT, "position": fp_pos(name)},  # 활은 1인칭에서 더 크게
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},
                                                                           "rpg_w3d_spin": spin}}
