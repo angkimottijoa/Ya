@@ -16,7 +16,7 @@ W = {
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=136, maxd=11, len=3.4, grip=0.3, kind="thrust",
                           tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
-    "heukryong_sword": dict(item="rpg:heukryong_sword", src="heukryong_sword_ref.png", tip=(0, -1), px=110, maxd=7, len=2.6, grip=0.17, kind="chop", vanilla=True,
+    "heukryong_sword": dict(item="rpg:heukryong_sword", src="heukryong_sword_ref.png", tip=(-1, 1), px=110, maxd=8, len=2.6, grip=0.2, kind="chop", vanilla=True,
                             tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),  # V12.146 흑룡의 검
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=104, maxd=11, len=2.4, grip=0.3, kind="chop",
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),

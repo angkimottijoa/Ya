@@ -62,12 +62,12 @@
     "color": {
      "interpolant": "math.clamp((variable.particle_age / variable.particle_lifetime) * 0.6 + variable.particle_random_2 * 0.15 + (variable.particle_random_4 < 0.6 ? 0.35 : 0.05) + variable.tone, 0, 1)",
      "gradient": {
-      "0.0": "#FFFFE6D8",
-      "0.15": "#FFFF7A5A",
-      "0.33": "#FFE0202E",
-      "0.52": "#FF7A0A16",
-      "0.72": "#FF22060A",
-      "0.88": "#FF0A0204",
+      "0.0": "#FFF4E8FF",
+      "0.15": "#FFC890FF",
+      "0.33": "#FF8A3AE0",
+      "0.52": "#FF4A1488",
+      "0.72": "#FF1E0838",
+      "0.88": "#FF0A0414",
       "1.0": "#C0000000"
      }
     }

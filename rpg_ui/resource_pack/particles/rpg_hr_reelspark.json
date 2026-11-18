@@ -55,10 +55,10 @@
     "color": {
      "interpolant": "math.clamp(variable.particle_random_2 * 0.4, 0, 1)",
      "gradient": {
-      "0.0": "#FFFFF0E0",
-      "0.3": "#FFFF6A50",
-      "0.6": "#FFC01020",
-      "1.0": "#FF300408"
+      "0.0": "#FFFFF0FF",
+      "0.3": "#FFD8A0FF",
+      "0.6": "#FF9A40F0",
+      "1.0": "#FF3A0A5A"
      }
     }
    }

@@ -2,7 +2,7 @@
 export const ITEM_ATK = {
   "rpg:baekho_axe": 300,
   "rpg:cheongryong_sword": 300,
-  "rpg:heukryong_sword": 300,
+  "rpg:heukryong_sword": 360,
   "rpg:hundun_scythe": 280,
   "rpg:hyeonmu_shield": 260,
   "rpg:jt_abyss_knight": 240,

@@ -48,11 +48,11 @@
     "color": {
      "interpolant": "math.clamp(0.5 - math.sin((variable.particle_random_2 * 360)) * 0.45 * (math.mod(math.floor(variable.particle_random_1 * variable.h), 2) < 1 ? 1 : 0.6) + variable.particle_random_3 * 0.1, 0, 1)",
      "gradient": {
-      "0.0": "#FFF0D8DC",
-      "0.3": "#FFA88A92",
-      "0.55": "#FF5E3A44",
-      "0.8": "#FF2E1218",
-      "1.0": "#FF100406"
+      "0.0": "#FFE8E0F0",
+      "0.3": "#FFA096B8",
+      "0.55": "#FF5A4A78",
+      "0.8": "#FF2A1E40",
+      "1.0": "#FF100818"
      }
     }
    }

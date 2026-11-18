@@ -3,7 +3,7 @@
 #   gen_*.py 를 다시 돌린 뒤엔 이 파일도 다시 돌릴 것 (표 갱신 + damage 제거)
 import json, glob
 # 사신수 · 사흉수: 직업 도구(최대 240)보다 확실히 세게 (주작은 활 — 근접 평타는 절반)
-OVERRIDE = {"rpg:cheongryong_sword": 300, "rpg:baekho_axe": 300, "rpg:heukryong_sword": 300, "rpg:hyeonmu_shield": 260, "rpg:jujak_bow": 150,
+OVERRIDE = {"rpg:cheongryong_sword": 300, "rpg:baekho_axe": 300, "rpg:heukryong_sword": 360, "rpg:hyeonmu_shield": 260, "rpg:jujak_bow": 150,
             "rpg:hundun_scythe": 280, "rpg:qiongqi_claws": 270, "rpg:taowu_hammer": 300, "rpg:taotie_maw": 260}
 table = {}
 try:

@@ -55,11 +55,11 @@
     "color": {
      "interpolant": "(variable.particle_random_1 < 0.05 && variable.particle_random_3 > 0.75 ? 0 : math.clamp(0.4 + (1 - variable.particle_random_3) * 0.5 - (variable.particle_random_3 > 0.8 ? 0.35 : 0), 0, 1))",
      "gradient": {
-      "0.0": "#FFFF3A2A",
-      "0.3": "#FFB01020",
-      "0.55": "#FF2A060C",
-      "0.8": "#FF0E0306",
-      "1.0": "#FF040102"
+      "0.0": "#FFD890FF",
+      "0.3": "#FF7A2AC0",
+      "0.55": "#FF24103A",
+      "0.8": "#FF0E0618",
+      "1.0": "#FF040208"
      }
     }
    }

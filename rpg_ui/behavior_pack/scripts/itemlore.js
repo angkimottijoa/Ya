@@ -11,7 +11,7 @@ export const LORE_INFO = {
   "rpg:baekho_axe": { cat: "사신수 무기 · 도끼", atk: 180, flavor: "서방을 지키는 흰 범, 백호의 도끼. 바람처럼 달려 적을 찢는다." },
   "rpg:jujak_bow": { cat: "사신수 무기 · 활", atk: 90, flavor: "남방을 지키는 붉은 새, 주작의 활. 시위에 불꽃이 깃든다." },
   "rpg:hyeonmu_shield": { cat: "사신수 무기 · 방패", atk: 100, flavor: "북방을 지키는 거북과 뱀, 현무의 방패. 대지와 독으로 지킨다." },
-  "rpg:heukryong_sword": { cat: "사신수급 무기 · 장검", atk: 300, flavor: "하늘을 가르는 검은 용, 흑룡의 검. 사슬과 날개로 하늘을 누빈다." },
+  "rpg:heukryong_sword": { cat: "흑룡 무기 · 곡도 (사신수 위)", atk: 360, flavor: "사신수마저 굽어보는 검은 용, 흑룡의 검. 보랏빛 용맥이 흐르고 사슬과 날개로 하늘을 누빈다." },
   "rpg:hundun_scythe": { cat: "사흉수 무기 · 낫", atk: 140, flavor: "사흉 혼돈의 낫. 형체 없는 연기와 사슬로 모든 것을 옭아맨다." },
   "rpg:qiongqi_claws": { cat: "사흉수 무기 · 쌍발톱", atk: 140, flavor: "사흉 궁기의 발톱. 날개 달린 범은 표식한 먹잇감을 놓치지 않는다." },
   "rpg:taowu_hammer": { cat: "사흉수 무기 · 대망치", atk: 150, flavor: "사흉 도올의 망치. 멈출 줄 모르는 폭주로 대지를 뒤흔든다." },
@@ -51,7 +51,7 @@ system.runInterval(() => {
 
 // 이름 등록 (배낭 · 강화 창 · 자세히 보기에서 번역 키 대신)
 const NAMES = { "rpg:cheongryong_sword": "§b청룡의 검", "rpg:baekho_axe": "§f백호의 도끼", "rpg:jujak_bow": "§6주작의 활", "rpg:hyeonmu_shield": "§2현무의 방패",
-  "rpg:heukryong_sword": "§4흑룡의 검", "rpg:hundun_scythe": "§5혼돈의 낫", "rpg:qiongqi_claws": "§c궁기의 쌍발톱", "rpg:taowu_hammer": "§6도올의 대망치", "rpg:taotie_maw": "§2도철의 아가리" };
+  "rpg:heukryong_sword": "§5흑룡의 검", "rpg:hundun_scythe": "§5혼돈의 낫", "rpg:qiongqi_claws": "§c궁기의 쌍발톱", "rpg:taowu_hammer": "§6도올의 대망치", "rpg:taotie_maw": "§2도철의 아가리" };
 for (const [id, n] of Object.entries(NAMES)) setRpgName(id, n);
 for (const [path, pt] of Object.entries(J.PATHS)) if (pt.tool?.name) { setRpgName(`rpg:jt_${path}`, pt.tool.name); setToolRarity(`rpg:jt_${path}`, Math.min(5, (pt.tier ?? 1) + 2)); }
 for (const st of [...STONES, ...SCROLLS, PROTECT]) setRpgName(st.id, `${st.color}${st.name}`);

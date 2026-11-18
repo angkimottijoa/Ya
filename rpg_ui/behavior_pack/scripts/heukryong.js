@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════════════
-// 흑룡의 검 (V12.146) — 사신수급 · 연계 중심 · 극한 기동 · 사슬
+// 흑룡의 검 (V12.146 · V12.147 보라 · 사신수보다 강함) — 사신수 위 · 연계 중심 · 극한 기동 · 사슬
 //   「용맥」 1~5단: 스킬로 적을 맞힌 뒤 1.5초 안에 다른 스킬로 이어 맞히면 한 단계 오름 (단계마다 위력 +6%, 이펙트 강해짐), 끊기면 처음부터
 //   ① 연참   4타: 칠 때마다 시선 쪽으로 미끄러지며 벰 · 공중에서 치면 체공 유지 · 4타 = 회전베기 + 사슬 채찍(먼 적을 끌어옴)
 //            분기: ② 직후 ① = 추격 베기(방금 꿰뚫은 적에게 사슬로 되돌아가 꽂음) · 승천 중 ① = 공중 순간이동 베기 · 천쇄 중 ① = 회전 도약
@@ -71,7 +71,7 @@ function veinFx(p, n) {
   const dim = p.dimension, c = up(p.location, 1);
   pt(dim, "hr_swirl", c, { u: { x: 1, y: 0, z: 0 }, v: { x: 0, y: 0, z: 1 }, vd: UP, vs: 2 + n * 0.5, r: 1 + n * 0.25, spin: 700, n: 20 + n * 8, life: 0.45, tone: Math.max(0, 0.3 - n * 0.06) }, 2);
   snd(p, "mob.enderdragon.growl", 0.12 + n * 0.05, 1.6 - n * 0.08);
-  if (n === VEIN_MAX) { snd(p, "mob.enderdragon.growl", 0.6, 0.9); shake(p, 0.2, 0.3); notify(p, "§4§l용맥 5단 §r§c— ④ 승천이 흑룡 형상으로"); }
+  if (n === VEIN_MAX) { snd(p, "mob.enderdragon.growl", 0.6, 0.9); shake(p, 0.2, 0.3); notify(p, "§5§l용맥 5단 §r§d— ④ 승천이 흑룡 형상으로"); }
 }
 /** 흑룡 hitter: 사신수 위력 · 용맥 배율 · 맞히면 용맥 */
 function hitter(ctx, key, cdT = 4) {
@@ -90,7 +90,7 @@ function hitter(ctx, key, cdT = 4) {
 }
 
 // ───────── 연출 ─────────
-const tone = (p) => Math.max(0, 0.25 - veinN(p) * 0.05); // 용맥이 오를수록 밝은 진홍 쪽으로
+const tone = (p) => Math.max(0, 0.25 - veinN(p) * 0.05); // 용맥이 오를수록 밝은 보라 쪽으로
 /** 3D 쇠사슬 a → b */
 function wire(dim, a, b, life = 0.12) {
   const d = sub(b, a), L = len(d); if (L < 0.3) return;
@@ -119,7 +119,7 @@ const speed = (dim, at, v, o = {}) => { const d = norm(v), w0 = Math.abs(d.y) > 
 
 /** 천쇄(입체 기동 엔진) 흑룡 테마 */
 const HR_THEME = {
-  name: "흑룡 천쇄", col: "§4", col2: "§c", endCd: 25, reel: "hr_reelspark",
+  name: "흑룡 천쇄", col: "§5", col2: "§d", endCd: 25, reel: "hr_reelspark",
   chain: (dim, a, b, life) => wire(dim, a, b, life),
   hook: (dim, at) => { burst(dim, at, { n: 10, r: 0.15, spd: 3, life: 0.35 }); },
   flame: (dim, at, o) => flame(dim, at, o),
@@ -190,7 +190,7 @@ function chase(ctx, e) {
     arc(dim, center(e), yaw, { sweep: 160, r: 2.4, tilt: 70, dir: -1, dur: 0.06, n: 170, tone: tone(p) });
     hit(e, 0.85, 1); burst(dim, center(e), { n: 18, spd: 4 });
     snd(p, "mob.enderdragon.flap", 0.8, 1.6); snd(p, "item.trident.hit", 1, 0.7); shake(p, 0.15, 0.2);
-    notify(p, "§4§l추격 베기");
+    notify(p, "§5§l추격 베기");
   });
 }
 
@@ -249,7 +249,7 @@ function dashLine(ctx, from, to, anchor, ent, done, reverse = false) {
         snd(p, "random.explode", 0.35, 1.6);
       });
       s.lastDash = { t: now(), ent: ent ?? s.pierced ?? null }; s.pierced = null;
-      snd(p, "game.player.attack.sweep", 1, 0.9); if (reverse) notify(p, "§4§l역린");
+      snd(p, "game.player.attack.sweep", 1, 0.9); if (reverse) notify(p, "§5§l역린");
       done?.();
     }
   });
@@ -280,7 +280,7 @@ function hr_ascend(ctx) {
   push(p, { x: 0, y: 1.3, z: 0 });
   s.asc = { left: 6, hits: 0, until: now() + 80, mob, hold: new Map(), big, done: false };
   const a = s.asc;
-  notify(p, `§4§l흑룡 승천 §r§7— 클릭: 적 사이를 베며 날기 (최대 6)`);
+  notify(p, `§5§l흑룡 승천 §r§7— 클릭: 적 사이를 베며 날기 (최대 6)`);
   let t = 0;
   const tick = () => {
     if (!p.isValid() || s.asc !== a || a.done) return;
@@ -319,7 +319,7 @@ function ascHit(p) {
   hit(e, 0.5); burst(dim, c, { n: 14, spd: 4 });
   snd(p, "mob.enderdragon.flap", 0.8, 1.5 + a.hits * 0.08); snd(p, "game.player.attack.sweep", 1, 1.3);
   a.left--; a.hits++; a.lastHit = now(); a.until = Math.max(a.until, now() + 20);
-  notify(p, `§4§l승천 §c${"◆".repeat(a.hits)}§8${"◇".repeat(a.left)}`);
+  notify(p, `§5§l승천 §d${"◆".repeat(a.hits)}§8${"◇".repeat(a.left)}`);
   return true;
 }
 /** 내리꽂기 */
@@ -351,7 +351,7 @@ function dive(ctx, a) {
     arc(dim, up(at, 0.8), yawOf(p), { sweep: 400, r: 4.2, dur: 0.12, n: 260 });
     for (const e of foes(dim, at, a.big ? 7.5 : 6)) { hit(e, mul); push(e, { x: 0, y: -0.6, z: 0 }); }
     snd(p, "random.explode", 1, 0.7); snd(p, "mob.enderdragon.hit", 0.8, 0.6); shake(p, a.big ? 0.8 : 0.5, 0.5);
-    notify(p, a.big ? "§4§l흑룡 강하!" : "§4§l승천 · 내리꽂기");
+    notify(p, a.big ? "§5§l흑룡 강하!" : "§5§l승천 · 내리꽂기");
     void from;
   };
   later(1, fall);
@@ -361,9 +361,9 @@ function dive(ctx, a) {
 export const heukLine = (p) => {
   if (heldId(p) !== ID) return "";
   const n = veinN(p), c = charges(p), s = st(p);
-  let line = `§4용맥 §c${"◆".repeat(n)}§8${"◇".repeat(VEIN_MAX - n)} §7섬영 ${"§c●".repeat(c.n)}${"§8○".repeat(2 - c.n)}`;
-  if (s.asc && !s.asc.done) line += ` §4승천 §c${s.asc.left}`;
-  else if (odmActive(p)) line += ` §4천쇄 §c${"◆".repeat(odmLeft(p))}`;
+  let line = `§5용맥 §d${"◆".repeat(n)}§8${"◇".repeat(VEIN_MAX - n)} §7섬영 ${"§d●".repeat(c.n)}${"§8○".repeat(2 - c.n)}`;
+  if (s.asc && !s.asc.done) line += ` §5승천 §d${s.asc.left}`;
+  else if (odmActive(p)) line += ` §5천쇄 §d${"◆".repeat(odmLeft(p))}`;
   return line;
 };
 export const WEAPON_SKILLS = {

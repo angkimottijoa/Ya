@@ -1,4 +1,4 @@
-"""흑룡의 검 파티클 (V12.146) — 검정 · 진홍 (흑염 · 붉은 번개) / 마크 기본 파티클 시트(픽셀 연기 · 점) 기반
+"""흑룡의 검 파티클 (V12.146) — 흑요석 · 보라 (보랏빛 흑염 · 보라 번개) / 마크 기본 파티클 시트(픽셀 연기 · 점) 기반
   hr_wire 3D 쇠사슬 · hr_reelspark 사슬 불티 · hr_speed 속도선 · hr_swirl 회오리 원반 · hr_flame 흑염
   hr_arc 베기 호 · hr_burst 폭발 · hr_slash 곧은 베기 자국(앞에서 뒤로 그어짐) · hr_wing 스스로 퍼덕이는 용 날개(뼈 + 막)
   hr_dragon 몸을 꿈틀대며 날아가는 흑룡 형상 · hr_shock 땅 충격파
@@ -26,10 +26,10 @@ def vb(size, cell, mode="lookat_xyz", extra=None, w=None):
     return d
 def tint(grad, interp): return {"minecraft:particle_appearance_tinting": {"color": {"interpolant": interp, "gradient": grad}}}
 
-FIRE = {"0.0": "#FFFFE6D8", "0.15": "#FFFF7A5A", "0.33": "#FFE0202E", "0.52": "#FF7A0A16", "0.72": "#FF22060A", "0.88": "#FF0A0204", "1.0": "#C0000000"}  # 흑염: 흰 → 진홍 → 검정
-EMBER = {"0.0": "#FFFFF0E0", "0.3": "#FFFF6A50", "0.6": "#FFC01020", "1.0": "#FF300408"}
-CHAIN = {"0.0": "#FFF0D8DC", "0.3": "#FFA88A92", "0.55": "#FF5E3A44", "0.8": "#FF2E1218", "1.0": "#FF100406"}
-BOLT = {"0.0": "#FFFFFFFF", "0.3": "#FFFFB0A0", "0.65": "#FFFF2A2A", "1.0": "#FF5A0410"}
+FIRE = {"0.0": "#FFF4E8FF", "0.15": "#FFC890FF", "0.33": "#FF8A3AE0", "0.52": "#FF4A1488", "0.72": "#FF1E0838", "0.88": "#FF0A0414", "1.0": "#C0000000"}  # 흑염: 흰 → 연보라 → 보라 → 짙은 보라 → 검정 (V12.147)
+EMBER = {"0.0": "#FFFFF0FF", "0.3": "#FFD8A0FF", "0.6": "#FF9A40F0", "1.0": "#FF3A0A5A"}
+CHAIN = {"0.0": "#FFE8E0F0", "0.3": "#FFA096B8", "0.55": "#FF5A4A78", "0.8": "#FF2A1E40", "1.0": "#FF100818"}
+BOLT = {"0.0": "#FFFFFFFF", "0.3": "#FFE0C0FF", "0.65": "#FFA040FF", "1.0": "#FF3A0A6A"}
 
 def main():
     # 3D 쇠사슬 (hd_wire 와 같은 모양, 검은 강철 · 진홍 음영)
@@ -128,7 +128,7 @@ def main():
         "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
         "minecraft:particle_motion_parametric": {"relative_position": [f"variable.u.{c} * {X} + variable.v.{c} * {Y} + variable.w.{c} * {X0} * {X0} * 0.28 * variable.r" for c in "xyz"]},
         "minecraft:particle_appearance_billboard": vb(f"variable.size * ({isb} ? 0.085 : 0.115) * (1 - math.pow({AGE}, 4))", f"({isb} ? {DOT} : {SMK})"),
-        **tint({"0.0": "#FF8A7A86", "0.2": "#FF2A1E26", "0.45": "#FF3A0610", "0.75": "#FF9A1020", "1.0": "#FFFF4A40"},
+        **tint({"0.0": "#FF9A92AA", "0.2": "#FF2A2236", "0.45": "#FF2A0E46", "0.75": "#FF6A2AA8", "1.0": "#FFC890FF"},
                f"({isb} ? 0.1 + {R3} * 0.12 : math.clamp(0.4 + {tt} * 0.45 + ({tt} > 0.92 ? 0.15 : 0), 0, 1))")})
     # 흑룡 형상: 머리(s=0)에서 꼬리(s=1)까지 꿈틀대는 몸 (vd 방향으로 길이 r, u·v 로 물결), 통째로 vd 쪽으로 vs 속도로 날아감
     s = R1
@@ -141,7 +141,7 @@ def main():
         "minecraft:particle_lifetime_expression": {"max_lifetime": f"variable.life * (0.85 + {R4} * 0.3)"},
         "minecraft:particle_motion_parametric": {"relative_position": pos},
         "minecraft:particle_appearance_billboard": vb(f"variable.size * ({s} < 0.05 && {R3} > 0.75 ? 0.14 : ({R3} > 0.8 ? 0.16 : 0.12)) * (1 - math.pow({AGE}, 3)) * math.min(1, {A} * 8)", f"({R3} > 0.8 ? {DOT} : {SMK})"),
-        **tint({"0.0": "#FFFF3A2A", "0.3": "#FFB01020", "0.55": "#FF2A060C", "0.8": "#FF0E0306", "1.0": "#FF040102"},
+        **tint({"0.0": "#FFD890FF", "0.3": "#FF7A2AC0", "0.55": "#FF24103A", "0.8": "#FF0E0618", "1.0": "#FF040208"},
                f"({s} < 0.05 && {R3} > 0.75 ? 0 : math.clamp(0.4 + (1 - {R3}) * 0.5 - ({R3} > 0.8 ? 0.35 : 0), 0, 1))")})
     a = f"({R1} * 360)"; rg = f"(variable.r * (0.15 + math.sqrt({AGE}) * 0.85) * ({R2} < 0.6 ? 1 : 0.75 + {R3} * 0.2))"
     part("hr_shock", {**once(),

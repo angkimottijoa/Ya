@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.146.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.147.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,11 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.147 변경
+- 흑룡의 검 디자인을 사용자 그림으로: 휜 흑요석 곡도 · 보라 문양 · 용 머리 날밑 · 자루를 감은 용 (art/heukryong_sword_ref.png → 3D 980칸, 아이콘 tools/heukryong_art.py)
+- 흑룡 연출 색 진홍 → 보라 (흑염 · 사슬 · 날개 · 흑룡 형상 · HUD 글자)
+- 흑룡은 사신수보다 강하게: 평타 300 → 360 (사신수 300), 스킬 위력 ×1.2
 
 ## V12.146 변경 — 흑룡의 검
 - 새 무기 **흑룡의 검** (사신수급, 평타 300): 흑요석 칼날 · 진홍 핵과 균열 · 용 날개 날밑 · 용 머리와 붉은 보석 · 진홍 가죽 자루 · 붉은 구슬을 쥔 발톱 (3D: art/heukryong_sword_ref.png ← tools/heukryong_art.py, 아이콘 32x32)

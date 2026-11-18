@@ -55,11 +55,11 @@
     "color": {
      "interpolant": "((variable.particle_random_2 < 0.26) ? 0.1 + variable.particle_random_3 * 0.12 : math.clamp(0.4 + math.sqrt(variable.particle_random_3) * 0.45 + (math.sqrt(variable.particle_random_3) > 0.92 ? 0.15 : 0), 0, 1))",
      "gradient": {
-      "0.0": "#FF8A7A86",
-      "0.2": "#FF2A1E26",
-      "0.45": "#FF3A0610",
-      "0.75": "#FF9A1020",
-      "1.0": "#FFFF4A40"
+      "0.0": "#FF9A92AA",
+      "0.2": "#FF2A2236",
+      "0.45": "#FF2A0E46",
+      "0.75": "#FF6A2AA8",
+      "1.0": "#FFC890FF"
      }
     }
    }
