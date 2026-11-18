@@ -45,57 +45,10 @@
      "variable.first_person_rotation_factor = math.sin((1 - variable.attack_time) * 180.0);",
      "variable.hand_bob = query.life_time < 0.01 ? 0.0 : variable.hand_bob + ((query.is_on_ground && query.is_alive ? math.clamp(math.sqrt(math.pow(query.position_delta(0), 2.0) + math.pow(query.position_delta(2), 2.0)), 0.0, 0.1) : 0.0) - variable.hand_bob) * 0.02;",
      "variable.map_angle = math.clamp(1 - variable.player_x_rotation / 45.1, 0.0, 1.0);",
-     "variable.item_use_normalized = query.main_hand_item_use_duration / query.main_hand_item_max_duration;",
-     "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield';",
-     "v.rpg_fr = variable.is_first_person || query.is_riding || query.is_sleeping || query.is_swimming || query.is_gliding;",
-     "v.rpg_atk = variable.attack_time > 0.0;"
+     "variable.item_use_normalized = query.main_hand_item_use_duration / query.main_hand_item_max_duration;"
     ],
     "animate": [
-     {
-      "root": "!v.rpg_w || v.rpg_fr"
-     },
-     {
-      "humanoid_base_pose": "v.rpg_w && !v.rpg_fr"
-     },
-     {
-      "look_at_target_default": "v.rpg_w && !v.rpg_fr"
-     },
-     {
-      "cape": "v.rpg_w && !v.rpg_fr"
-     },
-     {
-      "rpgw_ctrl_hundun_scythe": "!v.rpg_fr && query.get_equipped_item_name == 'hundun_scythe'"
-     },
-     {
-      "rpgw_ctrl_cheongryong_lance": "!v.rpg_fr && query.get_equipped_item_name == 'cheongryong_sword'"
-     },
-     {
-      "rpgw_ctrl_baekho_axe": "!v.rpg_fr && query.get_equipped_item_name == 'baekho_axe'"
-     },
-     {
-      "rpgw_ctrl_jujak_bow": "!v.rpg_fr && query.get_equipped_item_name == 'jujak_bow'"
-     },
-     {
-      "rpgw_ctrl_hyeonmu_shield": "!v.rpg_fr && query.get_equipped_item_name == 'hyeonmu_shield'"
-     },
-     {
-      "attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
-     },
-     {
-      "rpgw_fp_hundun_scythe": "variable.is_first_person && query.get_equipped_item_name == 'hundun_scythe'"
-     },
-     {
-      "rpgw_fp_cheongryong_lance": "variable.is_first_person && query.get_equipped_item_name == 'cheongryong_sword'"
-     },
-     {
-      "rpgw_fp_baekho_axe": "variable.is_first_person && query.get_equipped_item_name == 'baekho_axe'"
-     },
-     {
-      "rpgw_fp_jujak_bow": "variable.is_first_person && query.get_equipped_item_name == 'jujak_bow'"
-     },
-     {
-      "rpgw_fp_hyeonmu_shield": "variable.is_first_person && query.get_equipped_item_name == 'hyeonmu_shield'"
-     }
+     "root"
     ]
    },
    "animations": {
@@ -159,62 +112,7 @@
     "brushing": "animation.humanoid.brushing",
     "crawling": "animation.player.crawl",
     "crawling.legs": "animation.player.crawl.legs",
-    "holding_heavy_core": "animation.player.holding_heavy_core",
-    "rpgw_reap_stance_up": "animation.rpg_w3d.reap.stance_up",
-    "rpgw_reap_stance_down": "animation.rpg_w3d.reap.stance_down",
-    "rpgw_reap_walk_down": "animation.rpg_w3d.reap.walk_down",
-    "rpgw_reap_atk1": "animation.rpg_w3d.reap.atk1",
-    "rpgw_reap_atk1b": "animation.rpg_w3d.reap.atk1b",
-    "rpgw_reap_atk2": "animation.rpg_w3d.reap.atk2",
-    "rpgw_reap_atk2b": "animation.rpg_w3d.reap.atk2b",
-    "rpgw_reap_atk3": "animation.rpg_w3d.reap.atk3",
-    "rpgw_reap_atk3b": "animation.rpg_w3d.reap.atk3b",
-    "rpgw_ctrl_hundun_scythe": "controller.animation.rpg_w3d.hundun_scythe",
-    "rpgw_thrust_stance_up": "animation.rpg_w3d.thrust.stance_up",
-    "rpgw_thrust_stance_down": "animation.rpg_w3d.thrust.stance_down",
-    "rpgw_thrust_walk_down": "animation.rpg_w3d.thrust.walk_down",
-    "rpgw_thrust_atk1": "animation.rpg_w3d.thrust.atk1",
-    "rpgw_thrust_atk1b": "animation.rpg_w3d.thrust.atk1b",
-    "rpgw_thrust_atk2": "animation.rpg_w3d.thrust.atk2",
-    "rpgw_thrust_atk2b": "animation.rpg_w3d.thrust.atk2b",
-    "rpgw_thrust_atk3": "animation.rpg_w3d.thrust.atk3",
-    "rpgw_thrust_atk3b": "animation.rpg_w3d.thrust.atk3b",
-    "rpgw_ctrl_cheongryong_lance": "controller.animation.rpg_w3d.cheongryong_lance",
-    "rpgw_chop_stance_up": "animation.rpg_w3d.chop.stance_up",
-    "rpgw_chop_stance_down": "animation.rpg_w3d.chop.stance_down",
-    "rpgw_chop_walk_down": "animation.rpg_w3d.chop.walk_down",
-    "rpgw_chop_atk1": "animation.rpg_w3d.chop.atk1",
-    "rpgw_chop_atk1b": "animation.rpg_w3d.chop.atk1b",
-    "rpgw_chop_atk2": "animation.rpg_w3d.chop.atk2",
-    "rpgw_chop_atk2b": "animation.rpg_w3d.chop.atk2b",
-    "rpgw_chop_atk3": "animation.rpg_w3d.chop.atk3",
-    "rpgw_chop_atk3b": "animation.rpg_w3d.chop.atk3b",
-    "rpgw_ctrl_baekho_axe": "controller.animation.rpg_w3d.baekho_axe",
-    "rpgw_bow_stance_up": "animation.rpg_w3d.bow.stance_up",
-    "rpgw_bow_stance_down": "animation.rpg_w3d.bow.stance_down",
-    "rpgw_bow_walk_down": "animation.rpg_w3d.bow.walk_down",
-    "rpgw_bow_atk1": "animation.rpg_w3d.bow.atk1",
-    "rpgw_bow_atk1b": "animation.rpg_w3d.bow.atk1b",
-    "rpgw_bow_atk2": "animation.rpg_w3d.bow.atk2",
-    "rpgw_bow_atk2b": "animation.rpg_w3d.bow.atk2b",
-    "rpgw_bow_atk3": "animation.rpg_w3d.bow.atk3",
-    "rpgw_bow_atk3b": "animation.rpg_w3d.bow.atk3b",
-    "rpgw_ctrl_jujak_bow": "controller.animation.rpg_w3d.jujak_bow",
-    "rpgw_bash_stance_up": "animation.rpg_w3d.bash.stance_up",
-    "rpgw_bash_stance_down": "animation.rpg_w3d.bash.stance_down",
-    "rpgw_bash_walk_down": "animation.rpg_w3d.bash.walk_down",
-    "rpgw_bash_atk1": "animation.rpg_w3d.bash.atk1",
-    "rpgw_bash_atk1b": "animation.rpg_w3d.bash.atk1b",
-    "rpgw_bash_atk2": "animation.rpg_w3d.bash.atk2",
-    "rpgw_bash_atk2b": "animation.rpg_w3d.bash.atk2b",
-    "rpgw_bash_atk3": "animation.rpg_w3d.bash.atk3",
-    "rpgw_bash_atk3b": "animation.rpg_w3d.bash.atk3b",
-    "rpgw_ctrl_hyeonmu_shield": "controller.animation.rpg_w3d.hyeonmu_shield",
-    "rpgw_fp_hundun_scythe": "animation.rpg_w3d.fp_hundun_scythe",
-    "rpgw_fp_cheongryong_lance": "animation.rpg_w3d.fp_cheongryong_lance",
-    "rpgw_fp_baekho_axe": "animation.rpg_w3d.fp_baekho_axe",
-    "rpgw_fp_jujak_bow": "animation.rpg_w3d.fp_jujak_bow",
-    "rpgw_fp_hyeonmu_shield": "animation.rpg_w3d.fp_hyeonmu_shield"
+    "holding_heavy_core": "animation.player.holding_heavy_core"
    },
    "render_controllers": [
     {
