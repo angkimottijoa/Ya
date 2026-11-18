@@ -247,7 +247,8 @@ def build(name, cfg):
                   {"name": "body", "parent": "waist", "pivot": [0, 24, 0]},
                   {"name": "rightArm", "parent": "body", "pivot": [-5, 22, 0]},
                   {"name": "rightItem", "parent": "rightArm", "pivot": [-6, 15, 1]},
-                  {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND, "cubes": cubes}]}]}
+                  {"name": "rpg_w3d", "parent": "rightItem", "pivot": HAND},  # 1인칭 자리 · 크기 · 세우기
+                  {"name": "rpg_w3d_spin", "parent": "rpg_w3d", "pivot": HAND, "cubes": cubes}]}]}  # 무기 긴 축(Z)으로만 돌리기
     (RP / "models" / "entity").mkdir(parents=True, exist_ok=True)
     (RP / "models" / "entity" / f"rpg_w3d_{name}.geo.json").write_text(json.dumps(geo, separators=(",", ":")))
     # 손에 든 납작한 아이템을 숨기는 빈 attachable (무기 모습은 플레이어 모델 쪽에서 그림)

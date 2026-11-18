@@ -69,9 +69,10 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.5  # 1인칭 무기 크기 (내 화면에서만)
+FP_SCALE = 0.45  # 1인칭 무기 크기 (내 화면에서만)
 FP_POS = [-1.5, 0, 0]  # 1인칭: 화면 오른쪽으로 (플레이어 모델에서 오른쪽 = -X)
-FP_ROT = [0, 55, 90]  # 1인칭: Y 55 = 화면 오른쪽에 세움, Z 90 = 무기 긴 축으로 돌려 넓은 면이 카메라를 봄 (참고 사진처럼)
+FP_ROT = [0, 55, 0]  # 1인칭: 화면 오른쪽에 세움 (V12.34 에서 자리는 맞았음)
+FP_SPIN = 90  # 1인칭: 무기 긴 축으로만 돌려 넓은 면이 카메라를 봄 (안쪽 뼈 rpg_w3d_spin, 회전 순서 문제 없음)
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -125,7 +126,8 @@ def build():
         ctrls[f"controller.animation.rpg_w3d.{name}"] = {"initial_state": "default", "states": states}
         ent_anims[f"rpgw_ctrl_{name}"] = f"controller.animation.rpg_w3d.{name}"
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
-    anims["animation.rpg_w3d.fp_small"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS}}}
+    anims["animation.rpg_w3d.fp_small"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE, "rotation": FP_ROT, "position": FP_POS},
+                                                                     "rpg_w3d_spin": {"rotation": [0, 0, FP_SPIN]}}}
     ent_anims["rpgw_fp_small"] = "animation.rpg_w3d.fp_small"
     return anims, ctrls, ent_anims
 

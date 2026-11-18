@@ -4097,16 +4097,23 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.5,
+     "scale": 0.45,
      "rotation": [
       0,
       55,
-      90
+      0
      ],
      "position": [
       -1.5,
       0,
       0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      0,
+      0,
+      90
      ]
     }
    }
