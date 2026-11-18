@@ -69,11 +69,11 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.70  # 1인칭 — tools/solve4.py: 긴 축 화면 위 · 날이 앞(V12.43 에서 앞뒤 반대였음 → -Y 가 앞) · 두께축 화면 가로
-FP_POS = [0.58, -0.69, -3.23]
-FP_ROT = [-245.22, 159.77, -97.71]  # 쥐는 곳 화면 (1625, 1140), 끝 (1699, 290)
+FP_SCALE = 0.82  # 1인칭 크기 (V12.39 0.63 × 1.3)
+FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
+FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
 FP_TILT = 0
-FP_SPIN = {}
+FP_SPIN = {n: -90 for n in W}  # 사용자 축 그림: 파란(V12.39) → 빨간 = 긴 축 둘레 90° (날 축이 옆 → 앞). 반대면 +90
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
