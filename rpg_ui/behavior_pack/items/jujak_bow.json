@@ -15,7 +15,7 @@
       },
       "minecraft:max_stack_size": 1,
       "minecraft:hand_equipped": true,
-      "minecraft:damage": 120,
+      "minecraft:damage": 90,
       "minecraft:enchantable": {
         "slot": "bow",
         "value": 22
