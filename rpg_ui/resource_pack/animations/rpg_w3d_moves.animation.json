@@ -4215,7 +4215,7 @@
     "rpg_w3d_spin": {
      "rotation": [
       "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
-      0,
+      -15,
       180
      ],
      "position": [
