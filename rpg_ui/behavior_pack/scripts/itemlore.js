@@ -2,7 +2,7 @@
 //   첫 줄 강화 (enhance.js) · 분류 · 한 줄 설정 · 공격력 · 「자세히: 배낭」 — 긴 설명은 배낭 > 자세히 보기
 import { system, world } from "@minecraft/server";
 import * as J from "./jobs.js";
-import { ENH_LORE, STONES, PROTECT } from "./enhance.js";
+import { ENH_LORE, STONES, PROTECT, SCROLLS, setAtkLookup } from "./enhance.js";
 import { setRpgName } from "./itemdb.js";
 
 export const LORE_INFO = {
@@ -52,4 +52,5 @@ const NAMES = { "rpg:cheongryong_sword": "§b청룡의 검", "rpg:baekho_axe": "
   "rpg:hundun_scythe": "§5혼돈의 낫", "rpg:qiongqi_claws": "§c궁기의 쌍발톱", "rpg:taowu_hammer": "§6도올의 대망치", "rpg:taotie_maw": "§2도철의 아가리" };
 for (const [id, n] of Object.entries(NAMES)) setRpgName(id, n);
 for (const [path, pt] of Object.entries(J.PATHS)) if (pt.tool?.name) setRpgName(`rpg:jt_${path}`, pt.tool.name);
-for (const st of [...STONES, PROTECT]) setRpgName(st.id, `${st.color}${st.name}`);
+for (const st of [...STONES, ...SCROLLS, PROTECT]) setRpgName(st.id, `${st.color}${st.name}`);
+setAtkLookup((id) => loreInfo(id)?.atk ?? 0); // 연성소의 「현재 공격력」

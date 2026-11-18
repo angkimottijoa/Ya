@@ -409,7 +409,76 @@ function questActions(scr, p, q, back) {
   }
 }
 
-export function openQuests(p, cat = "active", sel, page = 0) {
+/** 메인 퀘스트 연결 (V12.134): 줄줄이 이어진 마디 — ✔ 완료 · ▶ 진행 · ● 받을 수 있음 · 잠김
+ *  누르면 오른쪽에 내용, 잠긴 마디는 「앞 퀘스트를 끝내면 열림」만 보여 줌 (보상 · 내용은 가림) */
+function openMainChain(p, sel, page) {
+  const d = data(p);
+  const mains = Q.allQuests().filter((q) => (q.type ?? "sub") === "main" && (q.enabled || d.q.a[q.id] || d.q.d[q.id]) && !(Q.adv(q).secret && !d.q.d[q.id] && !d.q.a[q.id]));
+  const chain = Q.chainSort(mains).map(({ q, depth }) => ({ q, depth, st: Q.state(p, q) }));
+  // 앞 퀘스트를 아직 못 끝낸 마디는 무조건 잠김으로 (레벨 · 직업 조건으로 잠긴 것도 잠김)
+  for (const x of chain) if (x.st === "available" && x.q.prereq && !d.q.d[x.q.prereq]) x.st = "locked";
+  const PAGE = 6;
+  const pages = Math.max(1, Math.ceil(chain.length / PAGE));
+  const firstOpen = Math.max(0, chain.findIndex((x) => x.st !== "done"));
+  if (page === undefined || page === null) page = Math.floor(firstOpen / PAGE);
+  page = Math.min(page, pages - 1);
+  const shown = chain.slice(page * PAGE, page * PAGE + PAGE);
+  sel = sel && chain.find((x) => x.q.id === sel) ? sel : (chain[firstOpen] ?? shown[0])?.q.id;
+  const scr = new Screen("L", "퀘스트 / 메인 이야기");
+  const NODE = { done: "§a✔", ready: "§e★", active: "§6▶", available: "§b●", locked: "§8■" };
+  const ICONS = { done: "check", ready: "star", active: "nav", available: "quest", locked: "lock" };
+  shown.forEach((x, k) => {
+    const i = page * PAGE + k, last = i === chain.length - 1, lock = x.st === "locked";
+    const branch = x.depth > 1 ? "§8└ " : "";
+    const title = lock ? `§8${x.q.title}` : x.st === "done" ? `§7${x.q.title}` : `§f§l${x.q.title}`;
+    const sub = { done: "§2완료", ready: "§e완료 보고 가능", active: "§6진행 중", available: "§b수락 가능", locked: "§8잠김 · 앞 장을 끝내면 열림" }[x.st];
+    scr.item(`${NODE[x.st]} §7${i + 1}장 ${branch}${title}
+${last ? "§8╹ " : "§8┃ "}${sub}`, ICON(ICONS[x.st]), () => openQuests(p, "main", x.q.id, page), { on: x.q.id === sel, rarity: lock ? undefined : x.st === "done" ? 1 : 3 });
+  });
+  scr.tab("메뉴", ICON("back"), () => openHome(p));
+  for (const c of QCATS) scr.tab(c.name, ICON(c.icon), () => openQuests(p, c.id), c.id === "main");
+  chips(scr, p);
+  const doneN = chain.filter((x) => x.st === "done").length;
+  scr.chip(ICON("star"), `${doneN}/${chain.length}`);
+  const cur = chain.find((x) => x.q.id === sel);
+  if (!cur) {
+    scr.select("메인 이야기", ICON("star"));
+    scr.body("§7아직 메인 퀘스트가 없습니다.");
+  } else if (cur.st === "locked") {
+    const idx = chain.indexOf(cur);
+    const prev = cur.q.prereq ? Q.getQuest(cur.q.prereq) : null;
+    scr.select(rt(`§8${idx + 1}장 · 잠김`), ICON("lock"));
+    const why = prev && !d.q.d[prev.id] ? `§f「${prev.title}」§7을(를) 끝내면 열립니다.` : `§7${Q.lockReason(p, cur.q)}`;
+    scr.body(rt(`§8§l${cur.q.title}§r
+
+§c§l잠긴 이야기§r
+${why}
+
+§8내용과 보상은 열리면 볼 수 있습니다.
+
+§7메인 진행 §f${doneN}/${chain.length}
+${"§a■".repeat(doneN)}${"§8■".repeat(chain.length - doneN)}`));
+  } else {
+    const q = cur.q, idx = chain.indexOf(cur);
+    scr.select(rt(`§e${idx + 1}장 §f`, q.title), ICON(Q.qtype(q).icon));
+    scr.body(rt(questDetailBody(p, q), `
+
+§7메인 진행 §f${doneN}/${chain.length}
+${"§a■".repeat(doneN)}${"§8■".repeat(chain.length - doneN)}`));
+    scr.action("§b자세히 보기", () => openQuestFull(p, q, (id) => openQuests(p, "main", id ?? sel, page)));
+    questActions(scr, p, q, (id) => openQuests(p, "main", id ?? sel, page));
+  }
+  if (pages > 1) {
+    if (page > 0) scr.action(`▲ 앞 장들 (${page}/${pages})`, () => openQuests(p, "main", undefined, page - 1));
+    if (page < pages - 1) scr.action(`▼ 다음 장들 (${page + 2}/${pages})`, () => openQuests(p, "main", undefined, page + 1));
+  }
+  scr.reopen = () => openQuests(p, "main", sel, page);
+  return scr.show(p);
+}
+
+export function openQuests(p, cat = "active", sel, page) {
+  if (cat === "main") return openMainChain(p, sel, page); // 페이지를 안 정하면 지금 진행 중인 장이 있는 쪽
+  page ??= 0;
   const d = data(p);
   const pri = Q.priority(p);
   const order = { ready: 0, active: 1, available: 2, locked: 3, done: 4 };

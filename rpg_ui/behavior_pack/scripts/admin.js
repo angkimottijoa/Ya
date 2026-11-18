@@ -857,7 +857,7 @@ function playerTab(p, selId) {
   scr.action("§b무기 · 강화석 지급", async () => { // V12.118: 버튼이 많아 아래가 잘리던 것 → 한 창에서 고름
     const WEAPONS = [["rpg:cheongryong_sword", "청룡의 검"], ["rpg:baekho_axe", "백호의 도끼"], ["rpg:jujak_bow", "주작의 활"], ["rpg:hyeonmu_shield", "현무의 방패"],
       ["rpg:hundun_scythe", "혼돈의 낫"], ["rpg:qiongqi_claws", "궁기의 쌍발톱"], ["rpg:taowu_hammer", "도올의 대망치"], ["rpg:taotie_maw", "도철의 아가리"],
-      ["rpg:enh_stone_1", "하급 강화석 ×20", 20], ["rpg:enh_stone_2", "중급 강화석 ×20", 20], ["rpg:enh_stone_3", "상급 강화석 ×20", 20], ["rpg:enh_stone_4", "최상급 강화석 ×20", 20], ["rpg:enh_protect", "파괴방지석 ×20", 20]];
+      ["rpg:enh_stone_1", "하급 강화석 ×20", 20], ["rpg:enh_stone_2", "중급 강화석 ×20", 20], ["rpg:enh_stone_3", "상급 강화석 ×20", 20], ["rpg:enh_stone_4", "최상급 강화석 ×20", 20], ["rpg:enh_protect", "파괴방지석 ×20", 20], ["rpg:enh_scroll_1", "하급 강화 주문서 ×10", 10], ["rpg:enh_scroll_2", "중급 강화 주문서 ×10", 10], ["rpg:enh_scroll_3", "상급 강화 주문서 ×10", 10]];
     const r = await new ModalFormData().title(`${t.name} - 무기 지급`)
       .dropdown("무기", ["§e전부", ...WEAPONS.map((w) => w[1])], 0)
       .show(p);

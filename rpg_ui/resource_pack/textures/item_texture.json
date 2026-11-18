@@ -151,6 +151,15 @@
     },
     "rpg_enh_protect": {
       "textures": "textures/items/rpg/enh_protect"
+    },
+    "rpg_enh_scroll_1": {
+      "textures": "textures/items/rpg/enh_scroll_1"
+    },
+    "rpg_enh_scroll_2": {
+      "textures": "textures/items/rpg/enh_scroll_2"
+    },
+    "rpg_enh_scroll_3": {
+      "textures": "textures/items/rpg/enh_scroll_3"
     }
   }
 }

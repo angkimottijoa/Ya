@@ -17,6 +17,12 @@ export const CATS = [
 const short = (id) => id.replace(/^minecraft:/, "");
 
 export function category(id) {
+  // 이 애드온 아이템 (V12.134): 사신수 · 사흉수 무기 · 직업 도구 = 무기, 강화 재료 = 재료
+  if (id.startsWith("rpg:")) {
+    if (/^rpg:(jt_|cheongryong_|baekho_|jujak_|hyeonmu_|hundun_|qiongqi_|taowu_|taotie_)/.test(id)) return "weapon";
+    if (/^rpg:enh_/.test(id)) return "material";
+    return "misc";
+  }
   const s = short(id);
   if (/(sword|_axe$|^bow$|crossbow|trident|mace)/.test(s)) return "weapon";
   if (/(helmet|chestplate|leggings|boots|shield|elytra|horse_armor|wolf_armor)/.test(s)) return "armor";
