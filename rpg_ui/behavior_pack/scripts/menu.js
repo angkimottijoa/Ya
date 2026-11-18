@@ -365,12 +365,13 @@ export function questDetailBody(p, q) {
 /** 퀘스트 자세히 보기 (V12.131): 왼쪽 = 목표 · 보상 칸, 오른쪽 = 진행 별(★ 달성 / ☆ 남음) · 목표마다 진행 막대 · 연결 퀘스트 */
 export function openQuestFull(p, q, back, selIdx = 0) {
   const st = Q.state(p, q), t = Q.qtype(q), live = st === "active" || st === "ready";
-  const scr = new Screen("L", `퀘스트 / ${q.title}`);
+  const scr = new Screen("Q", q.title);
   const cells = q.obj.map((o, i) => ({ i, o, cur: live ? Q.objProgress(p, q, i) : st === "done" ? Q.objNeed(o) : 0, need: Q.objNeed(o) }));
-  for (const c of cells) {
-    const done = c.cur >= c.need;
-    scr.item([done ? "§a✔ " : "§7○ ", Q.objLine(p, q, c.i, live), `\n§7${done ? "§a완료" : `${Math.floor((c.cur / Math.max(1, c.need)) * 100)}%`}`], ICON({ kill: "class", collect: "bag", visit: "nav", talk: "chat" }[c.o.t] ?? "quest"), () => openQuestFull(p, q, back, c.i), { on: c.i === selIdx });
-  }
+  cells.forEach((c, k) => {
+    const done = c.cur >= c.need, prevDone = k > 0 && cells[k - 1].cur >= cells[k - 1].need;
+    const mark = (done ? "[Q0]" : live ? "[Q2]" : st === "locked" ? "[Q4]" : "[Q3]") + (k === 0 ? "[QF]" : "") + (k === cells.length - 1 ? "[QE]" : "") + (prevDone ? "[QG]" : "");
+    scr.item([Q.objLine(p, q, c.i, live), `\n§r${done ? "§a완료" : `§7${c.cur}/${c.need} · ${Math.floor((c.cur / Math.max(1, c.need)) * 100)}%`}`], "", () => openQuestFull(p, q, back, c.i), { on: c.i === selIdx, mark });
+  });
   scr.tab("돌아가기", ICON("back"), () => back(q.id));
   const stars = cells.map((c) => (c.cur >= c.need ? "§e★" : "§8☆")).join("");
   const c = cells[selIdx] ?? cells[0];
@@ -417,7 +418,7 @@ function openMainChain(p, sel, page) {
   const chain = Q.chainSort(mains).map(({ q, depth }) => ({ q, depth, st: Q.state(p, q) }));
   // 앞 퀘스트를 아직 못 끝낸 마디는 무조건 잠김으로 (레벨 · 직업 조건으로 잠긴 것도 잠김)
   for (const x of chain) if (x.st === "available" && x.q.prereq && !d.q.d[x.q.prereq]) x.st = "locked";
-  const PAGE = 7;
+  const PAGE = 5; // 새 틀 목록 칸 (한 줄 28) — 작은 화면에서도 안 넘치게
   const pages = Math.max(1, Math.ceil(chain.length / PAGE));
   const firstOpen = Math.max(0, chain.findIndex((x) => x.st !== "done"));
   if (page === undefined || page === null) page = Math.floor(firstOpen / PAGE);
@@ -425,7 +426,7 @@ function openMainChain(p, sel, page) {
   const shown = chain.slice(page * PAGE, page * PAGE + PAGE);
   sel = sel && chain.find((x) => x.q.id === sel) ? sel : (chain[firstOpen] ?? shown[0])?.q.id;
   // [RPG:Q] 연결 화면: 왼쪽 마디(✔ ★ ▶ ● 자물쇠) + 금색/남색 연결선, 오른쪽 이름 칸 (ui/rpg_forge.json)
-  const scr = new Screen("Q", "퀘스트 / 메인 이야기");
+  const scr = new Screen("Q", "메인 이야기");
   const QM = { done: "[Q0]", ready: "[Q1]", active: "[Q2]", available: "[Q3]", locked: "[Q4]" };
   shown.forEach((x, k) => {
     const i = page * PAGE + k, lock = x.st === "locked";
@@ -508,14 +509,14 @@ export function openQuests(p, cat = "active", sel, page) {
     groups.sort((a, b) => Math.min(...a.map((x) => order[x.st])) - Math.min(...b.map((x) => order[x.st])));
     list = groups.flat();
   }
-  const PAGE = 7;
+  const PAGE = 5; // 새 틀 목록 칸 (한 줄 28) — 작은 화면에서도 안 넘치게
   const pages = Math.max(1, Math.ceil(list.length / PAGE));
   page = Math.min(page, pages - 1);
   const shown = list.slice(page * PAGE, page * PAGE + PAGE);
   sel = sel && list.find((x) => x.q.id === sel) ? sel : shown[0]?.q.id;
   const catName = QCATS.find((c) => c.id === cat).name;
   // 연결 화면 (V12.135): 상태 마디 + 같은 묶음(선행 → 후속)끼리만 연결선
-  const scr = new Screen("Q", `퀘스트 / ${catName}`);
+  const scr = new Screen("Q", `퀘스트 · ${catName}`);
   const QM = { done: "[Q0]", ready: "[Q1]", active: "[Q2]", available: "[Q3]", locked: "[Q4]" };
   shown.forEach(({ q, st }, k) => {
     const t = Q.qtype(q);
