@@ -82,6 +82,7 @@
      "variable.hand_bob = query.life_time < 0.01 ? 0.0 : variable.hand_bob + ((query.is_on_ground && query.is_alive ? math.clamp(math.sqrt(math.pow(query.position_delta(0), 2.0) + math.pow(query.position_delta(2), 2.0)), 0.0, 0.1) : 0.0) - variable.hand_bob) * 0.02;",
      "variable.map_angle = math.clamp(1 - variable.player_x_rotation / 45.1, 0.0, 1.0);",
      "variable.item_use_normalized = query.main_hand_item_use_duration / query.main_hand_item_max_duration;",
+     "variable.riding_y_offset = query.is_riding_any_entity_of_type('minecraft:minecart', 'minecraft:boat', 'minecraft:chest_boat', 'minecraft:strider') ? -3.0 : 0.0;",
      "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield' || query.get_equipped_item_name == 'jt_warrior' || query.get_equipped_item_name == 'jt_mage' || query.get_equipped_item_name == 'jt_archer' || query.get_equipped_item_name == 'jt_cleric' || query.get_equipped_item_name == 'jt_swordmaster' || query.get_equipped_item_name == 'jt_berserker' || query.get_equipped_item_name == 'jt_hunter' || query.get_equipped_item_name == 'jt_sniper' || query.get_equipped_item_name == 'jt_elementalist' || query.get_equipped_item_name == 'jt_stormcaller' || query.get_equipped_item_name == 'jt_paladin' || query.get_equipped_item_name == 'jt_priest' || query.get_equipped_item_name == 'jt_sword_emperor' || query.get_equipped_item_name == 'jt_abyss_knight' || query.get_equipped_item_name == 'jt_destroyer' || query.get_equipped_item_name == 'jt_beastlord' || query.get_equipped_item_name == 'jt_hawkeye' || query.get_equipped_item_name == 'jt_soul_reaper';",
      "v.rpg_fr = variable.is_first_person || query.is_riding || query.is_sleeping || query.is_swimming || query.is_gliding;",
      "v.rpg_atk = variable.attack_time > 0.0;"
@@ -226,7 +227,16 @@
      {
       "rpgw_fp_t3_soul_reaper": "variable.is_first_person && query.get_equipped_item_name == 'jt_soul_reaper'"
      }
-    ]
+    ],
+    "variables": {
+     "variable.fp_melee_spear_use_attachable_rotation_z": "public",
+     "variable.tp_melee_spear_use_attachable_rotation_z": "public",
+     "variable.fp_melee_spear_attack_attachable_rotation_z": "public",
+     "variable.tp_melee_spear_attack_attachable_position_z": "public",
+     "variable.attack_time": "public",
+     "variable.item_use_normalized": "public"
+    },
+    "should_update_effects_offscreen": "1.0"
    },
    "animations": {
     "root": "controller.animation.player.root",
@@ -289,7 +299,18 @@
     "brushing": "animation.humanoid.brushing",
     "crawling": "animation.player.crawl",
     "crawling.legs": "animation.player.crawl.legs",
+    "swimming.no_right_arm": "animation.player.swim.no_right_arm",
+    "crawling.no_right_arm": "animation.player.crawl.no_right_arm",
+    "riding.root": "animation.player.riding.root",
     "holding_heavy_core": "animation.player.holding_heavy_core",
+    "first_person_melee_spear_use": "animation.player.first_person.melee_spear_use",
+    "first_person_melee_spear_hold": "animation.player.first_person.melee_spear_hold",
+    "first_person_melee_spear_attack": "animation.player.first_person.melee_spear_attack",
+    "first_person_melee_spear_controller": "controller.animation.player.first_person_melee_spear",
+    "third_person_melee_spear_use": "animation.humanoid.melee_spear_use",
+    "third_person_melee_spear_hold": "animation.humanoid.melee_spear_hold",
+    "third_person_melee_spear_attack": "animation.player.melee_spear_attack",
+    "third_person_melee_spear_controller": "controller.animation.player.melee_spear",
     "rpgw_reap_stance_up": "animation.rpg_w3d.reap.stance_up",
     "rpgw_reap_stance_down": "animation.rpg_w3d.reap.stance_down",
     "rpgw_reap_walk_down": "animation.rpg_w3d.reap.walk_down",
