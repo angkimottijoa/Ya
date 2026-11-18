@@ -41,11 +41,11 @@ function barText(e) {
   if (!hp || hp.max <= 0) return null;
   const N = 20, f = Math.max(0, Math.min(N, Math.round((hp.cur / hp.max) * N)));
   const col = hp.cur / hp.max > 0.5 ? "§a" : hp.cur / hp.max > 0.2 ? "§e" : "§c";
-  return `${col}${"|".repeat(f)}§8${"|".repeat(N - f)} §f§l${comma(Math.max(0, hp.cur))}§r§7/${comma(hp.max)}`;
+  return `§f§l${comma(Math.max(0, hp.cur))}§r§7/${comma(hp.max)}\n${col}${"|".repeat(f)}§8${"|".repeat(N - f)}`; // 숫자 위 · 바 아래
 }
-function showBar(e) {
+function showBar(e, keep = 160) {
   const b = bars.get(e.id) ?? { e, orig: (() => { try { return e.nameTag ?? ""; } catch { return ""; } })() };
-  b.until = system.currentTick + 160;
+  b.until = Math.max(b.until ?? 0, system.currentTick + keep);
   bars.set(e.id, b);
   const t = barText(e);
   if (!t) return;
@@ -97,6 +97,16 @@ system.runInterval(() => {
     const t = barText(e);
     if (t) try { e.nameTag = e.typeId === "minecraft:player" ? `${b.orig || e.name}\n${t}` : (b.orig ? `${b.orig}\n${t}` : t); } catch {}
     const hp = hpOf(e); if (hp) hpSeen.set(id, hp.cur);
+  }
+}, 10);
+
+// 가까이 가면 체력바 (V12.127): 플레이어 둘레 10칸 안의 몹 · 다른 플레이어 (한 사람당 최대 12)
+const NEAR_EXCLUDE = { excludeTypes: [NUM_ID, "rpg:npc", "minecraft:item", "minecraft:xp_orb", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] };
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    let list = [];
+    try { list = p.dimension.getEntities({ location: p.location, maxDistance: 10, closest: 13, ...NEAR_EXCLUDE }); } catch { continue; }
+    for (const e of list) { if (e.id === p.id || !hpOf(e)) continue; showBar(e, 25); }
   }
 }, 10);
 
