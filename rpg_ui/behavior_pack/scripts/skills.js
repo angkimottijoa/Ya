@@ -26,16 +26,16 @@ import * as WRULES from "./world_rules.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
 
 // ───────── 밸런스 (V12.109) ─────────
-// 사신수 · 사흉수 스킬: [재사용 대기(초), 마나] — ② 쉬프트+클릭 · ④ 쉬프트 두 번 은 청룡 강림(③ 120초) 기준으로 120초
-const WEAPON_TUNE = {
-  w_cr_1: [4, 40], w_cr_2: [120, 120], w_cr_3: [120, 320], w_cr_4: [120, 230],
-  w_bh_1: [3, 35], w_bh_2: [120, 100], w_bh_3: [30, 160], w_bh_4: [120, 260],
-  w_jj_1: [0.35, 15], w_jj_2: [120, 110], w_jj_3: [32, 170], w_jj_4: [120, 260],
-  w_hm_1: [0.35, 12], w_hm_2: [120, 100], w_hm_3: [42, 220], w_hm_4: [120, 300],
-  w_hd_1: [2.5, 25], w_hd_2: [120, 90], w_hd_3: [22, 100], w_hd_4: [120, 190],
-  w_qq_1: [0.35, 15], w_qq_2: [120, 70], w_qq_3: [18, 85], w_qq_4: [120, 250],
-  w_tw_1: [0.45, 15], w_tw_2: [120, 75], w_tw_3: [16, 75], w_tw_4: [120, 250],
-  w_tt_1: [0.4, 15], w_tt_2: [120, 75], w_tt_3: [16, 75], w_tt_4: [120, 250],
+// 사신수 · 사흉수 스킬: [재사용 대기(초), 마나]
+const WEAPON_TUNE = { // V12.112: ③ 쉬프트+점프 · ④ 쉬프트 두 번 은 청룡 강림(③ 120초) 기준으로 위력에 맞춰, ② 는 짧게
+  w_cr_1: [4, 40], w_cr_2: [20, 120], w_cr_3: [120, 320], w_cr_4: [90, 260],     // 강림 · 천룡추
+  w_bh_1: [3, 35], w_bh_2: [16, 100], w_bh_3: [75, 200], w_bh_4: [110, 300],     // 습격 · 천붕
+  w_jj_1: [0.35, 15], w_jj_2: [18, 110], w_jj_3: [80, 210], w_jj_4: [110, 300],  // 비상 · 홍련군무
+  w_hm_1: [0.35, 12], w_hm_2: [22, 100], w_hm_3: [90, 240], w_hm_4: [120, 320],  // 붕지 · 천수진(방어 결계)
+  w_hd_1: [2.5, 25], w_hd_2: [18, 90], w_hd_3: [70, 160], w_hd_4: [100, 280],    // 천쇄(입체기동) · 사신 강하
+  w_qq_1: [0.35, 15], w_qq_2: [14, 70], w_qq_3: [60, 140], w_qq_4: [110, 300],   // 표식 도약 · 흉익 강림
+  w_tw_1: [0.45, 15], w_tw_2: [15, 75], w_tw_3: [60, 140], w_tw_4: [110, 300],   // 망치 투척 · 폭주
+  w_tt_1: [0.4, 15], w_tt_2: [15, 75], w_tt_3: [60, 140], w_tt_4: [110, 300],    // 탐식 도약 · 현신
 };
 for (const list of Object.values(WEAPON_SKILLS)) for (const sk of list) { const t = WEAPON_TUNE[sk.id]; if (t) { sk.cd = t[0]; sk.mp = t[1]; } }
 // 직업 스킬: 마나 ×4 · 재사용 대기 ② ×1.25 ③ ×1.3 ④ ×1.4 (① 연타는 그대로)
@@ -311,6 +311,8 @@ export function resetCooldowns(p) { for (const k of [...cd.keys()]) if (k.starts
 
 /** 사신수 · 사흉수 스킬 기본 위력: 16 × 힘 × 버프 × 레벨 (V12.109: 12 → 16) */
 const weaponDmg = (p) => 16 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + data(p).lv * 0.025);
+/** 재사용 대기가 긴 스킬일수록 세게: 120초 = 1.6배 (② 20초 ≈ 1.1배, ① 그대로) */
+const cdPow = (s) => (s.key === 1 ? 1 : 1 + 0.6 * Math.min(1, s.cd / 120));
 /** 스킬 무기 발동 (직업 조건 없음) */
 function castWeaponSpecial(p, s) {
   const d = data(p);
@@ -322,7 +324,7 @@ function castWeaponSpecial(p, s) {
   const busy = () => { if (s.id === "w_cr_3") crBusy.set(p.id, system.currentTick + 170); }; // 강림 연출 약 8.5초
   if (skillMode(p)) {
     busy();
-    s.run({ p, dmg: weaponDmg(p), data: d, ...extra });
+    s.run({ p, dmg: weaponDmg(p) * cdPow(s), data: d, ...extra });
     notify(p, `§b§l${s.name}! §r§d(관리자 모드)`);
     return true;
   }
@@ -341,7 +343,7 @@ function castWeaponSpecial(p, s) {
   const cdr = 1 - Math.min(0.3, stat(p, "int") * 0.003);
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   busy();
-  s.run({ p, dmg: weaponDmg(p), data: d, ...extra });
+  s.run({ p, dmg: weaponDmg(p) * cdPow(s), data: d, ...extra });
   notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
   return true;
 }
