@@ -3282,6 +3282,755 @@
     }
    }
   },
+  "animation.rpg_w3d.tome.stance_up": {
+   "loop": true,
+   "animation_length": 2.0,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       0,
+       8,
+       0
+      ],
+      "1.00": [
+       2,
+       8,
+       0
+      ],
+      "2.00": [
+       0,
+       8,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       -40,
+       -20,
+       10
+      ],
+      "1.00": [
+       -38,
+       -20,
+       10
+      ],
+      "2.00": [
+       -40,
+       -20,
+       10
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -45,
+       10,
+       0
+      ],
+      "1.00": [
+       -45,
+       10,
+       0
+      ],
+      "2.00": [
+       -45,
+       10,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       45,
+       180,
+       0
+      ],
+      "1.00": [
+       45,
+       180,
+       0
+      ],
+      "2.00": [
+       45,
+       180,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.stance_down": {
+   "loop": true,
+   "bones": {
+    "rightLeg": {
+     "rotation": [
+      14,
+      0,
+      4
+     ]
+    },
+    "leftLeg": {
+     "rotation": [
+      -12,
+      0,
+      -4
+     ]
+    },
+    "waist": {
+     "position": [
+      0,
+      -0.5,
+      0
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.walk_down": {
+   "loop": true,
+   "animation_length": 0.8,
+   "bones": {
+    "rightLeg": {
+     "rotation": {
+      "0.00": [
+       32,
+       0,
+       0
+      ],
+      "0.40": [
+       -32,
+       0,
+       0
+      ],
+      "0.80": [
+       32,
+       0,
+       0
+      ]
+     }
+    },
+    "leftLeg": {
+     "rotation": {
+      "0.00": [
+       -32,
+       0,
+       0
+      ],
+      "0.40": [
+       32,
+       0,
+       0
+      ],
+      "0.80": [
+       -32,
+       0,
+       0
+      ]
+     }
+    },
+    "root": {
+     "position": {
+      "0.00": [
+       0,
+       0,
+       0
+      ],
+      "0.20": [
+       0,
+       0.8,
+       0
+      ],
+      "0.40": [
+       0,
+       0,
+       0
+      ],
+      "0.60": [
+       0,
+       0.8,
+       0
+      ],
+      "0.80": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk1": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.3,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       0,
+       8,
+       0
+      ],
+      "0.11": [
+       0,
+       12,
+       0
+      ],
+      "0.17": [
+       8,
+       -4,
+       0
+      ],
+      "0.30": [
+       6,
+       -4,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       -40,
+       -20,
+       10
+      ],
+      "0.11": [
+       0,
+       0,
+       0
+      ],
+      "0.17": [
+       0,
+       0,
+       0
+      ],
+      "0.30": [
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -45,
+       10,
+       0
+      ],
+      "0.11": [
+       -35,
+       10,
+       0
+      ],
+      "0.17": [
+       -90,
+       0,
+       0
+      ],
+      "0.30": [
+       -85,
+       0,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       45,
+       180,
+       0
+      ],
+      "0.11": [
+       35,
+       180,
+       0
+      ],
+      "0.17": [
+       90,
+       180,
+       0
+      ],
+      "0.30": [
+       85,
+       180,
+       0
+      ]
+     }
+    },
+    "root": {
+     "position": {
+      "0.00": [
+       0,
+       0,
+       0
+      ],
+      "0.11": [
+       0,
+       0,
+       0
+      ],
+      "0.17": [
+       0,
+       0,
+       -2
+      ],
+      "0.30": [
+       0,
+       0,
+       -2
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk1b": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.14,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       6,
+       -4,
+       0
+      ],
+      "0.14": [
+       0,
+       8,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       0,
+       0,
+       0
+      ],
+      "0.14": [
+       -40,
+       -20,
+       10
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -85,
+       0,
+       0
+      ],
+      "0.14": [
+       -45,
+       10,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       85,
+       180,
+       0
+      ],
+      "0.14": [
+       45,
+       180,
+       0
+      ]
+     }
+    },
+    "root": {
+     "position": {
+      "0.00": [
+       0,
+       0,
+       -2
+      ],
+      "0.14": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk2": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.3,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       0,
+       8,
+       0
+      ],
+      "0.11": [
+       -4,
+       10,
+       0
+      ],
+      "0.17": [
+       -10,
+       0,
+       0
+      ],
+      "0.30": [
+       -8,
+       0,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       -40,
+       -20,
+       10
+      ],
+      "0.11": [
+       0,
+       0,
+       0
+      ],
+      "0.17": [
+       -150,
+       0,
+       0
+      ],
+      "0.30": [
+       -140,
+       0,
+       0
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -45,
+       10,
+       0
+      ],
+      "0.11": [
+       -60,
+       10,
+       0
+      ],
+      "0.17": [
+       -150,
+       0,
+       0
+      ],
+      "0.30": [
+       -145,
+       0,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       45,
+       180,
+       0
+      ],
+      "0.11": [
+       60,
+       180,
+       0
+      ],
+      "0.17": [
+       150,
+       180,
+       0
+      ],
+      "0.30": [
+       145,
+       180,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk2b": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.14,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       -8,
+       0,
+       0
+      ],
+      "0.14": [
+       0,
+       8,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       -140,
+       0,
+       0
+      ],
+      "0.14": [
+       -40,
+       -20,
+       10
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -145,
+       0,
+       0
+      ],
+      "0.14": [
+       -45,
+       10,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       145,
+       180,
+       0
+      ],
+      "0.14": [
+       45,
+       180,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk3": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.3,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       0,
+       8,
+       0
+      ],
+      "0.11": [
+       -8,
+       0,
+       0
+      ],
+      "0.17": [
+       22,
+       0,
+       0
+      ],
+      "0.30": [
+       20,
+       0,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       -40,
+       -20,
+       10
+      ],
+      "0.11": [
+       0,
+       0,
+       0
+      ],
+      "0.17": [
+       0,
+       0,
+       0
+      ],
+      "0.30": [
+       0,
+       0,
+       0
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -45,
+       10,
+       0
+      ],
+      "0.11": [
+       -120,
+       0,
+       0
+      ],
+      "0.17": [
+       -50,
+       0,
+       0
+      ],
+      "0.30": [
+       -45,
+       0,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       45,
+       180,
+       0
+      ],
+      "0.11": [
+       120,
+       180,
+       0
+      ],
+      "0.17": [
+       50,
+       180,
+       0
+      ],
+      "0.30": [
+       45,
+       180,
+       0
+      ]
+     }
+    },
+    "waist": {
+     "position": {
+      "0.00": [
+       0,
+       0,
+       0
+      ],
+      "0.11": [
+       0,
+       0,
+       0
+      ],
+      "0.17": [
+       0,
+       -2,
+       0
+      ],
+      "0.30": [
+       0,
+       -2,
+       0
+      ]
+     }
+    }
+   }
+  },
+  "animation.rpg_w3d.tome.atk3b": {
+   "loop": "hold_on_last_frame",
+   "animation_length": 0.14,
+   "bones": {
+    "body": {
+     "rotation": {
+      "0.00": [
+       20,
+       0,
+       0
+      ],
+      "0.14": [
+       0,
+       8,
+       0
+      ]
+     }
+    },
+    "leftArm": {
+     "rotation": {
+      "0.00": [
+       0,
+       0,
+       0
+      ],
+      "0.14": [
+       -40,
+       -20,
+       10
+      ]
+     }
+    },
+    "rightArm": {
+     "rotation": {
+      "0.00": [
+       -45,
+       0,
+       0
+      ],
+      "0.14": [
+       -45,
+       10,
+       0
+      ]
+     }
+    },
+    "rightItem": {
+     "rotation": {
+      "0.00": [
+       45,
+       180,
+       0
+      ],
+      "0.14": [
+       45,
+       180,
+       0
+      ]
+     }
+    },
+    "waist": {
+     "position": {
+      "0.00": [
+       0,
+       -2,
+       0
+      ],
+      "0.14": [
+       0,
+       0,
+       0
+      ]
+     }
+    }
+   }
+  },
   "animation.rpg_w3d.bash.stance_up": {
    "loop": true,
    "animation_length": 2.0,
@@ -4487,6 +5236,139 @@
      "rotation": [
       "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
       "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30 + 27 + (1 - (q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)) * (-53)",
+      180
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t1_warrior": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.8190000000000001,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t1_mage": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.63,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      45,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30",
+      -15
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t1_archer": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 1.5268500000000003,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * -8 + math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 14",
+      15,
+      180
+     ],
+     "position": [
+      0,
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 0.6",
+      "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0) * 3 - math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 2.5"
+     ]
+    }
+   }
+  },
+  "animation.rpg_w3d.fp_t1_cleric": {
+   "loop": true,
+   "bones": {
+    "rpg_w3d": {
+     "scale": 0.8190000000000001,
+     "rotation": [
+      0,
+      55,
+      0
+     ],
+     "position": [
+      0.2,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_tilt": {
+     "rotation": [
+      135,
+      0,
+      0
+     ]
+    },
+    "rpg_w3d_spin": {
+     "rotation": [
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * 70",
+      "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180) * -30 + 207",
       180
      ]
     }

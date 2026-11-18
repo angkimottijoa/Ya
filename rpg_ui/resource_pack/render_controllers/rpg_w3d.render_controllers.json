@@ -45,6 +45,50 @@
     }
    ]
   },
+  "controller.render.rpg_w3d_t1_warrior": {
+   "geometry": "Geometry.rpg_w3d_t1_warrior",
+   "textures": [
+    "Texture.rpg_w3d_t1_warrior"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t1_mage": {
+   "geometry": "Geometry.rpg_w3d_t1_mage",
+   "textures": [
+    "Texture.rpg_w3d_t1_mage"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t1_archer": {
+   "geometry": "Geometry.rpg_w3d_t1_archer",
+   "textures": [
+    "Texture.rpg_w3d_t1_archer"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
+  "controller.render.rpg_w3d_t1_cleric": {
+   "geometry": "Geometry.rpg_w3d_t1_cleric",
+   "textures": [
+    "Texture.rpg_w3d_t1_cleric"
+   ],
+   "materials": [
+    {
+     "*": "Material.default"
+    }
+   ]
+  },
   "controller.render.rpg_w3d_hyeonmu_shield": {
    "geometry": "Geometry.rpg_w3d_hyeonmu_shield",
    "textures": [

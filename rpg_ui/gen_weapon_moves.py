@@ -16,6 +16,10 @@ W = {  # 무기 → 동작 종류 (gen_weapons3d.py 의 아이템과 같음)
     "baekho_axe": ("baekho_axe", "chop"),
     "jujak_bow": ("jujak_bow", "bow"),
     "hyeonmu_shield": ("hyeonmu_shield", "bash"),
+    "t1_warrior": ("jt_warrior", "chop"),
+    "t1_mage": ("jt_mage", "thrust"),
+    "t1_archer": ("jt_archer", "bow"),
+    "t1_cleric": ("jt_cleric", "tome"),
 }
 
 
@@ -60,6 +64,13 @@ KINDS = {
         "hits": [
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
+    "tome": {  # 책: 가슴 앞에 펼쳐 들고(책장이 내 쪽) → 앞으로 내밀어 펼치기 · 높이 들어 올리기 · 내려 누르기
+        "stance": P(rightArm=[-45, 10, 0], rightItem=[45, 180, 0], leftArm=[-40, -20, 10], body=[0, 8, 0]),
+        "hits": [
+            (P(rightArm=[-35, 10, 0], rightItem=[35, 180, 0], body=[0, 12, 0]), P(rightArm=[-90, 0, 0], rightItem=[90, 180, 0], body=[8, -4, 0], root_pos=[0, 0, -2]), P(rightArm=[-85, 0, 0], rightItem=[85, 180, 0], body=[6, -4, 0], root_pos=[0, 0, -2])),
+            (P(rightArm=[-60, 10, 0], rightItem=[60, 180, 0], body=[-4, 10, 0]), P(rightArm=[-150, 0, 0], rightItem=[150, 180, 0], body=[-10, 0, 0], leftArm=[-150, 0, 0]), P(rightArm=[-145, 0, 0], rightItem=[145, 180, 0], body=[-8, 0, 0], leftArm=[-140, 0, 0])),
+            (P(rightArm=[-120, 0, 0], rightItem=[120, 180, 0], body=[-8, 0, 0]), P(rightArm=[-50, 0, 0], rightItem=[50, 180, 0], body=[22, 0, 0], waist_pos=[0, -2, 0]), P(rightArm=[-45, 0, 0], rightItem=[45, 180, 0], body=[20, 0, 0], waist_pos=[0, -2, 0])),
+        ]},
     "bash": {  # 방패: 앞에 세워 들고 → 밀쳐 치기 · 몸통 박치기 · 내려찍기
         "stance": P(rightArm=[0, 0, 0], rightItem=[0, 90, 0], rightItem_pos=[-2.5, 3, 0], leftArm=[-10, 0, -8], body=[0, 6, 0]),  # 팔 X 와 손 Y 를 섞으면 방패가 비스듬히 기울었음 → 팔은 곧게 내리고 손은 Y 만 (방패가 땅과 직각)  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
         "guard": P(rightArm=[-70, 15, 0], rightItem=[70, 0, 0], leftArm=[-20, 0, -15], body=[4, 10, 0]),  # 패링 · 막기(우클릭 누름): 앞으로 세워 듦
@@ -70,12 +81,12 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.11, 0.17, 0.3, 0.14  # 3인칭 때리기 (0.7배 시간 = 더 빠르게)
-FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
+FP_SIZE = {"jujak_bow": 1.45 * 1.3, "baekho_axe": 1.6, "hyeonmu_shield": 1.3 * 2.6 / 1.9, "t1_archer": 1.45 * 1.3 * 1.8 / 1.4, "t1_warrior": 1.3, "t1_cleric": 1.3}  # 방패 1인칭 배율 (모델 크기에 곱해짐: 3인칭만 1.45 로 줄이고 1인칭은 V12.69 크기 그대로)  # 1인칭 무기별 크기 배율
 FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
-FP_TILT = {"jujak_bow": 135, "hyeonmu_shield": 135}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
-FP_SPIN = {n: (180 if n in ("jujak_bow", "hyeonmu_shield") else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
+FP_TILT = {"jujak_bow": 135, "hyeonmu_shield": 135, "t1_archer": 135, "t1_cleric": 135}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활 135° (-45 는 앞쪽이 플레이어 뒤를 향했음 → 가로축 180°)
+FP_SPIN = {n: (180 if n in ("jujak_bow", "hyeonmu_shield", "t1_archer", "t1_cleric") else -15) for n in W}  # 방패도 가로축 180° 뒤집어 1인칭에서 뒷면(손잡이 쪽)이 보이게, 위아래는 긴 축 180° 로 되돌림  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 -15° (12° 는 오른쪽이 보였음) · 활은 위아래 유지용 180°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -83,6 +94,7 @@ def chan(bone):
     return (bone[:-4], "position") if bone.endswith("_pos") else (bone, "rotation")
 
 
+FP_YAW = {"t1_cleric": 27 + 180}  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
 FP_GUARD_TURN = 27  # 관측: -63 모서리, -90·-117 은 앞면(무늬) 비스듬, +47(V12.83) 은 뒷면(손잡이)이 20° 비스듬 → 모서리에서 90° 인 +27 이 뒷면 정면. 이전 메모: V12.86 -90 은 왼쪽이 가깝게 비스듬 · V12.87 -63 은 모서리가 보였음 → 반대로 27°: 방패 1인칭 패링: 정면 (0° 는 비스듬, 47° 는 왼쪽을 봤음)
@@ -167,13 +179,14 @@ def build():
     # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
     for name in W:  # 무기마다 1인칭 긴 축 돌리기 (날이 있는 무기만)
         sw = "math.sin(math.clamp(variable.attack_time * 1.6, 0, 1) * 180)"  # 1.6배 빠르게 (휘두르기 시간 앞 60% 안에 끝)  # 때리기 · 블록 · 몹 · 스킬 휘두름 (게임이 주는 휘두르기 시간)
-        if name == "jujak_bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
+        if W[name][1] == "bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
             # 당기기(사용 중): 내 쪽으로 당기고 살짝 들림 · 쏘기(휘두르기 시간): 앞으로 튕겼다 반동으로 돌아옴
             draw = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0)"
             # Y +15: 활은 세로축 둘레로 돌려 왼쪽 옆면이 살짝 (-15 는 반대쪽이었음)
             spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
             turn = f" + {FP_GUARD_TURN} + (1 - {FP_GUARD}) * ({FP_SHIELD_SIDE + FP_REST_TURN - FP_GUARD_TURN})" if "guard" in KINDS[W[name][1]] else ""  # 기본 -26° ↔ 패링 -90° (정면)
+            if name in FP_YAW: turn += f" + {FP_YAW[name]}"
             spin = {"rotation": [f"{sw} * 70", f"{sw} * -30{turn}", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": fp_scale(name), "rotation": FP_ROT, "position": fp_pos(name)},  # 활은 1인칭에서 더 크게
                                                                           "rpg_w3d_tilt": {"rotation": [FP_TILT.get(name, 45) if isinstance(FP_TILT, dict) else FP_TILT, 0, 0]},

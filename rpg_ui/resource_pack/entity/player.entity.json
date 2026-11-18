@@ -16,6 +16,10 @@
     "rpg_w3d_cheongryong_lance": "textures/models/rpg_w3d_cheongryong_lance",
     "rpg_w3d_baekho_axe": "textures/models/rpg_w3d_baekho_axe",
     "rpg_w3d_jujak_bow": "textures/models/rpg_w3d_jujak_bow",
+    "rpg_w3d_t1_warrior": "textures/models/rpg_w3d_t1_warrior",
+    "rpg_w3d_t1_mage": "textures/models/rpg_w3d_t1_mage",
+    "rpg_w3d_t1_archer": "textures/models/rpg_w3d_t1_archer",
+    "rpg_w3d_t1_cleric": "textures/models/rpg_w3d_t1_cleric",
     "rpg_w3d_hyeonmu_shield": "textures/models/rpg_w3d_hyeonmu_shield"
    },
    "geometry": {
@@ -25,6 +29,10 @@
     "rpg_w3d_cheongryong_lance": "geometry.rpg_w3d_cheongryong_lance",
     "rpg_w3d_baekho_axe": "geometry.rpg_w3d_baekho_axe",
     "rpg_w3d_jujak_bow": "geometry.rpg_w3d_jujak_bow",
+    "rpg_w3d_t1_warrior": "geometry.rpg_w3d_t1_warrior",
+    "rpg_w3d_t1_mage": "geometry.rpg_w3d_t1_mage",
+    "rpg_w3d_t1_archer": "geometry.rpg_w3d_t1_archer",
+    "rpg_w3d_t1_cleric": "geometry.rpg_w3d_t1_cleric",
     "rpg_w3d_hyeonmu_shield": "geometry.rpg_w3d_hyeonmu_shield"
    },
    "scripts": {
@@ -46,7 +54,7 @@
      "variable.hand_bob = query.life_time < 0.01 ? 0.0 : variable.hand_bob + ((query.is_on_ground && query.is_alive ? math.clamp(math.sqrt(math.pow(query.position_delta(0), 2.0) + math.pow(query.position_delta(2), 2.0)), 0.0, 0.1) : 0.0) - variable.hand_bob) * 0.02;",
      "variable.map_angle = math.clamp(1 - variable.player_x_rotation / 45.1, 0.0, 1.0);",
      "variable.item_use_normalized = query.main_hand_item_use_duration / query.main_hand_item_max_duration;",
-     "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield';",
+     "v.rpg_w = query.get_equipped_item_name == 'hundun_scythe' || query.get_equipped_item_name == 'cheongryong_sword' || query.get_equipped_item_name == 'baekho_axe' || query.get_equipped_item_name == 'jujak_bow' || query.get_equipped_item_name == 'hyeonmu_shield' || query.get_equipped_item_name == 'jt_warrior' || query.get_equipped_item_name == 'jt_mage' || query.get_equipped_item_name == 'jt_archer' || query.get_equipped_item_name == 'jt_cleric';",
      "v.rpg_fr = variable.is_first_person || query.is_riding || query.is_sleeping || query.is_swimming || query.is_gliding;",
      "v.rpg_atk = variable.attack_time > 0.0;"
     ],
@@ -79,6 +87,18 @@
       "rpgw_ctrl_hyeonmu_shield": "!v.rpg_fr && query.get_equipped_item_name == 'hyeonmu_shield'"
      },
      {
+      "rpgw_ctrl_t1_warrior": "!v.rpg_fr && query.get_equipped_item_name == 'jt_warrior'"
+     },
+     {
+      "rpgw_ctrl_t1_mage": "!v.rpg_fr && query.get_equipped_item_name == 'jt_mage'"
+     },
+     {
+      "rpgw_ctrl_t1_archer": "!v.rpg_fr && query.get_equipped_item_name == 'jt_archer'"
+     },
+     {
+      "rpgw_ctrl_t1_cleric": "!v.rpg_fr && query.get_equipped_item_name == 'jt_cleric'"
+     },
+     {
       "attack.rotations": "v.rpg_w && !v.rpg_fr && variable.attack_time > 0"
      },
      {
@@ -95,6 +115,18 @@
      },
      {
       "rpgw_fp_hyeonmu_shield": "variable.is_first_person && query.get_equipped_item_name == 'hyeonmu_shield'"
+     },
+     {
+      "rpgw_fp_t1_warrior": "variable.is_first_person && query.get_equipped_item_name == 'jt_warrior'"
+     },
+     {
+      "rpgw_fp_t1_mage": "variable.is_first_person && query.get_equipped_item_name == 'jt_mage'"
+     },
+     {
+      "rpgw_fp_t1_archer": "variable.is_first_person && query.get_equipped_item_name == 'jt_archer'"
+     },
+     {
+      "rpgw_fp_t1_cleric": "variable.is_first_person && query.get_equipped_item_name == 'jt_cleric'"
      }
     ]
    },
@@ -212,11 +244,28 @@
     "rpgw_bash_guard": "animation.rpg_w3d.bash.guard",
     "rpgw_bash_guard_in": "animation.rpg_w3d.bash.guard_in",
     "rpgw_ctrl_hyeonmu_shield": "controller.animation.rpg_w3d.hyeonmu_shield",
+    "rpgw_ctrl_t1_warrior": "controller.animation.rpg_w3d.t1_warrior",
+    "rpgw_ctrl_t1_mage": "controller.animation.rpg_w3d.t1_mage",
+    "rpgw_ctrl_t1_archer": "controller.animation.rpg_w3d.t1_archer",
+    "rpgw_tome_stance_up": "animation.rpg_w3d.tome.stance_up",
+    "rpgw_tome_stance_down": "animation.rpg_w3d.tome.stance_down",
+    "rpgw_tome_walk_down": "animation.rpg_w3d.tome.walk_down",
+    "rpgw_tome_atk1": "animation.rpg_w3d.tome.atk1",
+    "rpgw_tome_atk1b": "animation.rpg_w3d.tome.atk1b",
+    "rpgw_tome_atk2": "animation.rpg_w3d.tome.atk2",
+    "rpgw_tome_atk2b": "animation.rpg_w3d.tome.atk2b",
+    "rpgw_tome_atk3": "animation.rpg_w3d.tome.atk3",
+    "rpgw_tome_atk3b": "animation.rpg_w3d.tome.atk3b",
+    "rpgw_ctrl_t1_cleric": "controller.animation.rpg_w3d.t1_cleric",
     "rpgw_fp_hundun_scythe": "animation.rpg_w3d.fp_hundun_scythe",
     "rpgw_fp_cheongryong_lance": "animation.rpg_w3d.fp_cheongryong_lance",
     "rpgw_fp_baekho_axe": "animation.rpg_w3d.fp_baekho_axe",
     "rpgw_fp_jujak_bow": "animation.rpg_w3d.fp_jujak_bow",
-    "rpgw_fp_hyeonmu_shield": "animation.rpg_w3d.fp_hyeonmu_shield"
+    "rpgw_fp_hyeonmu_shield": "animation.rpg_w3d.fp_hyeonmu_shield",
+    "rpgw_fp_t1_warrior": "animation.rpg_w3d.fp_t1_warrior",
+    "rpgw_fp_t1_mage": "animation.rpg_w3d.fp_t1_mage",
+    "rpgw_fp_t1_archer": "animation.rpg_w3d.fp_t1_archer",
+    "rpgw_fp_t1_cleric": "animation.rpg_w3d.fp_t1_cleric"
    },
    "render_controllers": [
     {
@@ -245,6 +294,18 @@
     },
     {
      "controller.render.rpg_w3d_jujak_bow": "!variable.map_face_icon && query.get_equipped_item_name == 'jujak_bow'"
+    },
+    {
+     "controller.render.rpg_w3d_t1_warrior": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_warrior'"
+    },
+    {
+     "controller.render.rpg_w3d_t1_mage": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_mage'"
+    },
+    {
+     "controller.render.rpg_w3d_t1_archer": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_archer'"
+    },
+    {
+     "controller.render.rpg_w3d_t1_cleric": "!variable.map_face_icon && query.get_equipped_item_name == 'jt_cleric'"
     },
     {
      "controller.render.rpg_w3d_hyeonmu_shield": "!variable.map_face_icon && query.get_equipped_item_name == 'hyeonmu_shield'"

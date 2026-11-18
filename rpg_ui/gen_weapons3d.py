@@ -20,6 +20,15 @@ W = {
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], scale=0.45), vanilla=True),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=78, maxd=11, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
+    # 1차 직업 도구 (V12.91): 덜 화려하게 · 블록 적게
+    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", flip180=True, px=34, maxd=5, len=1.25, grip=0.13, kind="chop", vanilla=True,
+                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
+    "t1_mage": dict(item="rpg:jt_mage", src="t1_mage.png", px=40, maxd=5, len=1.8, grip=0.3, kind="thrust", vanilla=True,
+                    tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
+    "t1_archer": dict(item="rpg:jt_archer", src="t1_archer.png", mirror=True, string=(222, 206, 160), px=36, maxd=5, len=1.4, grip=0.5, kind="bow", bowside=True,
+                      tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
+    "t1_cleric": dict(item="rpg:jt_cleric", src="t1_cleric.png", px=26, maxd=3, len=0.75, grip=0.5, kind="tome", noupright=True,
+                      tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
@@ -184,7 +193,18 @@ def build(name, cfg):
         if cfg.get("shell_only"): base = shell_only(src).crop(shell_only(src).getbbox())  # 윤곽으로만 자름 (밝은 테두리·하이라이트가 배경으로 지워지지 않게)
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
         if cfg.get("stretch_y"): base = base.resize((base.width, round(base.height * cfg["stretch_y"])), Image.LANCZOS)  # 세로로 더 긴 타원
-        im = shrink(base if cfg.get("noupright") else upright(base), cfg["px"])  # 방패는 그림 그대로 (둥글어서 돌리면 엉뚱하게 눕음)
+        up = base if cfg.get("noupright") else upright(base)
+        if cfg.get("flip180"): up = up.rotate(180)  # 무게 판정이 반대로 나온 그림 (칼끝이 위로)
+        if cfg.get("mirror"): up = up.transpose(Image.FLIP_LEFT_RIGHT)  # 활: 활대 볼록한 쪽이 앞(그림 오른쪽)
+        im = shrink(up, cfg["px"])
+        if cfg.get("string"):  # 줄여서 사라진 활시위: 위·아래 끝을 잇는 1픽셀 선
+            pp = im.load(); Wd0, Ht0 = im.size
+            ys = [y for y in range(Ht0) if any(pp[x, y][3] for x in range(Wd0))]
+            def edge_x(y): xs = [x for x in range(Wd0) if pp[x, y][3]]; return min(xs)
+            y0, y1 = ys[0], ys[-1]; x0, x1 = edge_x(y0), edge_x(y1)
+            for y in range(y0, y1 + 1):
+                x = round(x0 + (x1 - x0) * (y - y0) / max(1, y1 - y0))
+                if not pp[x, y][3]: pp[x, y] = (*cfg["string"], 255)  # 방패는 그림 그대로 (둥글어서 돌리면 엉뚱하게 눕음)
         dm = depth_map(im, dome=cfg.get("dome", False), dome_h=cfg.get("dome_h", 10), shell=cfg.get("shell", False), maxd=cfg.get("maxd", 7))
     else:
         im = shell_art(cfg["px"]); dm = depth_map(im, dome=True)

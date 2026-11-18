@@ -122,6 +122,23 @@ def draw(shape, pal, tier):
     return im
 
 
+def art_icon(path, n=32):
+    src = Image.open(path).convert("RGBA")
+    k = (n - 2) / max(src.size)
+    sm = src.resize((max(1, round(src.width * k)), max(1, round(src.height * k))), Image.LANCZOS)
+    px = sm.load()
+    for y in range(sm.height):
+        for x in range(sm.width):
+            r, g, b, a = px[x, y]; px[x, y] = (r, g, b, 255) if a > 90 else (0, 0, 0, 0)
+    out = Image.new("RGBA", (n, n), (0, 0, 0, 0)); out.paste(sm, ((n - sm.width) // 2, (n - sm.height) // 2))
+    if "archer" in path.name:  # 작게 줄이면 사라지는 활시위: 왼쪽 끝 ↔ 위쪽 끝
+        p = out.load(); pts = [(x, y) for y in range(n) for x in range(n) if p[x, y][3]]
+        a = min(pts); b = min(pts, key=lambda q: q[1])
+        ImageDraw.Draw(out).line([a, b], fill=(222, 206, 160, 255))
+        for q in pts: p[q] = out.getpixel(q)
+    return out
+
+
 def main():
     atlas = json.loads(ATLAS.read_text())
     ICONS.mkdir(parents=True, exist_ok=True)
@@ -129,7 +146,9 @@ def main():
         tier = int(tier)
         base = BASE.get(path, path)
         icon = f"rpg_jt_{path}"
-        draw(shape, PAL[base], tier).save(ICONS / f"jt_{path}.png")
+        art = ROOT / "art" / f"t1_{path}.png"  # 그림이 있으면 그 그림을 32x32 아이콘으로 (V12.91: 1차 도구)
+        if art.exists(): art_icon(art).save(ICONS / f"jt_{path}.png")
+        else: draw(shape, PAL[base], tier).save(ICONS / f"jt_{path}.png")
         atlas["texture_data"][icon] = {"textures": f"textures/items/rpg/jt_{path}"}
         color = {"warrior": "§c", "archer": "§a", "mage": "§b", "cleric": "§e", "hidden": "§5"}[base]
         item = {
