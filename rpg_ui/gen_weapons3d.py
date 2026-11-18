@@ -13,11 +13,11 @@ RP = ROOT / "resource_pack"
 W = {
     # id, 그림, 긴 쪽 픽셀 수, 실제 길이(블록), 쥐는 곳(아래에서 비율), 날 쪽(위로 갈 쪽: "mass" = 무거운 끝), 1·3인칭
     "hundun_scythe": dict(item="rpg:hundun_scythe", src="hundun_scythe_ref.jpg", px=56, len=2.7, grip=0.28, kind="reap",
-                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "cheongryong_lance": dict(item="rpg:cheongryong_sword", src="cheongryong_lance_ref.png", px=84, len=3.4, grip=0.3, kind="thrust",
-                          tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                          tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "baekho_axe": dict(item="rpg:baekho_axe", src="baekho_axe3d_ref.jpg", px=64, len=2.4, grip=0.22, kind="chop",
-                       tp=dict(rot=[-90, 0, 0], pos=[0, 0, 0], yaw=-90), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
+                       tp=dict(rot=[0, 0, 70], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.45)),
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=48, len=1.8, grip=0.5, kind="bow",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_ref.jpg", px=60, len=1.5, grip=0.5, kind="bash", dome=True, keep=0.03, shell_only=True,
@@ -244,21 +244,21 @@ def build(name, cfg):
     for k in ("fp", "tp"):
         c = cfg[k]; m = 1 if k == "fp" else 0.6
         # 때리기 3단: 준비(0~0.3 뒤로 젖힘) → 내려침(0.3~0.7) → 되돌림(0.7~1) · v.up / v.dn / v.rec (0→1)
-        # 손 슬롯 축: 로컬 Z 회전 = 앞뒤로 숙이기, 로컬 Y 회전 = 좌우로 휘두르기, 로컬 X 이동 = 앞뒤 찌르기
+        # 손 슬롯 축: 로컬 Z 회전 = 앞뒤로 숙이기(+ = 끝이 앞·아래로), 로컬 Y 회전 = 좌우로 휘두르기, 로컬 -X 이동 = 앞으로 찌르기 (3인칭 기본 Z 70 = 다이아 검처럼 앞 · 살짝 위)
         rx, ry, rz = c["rot"]; px_, py_, pz_ = c["pos"]
         idle_r = "math.sin(q.life_time * 110) * 2.5"
         idle_p = "math.sin(q.life_time * 170) * 0.25"
         kind = cfg.get("kind", "chop")
         if kind == "reap":   # 낫: 뒤로 크게 젖혔다가 수평으로 크게 베어 넘김
-            rot = [f"{rx}", f"{ry} + (v.up * 70 - v.dn * 170 + v.rec * 100) * {m}", f"{rz} + {idle_r} + (v.up * 35 - v.dn * 60 + v.rec * 25) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}"]
+            rot = [f"{rx}", f"{ry} + (v.up * 70 - v.dn * 170 + v.rec * 100) * {m}", f"{rz} + {idle_r} + (-v.up * 35 + v.dn * 60 - v.rec * 25) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p}", f"{pz_}"]
         elif kind == "thrust":  # 창: 뒤로 당겼다가 앞으로 쭉 찌르고 돌아옴
-            rot = [f"{rx}", f"{ry} + (v.up * 10 - v.dn * 10) * {m}", f"{rz} + {idle_r} + (v.up * 20 - v.dn * 35 + v.rec * 15) * {m}"]; pos = [f"{px_} + (-v.up * 3 + v.dn * 10 - v.rec * 7) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
+            rot = [f"{rx}", f"{ry} + (v.up * 10 - v.dn * 10) * {m}", f"{rz} + {idle_r} + (-v.up * 20 + v.dn * 35 - v.rec * 15) * {m}"]; pos = [f"{px_} + (v.up * 3 - v.dn * 10 + v.rec * 7) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
         elif kind == "chop":    # 도끼: 머리 위로 크게 들었다가 아래로 내려찍음
-            rot = [f"{rx} + (v.dn * 15 - v.rec * 15) * {m}", f"{ry}", f"{rz} + {idle_r} + (v.up * 80 - v.dn * 160 + v.rec * 80) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p} + (v.up * 2 - v.dn * 3 + v.rec * 1) * {m}", f"{pz_}"]
+            rot = [f"{rx} + (v.dn * 15 - v.rec * 15) * {m}", f"{ry}", f"{rz} + {idle_r} + (-v.up * 80 + v.dn * 160 - v.rec * 80) * {m}"]; pos = [f"{px_}", f"{py_} + {idle_p} + (v.up * 2 - v.dn * 3 + v.rec * 1) * {m}", f"{pz_}"]
         elif kind == "bow":     # 활: 쏘면 반동으로 살짝 튐
-            rot = [f"{rx}", f"{ry}", f"{rz} + {idle_r} + (-v.dn * 12 + v.rec * 12) * {m}"]; pos = [f"{px_} + (-v.dn * 1.5 + v.rec * 1.5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
+            rot = [f"{rx}", f"{ry}", f"{rz} + {idle_r} + (-v.dn * 12 + v.rec * 12) * {m}"]; pos = [f"{px_} + (v.dn * 1.5 - v.rec * 1.5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
         else:                   # 방패: 앞으로 밀쳐 침
-            rot = [f"{rx}", f"{ry} + (v.dn * 12 - v.rec * 12) * {m}", f"{rz} + {idle_r}"]; pos = [f"{px_} + (-v.up * 2 + v.dn * 7 - v.rec * 5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
+            rot = [f"{rx}", f"{ry} + (v.dn * 12 - v.rec * 12) * {m}", f"{rz} + {idle_r}"]; pos = [f"{px_} + (v.up * 2 - v.dn * 7 + v.rec * 5) * {m}", f"{py_} + {idle_p}", f"{pz_}"]
         b = {"rotation": rot, "position": pos}
         if "scale" in c: b["scale"] = c["scale"]
         bones = {"body": b}
