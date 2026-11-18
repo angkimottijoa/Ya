@@ -16,6 +16,7 @@ import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
 import * as SK from "./skills.js";
 import { combatStats } from "./combat.js";
+import { enhLines, defenseOf, heldEnhMul } from "./enhance.js";
 import * as WP from "./waypoints.js";
 import { npcRegistry } from "./npcdb.js";
 import * as J from "./jobs.js";
@@ -136,7 +137,9 @@ export function openCombatInfo(p, sel = "me") {
   if (sel === "me") {
     const hc = p.getComponent("minecraft:health");
     body = `§e§l공격 스탯§r\n§f힘 ${cs.str} §7→ 근접 §f+${cs.melee}%\n§f민첩 ${cs.dex} §7→ 원거리 §f+${cs.ranged}%\n§f지능 ${cs.int} §7→ 마법 §f+${cs.magic}%\n\n` +
-      `§e§l생존§r\n§f체력 ${cs.vit} §7→ 최대 체력 §f${numc(hc?.effectiveMax ?? 0)}\n§7마나 §f${numc(maxMp(p))}\n\n§e§l공통§r\n§7치명타 5% · 1.5배 · 몹 · 환경 피해 1.1배`;
+      `§e§l생존§r\n§f체력 ${cs.vit} §7→ 최대 체력 §f${numc(hc?.effectiveMax ?? 0)}\n§7마나 §f${numc(maxMp(p))}\n` +
+      (() => { const df = defenseOf(p); return `§7방어력 §f${df.total} §7(갑옷 ${df.base} + 강화 ${df.enh} → 받는 피해 -${Math.round(df.red * 100)}% 추가)\n§7손에 든 무기 강화 §f×${heldEnhMul(p).toFixed(2)}\n\n`; })() +
+      `§e§l공통§r\n§7치명타 5% · 1.5배 · 몹 · 환경 피해 1.1배`;
   } else if (sel === "calc") {
     body = "§e§l스탯 곡선§r §7(상한 없음, 많이 찍을수록 1점당 효과 감소)\n§f힘 · 지능: 100에 +100% · 200에 +150% · 400에 +200%\n§f민첩(원거리): 100에 +75% · 200에 +120% · 400에 +171%\n\n" +
       "§e§l평타§r\n§f아이템 공격력 × 근접 배율 × 치명\n\n§e§l사신수 · 사흉수 스킬§r\n§f160 × (근접%·힘 + 원거리%·민첩 + 마법%·지능) × (1 + 레벨×2.5%) × 위력 보정 × 치명\n\n" +
@@ -331,6 +334,35 @@ export function questDetailBody(p, q) {
   return rt(lines);
 }
 
+/** 퀘스트 자세히 보기 (V12.131): 왼쪽 = 목표 · 보상 칸, 오른쪽 = 진행 별(★ 달성 / ☆ 남음) · 목표마다 진행 막대 · 연결 퀘스트 */
+export function openQuestFull(p, q, back, selIdx = 0) {
+  const st = Q.state(p, q), t = Q.qtype(q), live = st === "active" || st === "ready";
+  const scr = new Screen("L", `퀘스트 / ${q.title}`);
+  const cells = q.obj.map((o, i) => ({ i, o, cur: live ? Q.objProgress(p, q, i) : st === "done" ? Q.objNeed(o) : 0, need: Q.objNeed(o) }));
+  for (const c of cells) {
+    const done = c.cur >= c.need;
+    scr.item([done ? "§a✔ " : "§7○ ", Q.objLine(p, q, c.i, live), `\n§7${done ? "§a완료" : `${Math.floor((c.cur / Math.max(1, c.need)) * 100)}%`}`], ICON({ kill: "class", collect: "bag", visit: "nav", talk: "chat" }[c.o.t] ?? "quest"), () => openQuestFull(p, q, back, c.i), { on: c.i === selIdx });
+  }
+  scr.tab("돌아가기", ICON("back"), () => back(q.id));
+  const stars = cells.map((c) => (c.cur >= c.need ? "§e★" : "§8☆")).join("");
+  const c = cells[selIdx] ?? cells[0];
+  const bar = (cur, need) => { const n = Math.round((Math.min(cur, need) / Math.max(1, need)) * 20); return `§a${"|".repeat(n)}§8${"|".repeat(20 - n)}§r`; };
+  const lines = [`${t.color}§l${t.name} 퀘스트§r  ${STATE_TAG[st]}\n§l§f${q.title}§r\n\n§7진행 ${stars}  §f${cells.filter((x) => x.cur >= x.need).length}/${cells.length}\n\n`];
+  if (c) lines.push("§e§l선택한 목표§r\n", Q.objLine(p, q, c.i, live), `\n${bar(c.cur, c.need)} §f${c.cur}/${c.need}\n\n`);
+  if (q.desc) lines.push(`§7${q.desc}\n\n`);
+  if (q.region) lines.push(`§7지역 §f${q.region}   `);
+  if (q.giver !== "board") lines.push(`§7의뢰인 §f${q.giverName ?? q.giver}`);
+  lines.push("\n\n§e§l보상§r\n");
+  Q.rewardLines(q).forEach((l) => lines.push(l, "\n"));
+  const nexts = Q.allQuests().filter((x) => x.prereq === q.id).map((x) => x.title);
+  if (q.prereq) lines.push(`\n§7앞 퀘스트 §f${Q.getQuest(q.prereq)?.title ?? q.prereq}`);
+  if (nexts.length) lines.push(`\n§7다음 퀘스트 §f${nexts.join(", ")}`);
+  scr.select(q.title, ICON(t.icon));
+  scr.body(rt(lines));
+  questActions(scr, p, q, (id) => openQuestFull(p, Q.getQuest(id ?? q.id) ?? q, back, selIdx));
+  scr.reopen = () => openQuestFull(p, q, back, selIdx);
+  return scr.show(p);
+}
 function questActions(scr, p, q, back) {
   const st = Q.state(p, q);
   if (st === "available" && (q.giver === "board" || back.npc === q.giver)) scr.action("§a수락", () => {
@@ -402,6 +434,7 @@ export function openQuests(p, cat = "active", sel, page = 0) {
   if (q) {
     scr.select(q.title, ICON(Q.qtype(q).icon));
     scr.body(questDetailBody(p, q));
+    scr.action("§b자세히 보기", () => openQuestFull(p, q, (id) => openQuests(p, cat, id ?? sel, page)));
     questActions(scr, p, q, (id) => openQuests(p, cat, id ?? sel, page));
   } else {
     scr.select(catName, ICON("quest"));
@@ -670,7 +703,8 @@ export function openBag(p, cat = "all", selKey, page = 0) {
       const en = it.getComponent("minecraft:enchantable")?.getEnchantments() ?? [];
       if (en.length) lines.push("\n§5", en.map((e) => `${ENCH_KO[e.type.id] ?? e.type.id} ${roman(e.level)}`).join("\n"), "\n");
     } catch {}
-    const lore = it.getLore();
+    lines.push(enhLines(it)); // 강화 단계 · 효과 · 다음 단계
+    const lore = it.getLore().filter((l) => !l.startsWith("§6§l강화 +"));
     if (lore.length) lines.push("\n§7", lore.join("\n"), "\n");
     if (sel.eq) lines.push(`\n§2${sel.eq.name}에 장착 중`);
     scr.select(rt(itemName(it)), iconOf(it.typeId));

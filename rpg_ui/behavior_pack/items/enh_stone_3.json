@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "rpg:enh_stone_3",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "rpg_enh_stone_3",
+      "minecraft:display_name": {
+        "value": "§b§l상급 강화석§r §7[강화 +9~12]"
+      },
+      "minecraft:max_stack_size": 64,
+      "minecraft:glint": false
+    }
+  }
+}

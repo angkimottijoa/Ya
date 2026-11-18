@@ -42,6 +42,7 @@ export const ACT_DEFS = [
   { id: "anim", name: "NPC 동작 바꾸기", v: "동작 번호 0~9" },
   { id: "heal", name: "체력 회복" },
   { id: "shop", name: "상점 열기" },
+  { id: "enhance", name: "강화 창 열기 (대장장이)" },
   { id: "end", name: "대화 종료" },
 ];
 
@@ -136,6 +137,7 @@ export function run(p, acts, ctx = {}) {
           break;
         }
         case "shop": res.shop = true; break;
+        case "enhance": res.enhance = true; break;
         case "end": res.end = true; break;
       }
     } catch (e) {

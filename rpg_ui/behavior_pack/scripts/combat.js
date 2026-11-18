@@ -6,6 +6,7 @@ import { nearbyMembers } from "./party.js";
 import * as Q from "./quests.js";
 import { skillHit as weaponSkillHit, buffMul } from "./skills.js";
 import { HP_STEPS } from "./hp_steps.js";
+import { heldEnhMul, defenseOf } from "./enhance.js";
 import * as WRULES from "./world_rules.js";
 
 // 처치 보상 [경험치, 골드]
@@ -46,7 +47,7 @@ export function combatStats(p) {
 export const powOf = (x) => 1 + soft(x, 200, 300) / 100;
 /** 원거리(민첩)는 더 천천히 오름 (멀리서 안전하게 치므로): 100에 +75% · 200에 +120% · 400에 +171% */
 export const powOfR = (x) => 1 + soft(x, 300, 300) / 100;
-export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * (1 - s.dull / 100); }
+export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * heldEnhMul(p); } // 강화 무기 배율 포함
 /** 치명타 굴림: 맞으면 배율, 아니면 1 */
 export function rollCrit(p, s = combatStats(p)) { return Math.random() * 100 < s.crit ? s.critDmg / 100 : 1; }
 
@@ -103,7 +104,7 @@ export function initCombat() {
       const mul = (fromPlayer ? pvpMul(damageSource.damagingEntity) : incomingMul(hurtEntity)) * (magic ? 1 : 1 + cs.frail / 100);
       // 회피 (민첩): 이번 피해를 통째로 무름
       const dodged = damageSource.cause !== "override" && damageSource.cause !== "void" && Math.random() * 100 < cs.dodge;
-      const want = dodged ? 0 : damage * mul * (1 - red); // 최종으로 잃을 양
+      const want = dodged ? 0 : damage * mul * (1 - red) * (1 - defenseOf(hurtEntity).red); // 최종으로 잃을 양 (강화 방어력까지)
       if (dodged) { try { hurtEntity.onScreenDisplay.setActionBar("§b§l회피!"); } catch {} }
       if (hp && hp.currentValue > 0 && Math.abs(want - damage) > 0.01) {
         const nv = hp.currentValue - (want - damage);

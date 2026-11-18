@@ -122,6 +122,7 @@ export function iconOf(id) {
   if (id === "rpg:skill") return ICON("skill");
   const [ns, name] = id.includes(":") ? id.split(":") : ["minecraft", id];
   // 다른 애드온 아이템: 대부분 textures/items/<이름> 에 아이콘이 있다 (아니면 제작자 도구 > 데이터 > 아이콘 지정)
+  if (ns === "rpg") return `textures/items/rpg/${name}`; // 이 애드온 아이템 (강화석 · 직업 도구 · 사신수 등)
   if (ns !== "minecraft") return `textures/items/${name}`;
   const s = name;
   const tries = [ALIAS[s], s, s.replace(/^wooden_/, "wood_").replace(/^golden_/, "gold_")];

@@ -736,6 +736,7 @@ function npcShop(p, e, back, sel = 0) {
     (it ? `\n\n§7선택: §f${it.id}\n${shopDesc(it)}` : ""));
   const save = () => setJSON(e, "rpg:shop_list", own);
   scr.action(npcHasShop(e) ? "상점 끄기" : "상점 켜기", () => { e.setDynamicProperty("rpg:shop", !npcHasShop(e)); e.setDynamicProperty("rpg:role", undefined); return re(sel); });
+  scr.action(e.getDynamicProperty("rpg:smith") === true ? "§6대장장이(강화) 끄기" : "§6대장장이(강화) 켜기", () => { e.setDynamicProperty("rpg:smith", e.getDynamicProperty("rpg:smith") !== true); msg(p, e.getDynamicProperty("rpg:smith") ? "§6이 NPC 와 대화하면 「강화하기」가 나옵니다" : "§7대장장이 꺼짐"); return re(sel); });
   scr.action("손에 든 아이템 등록", async () => {
     const held = inv(p).getItem(p.selectedSlotIndex);
     if (!held) { msg(p, "§c손에 아이템을 들어 주세요."); return re(sel); }
@@ -852,16 +853,17 @@ function playerTab(p, selId) {
     msg(t, d.set.adminSkill ? "§d관리자 스킬 모드 켜짐 §7(쿨다운·마나 없음, 모든 직업 도구 사용 가능)" : "§7관리자 스킬 모드 꺼짐");
     return re();
   });
-  scr.action("§b무기 지급 (사신수 · 사흉수)", async () => { // V12.118: 버튼이 많아 아래가 잘리던 것 → 한 창에서 고름
+  scr.action("§b무기 · 강화석 지급", async () => { // V12.118: 버튼이 많아 아래가 잘리던 것 → 한 창에서 고름
     const WEAPONS = [["rpg:cheongryong_sword", "청룡의 검"], ["rpg:baekho_axe", "백호의 도끼"], ["rpg:jujak_bow", "주작의 활"], ["rpg:hyeonmu_shield", "현무의 방패"],
-      ["rpg:hundun_scythe", "혼돈의 낫"], ["rpg:qiongqi_claws", "궁기의 쌍발톱"], ["rpg:taowu_hammer", "도올의 대망치"], ["rpg:taotie_maw", "도철의 아가리"]];
+      ["rpg:hundun_scythe", "혼돈의 낫"], ["rpg:qiongqi_claws", "궁기의 쌍발톱"], ["rpg:taowu_hammer", "도올의 대망치"], ["rpg:taotie_maw", "도철의 아가리"],
+      ["rpg:enh_stone_1", "하급 강화석 ×20", 20], ["rpg:enh_stone_2", "중급 강화석 ×20", 20], ["rpg:enh_stone_3", "상급 강화석 ×20", 20], ["rpg:enh_stone_4", "최상급 강화석 ×20", 20], ["rpg:enh_protect", "파괴방지석 ×20", 20]];
     const r = await new ModalFormData().title(`${t.name} - 무기 지급`)
       .dropdown("무기", ["§e전부", ...WEAPONS.map((w) => w[1])], 0)
       .show(p);
     if (!r.canceled) {
       const k = Number(r.formValues[0]);
       const list = k === 0 ? WEAPONS : [WEAPONS[k - 1]];
-      for (const [id] of list) giveItem(t, id, 1);
+      for (const [id, , n] of list) giveItem(t, id, n ?? 1);
       msg(p, `§a${list.map((w) => w[1]).join(", ")} 지급`);
     }
     return re();

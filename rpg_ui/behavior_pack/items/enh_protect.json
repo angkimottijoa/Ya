@@ -1,0 +1,19 @@
+{
+  "format_version": "1.21.40",
+  "minecraft:item": {
+    "description": {
+      "identifier": "rpg:enh_protect",
+      "menu_category": {
+        "category": "items"
+      }
+    },
+    "components": {
+      "minecraft:icon": "rpg_enh_protect",
+      "minecraft:display_name": {
+        "value": "§6§l파괴방지석§r §7[강화 실패 하락 막기 · +8 까지]"
+      },
+      "minecraft:max_stack_size": 64,
+      "minecraft:glint": true
+    }
+  }
+}

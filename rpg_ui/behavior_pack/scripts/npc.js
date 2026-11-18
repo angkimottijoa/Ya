@@ -24,6 +24,7 @@ import * as R from "./rules.js";
 import { ICON } from "./itemdb.js";
 import { openShop, questDetailBody } from "./menu.js";
 import { npcIdOf, registerNpcEntity } from "./npcdb.js";
+import { openEnhance } from "./enhance.js";
 
 export const SKINS = ["스티브", "알렉스", "기사", "상인", "마법사", "성직자", "대장장이", "경비병", "사용자 스킨 1", "사용자 스킨 2", "사용자 스킨 3", "사용자 스킨 4"];
 export const ANIMS = ["기본", "손 흔들기", "팔짱", "앉기", "가리키기", "생각하기", "환호", "경계 자세", "인사(꾸벅)", "춤"];
@@ -33,6 +34,8 @@ export const COND_TYPES = R.COND_DEFS;
 export const npcId = npcIdOf;
 export const npcHasShop = (e) => e.getDynamicProperty("rpg:shop") === true || e.getDynamicProperty("rpg:role") === "shop";
 export const npcShopList = (e) => getJSON(e, "rpg:shop_list", []);
+/** 대장장이: 대화 첫 화면에 「강화하기」 (V12.131) */
+export const npcIsSmith = (e) => e.getDynamicProperty("rpg:smith") === true;
 export const baseAnim = (e) => Number(e.getDynamicProperty("rpg:base_anim") ?? (() => { try { return e.getProperty("rpg:anim") ?? 0; } catch { return 0; } })());
 export function setBaseAnim(e, i) {
   e.setDynamicProperty("rpg:base_anim", i);
@@ -196,6 +199,7 @@ function showNode(p, npc, nodeId, page, entering = false) {
         if (!r.ok) return showNode(p, npc, nodeId, page);
         if (c.once) { (d.once = d.once ?? {})[onceKey] = true; save(p); }
         if (r.shop) return openNodeShop(p, npc);
+        if (r.enhance) { endDialog(p); return openEnhance(p, undefined, npc.nameTag || "대장장이"); }
         if (r.end) return;
         return c.goto ? showNode(p, npc, c.goto, 0, true) : undefined;
       });
@@ -210,6 +214,7 @@ function showNode(p, npc, nodeId, page, entering = false) {
         if (STATE_LABEL[st]) scr.item(`${STATE_LABEL[st]} §r§f${q.title}`, ICON("quest"), () => npcQuest(p, npc, q.id));
       }
       if (npcHasShop(npc)) scr.item("§f상점 보기", ICON("shop"), () => openNodeShop(p, npc));
+      if (npcIsSmith(npc)) scr.item("§6강화하기", ICON("class"), () => { endDialog(p); return openEnhance(p, undefined, npc.nameTag || "대장장이"); });
     } else if (!node.next) {
       scr.item("§f처음으로", ICON("back"), () => showNode(p, npc, "start", 999));
     }

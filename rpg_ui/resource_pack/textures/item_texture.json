@@ -136,6 +136,21 @@
     },
     "rpg_hundun_scythe": {
       "textures": "textures/items/rpg/hundun_scythe"
+    },
+    "rpg_enh_stone_1": {
+      "textures": "textures/items/rpg/enh_stone_1"
+    },
+    "rpg_enh_stone_2": {
+      "textures": "textures/items/rpg/enh_stone_2"
+    },
+    "rpg_enh_stone_3": {
+      "textures": "textures/items/rpg/enh_stone_3"
+    },
+    "rpg_enh_stone_4": {
+      "textures": "textures/items/rpg/enh_stone_4"
+    },
+    "rpg_enh_protect": {
+      "textures": "textures/items/rpg/enh_protect"
     }
   }
 }
