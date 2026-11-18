@@ -4097,14 +4097,14 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 0.42,
+     "scale": 0.6,
      "rotation": [
       0,
       55,
       0
      ],
      "position": [
-      1.5,
+      0.2,
       0,
       0
      ]
