@@ -5,6 +5,8 @@ import { CLASSES } from "./classes.js";
 import { nearbyMembers } from "./party.js";
 import * as Q from "./quests.js";
 import { skillHit as weaponSkillHit, buffMul } from "./skills.js";
+import { HP_STEPS } from "./hp_steps.js";
+import * as WRULES from "./world_rules.js";
 
 // 처치 보상 [경험치, 골드]
 const MOB_REWARD = {
@@ -26,28 +28,49 @@ const cooldown = new Map(); // pid -> ready tick
 // 직업 스킬 마나 소모량
 const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
 
-/** 스탯 → 전투 수치 (%). effect 없이 스크립트가 직접 적용 */
+// ═════════ 스탯 → 전투 수치 (V12.119 밸런스 V2) ═════════
+//  모든 퍼센트는 '점점 덜 오르는' 곡선 (상한 없이 끝없이 오르지만 몰빵할수록 효율 ↓) + 몰빵하면 대가
+//   힘   피해 +1.5%/점                         대가: 힘 > 100 이고 민첩×2 보다 크면 이동 속도 ↓ (무거운 몸, 최대 -15%)
+//   민첩 치명 확률 · 치명 피해 · 이동 속도 · 회피  대가: 민첩 > 100 이면 최대 체력 ↓ (가벼운 몸, 최대 -20%)
+//   지능 최대 마나 · 회복 · 마법 피해 · 재사용 대기 ↓  대가: 지능 > 100 이면 받는 물리 피해 ↑ (허약함, 최대 +15%)
+//   체력 최대 체력 · 받는 피해 ↓ · 받는 회복 ↑      대가: 체력 > 100 이면 주는 피해 ↓ (둔함, 최대 -15%)
+const soft = (x, k, max) => (max * Math.max(0, x)) / (Math.max(0, x) + k); // x 가 k 일 때 max 의 절반
 export function combatStats(p) {
-  const str = stat(p, "str"), dex = stat(p, "dex"), vit = stat(p, "vit");
+  const str = stat(p, "str"), dex = stat(p, "dex"), int = stat(p, "int"), vit = stat(p, "vit");
+  const heavy = str > 100 && str > dex * 2 ? Math.min(15, (str - Math.max(100, dex * 2)) * 0.05) : 0;
   return {
-    atk: str * 2,
-    crit: Math.min(40, dex),
-    spd: Math.min(40, Math.round(dex * 0.4)),
-    def: Math.min(40, Math.round(vit * 0.8)),
+    str, dex, int, vit,
+    atk: Math.round(str * 1.5),                                  // 피해 +%
+    crit: Math.round(soft(dex, 150, 50)),                        // 치명 확률 %
+    critDmg: Math.round(150 + soft(dex, 300, 60)),               // 치명 피해 % (150 → 최대 210)
+    spd: Math.round(soft(dex, 200, 30) - heavy),                 // 이동 속도 %
+    dodge: Math.round(soft(dex, 300, 20)),                       // 회피 %
+    def: Math.round(soft(vit, 250, 50)),                         // 받는 피해 감소 %
+    cdr: Math.round(soft(int, 200, 30)),                         // 재사용 대기 감소 %
+    healIn: Math.round(vit * 0.2),                               // 받는 회복 +%
+    hpCut: dex > 100 ? Math.min(20, (dex - 100) * 0.1) : 0,      // 대가: 최대 체력 -%
+    frail: int > 100 ? Math.min(15, (int - 100) * 0.05) : 0,     // 대가: 받는 피해 +%
+    dull: vit > 100 ? Math.min(15, (vit - 100) * 0.05) : 0,      // 대가: 주는 피해 -%
+    heavy,                                                       // 대가: 이동 속도 -%
   };
 }
+/** 주는 피해 배율 (평타 · 스킬 공통): 힘 + 버프 - 둔함 */
+export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * (1 - s.dull / 100); }
+/** 치명타 굴림: 맞으면 배율, 아니면 1 */
+export function rollCrit(p, s = combatStats(p)) { return Math.random() * 100 < s.crit ? s.critDmg / 100 : 1; }
 
-// ───────── 체력 (V12.115): 최대 1만 = 20 + 레벨 × 40 + 체력 스탯 × 30 (100 단위) ─────────
-//   바닐라 '체력 강화' 효과 대신 behavior_pack/entities/player.json 의 체력 단계(rpg:hp_1 ~ rpg:hp_100)를 바꿈
-export const HP_CAP = 10000, HP_STEP = 100;
-export function maxHpOf(p) { return Math.min(HP_CAP, 20 + data(p).lv * 40 + stat(p, "vit") * 30); }
+// ───────── 체력 (V12.119): 100 + 레벨 × 50 + 체력 스탯 × 40, 민첩 대가만큼 줄임 · 상한 없음(시스템 10만) ─────────
+//   behavior_pack/entities/player.json 의 체력 단계 (2%씩 커지는 단계, gen_player_hp.py) 중 가장 가까운 것
+export const HP_CAP = 100000;
+export function maxHpOf(p) { const s = combatStats(p); return Math.min(HP_CAP, (100 + data(p).lv * 50 + s.vit * 40) * (1 - s.hpCut / 100)); }
 const hpStep = new Map(); // pid -> 지금 단계
 function applyMaxHp(p) {
-  const k = Math.max(1, Math.min(HP_CAP / HP_STEP, Math.round(maxHpOf(p) / HP_STEP)));
+  const want = maxHpOf(p);
+  let k = 0; for (let i = 1; i < HP_STEPS.length; i++) if (Math.abs(HP_STEPS[i] - want) < Math.abs(HP_STEPS[k] - want)) k = i;
   if (hpStep.get(p.id) === k) return;
   const hc = p.getComponent("minecraft:health");
   const cur = hc?.currentValue ?? 20, oldMax = hc?.effectiveMax ?? 20;
-  try { p.triggerEvent(`rpg:hp_${k}`); } catch { return; }
+  try { p.triggerEvent("rpg:hp_clear"); p.triggerEvent(`rpg:hp_${k}`); } catch { return; }
   hpStep.set(p.id, k);
   // 단계를 바꾸면 체력이 최대치로 채워지므로, 바로 다음 틱에 원래 비율로 되돌림 (처음 접속 · 레벨업 땐 그대로 가득)
   const first = !hpLoaded.has(p.id); hpLoaded.add(p.id);
@@ -56,8 +79,8 @@ function applyMaxHp(p) {
 const hpLoaded = new Set();
 /** 몹 · 환경 피해 배율 (V12.111: 레벨 비례 최대 7배 → 1.1배) */
 export const incomingMul = (p) => 1.1;
-/** 플레이어끼리 피해 배율: 최대 체력을 1000 → 1만으로 10배 늘린 만큼 */
-export const PVP_MUL = 10;
+/** 플레이어끼리 피해 배율 */
+export const pvpMul = (atk) => 1; // V12.119: 배율 대신 아이템 공격력 · 스킬 위력 자체를 10배로
 const lastHurt = new Map(); // pid -> tick (전투 밖 회복용)
 
 export function skillReadyIn(p) {
@@ -73,6 +96,7 @@ function isMonster(e) {
 }
 
 export function initCombat() {
+  WRULES.setCritHook((p) => rollCrit(p));
   world.afterEvents.entityHurt.subscribe(({ hurtEntity, damageSource, damage }) => {
     if (hurtEntity.typeId === "minecraft:player") {
       lastHurt.set(hurtEntity.id, system.currentTick);
@@ -80,8 +104,12 @@ export function initCombat() {
       const red = combatStats(hurtEntity).def / 100;
       // V12.109: 체력이 최대 1000까지 크므로 몹 · 환경 피해도 레벨에 맞춰 키움 (플레이어끼리는 그대로)
       const fromPlayer = damageSource.damagingEntity?.typeId === "minecraft:player";
-      const mul = fromPlayer ? PVP_MUL : incomingMul(hurtEntity); // V12.117: 플레이어 공격(평타 · 스킬)은 체력 1만에 맞춰 10배
-      const want = damage * mul * (1 - red); // 최종으로 잃을 양
+      const cs = combatStats(hurtEntity);
+      const mul = (fromPlayer ? pvpMul(damageSource.damagingEntity) : incomingMul(hurtEntity)) * (1 + cs.frail / 100);
+      // 회피 (민첩): 이번 피해를 통째로 무름
+      const dodged = damageSource.cause !== "override" && damageSource.cause !== "void" && Math.random() * 100 < cs.dodge;
+      const want = dodged ? 0 : damage * mul * (1 - red); // 최종으로 잃을 양
+      if (dodged) { try { hurtEntity.onScreenDisplay.setActionBar("§b§l회피!"); } catch {} }
       if (hp && hp.currentValue > 0 && Math.abs(want - damage) > 0.01) {
         const nv = hp.currentValue - (want - damage);
         if (nv <= 0) hurtEntity.kill();
@@ -95,16 +123,15 @@ export function initCombat() {
     if (system.currentTick - (weaponSkillHit.get(hurtEntity.id) ?? -99) <= 1) return;
     const hp = hurtEntity.getComponent("minecraft:health");
     if (!hp || hp.currentValue <= 0) return;
-    const str = stat(atk, "str");
-    const dex = stat(atk, "dex");
-    let extra = damage * (str * 0.02 + buffMul(atk) - 1);
-    if (Math.random() < Math.min(0.4, dex * 0.01)) {
-      extra += damage * 0.5;
+    const as = combatStats(atk);
+    const crit = rollCrit(atk, as);
+    let extra = damage * (dealMul(atk, as) * crit - 1); // 평타: 힘 · 버프 · 둔함 · 치명
+    if (crit > 1) {
       hurtEntity.dimension.spawnParticle("minecraft:critical_hit_emitter", { ...hurtEntity.location, y: hurtEntity.location.y + 1 });
       atk.playSound("random.anvil_land", { volume: 0.3, pitch: 2 });
     }
-    if (extra < 0.5) return;
-    const nv = hp.currentValue - extra;
+    if (Math.abs(extra) < 0.5) return; // 둔함이면 음수 (피해를 조금 되돌림)
+    const nv = Math.min(hp.effectiveMax, hp.currentValue - extra);
     if (nv <= 0) hurtEntity.kill();
     else hp.setCurrentValue(nv);
   });
@@ -151,7 +178,7 @@ export function initCombat() {
       try {
         if (system.currentTick - (lastHurt.get(p.id) ?? -999) > 120) {
           const hc = p.getComponent("minecraft:health");
-          if (hc && hc.currentValue > 0 && hc.currentValue < hc.effectiveMax) hc.setCurrentValue(Math.min(hc.effectiveMax, hc.currentValue + hc.effectiveMax * 0.02));
+          if (hc && hc.currentValue > 0 && hc.currentValue < hc.effectiveMax) hc.setCurrentValue(Math.min(hc.effectiveMax, hc.currentValue + hc.effectiveMax * 0.02 * (1 + combatStats(p).healIn / 100)));
         }
       } catch {}
       const d = data(p);

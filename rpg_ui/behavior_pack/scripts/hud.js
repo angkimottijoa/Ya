@@ -62,7 +62,8 @@ export function card(p) {
     fiendLine(p),
     d.lv >= 10 && d.set.dash !== false ? (dash > 0 ? `§7대시 §f${dash}s` : "§e대시 준비") : "",
     `§7힘 §f${stat(p, "str")} §7민첩 §f${stat(p, "dex")} §7지능 §f${stat(p, "int")} §7체력 §f${stat(p, "vit")}`,
-    `§7공격 §f+${s.atk}% §7치명 §f${s.crit}% §7방어 §f${s.def}%`,
+    `§7공격 §f+${s.atk}% §7치명 §f${s.crit}%§7x${(s.critDmg / 100).toFixed(1)} §7방어 §f${s.def}% §7회피 §f${s.dodge}%`,
+    s.hpCut || s.frail || s.dull || s.heavy ? `§c대가 ${[s.hpCut && `체력-${s.hpCut.toFixed(0)}%`, s.frail && `피격+${s.frail.toFixed(0)}%`, s.dull && `피해-${s.dull.toFixed(0)}%`, s.heavy && `속도-${s.heavy.toFixed(0)}%`].filter(Boolean).join(" ")}` : "",
   ].filter((x) => x !== "");
   const party = partyOf(p.id);
   if (party) {

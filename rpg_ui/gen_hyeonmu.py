@@ -425,7 +425,7 @@ def item():
         "components": {
             "minecraft:icon": "rpg_hyeonmu_shield",
             "minecraft:display_name": {"value": "§2§l현무의 방패 §r§7[스킬 무기 · 모든 직업]"},
-            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 10,
+            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 100,
             "minecraft:enchantable": {"slot": "sword", "value": 18}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,
             # 꾹 누르는 동안 '방패를 든' 상태 (시작·끝 이벤트로 패링·막기 판정), 막는 동안 느려짐

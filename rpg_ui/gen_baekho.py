@@ -288,7 +288,7 @@ def item():
         "components": {
             "minecraft:icon": "rpg_baekho_axe",
             "minecraft:display_name": {"value": "§f§l백호의 도끼 §r§7[스킬 무기 · 모든 직업]"},
-            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 18,
+            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 180,
             "minecraft:enchantable": {"slot": "sword", "value": 22}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,
             "minecraft:use_modifiers": {"use_duration": 0.05, "movement_modifier": 1.0}}}}

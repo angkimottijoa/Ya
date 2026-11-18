@@ -290,7 +290,7 @@ def item():
         "components": {
             "minecraft:icon": "rpg_jujak_bow",
             "minecraft:display_name": {"value": "§6§l주작의 활 §r§7[스킬 무기 · 모든 직업]"},
-            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 12,
+            "minecraft:max_stack_size": 1, "minecraft:hand_equipped": True, "minecraft:damage": 120,
             "minecraft:enchantable": {"slot": "bow", "value": 22}, "minecraft:glint": True,
             "minecraft:can_destroy_in_creative": False,
             "minecraft:use_modifiers": {"use_duration": 0.05, "movement_modifier": 1.0}}}}

@@ -51,6 +51,9 @@ try {
 export const pvpScan = () => pvpOn() && contextOk && !!CUR;
 export const keepTarget = (e) => e.typeId !== "minecraft:player" || canHit(CUR, e);
 
+let critHook = null;
+/** combat.js 가 등록: 플레이어 → 치명 배율 */
+export function setCritHook(fn) { critHook = fn; }
 // 플레이어가 받는 스킬 피해는 여기서 한 번 더 거름 (어느 스킬이든 같은 규칙)
 try {
   const ad = Entity.prototype.applyDamage;
@@ -59,6 +62,12 @@ try {
       if (this.typeId === "minecraft:player") {
         const src = o?.damagingEntity ?? CUR;
         if (src?.typeId === "minecraft:player" && !canHit(src, this)) return false;
+      }
+      // 스킬 치명타 (민첩): 플레이어가 준 스킬 피해 (평타는 combat.js 가 따로 굴림)
+      const src = o?.damagingEntity ?? CUR;
+      if (critHook && src?.typeId === "minecraft:player" && src.id !== this.id) {
+        const m = critHook(src);
+        if (m > 1) { amount *= m; try { this.dimension.spawnParticle("minecraft:critical_hit_emitter", { ...this.location, y: this.location.y + 1 }); } catch {} }
       }
     } catch {}
     return ad.call(this, amount, o);

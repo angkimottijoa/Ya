@@ -23,6 +23,7 @@ import { HJ } from "./hidden_jobs.js";
 const RUN = { ...WR, ...MG, ...RP, ...HJ }; // 직업 스킬 (전사 · 마법사 계열 · 히든 영혼 수확자)
 import { isSkillLocked } from "./skill_lock.js";
 import * as WRULES from "./world_rules.js";
+import { combatStats } from "./combat.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
 
 // ───────── 밸런스 (V12.109) ─────────
@@ -204,8 +205,10 @@ function power(p, s) {
   const tool = J.PATHS[J.pathOfTool(held?.typeId)]?.tool;
   const cfg = held ? weaponCfg()[held.typeId] : null;
   const atk = tool?.dmg ?? cfg?.atk ?? weaponInfo(held?.typeId ?? "")?.atk ?? 3;
-  const base = (s.kind === "magic" ? 5 + atk * 0.5 + stat(p, "int") * 0.6 : atk) * ((cfg?.mul ?? 100) / 100);
-  const statMul = s.kind === "melee" ? 1 + stat(p, "str") * 0.02 : s.kind === "ranged" ? 1 + stat(p, "dex") * 0.02 : 1;
+  // V12.119: 아이템 공격력을 10배로 올린 것에 맞춰 스킬도 10배 · 직업 종류별 주 스탯 (근접 힘 · 원거리 힘+민첩 · 마법 지능)
+  const base = (s.kind === "magic" ? 5 + atk * 0.5 + stat(p, "int") * 0.6 : atk) * ((cfg?.mul ?? 100) / 100) * 10;
+  const cs = combatStats(p);
+  const statMul = (s.kind === "melee" ? 1 + cs.str * 0.015 : s.kind === "ranged" ? 1 + (cs.str + cs.dex) * 0.0075 : 1 + cs.int * 0.015) * (1 - cs.dull / 100);
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
   const cls = 1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1;
   return base * s.pow * statMul * buff * cls;
@@ -264,7 +267,7 @@ export function castWeaponSkill(p, id) {
     return false;
   }
   d.mp = mp - cost;
-  const cdr = 1 - Math.min(0.3, stat(p, "int") * 0.003);
+  const cdr = 1 - combatStats(p).cdr / 100; // 지능: 점점 덜 오르는 재사용 대기 감소
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   runEffect(p, s, power(p, s));
   notify(p, `§b§l${s.name}! §r§9-${cost} MP`);
@@ -310,7 +313,8 @@ export const skillMode = (p) => !!data(p).set?.adminSkill && isAdmin(p);
 export function resetCooldowns(p) { for (const k of [...cd.keys()]) if (k.startsWith(`${p.id}|`)) cd.delete(k); }
 
 /** 사신수 · 사흉수 스킬 기본 위력: 16 × 힘 × 버프 × 레벨 (V12.109: 12 → 16) */
-const weaponDmg = (p) => 16 * (1 + stat(p, "str") * 0.02) * buffMul(p) * (1 + data(p).lv * 0.025);
+//   V12.119: ×10 (아이템 공격력 10배에 맞춤) · 사신수 · 사흉수는 모든 직업 무기라 가장 높은 공격 스탯(힘 · 민첩 · 지능)을 씀
+const weaponDmg = (p) => { const cs = combatStats(p); return 160 * (1 + Math.max(cs.str, cs.dex, cs.int) * 0.015) * buffMul(p) * (1 - cs.dull / 100) * (1 + data(p).lv * 0.025); };
 /** 재사용 대기가 긴 스킬일수록 세게: 120초 = 1.6배 (② 20초 ≈ 1.1배, ① 그대로) */
 const cdPow = (s) => (s.key === 1 ? 1 : 1 + 0.6 * Math.min(1, s.cd / 120));
 /** 스킬 무기 발동 (직업 조건 없음) */
@@ -340,7 +344,7 @@ function castWeaponSpecial(p, s) {
     return false;
   }
   d.mp = mp - cost;
-  const cdr = 1 - Math.min(0.3, stat(p, "int") * 0.003);
+  const cdr = 1 - combatStats(p).cdr / 100; // 지능: 점점 덜 오르는 재사용 대기 감소
   cd.set(`${p.id}|${s.id}`, system.currentTick + Math.round(s.cd * cdr * 20));
   busy();
   s.run({ p, dmg: weaponDmg(p) * cdPow(s), data: d, ...extra });
