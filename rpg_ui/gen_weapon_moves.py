@@ -69,6 +69,7 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
+FP_SCALE = 0.4  # 1인칭 무기 크기
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 
@@ -121,6 +122,9 @@ def build():
             states[f"atk{i}b"] = {"animations": [a(f"atk{i}b")] + legs, "transitions": [{nxt: f"q.any_animation_finished && {go}"}, {"idle": "q.any_animation_finished && !v.rpg_atk"}]}
         ctrls[f"controller.animation.rpg_w3d.{name}"] = {"initial_state": "default", "states": states}
         ent_anims[f"rpgw_ctrl_{name}"] = f"controller.animation.rpg_w3d.{name}"
+    # 1인칭: 무기가 화면을 가리지 않게 손 쪽으로 0.4배 (픽셀 수는 그대로, 크기만)
+    anims["animation.rpg_w3d.fp_small"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE}}}
+    ent_anims["rpgw_fp_small"] = "animation.rpg_w3d.fp_small"
     return anims, ctrls, ent_anims
 
 
@@ -143,6 +147,7 @@ def main():
     anim = [{"root": "!v.rpg_w || v.rpg_fr"}, {"humanoid_base_pose": "v.rpg_w && !v.rpg_fr"}, {"look_at_target_default": "v.rpg_w && !v.rpg_fr"}, {"cape": "v.rpg_w && !v.rpg_fr"}]
     for name, (item, _) in W.items():
         anim.append({f"rpgw_ctrl_{name}": f"!v.rpg_fr && query.get_equipped_item_name == '{item}'"})
+    anim.append({"rpgw_fp_small": "v.rpg_w && variable.is_first_person"})
     de["scripts"]["animate"] = anim
     pe.write_text(json.dumps(van, indent=1))
     print(len(anims), "animations,", len(ctrls), "controllers")

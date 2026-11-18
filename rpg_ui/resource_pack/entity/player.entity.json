@@ -78,6 +78,9 @@
      },
      {
       "rpgw_ctrl_hyeonmu_shield": "!v.rpg_fr && query.get_equipped_item_name == 'hyeonmu_shield'"
+     },
+     {
+      "rpgw_fp_small": "v.rpg_w && variable.is_first_person"
      }
     ],
     "variables": {
@@ -212,7 +215,8 @@
     "rpgw_bash_atk2b": "animation.rpg_w3d.bash.atk2b",
     "rpgw_bash_atk3": "animation.rpg_w3d.bash.atk3",
     "rpgw_bash_atk3b": "animation.rpg_w3d.bash.atk3b",
-    "rpgw_ctrl_hyeonmu_shield": "controller.animation.rpg_w3d.hyeonmu_shield"
+    "rpgw_ctrl_hyeonmu_shield": "controller.animation.rpg_w3d.hyeonmu_shield",
+    "rpgw_fp_small": "animation.rpg_w3d.fp_small"
    },
    "render_controllers": [
     {
