@@ -40,8 +40,8 @@ export function combatStats(p) {
 // ───────── 체력 (V12.109): 최대 1000 = 20 + 레벨 × 4 + 체력 스탯 × 3 ─────────
 export const HP_CAP = 1000;
 export function maxHpOf(p) { return Math.min(HP_CAP, 20 + data(p).lv * 4 + stat(p, "vit") * 3); }
-/** 몹 · 환경 피해 배율: 레벨 1 → 1.06배 · 레벨 100 → 7배 */
-export const incomingMul = (p) => 1 + data(p).lv * 0.06;
+/** 몹 · 환경 피해 배율 (V12.111: 레벨 비례 최대 7배 → 1.1배) */
+export const incomingMul = (p) => 1.1;
 const lastHurt = new Map(); // pid -> tick (전투 밖 회복용)
 
 export function skillReadyIn(p) {
