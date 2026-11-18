@@ -132,8 +132,8 @@ def build():
         if name == "jujak_bow":  # 활: 쏘면 뒤로 튕기고 살짝 들림
             # 당기기(사용 중): 내 쪽으로 당기고 살짝 들림 · 쏘기(휘두르기 시간): 앞으로 튕겼다 반동으로 돌아옴
             draw = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 3) : 0)"
-            # Y -15: 활은 세로축 둘레로 돌려 왼쪽 옆면이 살짝 (반대면 +15)
-            spin = {"rotation": [f"{draw} * -8 + {sw} * 14", -15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
+            # Y +15: 활은 세로축 둘레로 돌려 왼쪽 옆면이 살짝 (-15 는 반대쪽이었음)
+            spin = {"rotation": [f"{draw} * -8 + {sw} * 14", 15, FP_SPIN.get(name, 0)], "position": [0, f"{draw} * 0.6", f"{draw} * 3 - {sw} * 2.5"]}
         else:  # 근접: 앞 · 아래로 내려침
             spin = {"rotation": [f"{sw} * 70", f"{sw} * -30", FP_SPIN.get(name, 0)]}  # 앞·아래로 내려치며(X) 왼쪽 대각선으로(Y -30, +30 은 오른쪽이었음)
         anims[f"animation.rpg_w3d.fp_{name}"] = {"loop": True, "bones": {"rpg_w3d": {"scale": FP_SCALE * (1.45 if name == "jujak_bow" else 1), "rotation": FP_ROT, "position": FP_POS},  # 활은 1인칭에서 더 크게
