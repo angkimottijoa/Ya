@@ -26,6 +26,12 @@ export class Screen {
     this.bodyText = "";
     this.actions = [];
     this.reopen = null;
+    this.raws = [];
+  }
+  /** 특정 레이아웃 전용 칸 (예: 연성소 [RPG:F] 의 [FL] · [FG] …). fn 없으면 누를 수 없는 표시 */
+  raw(marker, text, icon, fn) {
+    this.raws.push({ marker, text, icon, fn });
+    return this;
   }
   item(text, icon, fn, opt = {}) {
     this.items.push({ text, icon, fn, ...opt });
@@ -66,6 +72,7 @@ export class Screen {
     for (const c of this.chips) add("[C]", c, null);
     if (this.sel) add(this.sel.doll ? "[S][P]" : "[S]", this.sel, null);
     for (const a of this.actions) add("[A]", { text: a.text }, a.fn);
+    for (const r of this.raws) add(r.marker, r, r.fn);
 
     const res = await f.show(player);
     if (res.canceled) {

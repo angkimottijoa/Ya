@@ -3,7 +3,7 @@
   //  Arcania RPG 메뉴 화면 (서버 폼 ActionFormData 를 완전히 다른 레이아웃으로 그림)
   //
   //  제목(title) 플래그:
-  //    [RPG:G] 그리드(배낭/상점)  [RPG:H] 타일(홈)  [RPG:L] 리스트  [RPG:D] NPC 대화창
+  //    [RPG:G] 그리드(배낭/상점)  [RPG:H] 타일(홈)  [RPG:L] 리스트  [RPG:D] NPC 대화창  [RPG:F] 연성소(강화, ui/rpg_forge.json)
   //
   //  버튼 텍스트 마커 (스크립트 ui.js 가 붙임):
   //    [I] 본문 항목  [T] 왼쪽 레일 탭  [C] 상단 재화 칩
@@ -249,6 +249,16 @@
                 "controls": [
                   {
                     "center": {
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "((#title_text - '[RPG:F]') = #title_text)",
+                          "target_property_name": "#visible"
+                        }
+                      ],
                       "type": "image",
                       "texture": "textures/ui/rpg/content_bg",
                       "anchor_from": "top_left",
@@ -283,7 +293,21 @@
                     }
                   },
                   {
-                    "detail@rpg_form.detail_card": {}
+                    "detail@rpg_form.detail_card": {
+                      "bindings": [
+                        {
+                          "binding_name": "#title_text"
+                        },
+                        {
+                          "binding_type": "view",
+                          "source_property_name": "((#title_text - '[RPG:F]') = #title_text)",
+                          "target_property_name": "#visible"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "forge@rpg_forge.forge_body": {}
                   }
                 ]
               }
@@ -443,7 +467,7 @@
             },
             {
               "binding_type": "view",
-              "source_property_name": "(((#title_text - '[RPG:G]') - '[RPG:H]') - '[RPG:L]')",
+              "source_property_name": "((((#title_text - '[RPG:G]') - '[RPG:H]') - '[RPG:L]') - '[RPG:F]')",
               "target_property_name": "#crumb"
             }
           ]

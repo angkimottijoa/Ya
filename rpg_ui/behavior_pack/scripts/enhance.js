@@ -156,14 +156,54 @@ export function openEnhance(p, selKey, npcName = "대장장이", filter = "all")
 
 const pick = new Map(); // pid -> { scroll, protect } 연성소에서 고른 주문서 · 방지석 사용
 const comma = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-let atkLookup = () => 0; // itemlore.js 가 등록 (사신수 · 사흉수 · 직업 도구 공격력)
-export function setAtkLookup(fn) { atkLookup = fn; }
-const baseAtk = (id) => atkLookup(id) || (weaponInfo(id)?.atk ?? 0);
-const bigBar = (r) => { const N = 20, f = Math.round((r / 100) * N); return `${r >= 70 ? "§a" : r >= 40 ? "§e" : r >= 20 ? "§6" : "§c"}${"■".repeat(f)}§8${"■".repeat(N - f)}§r`; };
+let infoLookup = () => null; // itemlore.js 가 등록: id → { cat, atk } (사신수 · 사흉수 · 직업 도구)
+export function setInfoLookup(fn) { infoLookup = fn; }
+const baseAtk = (id) => infoLookup(id)?.atk || (weaponInfo(id)?.atk ?? 0);
+const catOf = (id) => infoLookup(id)?.cat ?? weaponInfo(id)?.kind ?? "장비";
+const FORGE = "textures/ui/rpg/forge/";
+const STONE_TEX = (i) => `textures/items/rpg/enh_stone_${i + 1}`;
+const SCROLL_TEX = (i) => `textures/items/rpg/enh_scroll_${i + 1}`;
 
-/** 강화 창 2단계: 연성소 (V12.134)
- *  가운데 아이템 · 큰 +단계 · 현재 수치 → 성공 시 수치 · 필요 재료 · 성공 확률 막대 · 강화 버튼
- *  왼쪽: 주문서 고르기 (안 씀 / 하급 +5% / 중급 +10% / 상급 +20%) · 파괴방지석 켜기/끄기 */
+/** 강화 결과 연출 (제목 · 소리 · 기록) */
+function showResult(p, r) {
+  if (r.err) { notify(p, r.err); p.playSound("note.bass"); return false; }
+  const at = { ...p.location, y: p.location.y + 1 };
+  if (r.ok) {
+    p.playSound("random.totem", { volume: 0.6, pitch: 1.4 });
+    try { p.dimension.spawnParticle("minecraft:totem_particle", at); } catch {}
+    p.onScreenDisplay.setTitle(`§e§l+${r.NL} 성공!`, { subtitle: rt("§f", baseName(r.it)), fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
+    pushHist(p, `§a성공 §f+${r.L} → +${r.NL} §7(${r.rate}%)`);
+    if (r.NL >= 12) world.sendMessage(rt(`§6§l[강화] §r§f${p.name} 님이 §e§l+${r.NL} `, baseName(r.it), "§r§f 강화에 성공했습니다!"));
+  } else {
+    p.playSound("random.anvil_land", { volume: 0.6, pitch: 0.7 });
+    try { p.dimension.spawnParticle("minecraft:large_smoke_particle", at); } catch {}
+    const sub = r.NL < r.L ? `§c+${r.L} → +${r.NL}` : r.prot ? "§6파괴방지석이 하락을 막았습니다" : "§7단계 유지";
+    p.onScreenDisplay.setTitle("§c§l강화 실패", { subtitle: sub, fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
+    pushHist(p, `§c실패 §f+${r.L} → +${r.NL} §7(${r.rate}%)${r.prot ? " §6방지" : ""}`);
+  }
+  return true;
+}
+
+/** 주문서 고르기 (대화창 모양) */
+function openScrollPick(p, back) {
+  const ch = pick.get(p.id) ?? { scroll: -1, protect: false };
+  pick.set(p.id, ch);
+  const scr = new Screen("D", "강화 주문서");
+  scr.body("§f강화할 때마다 §e1장§f 써서 성공 확률을 더합니다.\n§7다 쓰면 저절로 「안 씀」으로 돌아갑니다.");
+  scr.item(`${ch.scroll < 0 ? "§a▶ " : ""}§f안 씀`, ICON("close"), () => { ch.scroll = -1; return back(); });
+  SCROLLS.forEach((sc, i) => {
+    const have = countItem(p, sc.id);
+    scr.item(`${ch.scroll === i ? "§a▶ " : ""}${sc.color}${sc.name} §f+${sc.bonus}% §7(보유 ${have})`, SCROLL_TEX(i), () => {
+      if (have < 1) { notify(p, `§c${sc.name}이(가) 없습니다 §7(몹 · 보스에게서)`); p.playSound("note.bass"); } else ch.scroll = i;
+      return back();
+    });
+  });
+  scr.reopen = back;
+  return scr.show(p);
+}
+
+/** 강화 창 2단계: 연성소 (V12.135) — 기존 메뉴 틀 안에 [RPG:F] 레이아웃
+ *  위: 주문서 칸 · 가운데 아이템(큰 +단계) · 파괴방지석 칸 / 아래: 현재 수치 → 성공 시 · 확률 막대 · 재료 / 큰 강화 버튼 */
 export function openForge(p, key, typeId, npcName = "대장장이", filter = "all") {
   const d = data(p);
   const sel = candidates(p).find((x) => x.key === key && x.it.typeId === typeId) ?? candidates(p).find((x) => x.key === key);
@@ -174,79 +214,60 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
   if (ch.scroll >= 0 && countItem(p, SCROLLS[ch.scroll].id) < 1) ch.scroll = -1; // 다 쓰면 자동으로 해제
   pick.set(p.id, ch);
   const reopen = () => openForge(p, sel.key, it.typeId, npcName, filter);
-  const scr = new Screen("L", `${npcName} / ${kind === "weapon" ? "무기" : "방어구"} 연성소`);
-  const T = L + 1, n = L < MAX_ENH ? needOf(T) : null;
-
-  // 왼쪽: 주문서 · 방지석
-  scr.item(["§f주문서 안 씀\n§7기본 확률로 강화"], ICON("close"), () => { ch.scroll = -1; return reopen(); }, { on: ch.scroll < 0 });
-  SCROLLS.forEach((sc, i) => {
-    const have = countItem(p, sc.id);
-    scr.item([`${sc.color}§l${sc.name}\n§r§7확률 §a+${sc.bonus}% §7· 보유 ${have ? `§f${have}` : "§c0"}`], `textures/items/rpg/enh_scroll_${i + 1}`,
-      () => { if (have < 1) { notify(p, `§c${sc.name}이(가) 없습니다 §7(몹 · 보스에게서)`); p.playSound("note.bass"); } else ch.scroll = i; return reopen(); },
-      { on: ch.scroll === i, rarity: i + 2 });
-  });
-  if (n?.protect) {
-    const hp = countItem(p, PROTECT.id);
-    scr.item([`${PROTECT.color}§l파괴방지석 ${ch.protect ? "§a켜짐" : "§7꺼짐"}\n§r§7실패해도 하락 없음 · ${n.protect}개 · 보유 ${hp >= n.protect ? `§f${hp}` : `§c${hp}`}`], "textures/items/rpg/enh_protect",
-      () => { ch.protect = !ch.protect; return reopen(); }, { on: ch.protect, rarity: 4 });
-  }
+  const weapon = kind === "weapon";
+  const scr = new Screen("F", `${npcName} / ${weapon ? "무기" : "방어구"} 연성소`);
   scr.tab("돌아가기", ICON("back"), back);
   scr.tab("닫기", ICON("close"), () => {});
-  scr.chip(ICON("gold"), `${d.gold}G`);
-  if (n) scr.chip(`textures/items/rpg/enh_stone_${tierOf(T) + 1}`, `${countItem(p, n.stone.id)}`);
-  SCROLLS.forEach((sc, i) => scr.chip(`textures/items/rpg/enh_scroll_${i + 1}`, `${countItem(p, sc.id)}`));
-  scr.select(rt(`${L ? `${TIER_COL[tierOf(Math.max(1, L))]}§l+${L} ` : ""}§r§f`, baseName(it)), iconOf(it.typeId));
+  scr.chip(ICON("gold"), `${comma(d.gold)}G`);
+  STONES.forEach((st, i) => scr.chip(STONE_TEX(i), `${countItem(p, st.id)}`));
+  scr.chip("textures/items/rpg/enh_protect", `${countItem(p, PROTECT.id)}`);
 
-  // 수치: 무기 = 공격력 (기본 × 강화 배율), 방어구 = 방어력 (기본 + 강화)
-  const base = kind === "weapon" ? baseAtk(it.typeId) : (weaponInfo(it.typeId)?.def ?? 0) * 10;
-  const val = (l) => (kind === "weapon" ? Math.round(base * (1 + weaponBonus(l))) : base + armorDef(l));
-  const what = kind === "weapon" ? "공격력" : "방어력";
-  const lines = [`§l${L ? TIER_COL[tierOf(Math.max(1, L))] : "§7"}━━━━━━  +${L}  ━━━━━━§r\n${levelBar(L)} §7${L}/${MAX_ENH}\n\n`];
-  lines.push(`§7현재 ${what}   §f§l${comma(val(L))}§r §8(${kind === "weapon" ? `+${pct(weaponBonus(L))}` : `강화 +${armorDef(L)}`})\n`);
+  const T = L + 1, n = L < MAX_ENH ? needOf(T) : null, sc = SCROLLS[ch.scroll];
+  // 위 왼쪽: 주문서 칸
+  scr.raw(`[FL]${sc ? "[ON]" : ""}`, sc ? `${sc.color}${sc.name.replace(" 강화", "")}\n§a확률 +${sc.bonus}%` : "§e강화 주문서\n§7비어 있음", SCROLL_TEX(sc ? ch.scroll : 0), () => openScrollPick(p, reopen));
+  // 위 오른쪽: 파괴방지석 칸
+  const useP = !!(ch.protect && n?.protect);
+  if (n?.protect) {
+    const haveP = countItem(p, PROTECT.id);
+    scr.raw(`[FR]${useP ? "[ON]" : ""}`, `§e파괴방지석\n${useP ? `§a사용 · ${n.protect}개` : `§7${n.protect}개 · 누르면 사용`}${haveP < n.protect ? " §c(부족)" : ""}`, "textures/items/rpg/enh_protect", () => { ch.protect = !ch.protect; return reopen(); });
+  } else {
+    scr.raw("[FR]", `§7파괴방지석\n§8${!n ? "-" : T <= SAFE_TO ? "+6 부터 필요" : "+9 부터 못 씀"}`, "textures/items/rpg/enh_protect", () => { notify(p, !n ? "§6최대 강화입니다" : T <= SAFE_TO ? "§7+5 까지는 실패해도 단계가 떨어지지 않습니다" : "§c+9 부터는 파괴방지석을 쓸 수 없습니다"); return reopen(); });
+  }
+  // 가운데: 아이템 · 큰 +단계 · 분류
+  scr.raw("[FC]", rt("§f", baseName(it)), iconOf(it.typeId), null);
+  scr.raw("[FV]", `${L ? TIER_COL[tierOf(L)] : "§7"}+${L}`, "", null);
+  scr.raw("[FS]", `${catOf(it.typeId)} · 강화 ${L}/${MAX_ENH}`, "", null);
+  // 아래: 수치
+  const base = weapon ? baseAtk(it.typeId) : (weaponInfo(it.typeId)?.def ?? 0) * 10;
+  const val = (l) => (weapon ? Math.round(base * (1 + weaponBonus(l))) : base + armorDef(l));
+  const what = weapon ? "공격력" : "방어력";
+  const row = (k, v) => { scr.raw("[FK]", k, "", null); scr.raw("[FW]", v, "", null); };
+  row(`현재 ${what}`, `§f${comma(val(L))}`);
   if (!n) {
-    lines.push("\n§6§l최대 강화 달성!§r");
-    const hist = history.get(p.id) ?? [];
-    if (hist.length) lines.push(`\n\n§e§l최근 결과§r\n${hist.join("\n")}`);
-    scr.body(rt(lines));
+    row("강화 단계", "§6최대 강화 달성");
+    scr.raw("[FB]", "§a완료", `${FORGE}bar_100`, null);
+    scr.raw("[FG]", "§6최대 강화", "", reopen);
+    scr.raw("[FA]", "§7돌아가기", "", back);
     scr.reopen = reopen;
     return scr.show(p);
   }
-  const sc = SCROLLS[ch.scroll], rate = rateOf(T, fail, ch.scroll);
+  const rate = rateOf(T, fail, ch.scroll);
   const have = countItem(p, n.stone.id), haveP = countItem(p, PROTECT.id);
-  const useP = ch.protect && n.protect > 0;
   const can = have >= n.count && d.gold >= n.gold && (!useP || haveP >= n.protect);
-  lines.push(`§7강화 성공 시   §f${comma(val(L))} §a▶ §a§l${comma(val(T))}§r §a(+${comma(val(T) - val(L))})\n\n`);
-  lines.push(`§e§l필요 재료§r\n${n.stone.color}${n.stone.name} §f${have}§7/${n.count} ${have >= n.count ? "§a✔" : "§c✘"}\n§6골드 §f${comma(d.gold)}§7/${comma(n.gold)} ${d.gold >= n.gold ? "§a✔" : "§c✘"}\n`);
-  if (sc) lines.push(`${sc.color}${sc.name} §f1장 §a✔ §7(+${sc.bonus}%)\n`);
-  if (useP) lines.push(`${PROTECT.color}파괴방지석 §f${haveP}§7/${n.protect} ${haveP >= n.protect ? "§a✔" : "§c✘"}\n`);
-  lines.push(`\n§7성공 확률  ${rate >= 70 ? "§a" : rate >= 40 ? "§e" : "§c"}§l${rate}%§r\n${bigBar(rate)}\n`);
+  row("강화 성공 시", `§f${comma(val(L))} §a→ §a§l${comma(val(T))}`);
+  row("실패 시", T <= SAFE_TO ? "§a단계 유지" : useP ? "§6방지석으로 유지" : `§c+${L - 1} 로 하락`);
+  const rc = rate >= 70 ? "§a" : rate >= 40 ? "§e" : rate >= 20 ? "§6" : "§c";
+  scr.raw("[FB]", `${rc}${rate}%`, `${FORGE}bar_${Math.round(rate / 5) * 5}`, null);
   const parts = [`기본 ${RATE[T]}%`]; if (fail) parts.push(`실패 보정 +${fail * 2}%`); if (sc) parts.push(`주문서 +${sc.bonus}%`);
-  lines.push(`§8${parts.join(" · ")}\n`);
-  lines.push(`§7실패하면 ${T <= SAFE_TO ? "§a단계 유지" : useP ? "§6방지석으로 유지" : `§c+${L - 1} 로 하락`}${!n.protect && T > PROTECT_TO ? " §8(방지석 못 쓰는 구간)" : ""}`);
-  const hist = history.get(p.id) ?? [];
-  if (hist.length) lines.push(`\n\n§e§l최근 결과§r\n${hist.slice(0, 3).join("\n")}`);
-  scr.body(rt(lines));
-
-  const result = (r) => {
-    if (r.err) { notify(p, r.err); p.playSound("note.bass"); return false; }
-    const at = { ...p.location, y: p.location.y + 1 };
-    if (r.ok) {
-      p.playSound("random.totem", { volume: 0.6, pitch: 1.4 });
-      try { p.dimension.spawnParticle("minecraft:totem_particle", at); } catch {}
-      p.onScreenDisplay.setTitle(`§e§l+${r.NL} 성공!`, { subtitle: rt("§f", baseName(r.it)), fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
-      pushHist(p, `§a성공 §f+${r.L} → +${r.NL} §7(${r.rate}%)`);
-      if (r.NL >= 12) world.sendMessage(rt(`§6§l[강화] §r§f${p.name} 님이 §e§l+${r.NL} `, baseName(r.it), "§r§f 강화에 성공했습니다!"));
-    } else {
-      p.playSound("random.anvil_land", { volume: 0.6, pitch: 0.7 });
-      try { p.dimension.spawnParticle("minecraft:large_smoke_particle", at); } catch {}
-      const sub = r.NL < r.L ? `§c+${r.L} → +${r.NL}` : r.prot ? "§6파괴방지석이 하락을 막았습니다" : "§7단계 유지";
-      p.onScreenDisplay.setTitle("§c§l강화 실패", { subtitle: sub, fadeInDuration: 2, stayDuration: 30, fadeOutDuration: 8 });
-      pushHist(p, `§c실패 §f+${r.L} → +${r.NL} §7(${r.rate}%)${r.prot ? " §6방지" : ""}`);
-    }
-    return true;
-  };
-  scr.action(can ? `§a§l강화하기  §r§e${rate}%` : "§7강화하기 (재료 부족)", () => { result(enhanceOnce(p, sel.key, it.typeId, useP, ch.scroll)); return reopen(); });
-  scr.action(`§b성공할 때까지 연속 강화 §7(최대 10회${sc ? " · 주문서 매번 1장" : ""}${useP ? " · 방지석 사용" : ""})`, () => {
+  scr.raw("[FN]", parts.join(" · "), "", null);
+  // 재료
+  scr.raw("[FM]", `${have >= n.count ? "§f" : "§c"}${n.stone.name.replace(" 강화석", "석")} ×${n.count}`, STONE_TEX(tierOf(T)), null);
+  scr.raw("[FM]", `${d.gold >= n.gold ? "§f" : "§c"}${comma(n.gold)}G`, ICON("gold"), null);
+  if (sc) scr.raw("[FM]", "§f주문서 ×1", SCROLL_TEX(ch.scroll), null);
+  if (useP) scr.raw("[FM]", `${haveP >= n.protect ? "§f" : "§c"}방지석 ×${n.protect}`, "textures/items/rpg/enh_protect", null);
+  // 버튼
+  scr.raw("[FG]", can ? `${weapon ? "무기" : "방어구"} 강화` : "§7재료가 부족합니다", "", () => { showResult(p, enhanceOnce(p, sel.key, it.typeId, useP, ch.scroll)); return reopen(); });
+  scr.raw("[FA]", "§b연속 강화 §7(최대 10회)", "", () => {
     let tries = 0;
     const step = () => {
       if (tries >= 10) return reopen();
@@ -254,11 +275,13 @@ export function openForge(p, key, typeId, npcName = "대장장이", filter = "al
       const c = pick.get(p.id) ?? ch;
       if (c.scroll >= 0 && countItem(p, SCROLLS[c.scroll].id) < 1) { notify(p, "§e주문서를 다 써서 멈췄습니다"); return reopen(); }
       const r = enhanceOnce(p, sel.key, it.typeId, useP, c.scroll);
-      if (!result(r) || r.ok) return reopen();
+      if (!showResult(p, r) || r.ok) return reopen();
       system.runTimeout(step, 8); // 0.4초 간격 (결과 연출이 보이게)
     };
     step();
   });
+  const hist = history.get(p.id) ?? [];
+  scr.raw("[FA]", hist.length ? `§7최근: ${hist[0].replace(/§./g, "").split(" (")[0]}` : "§7돌아가기", "", hist.length ? () => { p.sendMessage(`§e[강화 기록]§r\n${hist.join("\n")}`); return reopen(); } : back);
   scr.reopen = reopen;
   return scr.show(p);
 }

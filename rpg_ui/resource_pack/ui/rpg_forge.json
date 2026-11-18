@@ -1,0 +1,1911 @@
+{
+ "namespace": "rpg_forge",
+ "slot_face": {
+  "type": "panel",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "off": {
+     "type": "image",
+     "texture": "textures/ui/rpg/tile_default",
+     "size": [
+      "100%",
+      "100%"
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "on": {
+     "type": "image",
+     "texture": "textures/ui/rpg/tab_on",
+     "size": [
+      "100%",
+      "100%"
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "icon": {
+     "type": "image",
+     "size": [
+      20,
+      20
+     ],
+     "layer": 6,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "anchor_from": "center",
+     "anchor_to": "center"
+    }
+   }
+  ]
+ },
+ "slot_face_h": {
+  "type": "panel",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "off": {
+     "type": "image",
+     "texture": "textures/ui/rpg/tile_hover",
+     "size": [
+      "100%",
+      "100%"
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "((#form_button_text - '[ON]') = #form_button_text)",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "on": {
+     "type": "image",
+     "texture": "textures/ui/rpg/tab_on",
+     "size": [
+      "100%",
+      "100%"
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#form_button_text - '[ON]') = #form_button_text))",
+       "target_property_name": "#visible"
+      }
+     ]
+    }
+   },
+   {
+    "icon": {
+     "type": "image",
+     "size": [
+      20,
+      20
+     ],
+     "layer": 6,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "anchor_from": "center",
+     "anchor_to": "center"
+    }
+   }
+  ]
+ },
+ "slot_btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_forge.slot_face": {}
+   },
+   {
+    "hover@rpg_forge.slot_face_h": {}
+   },
+   {
+    "pressed@rpg_forge.slot_face_h": {}
+   }
+  ]
+ },
+ "fl_entry": {
+  "type": "panel",
+  "size": [
+   70,
+   56
+  ],
+  "controls": [
+   {
+    "btn@rpg_forge.slot_btn": {
+     "size": [
+      32,
+      32
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      2
+     ]
+    }
+   },
+   {
+    "plus": {
+     "type": "image",
+     "texture": "textures/ui/rpg/forge/plus",
+     "size": [
+      10,
+      10
+     ],
+     "layer": 9,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      15,
+      -1
+     ]
+    }
+   },
+   {
+    "name": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      96,
+      20
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.97,
+      0.88,
+      0.6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      37
+     ]
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FL]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fr_entry": {
+  "type": "panel",
+  "size": [
+   70,
+   56
+  ],
+  "controls": [
+   {
+    "btn@rpg_forge.slot_btn": {
+     "size": [
+      32,
+      32
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      2
+     ]
+    }
+   },
+   {
+    "plus": {
+     "type": "image",
+     "texture": "textures/ui/rpg/forge/plus",
+     "size": [
+      10,
+      10
+     ],
+     "layer": 9,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      15,
+      -1
+     ]
+    }
+   },
+   {
+    "name": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      96,
+      20
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.97,
+      0.88,
+      0.6
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      37
+     ]
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FR]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fc_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   50
+  ],
+  "controls": [
+   {
+    "halo": {
+     "type": "image",
+     "texture": "textures/ui/rpg/forge/halo",
+     "size": [
+      56,
+      56
+     ],
+     "layer": 2,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      -8
+     ]
+    }
+   },
+   {
+    "cell": {
+     "type": "image",
+     "texture": "textures/ui/rpg/tile_hover",
+     "size": [
+      38,
+      38
+     ],
+     "layer": 3,
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle"
+    }
+   },
+   {
+    "item": {
+     "type": "image",
+     "size": [
+      26,
+      26
+     ],
+     "layer": 6,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "offset": [
+      0,
+      6
+     ]
+    }
+   },
+   {
+    "name": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      10
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.97,
+      0.95,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "anchor_from": "bottom_middle",
+     "anchor_to": "bottom_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FC]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fv_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   15
+  ],
+  "controls": [
+   {
+    "lv": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      15
+     ],
+     "text_alignment": "center",
+     "color": [
+      1.0,
+      0.86,
+      0.45
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 1.6,
+     "anchor_from": "center",
+     "anchor_to": "center"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FV]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fs_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   9
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      9
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.66,
+      0.67,
+      0.72
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.8,
+     "anchor_from": "center",
+     "anchor_to": "center"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FS]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fk_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   12
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      10
+     ],
+     "text_alignment": "left",
+     "color": [
+      0.7,
+      0.71,
+      0.76
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FK]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fw_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   12
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      10
+     ],
+     "text_alignment": "right",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "anchor_from": "right_middle",
+     "anchor_to": "right_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FW]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fb_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   14
+  ],
+  "controls": [
+   {
+    "k": {
+     "type": "label",
+     "text": "성공 확률",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      52,
+      10
+     ],
+     "color": [
+      0.7,
+      0.71,
+      0.76
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle"
+    }
+   },
+   {
+    "bar": {
+     "type": "image",
+     "size": [
+      "100% - 100px",
+      7
+     ],
+     "layer": 6,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      54,
+      0
+     ]
+    }
+   },
+   {
+    "v": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      42,
+      12
+     ],
+     "text_alignment": "right",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 1.15,
+     "anchor_from": "right_middle",
+     "anchor_to": "right_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FB]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fn_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   9
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100%",
+      9
+     ],
+     "text_alignment": "right",
+     "color": [
+      0.55,
+      0.56,
+      0.62
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.75,
+     "anchor_from": "right_middle",
+     "anchor_to": "right_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FN]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fm_entry": {
+  "type": "panel",
+  "size": [
+   70,
+   18
+  ],
+  "controls": [
+   {
+    "bg": {
+     "type": "image",
+     "texture": "textures/ui/rpg/chip",
+     "size": [
+      "100% - 4px",
+      16
+     ],
+     "layer": 3,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle"
+    }
+   },
+   {
+    "i": {
+     "type": "image",
+     "size": [
+      12,
+      12
+     ],
+     "layer": 6,
+     "bindings": [
+      {
+       "binding_name": "#form_button_texture",
+       "binding_name_override": "#texture",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_name": "#form_button_texture_file_system",
+       "binding_name_override": "#texture_file_system",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(not ((#texture = '') or (#texture = 'loading')))",
+       "target_property_name": "#visible"
+      }
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      4,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      52,
+      10
+     ],
+     "text_alignment": "left",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.85,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      18,
+      1
+     ]
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FM]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "go_face": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_default",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      11,
+      11
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 1.35,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "go_face_h": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_hover",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      11,
+      11
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 1.35,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "go_face_p": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_pressed",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      11,
+      11
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 1.35,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sm_face": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_default",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      7,
+      7
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sm_face_h": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_hover",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      7,
+      7
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "sm_face_p": {
+  "type": "image",
+  "texture": "textures/ui/rpg/action_pressed",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "dot": {
+     "type": "image",
+     "texture": "textures/ui/rpg/action_dot",
+     "size": [
+      7,
+      7
+     ],
+     "layer": 5,
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      6,
+      0
+     ]
+    }
+   },
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 7,
+     "size": [
+      "100% - 20px",
+      12
+     ],
+     "text_alignment": "center",
+     "color": [
+      0.96,
+      0.94,
+      0.9
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(((((((((((((#form_button_text - '[FL]') - '[FR]') - '[FC]') - '[FV]') - '[FS]') - '[FK]') - '[FW]') - '[FB]') - '[FN]') - '[FM]') - '[FG]') - '[FA]') - '[ON]')",
+       "target_property_name": "#display"
+      }
+     ],
+     "font_scale_factor": 0.9,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      4,
+      1
+     ]
+    }
+   }
+  ]
+ },
+ "go_btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_forge.go_face": {}
+   },
+   {
+    "hover@rpg_forge.go_face_h": {}
+   },
+   {
+    "pressed@rpg_forge.go_face_p": {}
+   }
+  ]
+ },
+ "sm_btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_forge.sm_face": {}
+   },
+   {
+    "hover@rpg_forge.sm_face_h": {}
+   },
+   {
+    "pressed@rpg_forge.sm_face_p": {}
+   }
+  ]
+ },
+ "fg_entry": {
+  "type": "panel",
+  "size": [
+   "100%",
+   25
+  ],
+  "controls": [
+   {
+    "btn@rpg_forge.go_btn": {
+     "size": [
+      "100%",
+      23
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FG]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "fa_entry": {
+  "type": "panel",
+  "size": [
+   "50%",
+   17
+  ],
+  "controls": [
+   {
+    "btn@rpg_forge.sm_btn": {
+     "size": [
+      "100% - 3px",
+      16
+     ],
+     "anchor_from": "center",
+     "anchor_to": "center"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[FA]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "forge_body@rpg_form.mode_panel": {
+  "$flag": "[RPG:F]",
+  "layer": 1,
+  "controls": [
+   {
+    "card": {
+     "type": "stack_panel",
+     "orientation": "vertical",
+     "size": [
+      300,
+      "100%"
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle",
+     "controls": [
+      {
+       "head": {
+        "type": "image",
+        "texture": "textures/ui/rpg/card_head",
+        "size": [
+         "100%",
+         84
+        ],
+        "controls": [
+         {
+          "left": {
+           "type": "stack_panel",
+           "orientation": "vertical",
+           "size": [
+            70,
+            56
+           ],
+           "factory": {
+            "name": "buttons",
+            "control_ids": {
+             "button": "@rpg_forge.fl_entry"
+            }
+           },
+           "collection_name": "form_buttons",
+           "bindings": [
+            {
+             "binding_name": "#form_button_contents",
+             "binding_name_override": "#collection_length"
+            }
+           ],
+           "anchor_from": "left_middle",
+           "anchor_to": "left_middle",
+           "offset": [
+            10,
+            0
+           ],
+           "layer": 2
+          }
+         },
+         {
+          "right": {
+           "type": "stack_panel",
+           "orientation": "vertical",
+           "size": [
+            70,
+            56
+           ],
+           "factory": {
+            "name": "buttons",
+            "control_ids": {
+             "button": "@rpg_forge.fr_entry"
+            }
+           },
+           "collection_name": "form_buttons",
+           "bindings": [
+            {
+             "binding_name": "#form_button_contents",
+             "binding_name_override": "#collection_length"
+            }
+           ],
+           "anchor_from": "right_middle",
+           "anchor_to": "right_middle",
+           "offset": [
+            -10,
+            0
+           ],
+           "layer": 2
+          }
+         },
+         {
+          "center": {
+           "type": "stack_panel",
+           "orientation": "vertical",
+           "size": [
+            140,
+            "100%c"
+           ],
+           "anchor_from": "top_middle",
+           "anchor_to": "top_middle",
+           "offset": [
+            0,
+            5
+           ],
+           "layer": 2,
+           "controls": [
+            {
+             "item": {
+              "type": "stack_panel",
+              "orientation": "vertical",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fc_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length"
+               }
+              ]
+             }
+            },
+            {
+             "lv": {
+              "type": "stack_panel",
+              "orientation": "vertical",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fv_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length"
+               }
+              ]
+             }
+            },
+            {
+             "sub": {
+              "type": "stack_panel",
+              "orientation": "vertical",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fs_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length"
+               }
+              ]
+             }
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "body": {
+        "type": "image",
+        "texture": "textures/ui/rpg/card_body",
+        "size": [
+         "100%",
+         "fill"
+        ],
+        "controls": [
+         {
+          "in": {
+           "type": "stack_panel",
+           "orientation": "vertical",
+           "size": [
+            "100% - 20px",
+            "100% - 8px"
+           ],
+           "anchor_from": "top_middle",
+           "anchor_to": "top_middle",
+           "offset": [
+            0,
+            5
+           ],
+           "layer": 2,
+           "controls": [
+            {
+             "stats": {
+              "type": "panel",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "controls": [
+               {
+                "keys": {
+                 "type": "stack_panel",
+                 "orientation": "vertical",
+                 "size": [
+                  "58%",
+                  "100%c"
+                 ],
+                 "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                   "button": "@rpg_forge.fk_entry"
+                  }
+                 },
+                 "collection_name": "form_buttons",
+                 "bindings": [
+                  {
+                   "binding_name": "#form_button_contents",
+                   "binding_name_override": "#collection_length"
+                  }
+                 ],
+                 "anchor_from": "top_left",
+                 "anchor_to": "top_left"
+                }
+               },
+               {
+                "vals": {
+                 "type": "stack_panel",
+                 "orientation": "vertical",
+                 "size": [
+                  "42%",
+                  "100%c"
+                 ],
+                 "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                   "button": "@rpg_forge.fw_entry"
+                  }
+                 },
+                 "collection_name": "form_buttons",
+                 "bindings": [
+                  {
+                   "binding_name": "#form_button_contents",
+                   "binding_name_override": "#collection_length"
+                  }
+                 ],
+                 "anchor_from": "top_right",
+                 "anchor_to": "top_right"
+                }
+               }
+              ]
+             }
+            },
+            {
+             "g1": {
+              "type": "panel",
+              "size": [
+               "100%",
+               2
+              ]
+             }
+            },
+            {
+             "sep": {
+              "type": "image",
+              "texture": "textures/ui/rpg/divider",
+              "size": [
+               "100%",
+               1
+              ],
+              "alpha": 0.7
+             }
+            },
+            {
+             "g2": {
+              "type": "panel",
+              "size": [
+               "100%",
+               3
+              ]
+             }
+            },
+            {
+             "bar": {
+              "type": "stack_panel",
+              "orientation": "vertical",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fb_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length"
+               }
+              ]
+             }
+            },
+            {
+             "note": {
+              "type": "stack_panel",
+              "orientation": "vertical",
+              "size": [
+               "100%",
+               "100%c"
+              ],
+              "factory": {
+               "name": "buttons",
+               "control_ids": {
+                "button": "@rpg_forge.fn_entry"
+               }
+              },
+              "collection_name": "form_buttons",
+              "bindings": [
+               {
+                "binding_name": "#form_button_contents",
+                "binding_name_override": "#collection_length"
+               }
+              ]
+             }
+            },
+            {
+             "g3": {
+              "type": "panel",
+              "size": [
+               "100%",
+               2
+              ]
+             }
+            },
+            {
+             "mats": {
+              "type": "panel",
+              "size": [
+               "100%",
+               18
+              ],
+              "controls": [
+               {
+                "list": {
+                 "type": "stack_panel",
+                 "orientation": "horizontal",
+                 "size": [
+                  "100%c",
+                  18
+                 ],
+                 "factory": {
+                  "name": "buttons",
+                  "control_ids": {
+                   "button": "@rpg_forge.fm_entry"
+                  }
+                 },
+                 "collection_name": "form_buttons",
+                 "bindings": [
+                  {
+                   "binding_name": "#form_button_contents",
+                   "binding_name_override": "#collection_length"
+                  }
+                 ],
+                 "anchor_from": "top_middle",
+                 "anchor_to": "top_middle"
+                }
+               }
+              ]
+             }
+            }
+           ]
+          }
+         }
+        ]
+       }
+      },
+      {
+       "g4": {
+        "type": "panel",
+        "size": [
+         "100%",
+         3
+        ]
+       }
+      },
+      {
+       "go": {
+        "type": "stack_panel",
+        "orientation": "vertical",
+        "size": [
+         "100%",
+         "100%c"
+        ],
+        "factory": {
+         "name": "buttons",
+         "control_ids": {
+          "button": "@rpg_forge.fg_entry"
+         }
+        },
+        "collection_name": "form_buttons",
+        "bindings": [
+         {
+          "binding_name": "#form_button_contents",
+          "binding_name_override": "#collection_length"
+         }
+        ]
+       }
+      },
+      {
+       "small": {
+        "type": "panel",
+        "size": [
+         "100%",
+         17
+        ],
+        "controls": [
+         {
+          "list": {
+           "type": "stack_panel",
+           "orientation": "horizontal",
+           "size": [
+            "100%",
+            17
+           ],
+           "factory": {
+            "name": "buttons",
+            "control_ids": {
+             "button": "@rpg_forge.fa_entry"
+            }
+           },
+           "collection_name": "form_buttons",
+           "bindings": [
+            {
+             "binding_name": "#form_button_contents",
+             "binding_name_override": "#collection_length"
+            }
+           ],
+           "anchor_from": "top_left",
+           "anchor_to": "top_left"
+          }
+         }
+        ]
+       }
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
