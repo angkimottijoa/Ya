@@ -69,9 +69,9 @@ KINDS = {
         ]},
 }
 T_WIND, T_HIT, T_END, T_BACK = 0.16, 0.24, 0.42, 0.2
-FP_SCALE = 0.65  # 1인칭 — 시뮬레이터(tools/solve3.py)로 빨간 축에 3D 로: 긴 축 화면 위 · 날(+Y)이 앞(화면 안쪽) · 두께축 화면 가로
-FP_POS = [-0.02, -0.13, 1.55]
-FP_ROT = [245.22, -159.77, 82.29]  # 쥐는 곳 화면 (1625, 1140), 끝 (1699, 290)
+FP_SCALE = 0.54  # 1인칭 — tools/solve4.py: 긴 축 화면 위 · 날이 앞(V12.43 에서 앞뒤 반대였음 → -Y 가 앞) · 두께축 화면 가로
+FP_POS = [0.58, -0.69, -3.23]
+FP_ROT = [-245.22, 159.77, -97.71]  # 쥐는 곳 화면 (1625, 1140), 끝 (1699, 290)
 FP_TILT = 0
 FP_SPIN = {}
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
