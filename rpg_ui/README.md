@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.29.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.30.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,11 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.30 변경
+- 주작의 활: 앞뒤 반전 (화살 쪽이 앞으로)
+- 혼돈의 낫: 위아래 반전 (날이 아래로)
+- 손잡이 있는 무기는 손잡이 가운데를 쥠: 낫 0.35 · 창 0.3 · 도끼 0.3 (아래에서 비율)
 
 ## V12.29 변경
 - **3D 무기 전용 플레이어 동작** (gen_weapon_moves.py) — 참고 팩(blades)의 동작 구조를 분석해 직접 다시 만듦 (값은 새로 작성)
