@@ -35,7 +35,7 @@ const MP_COST = { novice: 5, warrior: 15, archer: 10, mage: 20, cleric: 25 };
 const soft = (x, k, max) => (max * Math.max(0, x)) / (Math.max(0, x) + k); // x 가 k 일 때 max 의 절반
 export function combatStats(p) {
   const str = stat(p, "str"), dex = stat(p, "dex"), int = stat(p, "int"), vit = stat(p, "vit");
-  const melee = Math.round(soft(str, 200, 300)), ranged = Math.round(soft(dex, 200, 300)), magic = Math.round(soft(int, 200, 300));
+  const melee = Math.round(soft(str, 200, 300)), ranged = Math.round(soft(dex, 300, 300)), magic = Math.round(soft(int, 200, 300));
   return {
     str, dex, int, vit, melee, ranged, magic,
     atk: melee, crit: 5, critDmg: 150,
@@ -44,6 +44,8 @@ export function combatStats(p) {
 }
 /** 공격 스탯 → 위력 배율 (힘 · 민첩 · 지능 공통 곡선) */
 export const powOf = (x) => 1 + soft(x, 200, 300) / 100;
+/** 원거리(민첩)는 더 천천히 오름 (멀리서 안전하게 치므로): 100에 +75% · 200에 +120% · 400에 +171% */
+export const powOfR = (x) => 1 + soft(x, 300, 300) / 100;
 export function dealMul(p, s = combatStats(p)) { return (1 + s.atk / 100) * buffMul(p) * (1 - s.dull / 100); }
 /** 치명타 굴림: 맞으면 배율, 아니면 1 */
 export function rollCrit(p, s = combatStats(p)) { return Math.random() * 100 < s.crit ? s.critDmg / 100 : 1; }

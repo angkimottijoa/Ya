@@ -23,7 +23,7 @@ import { HJ } from "./hidden_jobs.js";
 const RUN = { ...WR, ...MG, ...RP, ...HJ }; // 직업 스킬 (전사 · 마법사 계열 · 히든 영혼 수확자)
 import { isSkillLocked } from "./skill_lock.js";
 import * as WRULES from "./world_rules.js";
-import { combatStats, powOf } from "./combat.js";
+import { combatStats, powOf, powOfR } from "./combat.js";
 const WEAPON_SKILLS = { ...CR_SKILLS, ...BH_SKILLS, ...JJ_SKILLS, ...HM.WEAPON_SKILLS, ...FD_SKILLS };
 
 // ───────── 밸런스 (V12.109) ─────────
@@ -209,7 +209,7 @@ function power(p, s) {
   // V12.123: 직업 스킬 바탕 위력은 도구 공격력(직업마다 3~16 으로 들쭉날쭉) 대신 차수로 모든 직업 같게 · 지능은 아래 배율에서만
   const base = ({ 0: 40, 1: 60, 2: 95, 3: 135 }[J.PATHS[s.path]?.tier ?? 1] ?? 60) * ((cfg?.mul ?? 100) / 100);
   const cs = combatStats(p);
-  const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOf(cs.dex) : powOf(cs.int); // V12.122: 근접 = 힘 · 원거리 = 민첩 · 마법 = 지능 (같은 곡선)
+  const statMul = s.kind === "melee" ? powOf(cs.str) : s.kind === "ranged" ? powOfR(cs.dex) : powOf(cs.int); // V12.122: 근접 = 힘 · 원거리 = 민첩 · 마법 = 지능 (같은 곡선)
   const buff = (d.buffUntil ?? 0) > system.currentTick ? 1 + (d.buffAtk ?? 0) / 100 : 1;
   const cls = (1 + (J.PATHS[s.path]?.tier ?? 1) * 0.1) * (1 + data(p).lv * 0.015); // V12.120: 직업 스킬도 레벨 보정 (사신수 · 사흉수보다 약 20% 약하게)
   return base * s.pow * statMul * buff * cls * (JOB_K[s.id] ?? 1);
@@ -325,7 +325,7 @@ export const WEAPON_MIX = {
   w_tw_1: [1, 0, 0], w_tw_2: [1, 0, 0], w_tw_3: [0.5, 0.5, 0], w_tw_4: [1, 0, 0],               // 도올: 망치 (투척은 반쯤 원거리)
   w_tt_1: [0.8, 0, 0.2], w_tt_2: [0.7, 0, 0.3], w_tt_3: [1, 0, 0], w_tt_4: [0.3, 0, 0.7],       // 도철: 물어뜯기 + 아가리 · 가면 소용돌이
 };
-const mixPow = (cs, m) => m[0] * powOf(cs.str) + m[1] * powOf(cs.dex) + m[2] * powOf(cs.int);
+const mixPow = (cs, m) => m[0] * powOf(cs.str) + m[1] * powOfR(cs.dex) + m[2] * powOf(cs.int);
 const weaponDmg = (p, s) => 160 * mixPow(combatStats(p), WEAPON_MIX[s?.id] ?? [1, 0, 0]) * buffMul(p) * (1 + data(p).lv * 0.025);
 /** V12.129 스킬 위력 보정: 가짜 표적 1마리에 스킬을 시뮬레이션해 '한 번 쓸 때 총 피해'를 재고,
  *  목표 = ① 0.9 + 0.8 × 대기초 / ②~④ (2 + 10 × 대기/120 + 3 × 마나/300) × 성격(장판 · 광역 0.85, 지속 · 방어 · 구속 · 이동기 0.6~0.75)
@@ -464,3 +464,14 @@ export function initSkillTriggers() {
     castKey(p, p.isSneaking ? 2 : 1);
   });
 }
+
+
+// ───────── 더보기 정보 (V12.130, menu.js) ─────────
+export const WEAPON_NAMES = { "rpg:cheongryong_sword": "청룡의 검", "rpg:baekho_axe": "백호의 도끼", "rpg:jujak_bow": "주작의 활", "rpg:hyeonmu_shield": "현무의 방패",
+  "rpg:hundun_scythe": "혼돈의 낫", "rpg:qiongqi_claws": "궁기의 쌍발톱", "rpg:taowu_hammer": "도올의 대망치", "rpg:taotie_maw": "도철의 아가리" };
+/** 사신수 · 사흉수 무기의 스킬 목록 + 지금 이 플레이어 기준 위력 */
+export function weaponSkillInfo(p, itemId) {
+  return (WEAPON_SKILLS[itemId] ?? []).map((s) => ({ s, mp: mpCost(p, s.mp), mix: WEAPON_MIX[s.id] ?? [1, 0, 0], pow: Math.round(weaponDmg(p, s) * cdPow(s)) }));
+}
+/** 직업 스킬 지금 기준 위력 (회복 · 강화는 null) */
+export const jobSkillPower = (p, s) => (s.kind === "heal" || s.kind === "buff" ? null : Math.round(power(p, s)));

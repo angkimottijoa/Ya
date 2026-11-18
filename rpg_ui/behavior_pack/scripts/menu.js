@@ -15,6 +15,7 @@ import {
 import { openAdmin } from "./admin.js";
 import * as CH from "./chat.js";
 import * as SK from "./skills.js";
+import { combatStats } from "./combat.js";
 import * as WP from "./waypoints.js";
 import { npcRegistry } from "./npcdb.js";
 import * as J from "./jobs.js";
@@ -107,7 +108,50 @@ export function openProfile(p, sel = "str") {
     scr.action(`${s.name} +1`, spend(1));
     if (d.pts >= 5) scr.action(`${s.name} +5`, spend(5));
   }
+  scr.action("§b더보기 (전투 정보 · 스킬 위력)", () => openCombatInfo(p));
   scr.reopen = () => openProfile(p, sel);
+  return scr.show(p);
+}
+
+// ═════════ 더보기: 전투 정보 (V12.130) ═════════
+//   내 수치 · 피해 계산 · 내 직업 스킬 · 가진 사신수 · 사흉수 무기만 (가방 · 손에 있는 것)
+const KEY_TXT = { 1: "① 클릭", 2: "② 쉬프트+클릭", 3: "③ 쉬프트+점프", 4: "④ 쉬프트 두 번" };
+const numc = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+function ownedWeapons(p) {
+  const have = new Set();
+  try { const c = p.getComponent("minecraft:inventory").container; for (let i = 0; i < c.size; i++) { const it = c.getItem(i); if (it && SK.WEAPON_NAMES[it.typeId]) have.add(it.typeId); } } catch {}
+  return Object.keys(SK.WEAPON_NAMES).filter((id) => have.has(id));
+}
+export function openCombatInfo(p, sel = "me") {
+  const d = data(p);
+  const scr = new Screen("L", "내 정보 / 전투 정보");
+  const owned = ownedWeapons(p);
+  const entries = [["me", "§l내 전투 수치", "profile"], ["calc", "§l피해 계산", "skill"], ["job", "§l내 직업 스킬", "class"],
+    ...owned.map((id) => [id, `§l${SK.WEAPON_NAMES[id]}`, "class"])];
+  for (const [id, name, icon] of entries) scr.item(name, ICON(icon), () => openCombatInfo(p, id), { on: id === sel });
+  chrome(scr, p, "profile");
+  scr.select("전투 정보", ICON("skill"));
+  const cs = combatStats(p);
+  let body = "";
+  if (sel === "me") {
+    const hc = p.getComponent("minecraft:health");
+    body = `§e§l공격 스탯§r\n§f힘 ${cs.str} §7→ 근접 §f+${cs.melee}%\n§f민첩 ${cs.dex} §7→ 원거리 §f+${cs.ranged}%\n§f지능 ${cs.int} §7→ 마법 §f+${cs.magic}%\n\n` +
+      `§e§l생존§r\n§f체력 ${cs.vit} §7→ 최대 체력 §f${numc(hc?.effectiveMax ?? 0)}\n§7마나 §f${numc(maxMp(p))}\n\n§e§l공통§r\n§7치명타 5% · 1.5배 · 몹 · 환경 피해 1.1배`;
+  } else if (sel === "calc") {
+    body = "§e§l스탯 곡선§r §7(상한 없음, 많이 찍을수록 1점당 효과 감소)\n§f힘 · 지능: 100에 +100% · 200에 +150% · 400에 +200%\n§f민첩(원거리): 100에 +75% · 200에 +120% · 400에 +171%\n\n" +
+      "§e§l평타§r\n§f아이템 공격력 × 근접 배율 × 치명\n\n§e§l사신수 · 사흉수 스킬§r\n§f160 × (근접%·힘 + 원거리%·민첩 + 마법%·지능) × (1 + 레벨×2.5%) × 위력 보정 × 치명\n\n" +
+      "§e§l직업 스킬§r\n§f차수 바탕(60/95/135) × 스탯 배율 × (1 + 차수×10%) × (1 + 레벨×1.5%) × 스킬 위력 × 위력 보정 × 치명\n\n" +
+      "§7위력 보정 = 스킬마다 '한 번 쓸 때 총 피해'를 재사용 대기 · 마나 · 성격(장판 · 지속 · 이동기)에 맞춘 값. 한 번의 실제 피해는 위력 × 그 스킬 안의 타격 배율";
+  } else if (sel === "job") {
+    const list = J.learned(d);
+    body = list.length ? list.map((s) => { const pw = SK.jobSkillPower(p, s); return `§f${KEY_TXT[s.key] ?? ""} §l${s.name}§r §7${J.PATHS[s.path]?.name ?? ""}\n§7대기 §f${s.cd}초 §7· 마나 §9${SK.mpCost(p, s.mp)} §7· ${{ melee: "근접", ranged: "원거리", magic: "마법", heal: "회복", buff: "강화" }[s.kind] ?? s.kind}${pw ? ` §7· 위력 §e${numc(pw)}` : ""}`; }).join("\n\n") : "§7배운 직업 스킬이 없습니다.";
+  } else if (SK.WEAPON_NAMES[sel] && owned.includes(sel)) {
+    const mixTxt = (m) => [["근접", m[0]], ["원거리", m[1]], ["마법", m[2]]].filter((x) => x[1] > 0).map(([n, v]) => `${n} ${Math.round(v * 100)}%`).join(" · ");
+    body = SK.weaponSkillInfo(p, sel).map(({ s, mp, mix, pow }) => `§f${KEY_TXT[s.key]} §l${s.name.split("·").pop().trim()}§r\n§7대기 §f${s.cd}초 §7· 마나 §9${mp} §7· 위력 §e${numc(pow)}\n§7${mixTxt(mix)}`).join("\n\n");
+  } else body = "§7가지고 있는 무기만 볼 수 있습니다.";
+  scr.body(body);
+  scr.action("§7능력치로 돌아가기", () => openProfile(p));
+  scr.reopen = () => openCombatInfo(p, sel);
   return scr.show(p);
 }
 
