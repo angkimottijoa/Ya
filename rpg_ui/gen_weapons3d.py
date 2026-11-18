@@ -27,17 +27,17 @@ W = {
                     tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "t1_archer": dict(item="rpg:jt_archer", src="t1_archer.png", mirror=True, string=(222, 206, 160), px=36, maxd=5, len=1.4, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
-    "t1_cleric": dict(item="rpg:jt_cleric", src="", book=dict(cover=None, leather=(92, 52, 34), trim=(206, 168, 80), tint=(255, 244, 222)), kind="tome",
+    "t1_cleric": dict(item="rpg:jt_cleric", src="", book=dict(cover=None, pages=("book_pages_ref2.png", (1195, 650, 1595, 945), (0.09, 0.09, 0.49, 0.85), (0.51, 0.09, 0.92, 0.85)), leather=(92, 52, 34), trim=(206, 168, 80)), kind="tome",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     # 2차 직업 도구 (V12.92): 1차보다 화려하게 · 블록 더 많이
     "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", px=56, maxd=7, len=2.15, grip=0.1, kind="chop", vanilla=True),
     "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", px=60, maxd=4, len=2.3, grip=0.1, kind="chop", vanilla=True),
     "t2_hunter": dict(item="rpg:jt_hunter", src="t2_hunter.png", mirror=True, string=(200, 190, 170), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_sniper": dict(item="rpg:jt_sniper", src="t2_sniper.png", string=(230, 220, 160), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
-    "t2_elementalist": dict(item="rpg:jt_elementalist", src="", book=dict(cover=(150, 592, 488, 925), leather=(34, 44, 78), trim=(196, 150, 70), tint=(236, 236, 255)), kind="tome"),
+    "t2_elementalist": dict(item="rpg:jt_elementalist", src="", book=dict(cover=(150, 592, 488, 925), pages=("book_pages_ref.png", (135, 645, 522, 940), (0.05, 0.03, 0.48, 0.90), (0.52, 0.03, 0.95, 0.90)), leather=(34, 44, 78), trim=(196, 150, 70)), kind="tome"),
     "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
     "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", flip180=True, px=56, maxd=7, len=2.0, grip=0.12, kind="chop", vanilla=True),
-    "t2_priest": dict(item="rpg:jt_priest", src="", book=dict(cover=(1135, 588, 1495, 925), leather=(226, 214, 190), trim=(212, 172, 84), tint=(255, 248, 230)), kind="tome"),
+    "t2_priest": dict(item="rpg:jt_priest", src="", book=dict(cover=(1135, 588, 1495, 925), pages=("book_pages_ref.png", (1180, 650, 1585, 930), (0.08, 0.08, 0.49, 0.85), (0.51, 0.08, 0.92, 0.85)), leather=(226, 214, 190), trim=(212, 172, 84)), kind="tome"),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
@@ -243,37 +243,65 @@ def fill_holes(im):
         holes = rest
 
 
-BOOK_PW, BOOK_PH = 20, 28  # 책장 · 표지 텍스처 칸 (가로 · 세로 픽셀)
+BOOK_PW, BOOK_PH = 32, 44  # 책장 · 표지 텍스처 칸 (가로 · 세로 픽셀)
+
+
+def leather_cover(PW, PH, lc, tc, seed, emblem):
+    """가죽 표지: 결 노이즈 + 가운데 밝고 가장자리 어두운 명암 + 눌린 테두리 홈(그림자·하이라이트) + 금속 모서리(빛 받는 쪽 밝게) + 가운데 문장"""
+    import random
+    rnd = random.Random(seed)
+    im = Image.new("RGB", (PW, PH)); px = im.load()
+    for y in range(PH):
+        for x in range(PW):
+            dx, dy = (x - PW * 0.42) / PW, (y - PH * 0.38) / PH  # 빛: 왼쪽 위
+            shade = 1.18 - 1.1 * (dx * dx + dy * dy) ** 0.5
+            edge = min(x, y, PW - 1 - x, PH - 1 - y)
+            if edge == 0: shade *= 0.55
+            elif edge == 1: shade *= 0.8
+            n = 1 + rnd.uniform(-0.07, 0.07)
+            px[x, y] = tuple(max(0, min(255, int(c * shade * n))) for c in lc)
+    def dk(c, k): return tuple(max(0, min(255, int(v * k))) for v in c)
+    d = ImageDraw.Draw(im)
+    d.rectangle([3, 3, PW - 4, PH - 4], outline=dk(lc, 0.5))      # 눌린 홈 (그림자)
+    hl = dk(lc, 1.35 if max(lc) < 150 else 1.06)  # 밝은 가죽은 하이라이트를 약하게
+    d.line([(4, 4), (PW - 5, 4)], fill=hl); d.line([(4, 4), (4, PH - 5)], fill=hl)  # 홈 안쪽 하이라이트
+    for k in range(3, PW - 3, 4): px[k, 3] = dk(tc, 0.9); px[k, PH - 4] = dk(tc, 0.75)  # 금박 점선
+    for k in range(3, PH - 3, 4): px[3, k] = dk(tc, 0.9); px[PW - 4, k] = dk(tc, 0.75)
+    for x0, y0 in ((0, 0), (PW - 5, 0), (0, PH - 5), (PW - 5, PH - 5)):  # 금속 모서리
+        for yy in range(5):
+            for xx in range(5):
+                if (xx if x0 == 0 else 4 - xx) + (yy if y0 == 0 else 4 - yy) <= 5:
+                    lit = 1.3 - 0.12 * (xx + yy) if (x0, y0) == (0, 0) else 1.0 - 0.06 * (xx + yy)
+                    px[x0 + xx, y0 + yy] = dk(tc, lit)
+    cx, cy = PW // 2, PH // 2
+    if emblem == "cross":
+        d.rectangle([cx - 2, cy - 11, cx + 1, cy + 12], fill=dk(tc, 0.55)); d.rectangle([cx - 8, cy - 5, cx + 7, cy - 2], fill=dk(tc, 0.55))  # 그림자
+        d.rectangle([cx - 2, cy - 12, cx + 1, cy + 11], fill=tc); d.rectangle([cx - 8, cy - 6, cx + 7, cy - 3], fill=tc)
+        d.line([(cx - 2, cy - 12), (cx - 2, cy + 11)], fill=dk(tc, 1.35)); d.line([(cx - 8, cy - 6), (cx + 7, cy - 6)], fill=dk(tc, 1.35))
+        px[cx - 1, cy - 5] = (255, 250, 230)
+    else:  # 뒤표지: 마름모 문장 + 가운데 보석
+        for r in range(7, 0, -1):
+            col = dk(tc, 0.55 + r * 0.09) if r > 2 else (150, 30, 40) if r == 2 else (240, 120, 120)
+            d.polygon([(cx, cy - r * 1.4), (cx + r, cy), (cx, cy + r * 1.4), (cx - r, cy)], fill=col)
+    return im
 
 
 def book_texture(cfg):
     """[왼쪽 책장 | 오른쪽 책장 | 앞표지 | 뒤표지 | 책장 옆 · 가죽 · 장식 · 책갈피 색]"""
     b = cfg["book"]; PW, PH = BOOK_PW, BOOK_PH
     tex = Image.new("RGBA", (PW * 4 + 4, PH), (0, 0, 0, 255))
-    photo = Image.open(ROOT / "art" / "book_open_ref.jpg").convert("RGB").rotate(-22, resample=Image.BICUBIC, center=(660, 440))
-    def tinted(im):
-        im = im.resize((PW, PH), Image.LANCZOS); px = im.load(); t = b["tint"]
-        for y in range(PH):
-            for x in range(PW):
-                r, g, bb = px[x, y]; px[x, y] = (r * t[0] // 255, g * t[1] // 255, bb * t[2] // 255)
-        return im
-    tex.paste(tinted(photo.crop((505, 215, 640, 650))), (0, 0))          # 왼쪽 책장 (글씨)
-    tex.paste(tinted(photo.crop((660, 225, 905, 632))), (PW, 0))         # 오른쪽 책장 (마법진)
+    fn, box, lf, rf = b["pages"]  # 펼친 책 그림에서 양쪽 책장
+    sp = Image.open(ROOT / "art" / fn).convert("RGB"); k = sp.width / 2000
+    sp = sp.crop(tuple(round(v * k) for v in box)); W0, H0 = sp.size
+    for i, f in enumerate((lf, rf)):
+        tex.paste(sp.crop((round(f[0] * W0), round(f[1] * H0), round(f[2] * W0), round(f[3] * H0))).resize((PW, PH), Image.LANCZOS), (PW * i, 0))
     lc, tc = b["leather"], b["trim"]
     if b["cover"]:
-        cov = Image.open(ROOT / "art" / "book_covers_ref.png").convert("RGB"); k = cov.width / 2000
-        front = cov.crop(tuple(round(v * k) for v in b["cover"])).resize((PW, PH), Image.LANCZOS)
-    else:  # 성직자의 서: 가죽 표지 + 금빛 십자가 · 모서리 장식
-        front = Image.new("RGB", (PW, PH), lc); d = ImageDraw.Draw(front)
-        d.rectangle([1, 1, PW - 2, PH - 2], outline=tuple(max(0, c - 30) for c in lc))
-        cx, cy = PW // 2, PH // 2 - 2
-        d.rectangle([cx - 1, cy - 7, cx, cy + 8], fill=tc); d.rectangle([cx - 5, cy - 3, cx + 4, cy - 2], fill=tc)
-        for x0, y0 in ((0, 0), (PW - 3, 0), (0, PH - 3), (PW - 3, PH - 3)): d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=tc)
+        cov = Image.open(ROOT / "art" / "book_covers_ref.png").convert("RGB"); kk = cov.width / 2000
+        front = cov.crop(tuple(round(v * kk) for v in b["cover"])).resize((PW, PH), Image.LANCZOS)
+    else: front = leather_cover(PW, PH, lc, tc, 1, "cross")  # 성직자의 서: 가죽 + 금빛 십자가
     tex.paste(front, (PW * 2, 0))
-    back = Image.new("RGB", (PW, PH), lc); d = ImageDraw.Draw(back)
-    d.rectangle([1, 1, PW - 2, PH - 2], outline=tc)
-    for x0, y0 in ((0, 0), (PW - 3, 0), (0, PH - 3), (PW - 3, PH - 3)): d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=tc)
-    tex.paste(back, (PW * 3, 0))
+    tex.paste(leather_cover(PW, PH, lc, tc, 2, "gem"), (PW * 3, 0))  # 뒤표지: 명암 · 홈 · 금속 모서리 · 문장
     for i, c in enumerate([(226, 208, 170), lc, tc, (170, 30, 40)]):
         for y in range(PH): tex.putpixel((PW * 4 + i, y), (*c, 255))
     return tex
