@@ -572,6 +572,15 @@ def item():
     im.putpixel((0, 15), (166, 240, 255, 255))
     out = ROOT / "resource_pack" / "textures" / "items" / "rpg"
     im.save(out / "cheongryong_sword.png")
+    src = ROOT / "art" / "cheongryong_icon_src.png"  # V12.116: 3D 와 같은 청룡의 창 그림으로 아이콘 (32x32)
+    if src.exists():
+        c = Image.open(src).convert("RGBA"); k = 31 / max(c.size)
+        sm = c.resize((max(1, round(c.width * k)), max(1, round(c.height * k))), Image.LANCZOS)
+        px = sm.load()
+        for y in range(sm.height):
+            for x in range(sm.width):
+                r, g, b, a = px[x, y]; px[x, y] = (r, g, b, 255) if a > 80 else (0, 0, 0, 0)
+        ic = Image.new("RGBA", (32, 32), (0, 0, 0, 0)); ic.paste(sm, ((32 - sm.width) // 2, (32 - sm.height) // 2)); ic.save(out / "cheongryong_sword.png")
     atlas_p = ROOT / "resource_pack" / "textures" / "item_texture.json"
     atlas = json.loads(atlas_p.read_text())
     atlas["texture_data"]["rpg_cheongryong_sword"] = {"textures": "textures/items/rpg/cheongryong_sword"}
