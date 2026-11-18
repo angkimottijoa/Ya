@@ -5309,7 +5309,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.5268500000000003,
+     "scale": 0.8190000000000001,
      "rotation": [
       0,
       55,
@@ -5442,7 +5442,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.33599375,
+     "scale": 0.6930000000000001,
      "rotation": [
       0,
       55,
@@ -5479,7 +5479,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.33599375,
+     "scale": 0.6930000000000001,
      "rotation": [
       0,
       55,
@@ -5740,7 +5740,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.18755,
+     "scale": 0.6930000000000001,
      "rotation": [
       0,
       55,
@@ -5777,7 +5777,7 @@
    "loop": true,
    "bones": {
     "rpg_w3d": {
-     "scale": 1.18755,
+     "scale": 0.6930000000000001,
      "rotation": [
       0,
       55,
