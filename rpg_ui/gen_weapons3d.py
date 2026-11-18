@@ -232,6 +232,7 @@ def build(name, cfg):
             for y in range(Ht): big.putpixel((Wd + i, y), (*c, 255))
         im_tex = big
     else: im_tex = im
+    if cfg.get("vanilla"): im_tex = im.transpose(Image.TRANSPOSE)  # 옆으로 세운 무기: 면의 가로(u)가 그림 세로를 따라가므로 텍스처를 전치 (합친 블록 그림이 90° 돌지 않게)
     tex = f"textures/models/rpg_w3d_{name}"
     (RP / "textures" / "models").mkdir(parents=True, exist_ok=True)
     im_tex.save(RP / f"{tex}.png")
@@ -241,38 +242,48 @@ def build(name, cfg):
     GY = 0
     side = cfg.get("vanilla")  # 넓은 면이 옆을 보게: 그림 가로를 Z 로, 두께를 X 로 (석궁처럼 X +90° 로 앞을 향할 때 면이 세로로 섬)
     cubes = []
+    # 최적화 (V12.94): 같은 두께인 이웃 픽셀을 직사각형 블록 하나로 합침 (블록 속은 원래 비어 있음 — 픽셀 한 칸 = 앞뒤를 꿰는 블록 하나)
+    #   그림 면은 합친 직사각형 그대로 텍스처를 입힘. 면 방향 규칙(방패 앞면으로 확인): 보는 사람 오른쪽으로 u 증가, 아래로 v 증가
+    used = [[False] * Wd for _ in range(Ht)]
+    rects = []
     for y in range(Ht):
-        x = 0
-        while x < Wd:
+        for x in range(Wd):
             t = dm[y][x]
-            if not t: x += 1; continue
-            x0 = x
-            while x < Wd and dm[y][x] == t and not (cfg.get("vanilla") or cfg.get("bowside")): x += 1  # 옆으로 세운 무기는 합치지 않음 (합친 줄 그림이 90° 돌아 노이즈처럼 보였음)
-            if x == x0: x += 1
-            w = x - x0
+            if not t or used[y][x]: continue
+            w = 1
+            while x + w < Wd and not used[y][x + w] and dm[y][x + w] == t: w += 1
+            h = 1
+            while y + h < Ht and all(not used[y + h][x + i] and dm[y + h][x + i] == t for i in range(w)): h += 1
+            for yy in range(y, y + h):
+                for xx in range(x, x + w): used[yy][xx] = True
+            rects.append((x, y, w, h, t))
+    flip = cfg.get("flipup")
+    for x0, y, w, h, t in rects:
             if isinstance(t, tuple): T = (t[1] - t[0]) * u; Z0 = t[0] * u  # 껍데기: 그 자리 앞·뒤 면
             else: T = t * u * (0.9 if cfg["src"] else 0.6); Z0 = -T / 2
-            o3 = [round((x0 - gx) * u, 4), round((gy - y - 1) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(u, 4), round(T, 4)]
-            face = {"north": {"uv": [x0, y], "uv_size": [w, 1]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                    "east": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}, "west": {"uv": [x0, y], "uv_size": [1, 1]},
-                    "up": {"uv": [x0, y], "uv_size": [w, 1]}, "down": {"uv": [x0, y], "uv_size": [w, 1]}}
+            o3 = [round((x0 - gx) * u, 4), round((gy - y - h) * u + GY, 4), round(Z0, 4)]; s3 = [round(w * u, 4), round(h * u, 4), round(T, 4)]
+            xm, ym = x0 + w // 2, y + h // 2
+            if side:  # 텍스처 전치: 그림 (x, y) → 텍스처 (y, x)
+                one = {"uv": [ym, xm], "uv_size": [1, 1]}
+                vv, vs = (x0 + w, -w) if flip else (x0, w)
+                face = {"east": {"uv": [y, vv], "uv_size": [h, vs]}, "west": {"uv": [y + h, vv], "uv_size": [-h, vs]},
+                        "north": one, "south": one, "up": one, "down": one}
+            elif cfg.get("bowside"):
+                one = {"uv": [xm, ym], "uv_size": [1, 1]}
+                face = {"east": {"uv": [x0 + w, y], "uv_size": [-w, h]}, "west": {"uv": [x0, y], "uv_size": [w, h]},
+                        "north": one, "south": one, "up": one, "down": one}
+            else:  # 납작한 것(방패 · 책): 그림이 앞(-Z, north) · 뒤(south)
+                one = {"uv": [xm, ym], "uv_size": [1, 1]}
+                face = {"north": {"uv": [x0, y], "uv_size": [w, h]}, "south": {"uv": [x0 + w, y], "uv_size": [-w, h]},
+                        "east": one, "west": one, "up": one, "down": one}
             if cfg.get("bowside"):  # 활: 세로로 세우되 옆에서 보이게 — 그림 세로 → 위(Y), 그림 가로 → Z(그림 왼쪽 = 화살 쪽 = 앞 -Z), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
                 o3 = [round(oz, 4), oy, round(-(ox + sx), 4)]; s3 = [sz, sy, sx]  # 그림 오른쪽 → 앞(-Z) (게임에서 확인: 반대였음)
-                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 옆 테두리 면: 그 줄 가운데 색 한 칸 (줄을 세로로 늘려 노이즈처럼 보이던 것)
-                face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                        "north": {"uv": [x0, y], "uv_size": [1, 1]}, "south": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]},
-                        "up": mid, "down": mid}
             if side:  # 참고 팩(blades)처럼: 손에서 -Z(앞) 로 뻗은 모델 — 그림 세로(끝) → -Z, 그림 가로 → 위(Y, 그림 왼쪽이 위), 두께 → X
                 ox, oy, oz = o3; sx, sy, sz = s3
-                o3 = [round(oz, 4), round(ox if cfg.get("flipup") else -(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]  # flipup: 그림 왼쪽이 아래 (낫 날 끝이 바닥 쪽)
-                mid = {"uv": [x0 + w // 2, y], "uv_size": [1, 1]}  # 줄 사이 계단 면: 가운데 색 한 칸 (줄을 두께 쪽으로 눌러 노이즈처럼 보이던 것)
-                face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
-                        "north": mid, "south": mid,
-                        "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
-            if cfg.get("kind") == "tome":  # 책: 그림(펼친 책장)이 플레이어 쪽(+Z)을 보게 앞뒤를 뒤집어 만듦 (손 회전 180° 없이)
+                o3 = [round(oz, 4), round(ox if flip else -(ox + sx), 4), round(-(oy + sy), 4)]; s3 = [sz, sx, sy]  # flipup: 그림 왼쪽이 아래 (낫 날 끝이 바닥 쪽)
+            if cfg.get("kind") == "tome":  # 책: 그림(펼친 책장)이 플레이어 쪽(+Z, south 면)을 보게 앞뒤를 뒤집어 만듦
                 o3 = [o3[0], o3[1], round(-(o3[2] + s3[2]), 4)]
-                face = dict(face); face["north"], face["south"] = face["south"], face["north"]
             cubes.append({"origin": o3, "size": s3, "uv": face})
     shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z)
     zoff = -5.5 if shield else 0
