@@ -73,11 +73,11 @@ KINDS = {
             (P(rightArm=[-88, 0, 0], rightItem=[88, 0, 0], leftArm=[-88, 45, 0], body=[0, 18, 0]), P(rightArm=[-100, 0, 0], rightItem=[100, 0, 0], leftArm=[-70, 20, -20], body=[-4, 12, 0]), P(rightArm=[-92, 0, 0], rightItem=[92, 0, 0], leftArm=[-75, 25, -15], body=[-2, 14, 0])),
         ] * 3},
     "tome": {  # 책: 가슴 앞에 펼쳐 들고(책장이 내 쪽) → 앞으로 내밀어 펼치기 · 높이 들어 올리기 · 내려 누르기
-        "stance": P(rightArm=[-45, 10, 0], rightItem=[45, 180, 0], leftArm=[-40, -20, 10], body=[0, 8, 0]),
+        "stance": P(rightArm=[-55, 10, 0], rightItem=[40, 0, 0], leftArm=[-40, -20, 10], body=[0, 8, 0]),
         "hits": [
-            (P(rightArm=[-35, 10, 0], rightItem=[35, 180, 0], body=[0, 12, 0]), P(rightArm=[-90, 0, 0], rightItem=[90, 180, 0], body=[8, -4, 0], root_pos=[0, 0, -2]), P(rightArm=[-85, 0, 0], rightItem=[85, 180, 0], body=[6, -4, 0], root_pos=[0, 0, -2])),
-            (P(rightArm=[-60, 10, 0], rightItem=[60, 180, 0], body=[-4, 10, 0]), P(rightArm=[-150, 0, 0], rightItem=[150, 180, 0], body=[-10, 0, 0], leftArm=[-150, 0, 0]), P(rightArm=[-145, 0, 0], rightItem=[145, 180, 0], body=[-8, 0, 0], leftArm=[-140, 0, 0])),
-            (P(rightArm=[-120, 0, 0], rightItem=[120, 180, 0], body=[-8, 0, 0]), P(rightArm=[-50, 0, 0], rightItem=[50, 180, 0], body=[22, 0, 0], waist_pos=[0, -2, 0]), P(rightArm=[-45, 0, 0], rightItem=[45, 180, 0], body=[20, 0, 0], waist_pos=[0, -2, 0])),
+            (P(rightArm=[-35, 10, 0], rightItem=[35, 0, 0], body=[0, 12, 0]), P(rightArm=[-90, 0, 0], rightItem=[90, 0, 0], body=[8, -4, 0], root_pos=[0, 0, -2]), P(rightArm=[-85, 0, 0], rightItem=[85, 0, 0], body=[6, -4, 0], root_pos=[0, 0, -2])),
+            (P(rightArm=[-60, 10, 0], rightItem=[60, 0, 0], body=[-4, 10, 0]), P(rightArm=[-150, 0, 0], rightItem=[150, 0, 0], body=[-10, 0, 0], leftArm=[-150, 0, 0]), P(rightArm=[-145, 0, 0], rightItem=[145, 0, 0], body=[-8, 0, 0], leftArm=[-140, 0, 0])),
+            (P(rightArm=[-120, 0, 0], rightItem=[120, 0, 0], body=[-8, 0, 0]), P(rightArm=[-50, 0, 0], rightItem=[50, 0, 0], body=[22, 0, 0], waist_pos=[0, -2, 0]), P(rightArm=[-45, 0, 0], rightItem=[45, 0, 0], body=[20, 0, 0], waist_pos=[0, -2, 0])),
         ]},
     "bash": {  # 방패: 앞에 세워 들고 → 밀쳐 치기 · 몸통 박치기 · 내려찍기
         "stance": P(rightArm=[0, 0, 0], rightItem=[0, 90, 0], rightItem_pos=[-2.5, 3, 0], leftArm=[-10, 0, -8], body=[0, 6, 0]),  # 팔 X 와 손 Y 를 섞으면 방패가 비스듬히 기울었음 → 팔은 곧게 내리고 손은 Y 만 (방패가 땅과 직각)  # 기본: 팔을 내리고 방패를 손 옆에 세워 거치 (면이 바깥쪽)
@@ -102,7 +102,7 @@ def chan(bone):
     return (bone[:-4], "position") if bone.endswith("_pos") else (bone, "rotation")
 
 
-FP_YAW = {n: 27 + 180 for n in W if W[n][1] == "tome"}  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
+FP_YAW = {n: 27 for n in W if W[n][1] == "tome"}  # 책은 모델 자체가 책장이 +Z (V12.93) → 방패 패링 각도(+27) 그대로면 책장이 정면  # 책 1인칭: 방패 패링 각도(+27, 뒷면 정면)에서 180° → 펼친 책장이 정면으로 보임
 FP_GUARD = "(q.is_using_item ? math.min(1, q.main_hand_item_use_duration * 10) : 0)"  # 우클릭(패링·막기) 들어 올림 0→1 (0.1초)
 FP_SHIELD_SIDE = 47  # (V12.78 15° → V12.81 30° → 47°) (-15 는 오른쪽이 보였음) 방패 1인칭: 세로축으로 살짝 돌려 왼쪽 측면이 조금 보이게 (기본·패링 모두)
 FP_GUARD_TURN = 27  # 관측: -63 모서리, -90·-117 은 앞면(무늬) 비스듬, +47(V12.83) 은 뒷면(손잡이)이 20° 비스듬 → 모서리에서 90° 인 +27 이 뒷면 정면. 이전 메모: V12.86 -90 은 왼쪽이 가깝게 비스듬 · V12.87 -63 은 모서리가 보였음 → 반대로 27°: 방패 1인칭 패링: 정면 (0° 는 비스듬, 47° 는 왼쪽을 봤음)

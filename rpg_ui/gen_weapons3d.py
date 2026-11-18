@@ -270,6 +270,9 @@ def build(name, cfg):
                 face = {"east": {"uv": [x0, y], "uv_size": [w, 1]}, "west": {"uv": [x0 + w, y], "uv_size": [-w, 1]},
                         "north": mid, "south": mid,
                         "up": {"uv": [x0, y], "uv_size": [1, 1]}, "down": {"uv": [x0 + w - 1, y], "uv_size": [1, 1]}}
+            if cfg.get("kind") == "tome":  # 책: 그림(펼친 책장)이 플레이어 쪽(+Z)을 보게 앞뒤를 뒤집어 만듦 (손 회전 180° 없이)
+                o3 = [o3[0], o3[1], round(-(o3[2] + s3[2]), 4)]
+                face = dict(face); face["north"], face["south"] = face["south"], face["north"]
             cubes.append({"origin": o3, "size": s3, "uv": face})
     shield = not (side or cfg.get("bowside"))  # 방패: 앞면이 앞(-Z)
     zoff = -5.5 if shield else 0
