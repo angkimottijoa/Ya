@@ -1,5 +1,4 @@
 {
-
   "namespace": "rpg_hud",
   "root": {
     "type": "panel",
@@ -49,7 +48,7 @@
           ],
           "controls": [
             {
-              "quest_window@rpg_hud.quest_popup": {}
+              "card@rpg_hud.card_popup": {}
             },
             {
               "gap2": {
@@ -61,7 +60,7 @@
               }
             },
             {
-              "card@rpg_hud.card_popup": {}
+              "quest_window@rpg_hud.quest_popup": {}
             }
           ]
         }
