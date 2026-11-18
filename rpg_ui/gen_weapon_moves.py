@@ -73,7 +73,7 @@ FP_SCALE = 0.63  # V12.39 크기
 FP_POS = [0.2, 0, 0]  # V12.39 (게임에서 확인된 자리)
 FP_ROT = [0, 55, 0]  # V12.39: 긴 축이 사용자 빨간 긴 축과 일치
 FP_TILT = {"jujak_bow": -45}  # 1인칭 가로축(X) 둘레: 근접 45° (V12.50 확정), 활은 90° 더 (활 방향이 하늘 → 앞)
-FP_SPIN = {n: (0 if n == "jujak_bow" else 12) for n in W}  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 12°
+FP_SPIN = {n: (180 if n == "jujak_bow" else 12) for n in W}  # 1인칭 긴 축 둘레: 왼쪽 옆면이 살짝 보이게 12°
 UPPER = ("body", "head", "rightArm", "leftArm", "rightItem", "waist_pos", "root_pos")
 
 

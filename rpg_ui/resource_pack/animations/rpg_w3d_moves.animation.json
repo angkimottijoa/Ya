@@ -4216,7 +4216,7 @@
      "rotation": [
       "math.sin(variable.attack_time * 180) * -12",
       0,
-      0
+      180
      ],
      "position": [
       0,
