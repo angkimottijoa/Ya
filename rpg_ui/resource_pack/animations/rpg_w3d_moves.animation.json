@@ -4118,7 +4118,7 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
-      "math.sin(variable.attack_time * 180) * -70",
+      "math.sin(variable.attack_time * 180) * 70",
       0,
       -15
      ]
@@ -4150,7 +4150,7 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
-      "math.sin(variable.attack_time * 180) * -70",
+      "math.sin(variable.attack_time * 180) * 70",
       0,
       -15
      ]
@@ -4182,7 +4182,7 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
-      "math.sin(variable.attack_time * 180) * -70",
+      "math.sin(variable.attack_time * 180) * 70",
       0,
       -15
      ]
@@ -4251,7 +4251,7 @@
     },
     "rpg_w3d_spin": {
      "rotation": [
-      "math.sin(variable.attack_time * 180) * -70",
+      "math.sin(variable.attack_time * 180) * 70",
       0,
       -15
      ]
