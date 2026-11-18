@@ -21,30 +21,30 @@ W = {
     "jujak_bow": dict(item="rpg:jujak_bow", src="jujak_bow_ref.png", px=78, maxd=11, len=1.8, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     # 1차 직업 도구 (V12.91): 덜 화려하게 · 블록 적게
-    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", flip180=True, px=34, maxd=3, len=1.75, grip=0.13, kind="chop", vanilla=True,
+    "t1_warrior": dict(item="rpg:jt_warrior", src="t1_warrior.png", tip=(1, -1), px=34, maxd=3, len=1.75, grip=0.13, kind="chop", vanilla=True,
                        tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
-    "t1_mage": dict(item="rpg:jt_mage", src="t1_mage.png", px=40, maxd=5, len=1.8, grip=0.3, kind="thrust", vanilla=True,
+    "t1_mage": dict(item="rpg:jt_mage", src="t1_mage.png", tip=(1, -1), px=40, maxd=5, len=1.8, grip=0.3, kind="thrust", vanilla=True,
                     tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     "t1_archer": dict(item="rpg:jt_archer", src="t1_archer.png", mirror=True, string=(222, 206, 160), px=36, maxd=5, len=1.4, grip=0.5, kind="bow", bowside=True,
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.55)),
     "t1_cleric": dict(item="rpg:jt_cleric", src="", book=dict(cover=None, pages=("book_pages_ref2.png", (1195, 650, 1595, 945), (0.09, 0.09, 0.49, 0.85), (0.51, 0.09, 0.92, 0.85)), leather=(92, 52, 34), trim=(206, 168, 80)), kind="tome",
                       tp=dict(rot=[0, 0, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 0, 0], pos=[0, 0, 0], scale=0.5)),
     # 2차 직업 도구 (V12.92): 1차보다 화려하게 · 블록 더 많이
-    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", px=56, maxd=3, len=2.15, grip=0.1, kind="chop", vanilla=True),
-    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", px=60, maxd=3, len=2.3, grip=0.1, kind="chop", vanilla=True),
+    "t2_swordmaster": dict(item="rpg:jt_swordmaster", src="t2_swordmaster.png", tip=(1, -1), px=56, maxd=3, len=2.15, grip=0.1, kind="chop", vanilla=True),
+    "t2_berserker": dict(item="rpg:jt_berserker", src="t2_berserker.png", tip=(1, -1), px=60, maxd=3, len=2.3, grip=0.1, kind="chop", vanilla=True),
     "t2_hunter": dict(item="rpg:jt_hunter", src="t2_hunter.png", mirror=True, string=(200, 190, 170), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_sniper": dict(item="rpg:jt_sniper", src="t2_sniper.png", string=(230, 220, 160), px=56, maxd=7, len=1.6, grip=0.5, kind="bow", bowside=True),
     "t2_elementalist": dict(item="rpg:jt_elementalist", src="", book=dict(cover=(150, 592, 488, 925), pages=("book_pages_ref.png", (135, 645, 522, 940), (0.05, 0.03, 0.48, 0.90), (0.52, 0.03, 0.95, 0.90)), leather=(34, 44, 78), trim=(196, 150, 70)), kind="tome"),
-    "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
-    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", flip180=True, px=56, maxd=3, len=2.0, grip=0.12, kind="chop", vanilla=True),
+    "t2_stormcaller": dict(item="rpg:jt_stormcaller", src="t2_stormcaller.png", tip=(1, -1), px=64, maxd=7, len=2.1, grip=0.3, kind="thrust", vanilla=True),
+    "t2_paladin": dict(item="rpg:jt_paladin", src="t2_paladin.png", tip=(1, -1), px=56, maxd=3, len=2.0, grip=0.12, kind="chop", vanilla=True),
     "t2_priest": dict(item="rpg:jt_priest", src="", book=dict(cover=(1135, 588, 1495, 925), pages=("book_pages_ref.png", (1180, 650, 1585, 930), (0.08, 0.08, 0.49, 0.85), (0.51, 0.08, 0.92, 0.85)), leather=(226, 214, 190), trim=(212, 172, 84)), kind="tome"),
     # 3차 직업 도구 일부 (V12.97)
-    "t3_sword_emperor": dict(item="rpg:jt_sword_emperor", src="t3_sword_emperor.png", px=64, maxd=3, len=2.3, grip=0.1, kind="chop", vanilla=True),
-    "t3_abyss_knight": dict(item="rpg:jt_abyss_knight", src="t3_abyss_knight.png", flip180=True, px=64, maxd=3, len=2.4, grip=0.1, kind="chop", vanilla=True),
-    "t3_destroyer": dict(item="rpg:jt_destroyer", src="t3_destroyer.png", px=64, maxd=3, len=2.3, grip=0.15, kind="chop", vanilla=True),
-    "t3_beastlord": dict(item="rpg:jt_beastlord", src="t3_beastlord.png", mirror=True, string=(120, 40, 40), px=60, maxd=6, len=1.8, grip=0.5, kind="bow", bowside=True),
-    "t3_hawkeye": dict(item="rpg:jt_hawkeye", src="t3_hawkeye.png", mirror=True, string=(210, 210, 210), px=60, maxd=6, len=1.8, grip=0.5, kind="bow", bowside=True),
-    "t3_soul_reaper": dict(item="rpg:jt_soul_reaper", src="t3_soul_reaper.png", px=60, maxd=3, len=2.6, grip=0.33, kind="reap", flipup=True, vanilla=True),
+    "t3_sword_emperor": dict(item="rpg:jt_sword_emperor", src="t3_sword_emperor.png", tip=(1, 0), px=84, maxd=6, len=2.3, grip=0.1, kind="chop", vanilla=True),
+    "t3_abyss_knight": dict(item="rpg:jt_abyss_knight", src="t3_abyss_knight.png", tip=(1, 0), px=84, maxd=6, len=2.4, grip=0.1, kind="chop", vanilla=True),
+    "t3_destroyer": dict(item="rpg:jt_destroyer", src="t3_destroyer.png", tip=(-1, 0), px=84, maxd=6, len=2.3, grip=0.15, kind="chop", vanilla=True),
+    "t3_beastlord": dict(item="rpg:jt_beastlord", src="t3_beastlord.png", mirror=True, string=(120, 40, 40), px=80, maxd=8, len=1.8, grip=0.5, kind="bow", bowside=True),
+    "t3_hawkeye": dict(item="rpg:jt_hawkeye", src="t3_hawkeye.png", mirror=True, string=(210, 210, 210), px=80, maxd=8, len=1.8, grip=0.5, kind="bow", bowside=True),
+    "t3_soul_reaper": dict(item="rpg:jt_soul_reaper", src="t3_soul_reaper.png", px=84, maxd=6, len=2.6, grip=0.33, kind="reap", flipup=True, vanilla=True),
     "hyeonmu_shield": dict(item="rpg:hyeonmu_shield", src="hyeonmu_shield_v2.png", px=56, len=1.45, grip=0.5, kind="bash", dome=True, keep=0.002, noupright=True, stretch_y=1.35, dome_h=18, shell=True, handle=True,
                            tp=dict(rot=[0, 90, 0], pos=[0, 0, 0]), fp=dict(rot=[0, 90, 0], pos=[0, 0, 0], scale=0.6)),
 }
@@ -116,14 +116,21 @@ def keep_big(im, frac=0.004):
     return im.crop(im.getbbox())
 
 
-def upright(im):
-    """주축(가장 긴 방향)이 세로가 되게 돌리고, 무거운 끝(날·창날)이 위로"""
+def upright(im, tip=None):
+    """주축(가장 긴 방향)이 세로가 되게 돌리고, 무거운 끝(날·창날)이 위로. tip=(dx, dy): 원본 그림에서 끝(칼끝)이 있는 방향 — 주면 무게 대신 이걸로 위를 정함"""
     px = im.load(); Wd, Ht = im.size
     pts = [(x, y) for y in range(0, Ht, 2) for x in range(0, Wd, 2) if px[x, y][3] > 128]
     mx = sum(p[0] for p in pts) / len(pts); my = sum(p[1] for p in pts) / len(pts)
     sxx = sum((p[0] - mx) ** 2 for p in pts); syy = sum((p[1] - my) ** 2 for p in pts); sxy = sum((p[0] - mx) * (p[1] - my) for p in pts)
     ang = 0.5 * math.degrees(math.atan2(2 * sxy, sxx - syy))  # 주축 각도 (이미지 좌표)
+    tp = max(pts, key=lambda q: q[0] * tip[0] + q[1] * tip[1]) if tip else None
+    W0, H0 = im.size
     im = im.rotate(ang + 90, resample=Image.BICUBIC, expand=True)  # 주축 → 세로
+    if tip:
+        th = math.radians(ang + 90); cx, cy = W0 / 2, H0 / 2; ncx, ncy = im.size[0] / 2, im.size[1] / 2
+        ty = ncy - (tp[0] - cx) * math.sin(th) + (tp[1] - cy) * math.cos(th)
+        bb = im.getbbox(); im = im.crop(bb)
+        return im.rotate(180) if ty - bb[1] > im.size[1] / 2 else im
     im = im.crop(im.getbbox())
     px = im.load(); Wd, Ht = im.size
     def mass(y0, y1): return sum(1 for y in range(y0, y1) for x in range(Wd) if px[x, y][3] > 128)
@@ -355,7 +362,7 @@ def build(name, cfg):
         elif src.mode == "RGBA" and src.getpixel((0, 0))[3] == 0 and cfg["src"].startswith("t"): base = src  # 이미 배경을 지운 그림 (도구 그림: 다시 지우면 흰 칼날이 깎임)
         else: base = keep_big(cutout(src), cfg.get("keep", 0.004))
         if cfg.get("stretch_y"): base = base.resize((base.width, round(base.height * cfg["stretch_y"])), Image.LANCZOS)  # 세로로 더 긴 타원
-        up = base if cfg.get("noupright") else upright(base)
+        up = base if cfg.get("noupright") else upright(base, cfg.get("tip"))
         if cfg.get("flip180"): up = up.rotate(180)  # 무게 판정이 반대로 나온 그림 (칼끝이 위로)
         if cfg.get("mirror"): up = up.transpose(Image.FLIP_LEFT_RIGHT)  # 활: 활대 볼록한 쪽이 앞(그림 오른쪽)
         im = shrink(up, cfg["px"])

@@ -213,3 +213,22 @@ function npcMaintenance() {
     }
   }
 }
+
+// ───────── V12.99: 3D 무기를 들고 블록을 치거나 · 캐거나 · 몹을 때리면 팔 휘두르기를 직접 재생 (1·3인칭 모두) ─────────
+const W3D_IDS = new Set(["rpg:hundun_scythe", "rpg:cheongryong_sword", "rpg:baekho_axe", "rpg:jujak_bow", "rpg:hyeonmu_shield",
+  "rpg:jt_warrior", "rpg:jt_mage", "rpg:jt_archer", "rpg:jt_cleric", "rpg:jt_swordmaster", "rpg:jt_berserker", "rpg:jt_hunter", "rpg:jt_sniper",
+  "rpg:jt_elementalist", "rpg:jt_stormcaller", "rpg:jt_paladin", "rpg:jt_priest", "rpg:jt_sword_emperor", "rpg:jt_abyss_knight",
+  "rpg:jt_destroyer", "rpg:jt_beastlord", "rpg:jt_hawkeye", "rpg:jt_soul_reaper"]);
+const lastSwing = new Map();
+function w3dSwing(p) {
+  if (p?.typeId !== "minecraft:player") return;
+  let id; try { id = p.getComponent("minecraft:inventory")?.container?.getItem(p.selectedSlotIndex)?.typeId; } catch {}
+  if (!W3D_IDS.has(id)) return;
+  const now = system.currentTick;
+  if (now - (lastSwing.get(p.id) ?? -99) < 5) return; // 0.25초에 한 번
+  lastSwing.set(p.id, now);
+  try { p.playAnimation("animation.rpg_w3d.hit_swing", { blendOutTime: 0.08 }); } catch {}
+}
+world.afterEvents.entityHitBlock.subscribe(({ damagingEntity }) => w3dSwing(damagingEntity));
+world.afterEvents.entityHitEntity.subscribe(({ damagingEntity }) => w3dSwing(damagingEntity));
+world.afterEvents.playerBreakBlock.subscribe(({ player }) => w3dSwing(player));

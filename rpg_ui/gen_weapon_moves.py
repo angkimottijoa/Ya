@@ -215,6 +215,9 @@ def main():
     anims["animation.rpg_w3d.vswing"] = {"loop": True, "bones": {  # 자바·베드락 기본 휘두르기와 같은 꼴: 팔을 앞·아래로 크게 내려치고 몸을 살짝 비틂
         "rightArm": {"rotation": [f"-{sw} * 70 - math.sin({at} * 180) * 25", f"math.sin(math.sqrt({at}) * 360) * 11", f"math.sin({at} * 180) * -23"]},
         "body": {"rotation": [0, f"math.sin(math.sqrt({at}) * 360) * 11", 0]}}}
+    anims["animation.rpg_w3d.hit_swing"] = {"animation_length": 0.28, "bones": {  # 스크립트가 재생: 블록 치기 · 캐기 · 몹 때리기 (마크 기본 휘두르기 꼴)
+        "rightArm": {"rotation": {"0.00": [0, 0, 0], "0.08": [-55, 18, -8], "0.18": [25, -12, 6], "0.28": [0, 0, 0]}},
+        "body": {"rotation": {"0.00": [0, 0, 0], "0.10": [0, 12, 0], "0.20": [0, -8, 0], "0.28": [0, 0, 0]}}}}
     (RP / "animations" / "rpg_w3d_moves.animation.json").write_text(json.dumps({"format_version": "1.8.0", "animations": anims}, indent=1))
     (RP / "animation_controllers").mkdir(parents=True, exist_ok=True)
     (RP / "animation_controllers" / "rpg_w3d.animation_controllers.json").write_text(json.dumps({"format_version": "1.10.0", "animation_controllers": ctrls}, indent=1))
