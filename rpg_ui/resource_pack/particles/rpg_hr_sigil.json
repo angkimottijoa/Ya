@@ -1,0 +1,67 @@
+{
+ "format_version": "1.10.0",
+ "particle_effect": {
+  "description": {
+   "identifier": "rpg:hr_sigil",
+   "basic_render_parameters": {
+    "material": "particles_alpha",
+    "texture": "textures/particle/particles"
+   }
+  },
+  "components": {
+   "minecraft:emitter_rate_instant": {
+    "num_particles": "variable.n"
+   },
+   "minecraft:emitter_lifetime_once": {
+    "active_time": 0.05
+   },
+   "minecraft:emitter_shape_point": {
+    "offset": [
+     0,
+     0,
+     0
+    ]
+   },
+   "minecraft:particle_lifetime_expression": {
+    "max_lifetime": "variable.life"
+   },
+   "minecraft:particle_motion_parametric": {
+    "relative_position": [
+     "math.cos((math.floor(variable.particle_random_1 * 4) < 2 ? (variable.particle_random_2 * 360 + variable.particle_age * variable.spin) : (math.floor(variable.particle_random_1 * 4) < 3 ? (math.floor(variable.particle_random_2 * 8) * 45 + variable.particle_age * variable.spin) : (variable.particle_random_2 * 360 + variable.particle_age * variable.spin)))) * (math.floor(variable.particle_random_1 * 4) < 1 ? variable.r : (math.floor(variable.particle_random_1 * 4) < 2 ? variable.r * 0.72 : (math.floor(variable.particle_random_1 * 4) < 3 ? variable.r * (0.18 + variable.particle_random_3 * 0.54) : variable.r * (0.84 + math.abs(math.sin(variable.particle_random_2 * 360 * 6)) * 0.08))))",
+     0.06,
+     "math.sin((math.floor(variable.particle_random_1 * 4) < 2 ? (variable.particle_random_2 * 360 + variable.particle_age * variable.spin) : (math.floor(variable.particle_random_1 * 4) < 3 ? (math.floor(variable.particle_random_2 * 8) * 45 + variable.particle_age * variable.spin) : (variable.particle_random_2 * 360 + variable.particle_age * variable.spin)))) * (math.floor(variable.particle_random_1 * 4) < 1 ? variable.r : (math.floor(variable.particle_random_1 * 4) < 2 ? variable.r * 0.72 : (math.floor(variable.particle_random_1 * 4) < 3 ? variable.r * (0.18 + variable.particle_random_3 * 0.54) : variable.r * (0.84 + math.abs(math.sin(variable.particle_random_2 * 360 * 6)) * 0.08))))"
+    ]
+   },
+   "minecraft:particle_appearance_billboard": {
+    "size": [
+     "variable.size * (math.floor(variable.particle_random_1 * 4) < 1 ? 0.2 : 0.14) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.3)",
+     "variable.size * (math.floor(variable.particle_random_1 * 4) < 1 ? 0.2 : 0.14) * (1 - (variable.particle_age / variable.particle_lifetime) * 0.3)"
+    ],
+    "facing_camera_mode": "lookat_xyz",
+    "uv": {
+     "texture_width": 16,
+     "texture_height": 16,
+     "uv": [
+      "(math.floor(variable.particle_random_3 * 2) + 6)",
+      0
+     ],
+     "uv_size": [
+      1,
+      1
+     ]
+    }
+   },
+   "minecraft:particle_appearance_tinting": {
+    "color": {
+     "interpolant": "math.clamp(0.35 + variable.particle_random_4 * 0.3, 0, 1)",
+     "gradient": {
+      "0.0": "#FFFFFFFF",
+      "0.3": "#FFE0C0FF",
+      "0.65": "#FFA040FF",
+      "1.0": "#FF3A0A6A"
+     }
+    }
+   }
+  }
+ }
+}

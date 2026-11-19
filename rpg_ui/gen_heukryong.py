@@ -150,6 +150,33 @@ def main():
         "minecraft:particle_motion_parametric": {"relative_position": [f"math.cos({a}) * {rg}", f"{AGE} * ({R4} * 0.6)", f"math.sin({a}) * {rg}"]},
         "minecraft:particle_appearance_billboard": vb(f"variable.size * ({R2} < 0.6 ? 0.2 : 0.12) * (1 - {AGE} * 0.5)", SMK),
         **tint(FIRE, f"math.clamp(({R2} < 0.6 ? 0.25 : 0.05) + {AGE} * 0.65, 0, 1)")})
+    # 결계 돔 (V12.151): 반지름 r 반구 껍질. 비늘 칸 경계가 보라로 빛나고 나머지는 흑요석, 밝은 띠가 위로 훑음
+    #   variable.h = 열림(0~1): 아래부터 그 높이까지만 보임 (땅에서 솟아 닫히는 연출)
+    yy = R2
+    hz = f"math.sqrt(1 - {yy} * {yy})"
+    th = f"({R1} * 360)"
+    row = f"math.floor({yy} * 16)"
+    col = f"(({th} / 11.25 + math.mod({row}, 2) * 0.5) - math.floor({th} / 11.25 + math.mod({row}, 2) * 0.5))"
+    edge = f"(({col} < 0.13 || ({yy} * 16 - {row}) < 0.14) ? 1 : 0)"
+    band = f"math.max(0, 1 - math.abs({yy} - ({A} * 0.5 - math.floor({A} * 0.5))) * 9)"
+    part("hr_dome", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [f"math.cos({th}) * {hz} * variable.r", f"{yy} * variable.r", f"math.sin({th}) * {hz} * variable.r"]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_appearance_billboard": vb(f"{yy} > variable.h ? 0 : variable.size * ({edge} > 0 ? 0.2 : 0.26)", f"({edge} > 0 ? {DOT} : {SMK})"),
+        **tint({"0.0": "#FFF0E0FF", "0.2": "#FFC080FF", "0.45": "#FF7A30D8", "0.7": "#FF2A1046", "1.0": "#FF0C0614"},
+               f"math.clamp(({edge} > 0 ? 0.25 : 0.82) - {band} * 0.55 + {R4} * 0.08, 0, 1)")})
+    # 바닥 용 문양: 바깥 고리 · 안 고리 · 바퀴살 여덟 · 비늘 호 — spin 으로 돎
+    k = f"math.floor({R1} * 4)"
+    ang = f"({R2} * 360 + {A} * variable.spin)"
+    sp = f"(math.floor({R2} * 8) * 45 + {A} * variable.spin)"
+    rr = f"({k} < 1 ? variable.r : ({k} < 2 ? variable.r * 0.72 : ({k} < 3 ? variable.r * (0.18 + {R3} * 0.54) : variable.r * (0.84 + math.abs(math.sin({R2} * 360 * 6)) * 0.08))))"
+    aa = f"({k} < 2 ? {ang} : ({k} < 3 ? {sp} : {ang}))"
+    part("hr_sigil", {**once(),
+        "minecraft:emitter_shape_point": {"offset": [0, 0, 0]},
+        "minecraft:particle_lifetime_expression": {"max_lifetime": "variable.life"},
+        "minecraft:particle_motion_parametric": {"relative_position": [f"math.cos({aa}) * {rr}", 0.06, f"math.sin({aa}) * {rr}"]},
+        "minecraft:particle_appearance_billboard": vb(f"variable.size * ({k} < 1 ? 0.2 : 0.14) * (1 - {AGE} * 0.3)", DOT),
+        **tint(BOLT, f"math.clamp(0.35 + {R4} * 0.3, 0, 1)")})
     print("hr particles ok")
 
 if __name__ == "__main__":
