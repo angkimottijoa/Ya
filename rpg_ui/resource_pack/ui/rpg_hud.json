@@ -473,12 +473,12 @@
     "anchor_from": "bottom_middle",
     "anchor_to": "bottom_middle",
     "offset": [
-      0,
+      -20,
       -44
     ],
     "size": [
-      224,
-      30
+      240,
+      28
     ],
     "layer": 3,
     "controls": [
@@ -487,8 +487,8 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/frame",
           "size": [
-            224,
-            30
+            200,
+            28
           ],
           "layer": 1
         }
@@ -498,8 +498,8 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/low",
           "size": [
-            224,
-            30
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
@@ -523,14 +523,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t00",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -548,14 +548,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h00",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -573,14 +573,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t01",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -598,14 +598,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h01",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -623,14 +623,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t02",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -648,14 +648,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h02",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -673,14 +673,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t03",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -698,14 +698,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h03",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -723,14 +723,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t04",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -748,14 +748,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h04",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -773,14 +773,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t05",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -798,14 +798,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h05",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -823,14 +823,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t06",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -848,14 +848,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h06",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -873,14 +873,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t07",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -898,14 +898,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h07",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -923,14 +923,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t08",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -948,14 +948,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h08",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -973,14 +973,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t09",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -998,14 +998,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h09",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1023,14 +1023,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t10",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1048,14 +1048,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h10",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1073,14 +1073,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t11",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1098,14 +1098,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h11",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1123,14 +1123,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t12",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1148,14 +1148,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h12",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1173,14 +1173,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t13",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1198,14 +1198,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h13",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1223,14 +1223,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t14",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1248,14 +1248,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h14",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1273,14 +1273,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t15",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1298,14 +1298,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h15",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1323,14 +1323,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t16",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1348,14 +1348,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h16",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1373,14 +1373,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t17",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1398,14 +1398,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h17",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1423,14 +1423,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t18",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1448,14 +1448,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h18",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1473,14 +1473,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t19",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1498,14 +1498,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h19",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1523,14 +1523,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t20",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1548,14 +1548,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h20",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1573,14 +1573,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t21",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1598,14 +1598,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h21",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1623,14 +1623,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t22",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1648,14 +1648,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h22",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1673,14 +1673,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t23",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1698,14 +1698,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h23",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1723,14 +1723,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t24",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1748,14 +1748,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h24",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1773,14 +1773,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t25",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1798,14 +1798,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h25",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1823,14 +1823,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t26",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1848,14 +1848,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h26",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1873,14 +1873,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t27",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1898,14 +1898,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h27",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1923,14 +1923,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t28",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1948,14 +1948,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h28",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -1973,14 +1973,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t29",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -1998,14 +1998,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h29",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2023,14 +2023,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t30",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2048,14 +2048,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h30",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2073,14 +2073,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t31",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2098,14 +2098,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h31",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2123,14 +2123,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t32",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2148,14 +2148,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h32",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2173,14 +2173,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t33",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2198,14 +2198,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h33",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2223,14 +2223,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t34",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2248,14 +2248,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h34",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2273,14 +2273,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t35",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2298,14 +2298,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h35",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2323,14 +2323,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t36",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2348,14 +2348,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h36",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2373,14 +2373,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t37",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2398,14 +2398,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h37",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2423,14 +2423,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t38",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2448,14 +2448,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h38",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2473,14 +2473,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t39",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2498,14 +2498,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h39",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2523,14 +2523,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/t40",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 3,
           "bindings": [
@@ -2548,14 +2548,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/h40",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2573,14 +2573,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m00",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2598,14 +2598,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x00",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2623,14 +2623,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m01",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2648,14 +2648,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x01",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2673,14 +2673,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m02",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2698,14 +2698,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x02",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2723,14 +2723,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m03",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2748,14 +2748,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x03",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2773,14 +2773,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m04",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2798,14 +2798,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x04",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2823,14 +2823,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m05",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2848,14 +2848,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x05",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2873,14 +2873,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m06",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2898,14 +2898,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x06",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2923,14 +2923,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m07",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2948,14 +2948,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x07",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2973,14 +2973,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m08",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -2998,14 +2998,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x08",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3023,14 +3023,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m09",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3048,14 +3048,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x09",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3073,14 +3073,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m10",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3098,14 +3098,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x10",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3123,14 +3123,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m11",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3148,14 +3148,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x11",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3173,14 +3173,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m12",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3198,14 +3198,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x12",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3223,14 +3223,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m13",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3248,14 +3248,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x13",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3273,14 +3273,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m14",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3298,14 +3298,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x14",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3323,14 +3323,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m15",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3348,14 +3348,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x15",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3373,14 +3373,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m16",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3398,14 +3398,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x16",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3423,14 +3423,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m17",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3448,14 +3448,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x17",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3473,14 +3473,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m18",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3498,14 +3498,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x18",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3523,14 +3523,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m19",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3548,14 +3548,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x19",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3573,14 +3573,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/m20",
           "size": [
-            132,
-            7
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            12.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3598,14 +3598,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/x20",
           "size": [
-            132,
-            5
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            21.5
+            0,
+            0
           ],
           "layer": 4,
           "bindings": [
@@ -3623,14 +3623,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/hit",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 5,
           "bindings": [
@@ -3648,14 +3648,14 @@
           "type": "image",
           "texture": "textures/ui/rpg/hp/heal",
           "size": [
-            132,
-            8
+            200,
+            28
           ],
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            30,
-            3
+            0,
+            0
           ],
           "layer": 5,
           "bindings": [
@@ -3674,15 +3674,15 @@
           "anchor_from": "top_left",
           "anchor_to": "top_left",
           "offset": [
-            167,
-            2.5
+            184,
+            3
           ],
           "size": [
-            54,
-            30
+            56,
+            28
           ],
           "layer": 6,
-          "font_scale_factor": 0.9,
+          "font_scale_factor": 0.75,
           "color": [
             1,
             1,

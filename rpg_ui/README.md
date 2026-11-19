@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.155.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.156.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.156 변경
+- 체력 HUD 디자인 새로 (tools/hpbar_v2.py): 상자 없이 떠 있는 비스듬한 막대, HP(두껍게) · MP · 경험치(가늘게) 계단식, 액체 광택 · 비스듬한 빛 반사 · 얇은 금테 · 그림자, 왼쪽 금 마름모 문장 + 붉은 보석. 맞으면 테두리가 붉게 빛남(흰 덮임 줄임)
 
 ## V12.155 변경 — RPG 체력 HUD
 - 하단 체력 · 마나 · 경험치를 그림 HUD 로 (gen_hpbar.py): 남색 판 · 금테 · 왼쪽 붉은 수정 심장 문양, HP(붉은) · MP(파란) · 경험치(초록 금) 막대 + 오른쪽 숫자
