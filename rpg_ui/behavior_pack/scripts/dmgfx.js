@@ -43,8 +43,11 @@ function barText(e) {
   const col = hp.cur / hp.max > 0.5 ? "§a" : hp.cur / hp.max > 0.2 ? "§e" : "§c";
   return `§f§l${comma(Math.max(0, hp.cur))}§r§7/${comma(hp.max)}\n${col}${"|".repeat(f)}§8${"|".repeat(N - f)}`; // 숫자 위 · 바 아래
 }
+/** 이름표에서 예전 체력바 줄(숫자/숫자 · ||||) 을 지운 원래 이름 — 다시 접속했을 때 남은 바가 두 번 보이던 것 (V12.152) */
+const BAR_LINE = /(\d[\d,]*§r§7\/[\d,]+)|(\|{6,})/;
+const cleanName = (tag) => String(tag ?? "").split("\n").filter((l) => !BAR_LINE.test(l)).join("\n");
 function showBar(e, keep = 160) {
-  const b = bars.get(e.id) ?? { e, orig: (() => { try { return e.nameTag ?? ""; } catch { return ""; } })() };
+  const b = bars.get(e.id) ?? { e, orig: (() => { try { return cleanName(e.nameTag); } catch { return ""; } })() };
   b.until = Math.max(b.until ?? 0, system.currentTick + keep);
   bars.set(e.id, b);
   const t = barText(e);
@@ -100,15 +103,15 @@ system.runInterval(() => {
   }
 }, 10);
 
-// 가까이 가면 체력바 (V12.127): 플레이어 둘레 10칸 안의 몹 · 다른 플레이어 (한 사람당 최대 12)
+// 가까이 가면 체력바 (V12.127 · V12.152 16칸 · 0.25초마다): 플레이어 둘레의 몹 · 다른 플레이어 (한 사람당 최대 16)
 const NEAR_EXCLUDE = { excludeTypes: [NUM_ID, "rpg:npc", "minecraft:item", "minecraft:xp_orb", "minecraft:armor_stand"], excludeFamilies: ["inanimate"] };
 system.runInterval(() => {
   for (const p of world.getAllPlayers()) {
     let list = [];
-    try { list = p.dimension.getEntities({ location: p.location, maxDistance: 10, closest: 13, ...NEAR_EXCLUDE }); } catch { continue; }
-    for (const e of list) { if (e.id === p.id || !hpOf(e)) continue; showBar(e, 25); }
+    try { list = p.dimension.getEntities({ location: p.location, maxDistance: 16, closest: 17, ...NEAR_EXCLUDE }); } catch { continue; }
+    for (const e of list) { if (e.id === p.id || !hpOf(e)) continue; showBar(e, 20); }
   }
-}, 10);
+}, 5);
 
 // 월드를 다시 열었을 때 남은 숫자 엔티티 정리
 system.runTimeout(() => {

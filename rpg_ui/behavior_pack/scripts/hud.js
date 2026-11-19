@@ -122,6 +122,7 @@ export function questText(p) {
     parts.push(`${n === 0 ? "§e§l▶ " : "§7"}${t.color}[${t.name}] §r${n === 0 ? "§f§l" : "§f"}${q.title}§r`);
     q.obj.forEach((_, i) => parts.push("\n", objLine(p, q, i)));
   });
+  if (!parts.length) parts.push("§7§l퀘스트 §r§7진행 중인 퀘스트 없음\n§8메뉴 > 퀘스트 · 게시판 · NPC 에게서 받기"); // V12.152: 비어도 창이 보이게
   return rt("quest:", ...parts);
 }
 
