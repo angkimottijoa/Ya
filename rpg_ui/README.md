@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.153.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.154.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,9 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.154 변경
+- 길안내 화살표: 플레이어가 보는 쪽 바로 앞(2칸, 발 높이)에 두고, 화살표만 목적지 쪽으로 돌려 가리킴
 
 ## V12.153 변경 — 퀘스트 HUD · 길라잡이
 - 3D 길안내 화살표 (rpg:nav_arrow, gen_questhud.py): 발밑 2칸 앞에서 목적지 쪽을 가리키며 둥실 · 반짝. 목적지 4칸 안에 들어가면 화면 가운데 「길라잡이 / 목적지 이름 / 목적지에 도착했습니다.」 (바닥 점 화살표는 빼고 목적지 빛기둥만)

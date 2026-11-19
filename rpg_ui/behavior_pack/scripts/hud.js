@@ -196,7 +196,7 @@ export function navParticles(p) {
   }
 }
 
-// ───────── 3D 길안내 화살표 (V12.153): 발밑 2칸 앞에서 목적지 쪽을 가리키며 둥실 · 도착하면 「길라잡이 · 목적지에 도착했습니다.」 ─────────
+// ───────── 3D 길안내 화살표 (V12.153 · V12.154 시선 바로 앞): 보는 쪽 2칸 앞 발 높이에서 목적지 쪽으로 돌아가며 둥실 · 도착하면 「길라잡이 · 목적지에 도착했습니다.」 ─────────
 const ARROW = "rpg:nav_arrow";
 const arrows = new Map(); // pid → entity
 const arrived = new Map(); // pid → 마지막으로 도착 알림을 띄운 목적지 키
@@ -229,7 +229,10 @@ system.runInterval(() => {
     }
     if (dist > 8) arrived.delete(p.id);
     const ux = dx / (flat || 1), uz = dz / (flat || 1);
-    const at = { x: L.x + ux * 2.3, y: L.y + 0.15, z: L.z + uz * 2.3 };
+    // V12.154: 자리는 플레이어가 보는 쪽 바로 앞 (시선 앞 2칸, 발 높이), 화살표만 목적지 쪽으로 돌림
+    let fy = 0; try { fy = p.getRotation().y; } catch {}
+    const fx = -Math.sin((fy * Math.PI) / 180), fz = Math.cos((fy * Math.PI) / 180);
+    const at = { x: L.x + fx * 2, y: L.y + 0.15, z: L.z + fz * 2 };
     const yaw = (Math.atan2(-ux, uz) * 180) / Math.PI;
     let e = arrows.get(p.id);
     if (!e?.isValid()) { try { e = p.dimension.spawnEntity(ARROW, at); arrows.set(p.id, e); } catch { continue; } }
