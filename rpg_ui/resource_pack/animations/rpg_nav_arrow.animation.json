@@ -1,0 +1,18 @@
+{
+ "format_version": "1.10.0",
+ "animations": {
+  "animation.rpg_nav_arrow.idle": {
+   "loop": true,
+   "bones": {
+    "arrow": {
+     "position": [
+      0,
+      "math.sin(q.life_time * 240) * 1.2 + 1.5",
+      "math.sin(q.life_time * 240 + 90) * -0.8"
+     ],
+     "scale": "1 + math.sin(q.life_time * 480) * 0.04"
+    }
+   }
+  }
+ }
+}

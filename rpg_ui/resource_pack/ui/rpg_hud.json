@@ -30,6 +30,12 @@
         }
       },
       {
+        "rpg_mis_data@rpg_hud.data_control": {
+          "$src": "#hud_subtitle_text_string",
+          "$pre": "[MIS]"
+        }
+      },
+      {
         "rpg_status@rpg_hud.status_bar": {}
       },
       {
@@ -64,8 +70,12 @@
             }
           ]
         }
+      },
+      {
+        "rpg_mission@rpg_hud.mission_box": {}
       }
-    ]
+    ],
+    "$mis_prefix": "[MIS]"
   },
   "data_control": {
     "type": "panel",
@@ -213,6 +223,27 @@
                       "shadow": true,
                       "localize": false
                     }
+                  },
+                  {
+                    "sub": {
+                      "type": "label",
+                      "text": "QUEST",
+                      "anchor_from": "right_middle",
+                      "anchor_to": "right_middle",
+                      "offset": [
+                        -3,
+                        1
+                      ],
+                      "layer": 2,
+                      "font_scale_factor": 0.7,
+                      "color": [
+                        0.75,
+                        0.62,
+                        0.35
+                      ],
+                      "shadow": true,
+                      "localize": false
+                    }
                   }
                 ]
               }
@@ -227,32 +258,192 @@
               }
             },
             {
-              "body": {
-                "type": "label",
+              "row": {
+                "type": "stack_panel",
+                "orientation": "horizontal",
                 "size": [
-                  "100% - 4px",
-                  "default"
+                  "100%",
+                  "100%c"
                 ],
-                "offset": [
-                  2,
-                  0
-                ],
-                "layer": 2,
-                "font_scale_factor": 0.85,
-                "color": [
-                  0.95,
-                  0.95,
-                  0.97
-                ],
-                "shadow": true,
-                "localize": false,
-                "text": "#text",
-                "bindings": [
+                "controls": [
                   {
-                    "binding_type": "view",
-                    "source_control_name": "rpg_quest_data",
-                    "source_property_name": "(#preserved_text - $quest_prefix)",
-                    "target_property_name": "#text"
+                    "pic": {
+                      "type": "image",
+                      "texture": "textures/ui/rpg/tile_default",
+                      "size": [
+                        30,
+                        30
+                      ],
+                      "layer": 3,
+                      "controls": [
+                        {
+                          "p_main": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_main",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QM]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "p_sub": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_sub",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QS]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "p_daily": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_daily",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QD]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "p_repeat": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_repeat",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QR]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "p_event": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_event",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QE]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "p_none": {
+                            "type": "image",
+                            "texture": "textures/ui/rpg/quest/q_none",
+                            "size": [
+                              22,
+                              22
+                            ],
+                            "anchor_from": "center",
+                            "anchor_to": "center",
+                            "layer": 4,
+                            "bindings": [
+                              {
+                                "binding_type": "view",
+                                "source_control_name": "rpg_quest_data",
+                                "source_property_name": "(not ((#preserved_text - '[QN]') = #preserved_text))",
+                                "target_property_name": "#visible"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "gap": {
+                      "type": "panel",
+                      "size": [
+                        4,
+                        30
+                      ]
+                    }
+                  },
+                  {
+                    "body": {
+                      "type": "label",
+                      "size": [
+                        "100% - 34px",
+                        "default"
+                      ],
+                      "offset": [
+                        0,
+                        0
+                      ],
+                      "layer": 2,
+                      "font_scale_factor": 0.85,
+                      "color": [
+                        0.95,
+                        0.95,
+                        0.97
+                      ],
+                      "shadow": true,
+                      "localize": false,
+                      "text": "#text",
+                      "bindings": [
+                        {
+                          "binding_type": "view",
+                          "source_control_name": "rpg_quest_data",
+                          "source_property_name": "(((((((#preserved_text - $quest_prefix) - '[QM]') - '[QS]') - '[QD]') - '[QR]') - '[QE]') - '[QN]')",
+                          "target_property_name": "#text"
+                        }
+                      ]
+                    }
                   }
                 ]
               }
@@ -297,5 +488,63 @@
       }
     ],
     "text_alignment": "center"
+  },
+  "mission_box": {
+    "type": "image",
+    "texture": "textures/ui/rpg/panel",
+    "anchor_from": "bottom_middle",
+    "anchor_to": "bottom_middle",
+    "offset": [
+      0,
+      -74
+    ],
+    "size": [
+      "100%c + 12px",
+      15
+    ],
+    "layer": 2,
+    "controls": [
+      {
+        "t": {
+          "type": "label",
+          "text": "#text",
+          "anchor_from": "center",
+          "anchor_to": "center",
+          "offset": [
+            0,
+            1
+          ],
+          "layer": 3,
+          "size": [
+            "default",
+            10
+          ],
+          "font_scale_factor": 0.85,
+          "color": [
+            0.92,
+            0.92,
+            0.95
+          ],
+          "shadow": true,
+          "localize": false,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_mis_data",
+              "source_property_name": "(#preserved_text - $mis_prefix)",
+              "target_property_name": "#text"
+            }
+          ]
+        }
+      }
+    ],
+    "bindings": [
+      {
+        "binding_type": "view",
+        "source_control_name": "rpg_mis_data",
+        "source_property_name": "(not ((#preserved_text - $mis_prefix) = ''))",
+        "target_property_name": "#visible"
+      }
+    ]
   }
 }

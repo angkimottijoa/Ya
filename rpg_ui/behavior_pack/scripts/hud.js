@@ -1,6 +1,7 @@
 // HUD 갱신
 //   title    = "quest:<길 안내 + 퀘스트창>"
-//   subtitle = "[CARD]<정보 카드>" 와 "[BAR]<하단 상태바>" 를 번갈아 보냄 (리소스팩이 접두어로 구분해 보존)
+//   subtitle = "[CARD]<정보 카드>" · "[BAR]<하단 상태바>" · "[MIS]<하단 미션 상자>" 를 돌아가며 보냄 (리소스팩이 접두어로 구분해 보존)
+//   퀘스트창 왼쪽 그림: 글 앞의 [QM] 메인 · [QS] 서브 · [QD] 일일 · [QR] 반복 · [QE] 이벤트 · [QN] 없음
 // 리소스팩이 quest: 로 시작하는 title/subtitle 을 화면 중앙에선 숨긴다. 알림은 액션바(player.notify).
 import { data, xpNeed, MAX_LV, byId, stat, maxMp } from "./player.js";
 import { CLASSES } from "./classes.js";
@@ -19,6 +20,7 @@ import { dashLeft } from "./dash.js";
 import * as J from "./jobs.js";
 import { unreadCount } from "./chat.js";
 import { rt , shortGold } from "./ui.js";
+import { system, world } from "@minecraft/server";
 import { manualTarget } from "./waypoints.js";
 
 const sent = new Map(); // pid -> { q, card, bar, flip }
@@ -103,10 +105,15 @@ export function statusBar(p) {
     `§e§lLv.${d.lv} ${bar(pct, 100, 66, "§a")} §r§f§l${pct}%`;
 }
 
+const QMARK = { main: "[QM]", sub: "[QS]", daily: "[QD]", repeat: "[QR]", event: "[QE]" }; // 퀘스트창 왼쪽 그림 (V12.153)
+/** 맨 위(길 안내) 퀘스트 */
+function topQuest(p) { const d = data(p); const id = priority(p).find((x) => !d.q.hide?.[x]); return id ? getQuest(id) : null; }
 export function questText(p) {
   const d = data(p);
   if (!d.set.quest) return rt("quest:");
-  if (d.customQuestText) return rt("quest:", d.customQuestText);
+  const top = topQuest(p);
+  const mark = top ? QMARK[top.type ?? "sub"] ?? "[QS]" : "[QN]";
+  if (d.customQuestText) return rt("quest:", mark, d.customQuestText);
   const parts = [];
   const man = d.set.nav !== false ? manualTarget(p) : null;
   if (man) parts.push("§d§l[길찾기] §r", navText(p, man), "\n");
@@ -122,29 +129,34 @@ export function questText(p) {
     parts.push(`${n === 0 ? "§e§l▶ " : "§7"}${t.color}[${t.name}] §r${n === 0 ? "§f§l" : "§f"}${q.title}§r`);
     q.obj.forEach((_, i) => parts.push("\n", objLine(p, q, i)));
   });
-  if (!parts.length) parts.push("§7§l퀘스트 §r§7진행 중인 퀘스트 없음\n§8메뉴 > 퀘스트 · 게시판 · NPC 에게서 받기"); // V12.152: 비어도 창이 보이게
-  return rt("quest:", ...parts);
+  if (!parts.length) parts.push("§7진행 중인 퀘스트 없음\n§8메뉴 > 퀘스트 · 게시판 · NPC 에게서 받기"); // V12.152: 비어도 창이 보이게
+  return rt("quest:", mark, ...parts);
 }
 
-/** 4틱마다 호출: 바뀐 것만, 카드/상태바는 번갈아 전송 */
+/** 하단 미션 상자 (V12.153): 「현재 진행중인 미션 : 맨 위 퀘스트」 */
+function missionText(p) {
+  const d = data(p);
+  if (!d.set.quest) return "[MIS]";
+  const q = topQuest(p);
+  return q ? `[MIS]§7현재 진행중인 미션 : ${qtype(q).color === "§6" ? "§e" : "§f"}§l${q.title}` : "[MIS]";
+}
+const PAUSE = new Map(); // pid → 이 틱까지 HUD 제목을 보내지 않음 (도착 알림이 화면 가운데에 보이게)
+export function pauseHud(p, ticks) { PAUSE.set(p.id, system.currentTick + ticks); }
+/** 4틱마다 호출: 바뀐 것만, 부제(정보 카드 / 상태바 / 미션)는 돌아가며 전송 */
 export function update(p) {
-  const st = sent.get(p.id) ?? { flip: false };
+  const pu = PAUSE.get(p.id);
+  if (pu !== undefined) { if (system.currentTick < pu) return; PAUSE.delete(p.id); sent.delete(p.id); }
+  const st = sent.get(p.id) ?? { k: 0 };
   const q = JSON.stringify(questText(p));
-  const cd = card(p);
-  const br = statusBar(p);
-  const qObj = JSON.parse(q);
-  st.flip = !st.flip;
+  const vals = { card: card(p), bar: statusBar(p), mis: missionText(p) };
+  const order = ["card", "bar", "mis"];
+  st.k = ((st.k ?? 0) + 1) % 3;
   let sub = null;
-  if (st.flip && cd !== st.card) sub = "card";
-  else if (!st.flip && br !== st.bar) sub = "bar";
-  else if (cd !== st.card) sub = "card";
-  else if (br !== st.bar) sub = "bar";
+  for (let i = 0; i < 3; i++) { const c = order[(st.k + i) % 3]; if (vals[c] !== st[c]) { sub = c; break; } }
   if (!sub && q === st.q) return sent.set(p.id, st);
-  const subtitle = sub === "bar" ? br : cd;
-  p.onScreenDisplay.setTitle(qObj, { subtitle, fadeInDuration: 0, stayDuration: 2, fadeOutDuration: 0 });
-  st.q = q;
-  if (sub === "bar") st.bar = br;
-  else st.card = cd;
+  sub ??= order[st.k];
+  p.onScreenDisplay.setTitle(JSON.parse(q), { subtitle: vals[sub], fadeInDuration: 0, stayDuration: 2, fadeOutDuration: 0 });
+  st.q = q; st[sub] = vals[sub];
   sent.set(p.id, st);
 }
 
@@ -170,7 +182,7 @@ export function navParticles(p) {
   const flat = Math.hypot(dx, dz);
   const dist = Math.hypot(dx, dy, dz);
   if (dist < 48) fx("rpg:nav_beam", { x: t.x, y: t.y, z: t.z });
-  if (flat < 3) return;
+  return; // V12.153: 바닥 점 화살표 대신 3D 화살표 엔티티 (아래 navGoal · ARROW)
   const ux = dx / flat, uz = dz / flat; // 진행 방향
   const px = -uz, pz = ux; // 옆 방향
   const reach = Math.min(13, flat - 1);
@@ -183,3 +195,46 @@ export function navParticles(p) {
     }
   }
 }
+
+// ───────── 3D 길안내 화살표 (V12.153): 발밑 2칸 앞에서 목적지 쪽을 가리키며 둥실 · 도착하면 「길라잡이 · 목적지에 도착했습니다.」 ─────────
+const ARROW = "rpg:nav_arrow";
+const arrows = new Map(); // pid → entity
+const arrived = new Map(); // pid → 마지막으로 도착 알림을 띄운 목적지 키
+function navGoal(p) {
+  const d = data(p);
+  if (d.set.nav === false) return null;
+  const man = manualTarget(p);
+  if (man) return { t: man, name: man.label ?? "목적지" };
+  const q = topQuest(p);
+  const t = q ? navTarget(p, q) : null;
+  return t ? { t, name: t.label ?? q.title } : null;
+}
+const dropArrow = (p) => { const e = arrows.get(p.id); arrows.delete(p.id); try { e?.remove(); } catch {} };
+system.runInterval(() => {
+  for (const p of world.getAllPlayers()) {
+    let g = null; try { g = navGoal(p); } catch {}
+    const t = g?.t;
+    if (!t || t.dim !== p.dimension.id) { dropArrow(p); continue; }
+    const L = p.location, dx = t.x - L.x, dz = t.z - L.z, flat = Math.hypot(dx, dz), dist = Math.hypot(dx, t.y - L.y, dz);
+    const key = `${Math.round(t.x)},${Math.round(t.y)},${Math.round(t.z)}`;
+    if (dist < 4) {
+      dropArrow(p);
+      if (arrived.get(p.id) !== key) {
+        arrived.set(p.id, key);
+        pauseHud(p, 60);
+        try { p.onScreenDisplay.setTitle("§a§l길라잡이", { subtitle: `§7${g.name}\n§f목적지에 도착했습니다.`, fadeInDuration: 4, stayDuration: 40, fadeOutDuration: 10 }); } catch {}
+        try { p.playSound("random.orb", { volume: 0.7, pitch: 1.2 }); } catch {}
+      }
+      continue;
+    }
+    if (dist > 8) arrived.delete(p.id);
+    const ux = dx / (flat || 1), uz = dz / (flat || 1);
+    const at = { x: L.x + ux * 2.3, y: L.y + 0.15, z: L.z + uz * 2.3 };
+    const yaw = (Math.atan2(-ux, uz) * 180) / Math.PI;
+    let e = arrows.get(p.id);
+    if (!e?.isValid()) { try { e = p.dimension.spawnEntity(ARROW, at); arrows.set(p.id, e); } catch { continue; } }
+    try { e.teleport(at, { rotation: { x: 0, y: yaw }, keepVelocity: false }); } catch {}
+  }
+}, 1);
+try { world.afterEvents.playerLeave.subscribe(({ playerId }) => { const e = arrows.get(playerId); arrows.delete(playerId); try { e?.remove(); } catch {} }); } catch {}
+system.runTimeout(() => { for (const dn of ["overworld", "nether", "the_end"]) try { for (const e of world.getDimension(dn).getEntities({ type: ARROW })) if (![...arrows.values()].includes(e)) e.remove(); } catch {} }, 40);

@@ -1,0 +1,29 @@
+{
+ "format_version": "1.10.0",
+ "minecraft:client_entity": {
+  "description": {
+   "identifier": "rpg:nav_arrow",
+   "materials": {
+    "default": "entity_alphatest"
+   },
+   "textures": {
+    "default": "textures/entity/rpg_nav_arrow"
+   },
+   "geometry": {
+    "default": "geometry.rpg_nav_arrow"
+   },
+   "animations": {
+    "idle": "animation.rpg_nav_arrow.idle"
+   },
+   "scripts": {
+    "animate": [
+     "idle"
+    ]
+   },
+   "render_controllers": [
+    "controller.render.default"
+   ],
+   "enable_attachables": false
+  }
+ }
+}
