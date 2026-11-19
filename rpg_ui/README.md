@@ -5,7 +5,7 @@
 ![preview](preview.png)
 
 ## 설치
-`dist/Arcania_RPG_V12.149.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
+`dist/Arcania_RPG_V12.150.mcaddon` 을 열면 두 팩이 같이 설치된다. 월드 설정에서 **리소스팩과 비헤이비어팩 둘 다** 켤 것.
 최소 버전: 1.21.50 (`@minecraft/server` 1.16.0, `@minecraft/server-ui` 1.3.0)
 
 ## 플레이어 기능
@@ -77,6 +77,10 @@ behavior_pack/scripts/
 
 ## NPC 사용자 스킨
 `resource_pack/textures/entity/rpg_npc/custom_1.png` ~ `custom_4.png` 를 원하는 64x64 스킨(와이드 팔)으로 바꾸면 외형 목록의 "사용자 스킨 1~4" 에 적용된다.
+
+## V12.150 변경
+- 흑룡의 검: 모델을 좌우로 뒤집어 휜 칼날이 바닥 쪽을 향하게 (1 · 3인칭)
+- 아이템 설명 분류에서 「사신수 위」 제거 (흑룡 무기 · 곡도)
 
 ## V12.149 변경 — 흑룡 스킬 새로 (극한 기동 + 파티클 흑룡)
 - 흑룡 = 청룡처럼 **파티클로 그린 동양 용** (비늘 몸통 · 등가시 · 갈기 · 네 다리 발톱 · 수염 · 꼬리 지느러미 · 입체 머리 · 빛나는 눈), 흑요석 보라 색 (cheongryong.js drawDragon + hrd_* 파티클 = tools/recolor_dragon.py). 머리가 지나온 길을 몸이 따라오며 좌우 · 위아래로 꼬불꼬불 굽이침. 용맥이 높을수록 큼
