@@ -169,7 +169,7 @@ world.afterEvents.playerLeave.subscribe(({ playerId }) => forget(playerId));
 initCombat();
 initSkillTriggers();
 
-// HUD: 4틱마다 (바뀐 것만 전송)
+// HUD: 2틱마다 (바뀐 것만 전송 · V12.155 체력 막대가 바로 줄어 보이게)
 system.runInterval(() => {
   for (const p of world.getAllPlayers()) {
     try {
@@ -178,7 +178,7 @@ system.runInterval(() => {
       console.warn(`[Arcania] hud ${e}`);
     }
   }
-}, 4);
+}, 2);
 
 // 1초마다: 퀘스트 판정 / 길 안내 파티클 / 고정 아이템
 let n = 0;

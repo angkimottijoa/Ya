@@ -1,6 +1,6 @@
 // HUD 갱신
 //   title    = "quest:<길 안내 + 퀘스트창>"
-//   subtitle = "[CARD]<정보 카드>" · "[BAR]<하단 상태바>" · "[MIS]<하단 미션 상자>" 를 돌아가며 보냄 (리소스팩이 접두어로 구분해 보존)
+//   subtitle = "[CARD]<정보 카드>" · "[BAR]<체력 HUD 숫자>" · "[BRV]<체력 HUD 막대 표시>" · "[MIS]<하단 미션 상자>" 를 돌아가며 보냄 (리소스팩이 접두어로 구분해 보존)
 //   퀘스트창 왼쪽 그림: 글 앞의 [QM] 메인 · [QS] 서브 · [QD] 일일 · [QR] 반복 · [QE] 이벤트 · [QN] 없음
 // 리소스팩이 quest: 로 시작하는 title/subtitle 을 화면 중앙에선 숨긴다. 알림은 액션바(player.notify).
 import { data, xpNeed, MAX_LV, byId, stat, maxMp } from "./player.js";
@@ -81,28 +81,39 @@ export function card(p) {
   return "[CARD]" + lines.join("\n");
 }
 
+/** 하단 RPG 체력 HUD 숫자 (V12.155): 오른쪽 세 줄 — HP · MP · 레벨 (막대 그림은 barMarks) */
 export function statusBar(p) {
   const d = data(p);
   if (d.set.status === false) return "[BAR]";
   const hpc = p.getComponent("minecraft:health");
-  const hp = Math.ceil(hpc?.currentValue ?? 0);
-  const hpMax = Math.round(hpc?.effectiveMax ?? 20);
-  const mpMax = maxMp(p);
-  const mp = Math.floor(d.mp ?? mpMax);
-  const need = xpNeed(d.lv);
-  const pct = d.lv >= MAX_LV ? 100 : Math.floor((d.xp / need) * 100);
-  const s = combatStats(p);
-  const armor = (() => {
-    try {
-      return Math.round(p.getComponent("minecraft:equippable") ? combatStats(p).def : 0);
-    } catch {
-      return 0;
-    }
-  })();
-  return "[BAR]" +
-    `§c§lHP ${bar(hp, hpMax, 70, "§c")} §r§f§l${hp}§r§7/${hpMax}\n` +
-    `§9§lMP ${bar(mp, mpMax, 70, "§9")} §r§f§l${mp}§r§7/${mpMax}\n` +
-    `§e§lLv.${d.lv} ${bar(pct, 100, 66, "§a")} §r§f§l${pct}%`;
+  const hp = Math.max(0, Math.ceil(hpc?.currentValue ?? 0)), hpMax = Math.round(hpc?.effectiveMax ?? 20);
+  const mpMax = maxMp(p), mp = Math.floor(d.mp ?? mpMax);
+  const need = xpNeed(d.lv), pct = d.lv >= MAX_LV ? 100 : Math.floor((d.xp / need) * 100);
+  const lowC = hp / Math.max(1, hpMax) <= 0.25 ? "§c" : "§f";
+  return "[BAR]" + `${lowC}§l${shortGold(hp)}§r§7/${shortGold(hpMax)}\n§b§l${shortGold(mp)}§r§7/${shortGold(mpMax)}\n§e§lLv.${d.lv} §r§a${pct}%`;
+}
+/** 막대 표시: [H00~40] HP · [T00~40] 잔상(맞기 전 자리, 천천히 따라 내려옴) · [M00~20] · [X00~20] · [HIT] 맞음 · [HEAL] 회복 · [LOW] 25% 아래 */
+const TRAIL = new Map(); // pid → { tr, last, hold, hit, heal }
+function barMarks(p) {
+  const d = data(p);
+  if (d.set.status === false) return "[BRV]";
+  const hpc = p.getComponent("minecraft:health");
+  const hp = Math.max(0, hpc?.currentValue ?? 0), hpMax = Math.max(1, hpc?.effectiveMax ?? 20);
+  const mpMax = Math.max(1, maxMp(p)), mp = Math.max(0, d.mp ?? mpMax);
+  const need = xpNeed(d.lv), xpf = d.lv >= MAX_LV ? 1 : Math.max(0, Math.min(1, d.xp / need));
+  const h = Math.max(hp > 0 ? 1 : 0, Math.round((hp / hpMax) * 40));
+  const s = TRAIL.get(p.id) ?? { tr: h, last: h, hold: 0, hit: 0, heal: 0 };
+  if (h < s.last) { s.hit = 3; s.hold = Math.max(s.hold, 4); }       // 맞음: 번쩍 + 잔상 잠깐 머묾
+  else if (h > s.last) { s.heal = 3; }
+  if (h >= s.tr) s.tr = h;
+  else if (s.hold > 0) s.hold--;
+  else s.tr = Math.max(h, s.tr - 2);                                   // 잔상이 따라 내려옴 (약 2초)
+  s.last = h; TRAIL.set(p.id, s);
+  const pad = (n) => String(n).padStart(2, "0");
+  let out = `[BRV][H${pad(h)}][T${pad(s.tr)}][M${pad(Math.round((mp / mpMax) * 20))}][X${pad(Math.round(xpf * 20))}]`;
+  if (s.hit > 0) { out += "[HIT]"; s.hit--; } else if (s.heal > 0) { out += "[HEAL]"; s.heal--; }
+  if (hp / hpMax <= 0.25) out += "[LOW]";
+  return out;
 }
 
 const QMARK = { main: "[QM]", sub: "[QS]", daily: "[QD]", repeat: "[QR]", event: "[QE]" }; // 퀘스트창 왼쪽 그림 (V12.153)
@@ -148,15 +159,18 @@ export function update(p) {
   if (pu !== undefined) { if (system.currentTick < pu) return; PAUSE.delete(p.id); sent.delete(p.id); }
   const st = sent.get(p.id) ?? { k: 0 };
   const q = JSON.stringify(questText(p));
-  const vals = { card: card(p), bar: statusBar(p), mis: missionText(p) };
+  const vals = { card: card(p), bar: statusBar(p), mis: missionText(p), brv: barMarks(p) };
   const order = ["card", "bar", "mis"];
   st.k = ((st.k ?? 0) + 1) % 3;
   let sub = null;
-  for (let i = 0; i < 3; i++) { const c = order[(st.k + i) % 3]; if (vals[c] !== st[c]) { sub = c; break; } }
+  // 막대(체력 변화)는 다른 칸과 번갈아 우선 — 맞으면 바로 줄어 보이게
+  if (vals.brv !== st.brv && st.lastSub !== "brv") sub = "brv";
+  else for (let i = 0; i < 3; i++) { const c = order[(st.k + i) % 3]; if (vals[c] !== st[c]) { sub = c; break; } }
+  if (!sub && vals.brv !== st.brv) sub = "brv";
   if (!sub && q === st.q) return sent.set(p.id, st);
   sub ??= order[st.k];
   p.onScreenDisplay.setTitle(JSON.parse(q), { subtitle: vals[sub], fadeInDuration: 0, stayDuration: 2, fadeOutDuration: 0 });
-  st.q = q; st[sub] = vals[sub];
+  st.q = q; st[sub] = vals[sub]; st.lastSub = sub;
   sent.set(p.id, st);
 }
 

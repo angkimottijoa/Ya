@@ -30,6 +30,12 @@
         }
       },
       {
+        "rpg_brv_data@rpg_hud.data_control": {
+          "$src": "#hud_subtitle_text_string",
+          "$pre": "[BRV]"
+        }
+      },
+      {
         "rpg_mis_data@rpg_hud.data_control": {
           "$src": "#hud_subtitle_text_string",
           "$pre": "[MIS]"
@@ -75,7 +81,8 @@
         "rpg_mission@rpg_hud.mission_box": {}
       }
     ],
-    "$mis_prefix": "[MIS]"
+    "$mis_prefix": "[MIS]",
+    "$brv_prefix": "[BRV]"
   },
   "data_control": {
     "type": "panel",
@@ -462,32 +469,3247 @@
     ]
   },
   "status_bar": {
-    "type": "label",
+    "type": "panel",
     "anchor_from": "bottom_middle",
     "anchor_to": "bottom_middle",
     "offset": [
       0,
-      -42
+      -44
+    ],
+    "size": [
+      224,
+      30
     ],
     "layer": 3,
-    "font_scale_factor": 0.8,
-    "color": [
-      1.0,
-      1.0,
-      1.0
+    "controls": [
+      {
+        "frame": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/frame",
+          "size": [
+            224,
+            30
+          ],
+          "layer": 1
+        }
+      },
+      {
+        "low": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/low",
+          "size": [
+            224,
+            30
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            0,
+            0
+          ],
+          "layer": 7,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[LOW]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t0": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t00",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T00]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h0": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h00",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H00]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t1": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t01",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T01]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h1": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h01",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H01]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t2": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t02",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T02]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h2": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h02",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H02]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t3": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t03",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T03]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h3": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h03",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H03]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t4": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t04",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T04]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h4": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h04",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H04]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t5": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t05",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T05]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h5": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h05",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H05]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t6": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t06",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T06]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h6": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h06",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H06]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t7": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t07",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T07]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h7": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h07",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H07]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t8": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t08",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T08]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h8": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h08",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H08]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t9": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t09",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T09]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h9": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h09",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H09]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t10": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t10",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T10]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h10": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h10",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H10]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t11": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t11",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T11]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h11": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h11",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H11]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t12": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t12",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T12]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h12": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h12",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H12]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t13": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t13",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T13]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h13": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h13",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H13]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t14": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t14",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T14]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h14": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h14",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H14]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t15": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t15",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T15]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h15": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h15",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H15]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t16": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t16",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T16]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h16": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h16",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H16]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t17": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t17",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T17]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h17": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h17",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H17]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t18": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t18",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T18]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h18": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h18",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H18]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t19": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t19",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T19]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h19": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h19",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H19]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t20": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t20",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T20]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h20": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h20",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H20]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t21": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t21",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T21]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h21": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h21",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H21]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t22": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t22",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T22]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h22": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h22",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H22]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t23": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t23",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T23]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h23": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h23",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H23]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t24": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t24",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T24]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h24": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h24",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H24]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t25": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t25",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T25]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h25": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h25",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H25]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t26": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t26",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T26]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h26": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h26",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H26]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t27": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t27",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T27]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h27": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h27",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H27]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t28": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t28",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T28]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h28": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h28",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H28]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t29": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t29",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T29]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h29": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h29",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H29]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t30": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t30",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T30]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h30": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h30",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H30]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t31": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t31",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T31]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h31": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h31",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H31]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t32": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t32",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T32]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h32": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h32",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H32]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t33": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t33",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T33]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h33": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h33",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H33]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t34": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t34",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T34]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h34": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h34",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H34]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t35": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t35",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T35]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h35": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h35",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H35]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t36": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t36",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T36]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h36": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h36",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H36]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t37": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t37",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T37]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h37": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h37",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H37]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t38": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t38",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T38]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h38": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h38",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H38]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t39": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t39",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T39]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h39": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h39",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H39]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "t40": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/t40",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 3,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[T40]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "h40": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/h40",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[H40]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m0": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m00",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M00]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x0": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x00",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X00]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m1": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m01",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M01]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x1": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x01",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X01]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m2": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m02",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M02]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x2": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x02",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X02]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m3": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m03",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M03]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x3": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x03",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X03]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m4": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m04",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M04]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x4": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x04",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X04]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m5": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m05",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M05]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x5": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x05",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X05]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m6": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m06",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M06]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x6": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x06",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X06]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m7": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m07",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M07]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x7": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x07",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X07]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m8": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m08",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M08]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x8": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x08",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X08]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m9": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m09",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M09]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x9": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x09",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X09]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m10": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m10",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M10]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x10": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x10",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X10]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m11": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m11",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M11]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x11": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x11",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X11]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m12": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m12",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M12]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x12": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x12",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X12]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m13": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m13",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M13]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x13": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x13",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X13]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m14": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m14",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M14]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x14": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x14",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X14]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m15": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m15",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M15]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x15": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x15",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X15]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m16": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m16",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M16]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x16": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x16",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X16]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m17": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m17",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M17]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x17": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x17",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X17]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m18": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m18",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M18]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x18": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x18",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X18]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m19": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m19",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M19]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x19": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x19",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X19]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "m20": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/m20",
+          "size": [
+            132,
+            7
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            12.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[M20]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "x20": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/x20",
+          "size": [
+            132,
+            5
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            21.5
+          ],
+          "layer": 4,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[X20]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "hit": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/hit",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 5,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[HIT]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "heal": {
+          "type": "image",
+          "texture": "textures/ui/rpg/hp/heal",
+          "size": [
+            132,
+            8
+          ],
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            30,
+            3
+          ],
+          "layer": 5,
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_brv_data",
+              "source_property_name": "(not ((#preserved_text - '[HEAL]') = #preserved_text))",
+              "target_property_name": "#visible"
+            }
+          ]
+        }
+      },
+      {
+        "nums": {
+          "type": "label",
+          "anchor_from": "top_left",
+          "anchor_to": "top_left",
+          "offset": [
+            167,
+            2.5
+          ],
+          "size": [
+            54,
+            30
+          ],
+          "layer": 6,
+          "font_scale_factor": 0.9,
+          "color": [
+            1,
+            1,
+            1
+          ],
+          "shadow": true,
+          "localize": false,
+          "text": "#text",
+          "bindings": [
+            {
+              "binding_type": "view",
+              "source_control_name": "rpg_bar_data",
+              "source_property_name": "(#preserved_text - $bar_prefix)",
+              "target_property_name": "#text"
+            }
+          ]
+        }
+      }
     ],
-    "shadow": true,
-    "localize": false,
-    "text": "#text",
     "bindings": [
       {
         "binding_type": "view",
         "source_control_name": "rpg_bar_data",
-        "source_property_name": "(#preserved_text - $bar_prefix)",
-        "target_property_name": "#text"
+        "source_property_name": "(not ((#preserved_text - $bar_prefix) = ''))",
+        "target_property_name": "#visible"
       }
-    ],
-    "text_alignment": "center"
+    ]
   },
   "mission_box": {
     "type": "image",
