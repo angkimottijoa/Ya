@@ -18,6 +18,7 @@ import * as J from "./jobs.js";
 import { openNpc } from "./npc.js";
 import { openAdmin, editNpc } from "./admin.js";
 import { setQuestText } from "./api.js";
+import "./hudbtn.js"; // V12.157 HUD 버튼 (항상 열린 투명 폼)
 
 // 핫바: 1~8번 아이템, 9번 메뉴(쉬프트 = 옆 창 접기)
 // 스킬: 직업 도구를 들고 ① 클릭 / ② 쉬프트+클릭 / ③ 쉬프트+점프 (skills.js)

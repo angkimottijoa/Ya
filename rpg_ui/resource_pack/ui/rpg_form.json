@@ -186,6 +186,9 @@
       },
       {
         "quest@rpg_forge.quest_screen": {}
+      },
+      {
+        "hudbtn@rpg_hudbtn.hud_screen": {}
       }
     ]
   },
@@ -202,7 +205,7 @@
       },
       {
         "binding_type": "view",
-        "source_property_name": "((not ((#title_text - '[RPG:') = #title_text)) and ((#title_text - '[RPG:D]') = #title_text) and ((#title_text - '[RPG:F]') = #title_text) and ((#title_text - '[RPG:Q]') = #title_text))",
+        "source_property_name": "((not ((#title_text - '[RPG:') = #title_text)) and ((#title_text - '[RPG:D]') = #title_text) and ((#title_text - '[RPG:F]') = #title_text) and ((#title_text - '[RPG:Q]') = #title_text) and ((#title_text - '[RPG:B]') = #title_text))",
         "target_property_name": "#visible"
       }
     ],

@@ -2,6 +2,7 @@
   "ui_defs": [
     "ui/rpg_hud.json",
     "ui/rpg_form.json",
-    "ui/rpg_forge.json"
+    "ui/rpg_forge.json",
+    "ui/rpg_hudbtn.json"
   ]
 }

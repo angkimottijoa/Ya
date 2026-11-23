@@ -944,9 +944,10 @@ export async function openSettings(p) {
     .toggle("하단 HP/MP/Lv 바", d.set.status !== false)
     .toggle("길 안내 표시 (화살표)", d.set.nav !== false)
     .toggle("길 안내 파티클", d.set.navFx !== false)
+    .toggle("HUD 버튼 (화면 왼쪽: 메뉴 · 스킬 ①~④)", d.set.hudBtn !== false)
     .show(p);
   if (!r.canceled) {
-    [d.set.quest, d.set.card, d.set.invite, d.set.slots, d.set.dash, d.set.status, d.set.nav, d.set.navFx] = r.formValues;
+    [d.set.quest, d.set.card, d.set.invite, d.set.slots, d.set.dash, d.set.status, d.set.nav, d.set.navFx, d.set.hudBtn] = r.formValues;
     save(p);
   }
   return openHome(p);

@@ -3,7 +3,14 @@
 
   // 화면 열고 닫을 때의 슬라이드/페이드 애니메이션 제거 → 버튼 누를 때 딜레이 감소
   "third_party_server_screen": {
-    "$screen_animations": []
+    "$screen_animations": [],
+    // V12.157 HUD 버튼: 폼이 떠 있어도 걷기 · 시점 · 공격이 되게 (모든 메뉴 창에 같이 적용)
+    "absorbs_input": false,
+    "render_game_behind": true,
+    "is_showing_menu": false,
+    "should_steal_mouse": false,
+    "close_on_player_hurt": false,
+    "force_render_below": true
   },
 
   // 서버 폼(ActionFormData)을 RPG 라우터로 보낸다.

@@ -1,0 +1,178 @@
+{
+ "namespace": "rpg_hudbtn",
+ "f_idle": {
+  "type": "image",
+  "texture": "textures/ui/rpg/hudbtn/idle",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 3,
+     "size": [
+      "100%",
+      "default"
+     ],
+     "text_alignment": "center",
+     "font_scale_factor": 0.8,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      1
+     ],
+     "color": [
+      0.98,
+      0.93,
+      0.8
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[HB]')",
+       "target_property_name": "#display"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "f_press": {
+  "type": "image",
+  "texture": "textures/ui/rpg/hudbtn/press",
+  "size": [
+   "100%",
+   "100%"
+  ],
+  "controls": [
+   {
+    "t": {
+     "type": "label",
+     "text": "#display",
+     "localize": false,
+     "shadow": true,
+     "layer": 3,
+     "size": [
+      "100%",
+      "default"
+     ],
+     "text_alignment": "center",
+     "font_scale_factor": 0.8,
+     "anchor_from": "center",
+     "anchor_to": "center",
+     "offset": [
+      0,
+      1
+     ],
+     "color": [
+      0.98,
+      0.93,
+      0.8
+     ],
+     "bindings": [
+      {
+       "binding_name": "#form_button_text",
+       "binding_type": "collection",
+       "binding_collection_name": "form_buttons"
+      },
+      {
+       "binding_type": "view",
+       "source_property_name": "(#form_button_text - '[HB]')",
+       "target_property_name": "#display"
+      }
+     ]
+    }
+   }
+  ]
+ },
+ "btn@rpg_form.form_btn": {
+  "controls": [
+   {
+    "default@rpg_hudbtn.f_idle": {}
+   },
+   {
+    "hover@rpg_hudbtn.f_idle": {}
+   },
+   {
+    "pressed@rpg_hudbtn.f_press": {}
+   }
+  ]
+ },
+ "entry": {
+  "type": "panel",
+  "size": [
+   30,
+   31
+  ],
+  "controls": [
+   {
+    "b@rpg_hudbtn.btn": {
+     "size": [
+      28,
+      28
+     ],
+     "anchor_from": "top_middle",
+     "anchor_to": "top_middle"
+    }
+   }
+  ],
+  "bindings": [
+   {
+    "binding_name": "#form_button_text",
+    "binding_type": "collection",
+    "binding_collection_name": "form_buttons"
+   },
+   {
+    "binding_type": "view",
+    "source_property_name": "(not ((#form_button_text - '[HB]') = #form_button_text))",
+    "target_property_name": "#visible"
+   }
+  ]
+ },
+ "hud_screen@rpg_form.mode_panel": {
+  "$flag": "[RPG:B]",
+  "layer": 2,
+  "controls": [
+   {
+    "col": {
+     "type": "stack_panel",
+     "orientation": "vertical",
+     "size": [
+      30,
+      "100%c"
+     ],
+     "anchor_from": "left_middle",
+     "anchor_to": "left_middle",
+     "offset": [
+      8,
+      -22
+     ],
+     "factory": {
+      "name": "buttons",
+      "control_ids": {
+       "button": "@rpg_hudbtn.entry"
+      }
+     },
+     "collection_name": "form_buttons",
+     "bindings": [
+      {
+       "binding_name": "#form_button_contents",
+       "binding_name_override": "#collection_length"
+      }
+     ]
+    }
+   }
+  ]
+ }
+}
