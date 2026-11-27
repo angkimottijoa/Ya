@@ -1,0 +1,27 @@
+{
+ "format_version": "1.20.10",
+ "minecraft:recipe_shapeless": {
+  "description": {
+   "identifier": "bw:combat_codex"
+  },
+  "tags": [
+   "crafting_table"
+  ],
+  "ingredients": [
+   {
+    "item": "minecraft:book"
+   },
+   {
+    "item": "minecraft:flint"
+   }
+  ],
+  "unlock": [
+   {
+    "item": "minecraft:book"
+   }
+  ],
+  "result": {
+   "item": "bw:combat_codex"
+  }
+ }
+}

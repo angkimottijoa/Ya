@@ -1,0 +1,46 @@
+{
+ "format_version": "1.21.60",
+ "minecraft:item": {
+  "description": {
+   "identifier": "bw:golden_dagger",
+   "menu_category": {
+    "category": "equipment",
+    "group": "minecraft:itemGroup.name.sword"
+   }
+  },
+  "components": {
+   "minecraft:icon": "bw_golden_dagger",
+   "minecraft:display_name": {
+    "value": "item.bw.golden_dagger.name"
+   },
+   "minecraft:max_stack_size": 1,
+   "minecraft:hand_equipped": true,
+   "minecraft:damage": 3,
+   "minecraft:durability": {
+    "max_durability": 25
+   },
+   "minecraft:enchantable": {
+    "slot": "sword",
+    "value": 22
+   },
+   "minecraft:repairable": {
+    "repair_items": [
+     {
+      "items": [
+       "minecraft:gold_ingot"
+      ],
+      "repair_amount": "query.max_durability * 0.25"
+     }
+    ]
+   },
+   "minecraft:can_destroy_in_creative": false,
+   "minecraft:tags": {
+    "tags": [
+     "minecraft:is_sword",
+     "bw:weapon",
+     "bw:dagger"
+    ]
+   }
+  }
+ }
+}

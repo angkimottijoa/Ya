@@ -1,0 +1,84 @@
+{
+ "resource_pack_name": "bladework",
+ "texture_name": "atlas.items",
+ "texture_data": {
+  "bw_stone_dagger": {
+   "textures": "textures/items/bw_stone_dagger"
+  },
+  "bw_iron_dagger": {
+   "textures": "textures/items/bw_iron_dagger"
+  },
+  "bw_golden_dagger": {
+   "textures": "textures/items/bw_golden_dagger"
+  },
+  "bw_diamond_dagger": {
+   "textures": "textures/items/bw_diamond_dagger"
+  },
+  "bw_netherite_dagger": {
+   "textures": "textures/items/bw_netherite_dagger"
+  },
+  "bw_stone_longsword": {
+   "textures": "textures/items/bw_stone_longsword"
+  },
+  "bw_iron_longsword": {
+   "textures": "textures/items/bw_iron_longsword"
+  },
+  "bw_golden_longsword": {
+   "textures": "textures/items/bw_golden_longsword"
+  },
+  "bw_diamond_longsword": {
+   "textures": "textures/items/bw_diamond_longsword"
+  },
+  "bw_netherite_longsword": {
+   "textures": "textures/items/bw_netherite_longsword"
+  },
+  "bw_stone_greatsword": {
+   "textures": "textures/items/bw_stone_greatsword"
+  },
+  "bw_iron_greatsword": {
+   "textures": "textures/items/bw_iron_greatsword"
+  },
+  "bw_golden_greatsword": {
+   "textures": "textures/items/bw_golden_greatsword"
+  },
+  "bw_diamond_greatsword": {
+   "textures": "textures/items/bw_diamond_greatsword"
+  },
+  "bw_netherite_greatsword": {
+   "textures": "textures/items/bw_netherite_greatsword"
+  },
+  "bw_stone_spear": {
+   "textures": "textures/items/bw_stone_spear"
+  },
+  "bw_iron_spear": {
+   "textures": "textures/items/bw_iron_spear"
+  },
+  "bw_golden_spear": {
+   "textures": "textures/items/bw_golden_spear"
+  },
+  "bw_diamond_spear": {
+   "textures": "textures/items/bw_diamond_spear"
+  },
+  "bw_netherite_spear": {
+   "textures": "textures/items/bw_netherite_spear"
+  },
+  "bw_stone_saber": {
+   "textures": "textures/items/bw_stone_saber"
+  },
+  "bw_iron_saber": {
+   "textures": "textures/items/bw_iron_saber"
+  },
+  "bw_golden_saber": {
+   "textures": "textures/items/bw_golden_saber"
+  },
+  "bw_diamond_saber": {
+   "textures": "textures/items/bw_diamond_saber"
+  },
+  "bw_netherite_saber": {
+   "textures": "textures/items/bw_netherite_saber"
+  },
+  "bw_combat_codex": {
+   "textures": "textures/items/bw_combat_codex"
+  }
+ }
+}

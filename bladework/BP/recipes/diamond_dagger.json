@@ -1,0 +1,31 @@
+{
+ "format_version": "1.20.10",
+ "minecraft:recipe_shaped": {
+  "description": {
+   "identifier": "bw:diamond_dagger"
+  },
+  "tags": [
+   "crafting_table"
+  ],
+  "pattern": [
+   " M",
+   "S "
+  ],
+  "key": {
+   "M": {
+    "item": "minecraft:diamond"
+   },
+   "S": {
+    "item": "minecraft:stick"
+   }
+  },
+  "unlock": [
+   {
+    "item": "minecraft:diamond"
+   }
+  ],
+  "result": {
+   "item": "bw:diamond_dagger"
+  }
+ }
+}

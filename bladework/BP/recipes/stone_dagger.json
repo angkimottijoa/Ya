@@ -1,0 +1,31 @@
+{
+ "format_version": "1.20.10",
+ "minecraft:recipe_shaped": {
+  "description": {
+   "identifier": "bw:stone_dagger"
+  },
+  "tags": [
+   "crafting_table"
+  ],
+  "pattern": [
+   " M",
+   "S "
+  ],
+  "key": {
+   "M": {
+    "tag": "minecraft:stone_crafting_materials"
+   },
+   "S": {
+    "item": "minecraft:stick"
+   }
+  },
+  "unlock": [
+   {
+    "item": "minecraft:cobblestone"
+   }
+  ],
+  "result": {
+   "item": "bw:stone_dagger"
+  }
+ }
+}

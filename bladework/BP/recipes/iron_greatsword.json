@@ -1,0 +1,32 @@
+{
+ "format_version": "1.20.10",
+ "minecraft:recipe_shaped": {
+  "description": {
+   "identifier": "bw:iron_greatsword"
+  },
+  "tags": [
+   "crafting_table"
+  ],
+  "pattern": [
+   "MMM",
+   "MMM",
+   " S "
+  ],
+  "key": {
+   "M": {
+    "item": "minecraft:iron_ingot"
+   },
+   "S": {
+    "item": "minecraft:stick"
+   }
+  },
+  "unlock": [
+   {
+    "item": "minecraft:iron_ingot"
+   }
+  ],
+  "result": {
+   "item": "bw:iron_greatsword"
+  }
+ }
+}

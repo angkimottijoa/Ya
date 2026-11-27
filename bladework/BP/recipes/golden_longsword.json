@@ -1,0 +1,32 @@
+{
+ "format_version": "1.20.10",
+ "minecraft:recipe_shaped": {
+  "description": {
+   "identifier": "bw:golden_longsword"
+  },
+  "tags": [
+   "crafting_table"
+  ],
+  "pattern": [
+   " M ",
+   " M ",
+   "MSM"
+  ],
+  "key": {
+   "M": {
+    "item": "minecraft:gold_ingot"
+   },
+   "S": {
+    "item": "minecraft:stick"
+   }
+  },
+  "unlock": [
+   {
+    "item": "minecraft:gold_ingot"
+   }
+  ],
+  "result": {
+   "item": "bw:golden_longsword"
+  }
+ }
+}
